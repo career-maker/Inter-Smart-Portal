@@ -280,7 +280,7 @@ export default function AnnouncementsPage() {
         fontFamily:
           '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="max-w-4xl mx-auto space-y-6 pb-12"
+      className="space-y-6 pb-12"
     >
       {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">

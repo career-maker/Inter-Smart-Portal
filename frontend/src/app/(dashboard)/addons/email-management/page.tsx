@@ -447,7 +447,7 @@ export default function EmailManagementPage() {
 
   if (!isSuperAdmin) {
     return (
-      <div className="max-w-4xl mx-auto p-6 sm:p-8">
+      <div className="">
         <div className="p-8 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-center space-y-3">
           <ShieldCheck className="w-12 h-12 mx-auto text-amber-600 dark:text-amber-400" />
           <h2 className="text-lg font-bold">Super Admin Access Required</h2>
@@ -471,7 +471,7 @@ export default function EmailManagementPage() {
       style={{
         fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="max-w-7xl mx-auto space-y-6 pb-12"
+      className="space-y-6 pb-12"
     >
       {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">

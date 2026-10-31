@@ -137,7 +137,7 @@ export default function StorageRetentionAddonPage() {
       style={{
         fontFamily: '"Google Sans", "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="pb-16 max-w-5xl mx-auto space-y-6"
+      className="pb-16 space-y-6"
     >
       {/* ── HEADER ── */}
       <div className="flex items-center justify-between gap-4 flex-wrap">

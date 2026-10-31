@@ -250,7 +250,7 @@ export default function WfhPage() {
     : requests;
 
   return (
-    <div className={`space-y-7 mx-auto ${activeView === "apply" ? "max-w-[1400px]" : "max-w-6xl"}`}>
+    <div className="space-y-7">
 
 
       {/* ── Reject Reason Dialog ──────────────────────────────────── */}

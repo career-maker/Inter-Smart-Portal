@@ -199,7 +199,7 @@ export default function BirthdayWishesPage() {
         fontFamily:
           '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="space-y-4 max-w-7xl mx-auto pb-10"
+      className="space-y-4 pb-10"
     >
       {/* Top Header Navigation Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800 pb-3">

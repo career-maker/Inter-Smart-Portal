@@ -232,7 +232,7 @@ export default function PermissionsManagementPage() {
         fontFamily:
           '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 pb-16"
+      className="space-y-6 pb-16"
     >
       {/* ── Top Header Bar ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">

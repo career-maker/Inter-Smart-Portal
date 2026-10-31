@@ -168,7 +168,7 @@ export default function EditTeamPage() {
         </TabsContent>
 
         <TabsContent value="members">
-          <Card className="max-w-4xl shadow-sm border border-slate-200 dark:border-white/10">
+          <Card className="shadow-sm border border-slate-200 dark:border-white/10">
             <CardHeader className="pb-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>

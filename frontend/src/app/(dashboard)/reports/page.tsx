@@ -175,7 +175,7 @@ export default function ReportsPage() {
   ];
 
   return (
-    <div className="space-y-6 max-w-[1400px] mx-auto">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3"><FileText className="w-7 h-7 text-amber-400" /> Reports</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">Generate, filter, and export HR reports.</p>

@@ -171,7 +171,7 @@ export default function NotificationsPage() {
   const unreadTotal = notifications.filter((n) => !n.read_at).length;
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-3">

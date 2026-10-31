@@ -353,7 +353,7 @@ export default function LeavesPage() {
   }
 
   return (
-    <div className="space-y-7 max-w-6xl mx-auto">
+    <div className="space-y-7">
 
       {/* ── Top Header Banner (Keka Style) ────────────────────────── */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-5">

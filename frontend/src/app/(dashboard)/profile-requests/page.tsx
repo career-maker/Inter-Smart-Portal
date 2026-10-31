@@ -56,7 +56,7 @@ export default function ProfileRequestsPage() {
   if (loading) return <PageLoader />;
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
           <ClipboardEdit className="h-6 w-6" />

@@ -115,7 +115,7 @@ export default function MyProfilePage() {
   const isOwnProfile = !employeeId || employeeId === user?.id?.toString();
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <UserCircle className="h-8 w-8 text-amber-400" />

@@ -909,7 +909,7 @@ export default function CustomizationPage() {
 
   if (!isSuperAdmin) {
     return (
-      <div className="max-w-4xl mx-auto p-6 sm:p-8">
+      <div className="">
         <div className="p-8 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-center space-y-3">
           <ShieldCheck className="w-12 h-12 mx-auto text-amber-600 dark:text-amber-400" />
           <h2 className="text-lg font-bold">Super Admin Access Only</h2>
@@ -940,7 +940,7 @@ export default function CustomizationPage() {
   const currentBtnRadius = form.button_style === "pill" ? "9999px" : form.button_style === "sharp" ? "2px" : currentRadius;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 pb-24">
+    <div className="space-y-6 pb-24">
       <ModuleSwitchesCard />
       <AccessSettingsCard />
       {/* ── Page Header (Standard Dashboard Typography) ── */}

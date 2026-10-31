@@ -442,7 +442,7 @@ export default function TAManagementPage() {
       style={{
         fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="space-y-6 max-w-6xl mx-auto pb-16"
+      className="space-y-6 pb-16"
     >
       {/* ── Header Banner ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">

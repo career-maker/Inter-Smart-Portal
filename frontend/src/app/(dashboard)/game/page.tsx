@@ -390,7 +390,7 @@ export default function GamePage() {
 
   if (activeGame === "runner") {
     return (
-      <div className="w-full max-w-6xl mx-auto py-3 sm:py-6 px-3 sm:px-6 space-y-4">
+      <div className="w-full py-3 sm:py-6 px-3 sm:px-6 space-y-4">
         <div className="flex items-center justify-between">
           <button
             onClick={() => setActiveGame(null)}
@@ -408,7 +408,7 @@ export default function GamePage() {
 
   // ── Games Hub / Arcade Library ──
   return (
-    <div className="w-full max-w-7xl mx-auto py-4 sm:py-8 px-3 sm:px-6 space-y-6 sm:space-y-8">
+    <div className="w-full py-4 sm:py-8 px-3 sm:px-6 space-y-6 sm:space-y-8">
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-[#1e1b4b] to-slate-900 text-white p-6 sm:p-8 shadow-xl border border-indigo-500/20">
         <div className="relative z-10 max-w-3xl space-y-3">

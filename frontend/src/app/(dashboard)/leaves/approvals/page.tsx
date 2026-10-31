@@ -659,7 +659,7 @@ export default function ApprovalsPage() {
   const showActions = statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && (statusFilter === "Approved" || statusFilter === "Rejected"));
 
   return (
-    <div className="space-y-5 w-full max-w-7xl mx-auto p-3 sm:p-5 lg:p-6">
+    <div className="space-y-5 w-full">
       {/* ── Header Row ── */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
         <div className="space-y-3">

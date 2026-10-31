@@ -45,7 +45,7 @@ export default function ActivitiesPage() {
   if (!data && isLoading) return <PageLoader />;
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center gap-4 mb-6">
         <Link 
           href="/dashboard" 
