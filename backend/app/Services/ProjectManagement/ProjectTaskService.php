@@ -83,6 +83,10 @@ class ProjectTaskService
 
         $this->auditLogger->log($actor, $action, $task, $previous, $new, $request);
 
+        if (array_key_exists('status', $data)) {
+            \App\Http\Controllers\Api\Work\QaRequestController::followTask($task);
+        }
+
         $diff = $this->buildDiff($previous, $new);
         if (!empty($diff)) {
             $this->notifyResolvedCoordinator($task, 'updated', $diff);

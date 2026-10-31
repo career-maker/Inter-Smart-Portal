@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Work;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\ProjectTask;
+use App\Models\ProjectTaskAssignee;
 use App\Models\User;
 use App\Support\Access;
 use App\Support\Notify;
@@ -73,12 +75,52 @@ class QaRequestController extends Controller
         $q = DB::table('qa_requests')->find($qaRequest);
         abort_unless($q, 404);
         abort_unless($this->isQaLead($request->user()), 403, 'Only the QA lead can assign QA requests.');
-        $d = $request->validate(['assigned_to' => ['required', Rule::in($this->qaMembers()->pluck('id')->all())]]);
-        DB::table('qa_requests')->where('id', $qaRequest)->update(['assigned_to' => $d['assigned_to'], 'assigned_by' => $request->user()->id, 'status' => $q->status === 'Requested' ? 'Assigned' : $q->status, 'updated_at' => now()]);
+        $d = $request->validate([
+            'assigned_to' => ['required', Rule::in($this->qaMembers()->pluck('id')->all())],
+            'start_date' => 'required|date', 'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
         $project = Project::find($q->project_id);
+        $taskId = $this->taskFor($q, $project, (int) $d['assigned_to'], $d['start_date'], $d['end_date'], $request->user());
+        DB::table('qa_requests')->where('id', $qaRequest)->update(['assigned_to' => $d['assigned_to'], 'assigned_by' => $request->user()->id, 'task_id' => $taskId,
+            'start_date' => $d['start_date'], 'end_date' => $d['end_date'], 'status' => $q->status === 'Requested' ? 'Assigned' : $q->status, 'updated_at' => now()]);
         Notify::users(User::where('id', $d['assigned_to'])->get(), 'QA assigned to you', "\"{$project->name}\": please test \"{$q->title}\" ({$q->kind}).", 'qa_assigned', $q->project_id, $request->user());
 
         return response()->json(['data' => DB::table('qa_requests')->find($qaRequest)]);
+    }
+
+    /** The task on the Tasks page for this request: created on first assignment, moved to the new tester and dates after that. */
+    private function taskFor(object $q, Project $project, int $tester, string $start, string $end, User $actor): int
+    {
+        $task = $q->task_id ? ProjectTask::find($q->task_id) : null;
+        $fields = ['start_date' => $start, 'due_date' => $end, 'allotted_days' => max(1, \Carbon\Carbon::parse($start)->diffInDays(\Carbon\Carbon::parse($end)) + 1)];
+        if ($task) {
+            $task->update($fields + ['updated_by' => $actor->id]);
+            ProjectTaskAssignee::where('task_id', $task->id)->delete();
+        } else {
+            $task = ProjectTask::create($fields + [
+                'project_id' => $project->id, 'title' => "QA: {$q->title}", 'description' => "QA for \"{$q->title}\" ({$q->kind}).",
+                'status' => 'Assigned to QA', 'priority' => 'Medium', 'team_id' => User::find($tester)?->team_id, 'created_by' => $actor->id,
+            ]);
+        }
+        ProjectTaskAssignee::create(['task_id' => $task->id, 'user_id' => $tester, 'assigned_by' => $actor->id, 'is_primary' => true]);
+
+        return $task->id;
+    }
+
+    /** Called when a task's status changes on the Tasks page, so the QA request follows it. */
+    public static function followTask(ProjectTask $task): void
+    {
+        $q = DB::table('qa_requests')->where('task_id', $task->id)->first();
+        if (! $q || $q->status === 'Done') {
+            return;
+        }
+        $to = match ($task->status) { 'In Progress' => 'In testing', 'Completed' => 'Done', default => null };
+        if ($to && $to !== $q->status) {
+            DB::table('qa_requests')->where('id', $q->id)->update(['status' => $to, 'updated_at' => now()]);
+            if ($to === 'Done') {
+                Notify::users(User::where('id', $q->requested_by)->get(), 'QA finished', "\"{$q->title}\" has finished QA.", 'qa_done', $q->project_id, null);
+            }
+        }
     }
 
     /** The assigned QA member (or the QA lead) moves it to In testing / Done. */
@@ -91,6 +133,13 @@ class QaRequestController extends Controller
         abort_unless($q->assigned_to !== null, 422, 'Assign it to a QA team member first.');
         $d = $request->validate(['status' => ['required', Rule::in(['In testing', 'Done'])]]);
         DB::table('qa_requests')->where('id', $qaRequest)->update(['status' => $d['status'], 'updated_at' => now()]);
+        // the same work shows on the Tasks page: In testing = In Progress, Done = Completed
+        $task = $q->task_id ? ProjectTask::find($q->task_id) : null;
+        if ($task) {
+            $d['status'] === 'Done'
+                ? $task->update(['status' => 'Completed', 'actual_start_date' => $task->actual_start_date ?? now()->toDateString(), 'actual_completion_date' => $task->actual_completion_date ?? now()->toDateString()])
+                : $task->update(['status' => 'In Progress', 'actual_start_date' => $task->actual_start_date ?? now()->toDateString()]);
+        }
         if ($d['status'] === 'Done') {
             Notify::users(User::where('id', $q->requested_by)->get(), 'QA finished', "\"{$q->title}\" has finished QA.", 'qa_done', $q->project_id, $user);
         }

@@ -8,6 +8,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Support\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
@@ -110,11 +111,18 @@ class TrackerTest extends TestCase
         $this->as($this->phpDev)->postJson("/api/work/tracker/rows/{$id}/qa-request")->assertStatus(422); // already open
         $this->assertTrue($this->qaLead->notifications()->get()->pluck('data.event')->contains('qa_requested'));
 
-        $this->as($this->phpDev)->postJson("/api/work/qa-requests/{$q}/assign", ['assigned_to' => $this->tester->id])->assertForbidden();
-        $this->as($this->qaLead)->postJson("/api/work/qa-requests/{$q}/assign", ['assigned_to' => $this->tester->id])->assertOk()->assertJsonPath('data.status', 'Assigned');
+        $this->as($this->phpDev)->postJson("/api/work/qa-requests/{$q}/assign", ['assigned_to' => $this->tester->id, 'start_date' => '2026-11-02', 'end_date' => '2026-11-04'])->assertForbidden();
+        $this->as($this->qaLead)->postJson("/api/work/qa-requests/{$q}/assign", ['assigned_to' => $this->tester->id])->assertStatus(422); // dates are required
+        $this->as($this->qaLead)->postJson("/api/work/qa-requests/{$q}/assign", ['assigned_to' => $this->tester->id, 'start_date' => '2026-11-02', 'end_date' => '2026-11-04'])->assertOk()->assertJsonPath('data.status', 'Assigned');
+        $task = \App\Models\ProjectTask::find(DB::table('qa_requests')->where('id', $q)->value('task_id'));
+        $this->assertSame('Assigned to QA', $task->status);
+        $this->assertTrue($task->assignees()->where('users.id', $this->tester->id)->exists());
         $this->assertTrue($this->tester->notifications()->get()->pluck('data.event')->contains('qa_assigned'));
 
+        $this->as($this->tester)->postJson("/api/work/qa-requests/{$q}/status", ['status' => 'In testing'])->assertOk();
+        $this->assertSame('In Progress', $task->fresh()->status);
         $this->as($this->tester)->postJson("/api/work/qa-requests/{$q}/status", ['status' => 'Done'])->assertOk();
+        $this->assertSame('Completed', $task->fresh()->status);
         $this->assertTrue($this->phpDev->notifications()->get()->pluck('data.event')->contains('qa_done'));
 
         // Design has no QA request.

@@ -11,6 +11,7 @@ const errMsg = (e: any) => e?.response?.data?.message || "Something went wrong. 
 export default function QaRequests({ projectId }: { projectId: string | number }) {
   const [d, setD] = useState<any>(null);
   const [pick, setPick] = useState<Record<number, string>>({});
+  const [dates, setDates] = useState<Record<number, { start: string; end: string }>>({});
   const load = useCallback(async () => { try { const r = await api.get(`/work/projects/${projectId}/qa-requests`); setD(r.data); } catch { /* not on the work list */ } }, [projectId]);
   useEffect(() => { load(); }, [load]);
   const run = async (fn: () => Promise<any>) => { try { await fn(); await load(); } catch (e: any) { alert(errMsg(e)); } };
@@ -22,14 +23,17 @@ export default function QaRequests({ projectId }: { projectId: string | number }
         {d.data.map((q: any) => (
           <div key={q.id} className="flex flex-wrap items-center gap-2 border-b py-2 last:border-0">
             <div className="flex-1 min-w-[12rem]"><div className="font-medium">{q.title} <span className="text-xs text-slate-500">({q.kind})</span></div>
-              <div className="text-xs text-slate-500">Asked by {q.requested_by_name || "-"}{q.assigned_to_name ? ` · tester: ${q.assigned_to_name}` : ""}{q.note ? ` · ${q.note}` : ""}</div></div>
+              <div className="text-xs text-slate-500">Asked by {q.requested_by_name || "-"}{q.assigned_to_name ? ` · tester: ${q.assigned_to_name}` : ""}{q.start_date ? ` · ${String(q.start_date).slice(0, 10)} to ${String(q.end_date).slice(0, 10)}` : ""}{q.note ? ` · ${q.note}` : ""}</div></div>
             <span className="text-xs rounded-full border px-2 py-0.5">{q.status}</span>
             {d.can_assign && q.status !== "Done" && (
               <>
                 <select className="h-8 rounded-md border bg-transparent px-2 text-xs" value={pick[q.id] ?? q.assigned_to ?? ""} onChange={(e) => setPick({ ...pick, [q.id]: e.target.value })}>
                   <option value="">Assign to...</option>{d.qa_members.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
                 </select>
-                <Button size="sm" variant="outline" disabled={!pick[q.id]} onClick={() => run(() => api.post(`/work/qa-requests/${q.id}/assign`, { assigned_to: Number(pick[q.id]) }))}>Assign</Button>
+                <input type="date" aria-label="Start date" className="h-8 rounded-md border bg-transparent px-2 text-xs" value={dates[q.id]?.start ?? String(q.start_date || "").slice(0, 10)} onChange={(e) => setDates({ ...dates, [q.id]: { start: e.target.value, end: dates[q.id]?.end ?? String(q.end_date || "").slice(0, 10) } })} />
+                <input type="date" aria-label="End date" className="h-8 rounded-md border bg-transparent px-2 text-xs" value={dates[q.id]?.end ?? String(q.end_date || "").slice(0, 10)} onChange={(e) => setDates({ ...dates, [q.id]: { start: dates[q.id]?.start ?? String(q.start_date || "").slice(0, 10), end: e.target.value } })} />
+                <Button size="sm" variant="outline" disabled={!(pick[q.id] ?? q.assigned_to) || !(dates[q.id]?.start ?? q.start_date) || !(dates[q.id]?.end ?? q.end_date)}
+                  onClick={() => run(() => api.post(`/work/qa-requests/${q.id}/assign`, { assigned_to: Number(pick[q.id] ?? q.assigned_to), start_date: dates[q.id]?.start ?? String(q.start_date).slice(0, 10), end_date: dates[q.id]?.end ?? String(q.end_date).slice(0, 10) }))}>{q.assigned_to ? "Reassign" : "Assign"}</Button>
               </>
             )}
             {(q.assigned_to === d.me || d.can_assign) && q.assigned_to && q.status !== "Done" && (
