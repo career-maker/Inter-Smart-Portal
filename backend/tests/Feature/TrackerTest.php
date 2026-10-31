@@ -121,4 +121,31 @@ class TrackerTest extends TestCase
         $d = $this->as($this->designer)->postJson($this->url('design'), ['name' => 'Home'])->json('data.id');
         $this->as($this->designer)->postJson("/api/work/tracker/rows/{$d}/qa-request")->assertNotFound();
     }
+    public function test_coordinator_edits_design_and_frontend_but_not_planned_hours_and_dev_is_view_only(): void
+    {
+        $pc = User::factory()->create(['team_id' => $this->manager->team_id]); // a PMO team member, not the manager
+        $this->project->update(['project_coordinator_id' => $pc->id]);
+
+        $this->as($pc)->postJson($this->url('design'), ['name' => 'Home'])->assertCreated();
+        $fid = $this->as($pc)->postJson($this->url('frontend'), ['name' => 'Home', 'subtasks' => [['title' => 'Header', 'hours' => 8]]])->assertCreated()->json('data.id');
+        $this->assertDatabaseMissing('work_tracker_subtasks', ['row_id' => $fid]);                       // planned hours ignored for the coordinator
+        $this->as($pc)->postJson("/api/work/tracker/rows/{$fid}/subtasks", ['title' => 'x', 'hours' => 1])->assertForbidden();
+        $this->as($pc)->putJson("/api/work/tracker/rows/{$fid}", ['status' => 'Completed'])->assertOk();    // other fields are editable
+        $this->as($pc)->postJson($this->url('dev'), ['name' => 'API'])->assertForbidden();                 // Dev: view only
+        $this->as($pc)->getJson($this->url('dev'))->assertOk()->assertJsonPath('can_edit', false);
+        $this->as($this->htmlLead)->postJson("/api/work/tracker/rows/{$fid}/subtasks", ['title' => 'x', 'hours' => 1])->assertCreated();
+    }
+
+    public function test_coordinator_can_decide_out_of_scope_on_their_own_project_only(): void
+    {
+        $pc = User::factory()->create(['team_id' => $this->manager->team_id]);
+        $other = User::factory()->create(['team_id' => $this->manager->team_id]);
+        $this->project->update(['project_coordinator_id' => $pc->id]);
+        Feature::set('pmo', true);
+        $oos = \App\Models\OutOfScopeRequest::create(['project_id' => $this->project->id, 'description' => 'More pages', 'effort_days' => 2, 'requested_by' => $this->manager->id]);
+
+        $this->as($other)->postJson("/api/pmo/out-of-scope/{$oos->id}/decide", ['decision' => 'approve'])->assertForbidden();
+        $this->as($pc)->postJson("/api/pmo/out-of-scope/{$oos->id}/decide", ['decision' => 'approve'])->assertOk();
+        $this->assertSame('Approved', $oos->fresh()->status);
+    }
 }

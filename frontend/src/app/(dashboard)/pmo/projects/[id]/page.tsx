@@ -17,6 +17,8 @@ import QaRequests from "@/components/work/QaRequests";
 import QaReviews from "@/components/work/QaReviews";
 import Changes from "@/components/work/Changes";
 
+const dnum = (n: number | string) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+
 const money = (n: number | string) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 const errMsg = (e: any) => e?.response?.data?.message || "Something went wrong. Please try again.";
 const BA_FIELDS: [string, string][] = [["purpose", "Purpose"], ["about_company", "About the company"], ["competitors", "Competitors"], ["audience", "Audience"], ["usp", "USP"], ["conclusion", "Conclusion"]];
@@ -107,6 +109,7 @@ function Overview({ d, meta, run, id }: any) {
   const [coord, setCoord] = useState("");
   const [hold, setHold] = useState({ reason_code: "content", note: "" });
   const [oos, setOos] = useState({ description: "", effort_days: "", amount_estimate: "" });
+  const [oosNote, setOosNote] = useState<Record<number, string>>({});
   const acc = d.acceptance;
   const intake = d.intake;
 
@@ -177,6 +180,13 @@ function Overview({ d, meta, run, id }: any) {
           {d.out_of_scope.map((o: any) => (
             <div key={o.id} className="text-sm border rounded-lg p-2 flex flex-wrap gap-2 items-center">
               <Badge variant="outline">{o.status}</Badge><span>{o.description}</span><span className="ml-auto text-slate-500">{o.effort_days} day(s)</span>
+              {d.can_decide_oos && o.status === "Pending" && (
+                <div className="w-full grid sm:grid-cols-4 gap-2 items-center">
+                  <Input className="sm:col-span-2" placeholder="Note (required to reject)" value={oosNote[o.id] || ""} onChange={(e) => setOosNote({ ...oosNote, [o.id]: e.target.value })} />
+                  <Button size="sm" onClick={() => run(() => api.post(`/pmo/out-of-scope/${o.id}/decide`, { decision: "approve", note: oosNote[o.id] || null }))}>Approve</Button>
+                  <Button size="sm" variant="outline" onClick={() => run(() => api.post(`/pmo/out-of-scope/${o.id}/decide`, { decision: "reject", note: oosNote[o.id] || null }))}>Reject</Button>
+                </div>
+              )}
             </div>
           ))}
           <div className="grid sm:grid-cols-4 gap-2 items-end">
@@ -253,6 +263,13 @@ function Budget({ d, meta, run, id }: any) {
           <div key={k} className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2"><div className="text-xs text-slate-500">{k}</div><div className="font-semibold">{v}</div></div>
         ))}
       </div>
+      <Card><CardHeader className="pb-0"><CardTitle className="text-base">Usage by department (person-days)</CardTitle></CardHeader><CardContent className="pt-3 text-sm space-y-1">
+        {(d.usage || []).map((u: any) => (
+          <div key={u.kind} className="flex justify-between border-b py-1 last:border-0"><span>{u.label}</span>
+            <span>{dnum(u.used_days)} used of {dnum(u.allocated_days)} allocated · <b className={u.deviation_days < 0 ? "text-red-600" : "text-green-700"}>{u.deviation_days < 0 ? "over by " : "left "}{dnum(Math.abs(u.deviation_days))}</b></span></div>
+        ))}
+        {!d.can_manage && <p className="text-xs text-slate-500 pt-1">View only. The project manager sets the budget.</p>}
+      </CardContent></Card>
       <Card><CardContent className="pt-5 space-y-3">
         {d.can_manage ? (
           <>

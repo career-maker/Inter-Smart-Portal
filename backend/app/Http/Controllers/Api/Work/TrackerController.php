@@ -45,16 +45,42 @@ class TrackerController extends Controller
         })->pluck('id')->all();
     }
 
-    /** Who may add, change and remove rows of a kind: project manager, coordinator, or a member/lead of that kind's departments. */
+    /** Who may add, change and remove rows of a kind: project manager, a member/lead of that kind of department, and (Design and Frontend only) the project coordinator. Dev is view-only for the coordinator. */
     private function canEdit(User $user, Project $project, string $kind): bool
     {
-        if (Access::pmoManager($user) || $project->project_coordinator_id === $user->id) {
+        if (Access::pmoManager($user) || ($kind !== 'dev' && $project->project_coordinator_id === $user->id)) {
             return true;
         }
         $teams = $kind === 'design' ? WorkAccess::uiTeamIds() : self::teamIds($kind, $project);
         $mine = array_filter(array_merge([$user->team_id], WorkAccess::ledTeamIds($user)));
 
         return count(array_intersect($mine, $teams)) > 0;
+    }
+
+    /** Planned hours (Frontend sub-tasks) belong to the project manager and the HTML team; the coordinator cannot change them. */
+    private function canEditHours(User $user, Project $project): bool
+    {
+        if (Access::pmoManager($user)) {
+            return true;
+        }
+        $mine = array_filter(array_merge([$user->team_id], WorkAccess::ledTeamIds($user)));
+
+        return count(array_intersect($mine, self::teamIds('frontend', $project))) > 0;
+    }
+
+    /** Allocated and used person-days for a kind, the same figures the table header shows. */
+    public static function figures(Project $project, string $kind): array
+    {
+        $teamIds = $kind === 'design' ? WorkAccess::uiTeamIds() : self::teamIds($kind, $project);
+        $allocated = (float) ProjectBudgetAllocation::where('project_id', $project->id)->whereIn('team_id', $teamIds)->sum('amount');
+        $rowIds = DB::table('work_tracker_rows')->where('project_id', $project->id)->where('kind', $kind)->pluck('id');
+        $used = match ($kind) {
+            'design' => (float) DB::table('work_tracker_rows')->whereIn('id', $rowIds)->sum('days'),
+            'frontend' => (float) DB::table('work_tracker_subtasks')->whereIn('row_id', $rowIds)->sum('hours') / self::HOURS_PER_DAY,
+            default => (float) DB::table('work_tracker_rows')->whereIn('id', $rowIds)->sum('hours') / self::HOURS_PER_DAY,
+        };
+
+        return ['allocated_days' => $allocated, 'used_days' => round($used, 2), 'deviation_days' => round($allocated - $used, 2)];
     }
 
     private function names(array $ids): array
@@ -104,7 +130,7 @@ class TrackerController extends Controller
             'summary' => ['allocated_days' => $allocated, 'used_days' => round($usedDays, 2), 'deviation_days' => round($allocated - $usedDays, 2),
                 'allocated_hours' => $allocated * self::HOURS_PER_DAY, 'used_hours' => round($usedDays * self::HOURS_PER_DAY, 2), 'deviation_hours' => round(($allocated - $usedDays) * self::HOURS_PER_DAY, 2)],
             'options' => ['statuses' => self::STATUSES, 'progress' => self::PROGRESS, 'priorities' => self::PRIORITIES, 'work_types' => self::WORK_TYPES, 'client' => self::CLIENT, 'members' => $pool],
-            'can_edit' => $this->canEdit($user, $project, $kind),
+            'can_edit' => $this->canEdit($user, $project, $kind), 'can_edit_hours' => $this->canEditHours($user, $project),
         ]);
     }
 
@@ -142,7 +168,7 @@ class TrackerController extends Controller
             'client_status' => $d['client_status'] ?? null, 'members' => json_encode(array_map('intval', $d['members'] ?? [])),
             'days' => $d['days'] ?? null, 'hours' => $d['hours'] ?? null, 'created_by' => $request->user()->id, 'created_at' => now(), 'updated_at' => now(),
         ]);
-        foreach ($d['subtasks'] ?? [] as $s) {
+        foreach ($this->canEditHours($request->user(), $project) ? ($d['subtasks'] ?? []) : [] as $s) {
             DB::table('work_tracker_subtasks')->insert(['row_id' => $id, 'title' => $s['title'], 'hours' => $s['hours'], 'created_at' => now(), 'updated_at' => now()]);
         }
         $this->tell($project, $kind, $d['members'] ?? [], $d['name'], $request->user());
@@ -183,7 +209,7 @@ class TrackerController extends Controller
     {
         $r = DB::table('work_tracker_rows')->find($row);
         abort_unless($r && $r->kind === 'frontend', 404);
-        abort_unless($this->canEdit($request->user(), Project::findOrFail($r->project_id), 'frontend'), 403, 'Only the Frontend team, the coordinator or the project manager can change this table.');
+        abort_unless($this->canEditHours($request->user(), Project::findOrFail($r->project_id)), 403, 'Only the Frontend team or the project manager can change planned hours.');
         $d = $request->validate(['title' => 'required|string|max:255', 'hours' => 'required|numeric|min:0|max:10000']);
         $id = DB::table('work_tracker_subtasks')->insertGetId($d + ['row_id' => $row, 'created_at' => now(), 'updated_at' => now()]);
 
@@ -195,7 +221,7 @@ class TrackerController extends Controller
         $s = DB::table('work_tracker_subtasks')->find($subtask);
         abort_unless($s, 404);
         $r = DB::table('work_tracker_rows')->find($s->row_id);
-        abort_unless($this->canEdit($request->user(), Project::findOrFail($r->project_id), 'frontend'), 403, 'Only the Frontend team, the coordinator or the project manager can change this table.');
+        abort_unless($this->canEditHours($request->user(), Project::findOrFail($r->project_id)), 403, 'Only the Frontend team or the project manager can change planned hours.');
         DB::table('work_tracker_subtasks')->where('id', $subtask)->delete();
 
         return response()->json(['message' => 'Removed.']);

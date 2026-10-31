@@ -127,6 +127,9 @@ class PmoProjectController extends Controller
 
         return response()->json([
             'can_see_cost' => $sees,
+            'can_decide_oos' => Access::can('pmo_approve', $request->user()) || $project->project_coordinator_id === $request->user()->id,
+            'usage' => collect(['design' => 'Design', 'frontend' => 'Frontend (HTML)', 'dev' => 'Dev'])
+                ->map(fn ($label, $kind) => ['kind' => $kind, 'label' => $label] + \App\Http\Controllers\Api\Work\TrackerController::figures($project, $kind))->values(),
             'project' => $project->only(['id', 'name', 'status', 'description', 'project_coordinator_id', 'start_date', 'expected_end_date']),
             'intake' => $intake,
             'acceptance' => ProjectAcceptance::where('project_id', $project->id)->first(),

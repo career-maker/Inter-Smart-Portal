@@ -121,7 +121,7 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
                         <input type="checkbox" className="sr-only" checked={form.members.includes(m.id)} onChange={() => toggleMember(m.id)} />{m.name}
                       </label>
                     ))}</div></div>
-                {kind === "frontend" && !editId && (
+                {kind === "frontend" && !editId && d.can_edit_hours && (
                   <div className="sm:col-span-4 space-y-2"><Label>Timeline: sub-tasks with hours</Label>
                     {form.subtasks.map((t: any, i: number) => (
                       <div key={i} className="grid grid-cols-[1fr_8rem_auto] gap-2">
@@ -191,7 +191,7 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
                 </tr>
                 {kind === "frontend" && openRow === r.id && (
                   <tr key={`${r.id}-t`} className="border-b bg-slate-50 dark:bg-slate-900/40"><td /><td className="p-3" colSpan={cols.length + 1}>
-                    <Subtasks row={r} canEdit={d.can_edit} run={run} />
+                    <Subtasks row={r} canEdit={d.can_edit_hours} run={run} />
                   </td></tr>
                 )}
               </Fragment>

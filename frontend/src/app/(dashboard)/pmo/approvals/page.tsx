@@ -55,7 +55,7 @@ export default function OutOfScopePage() {
               </div>
               <p className="text-sm text-slate-700 dark:text-slate-200">{r.description}</p>
               {r.decision_note && <p className="text-xs text-slate-500">Decision note: {r.decision_note}</p>}
-              {isManager && r.status === "Pending" && (
+              {r.can_decide && r.status === "Pending" && (
                 <div className="grid sm:grid-cols-4 gap-2 items-center">
                   <Input className="sm:col-span-2" placeholder="Note (required to reject)" value={note[r.id] || ""} onChange={(e) => setNote({ ...note, [r.id]: e.target.value })} />
                   <Button size="sm" onClick={() => decide(r.id, "approve")}>Approve</Button>

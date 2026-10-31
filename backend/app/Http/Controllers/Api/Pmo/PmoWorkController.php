@@ -78,7 +78,8 @@ class PmoWorkController extends Controller
     {
         $q = OutOfScopeRequest::query()->orderByRaw("status = 'Pending' desc")->orderByDesc('id');
         if (! Access::pmoManager($request->user())) {
-            $q->where('requested_by', $request->user()->id);
+            // a coordinator sees what they asked for and everything on the projects assigned to them
+            $q->where(fn ($w) => $w->where('requested_by', $request->user()->id)->orWhereIn('project_id', Project::where('project_coordinator_id', $request->user()->id)->select('id')));
         }
         if ($request->filled('status')) {
             $q->where('status', $request->status);
@@ -87,7 +88,11 @@ class PmoWorkController extends Controller
         $projects = Project::whereIn('id', $rows->pluck('project_id'))->pluck('name', 'id');
         $users = User::whereIn('id', $rows->pluck('requested_by'))->get()->keyBy('id');
 
+        $mine = Project::where('project_coordinator_id', $request->user()->id)->pluck('id')->flip();
+        $canAll = Access::can('pmo_approve', $request->user());
+
         return response()->json(['data' => $rows->map(fn ($r) => $r->toArray() + [
+            'can_decide' => $canAll || $mine->has($r->project_id),
             'project_name' => $projects[$r->project_id] ?? null,
             'requested_by_name' => ($u = $users->get($r->requested_by)) ? trim("{$u->first_name} {$u->last_name}") : null,
         ])]);
@@ -96,7 +101,8 @@ class PmoWorkController extends Controller
     /** Manager approves (the salesperson is told to agree it with the client, with the effort) or rejects with a note. */
     public function decideOutOfScope(Request $request, OutOfScopeRequest $oos)
     {
-        abort_unless(Access::can('pmo_approve', $request->user()), 403, 'Only the project manager can decide this.');
+        // The project manager, or the coordinator assigned to this project.
+        abort_unless(Access::can('pmo_approve', $request->user()) || Project::where('id', $oos->project_id)->where('project_coordinator_id', $request->user()->id)->exists(), 403, 'Only the project manager or the project coordinator can decide this.');
         $data = $request->validate(['decision' => ['required', Rule::in(['approve', 'reject'])], 'note' => 'nullable|string|max:2000']);
         if ($data['decision'] === 'reject' && empty($data['note'])) {
             return response()->json(['message' => 'Give a reason when rejecting.', 'errors' => ['note' => ['Give a reason when rejecting.']]], 422);
