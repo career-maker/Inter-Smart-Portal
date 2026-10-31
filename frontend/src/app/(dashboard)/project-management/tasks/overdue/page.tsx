@@ -45,6 +45,7 @@ export default function OverdueTasksPage() {
   const [search, setSearch] = useState("");
   const [selectedTeamId, setSelectedTeamId] = useState<number | "all">("all");
   const [viewMode, setViewMode] = useState<"grouped" | "flat">("grouped");
+  const [tab, setTab] = useState<"active" | "completed">("active");
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedAssigneeForModal, setSelectedAssigneeForModal] = useState<number | undefined>(undefined);
@@ -158,30 +159,36 @@ export default function OverdueTasksPage() {
 
   // Filter tasks strictly by Overdue IST rule
   const rawList = tasksData?.data || [];
-  const overdueTasks = useMemo(() => {
-    return rawList.filter((task) => {
-      const overdueInfo = getTaskOverdueInfo(task.due_date, task.status);
-      if (!overdueInfo.isOverdue) return false;
-
-      // Filter by team if Super Admin selected one
+  const { activeOverdue, completedOverdue } = useMemo(() => {
+    const matches = (task: ProjectTask) => {
       if (selectedTeamId !== "all") {
-        const matchesProjectTeam = task.project?.team_id === selectedTeamId;
-        const matchesTaskTeam = task.team_id === selectedTeamId;
-        if (!matchesProjectTeam && !matchesTaskTeam) return false;
+        if (task.project?.team_id !== selectedTeamId && task.team_id !== selectedTeamId) return false;
       }
-
-      // Filter by search keyword
       if (search.trim()) {
         const q = search.toLowerCase();
-        const titleMatch = task.title?.toLowerCase().includes(q);
-        const projMatch = task.project?.name?.toLowerCase().includes(q);
-        const sprintMatch = task.sprint?.toLowerCase().includes(q);
-        if (!titleMatch && !projMatch && !sprintMatch) return false;
+        if (
+          !task.title?.toLowerCase().includes(q) &&
+          !task.project?.name?.toLowerCase().includes(q) &&
+          !task.sprint?.toLowerCase().includes(q)
+        ) return false;
       }
-
       return true;
+    };
+    const active: ProjectTask[] = [];
+    const completed: ProjectTask[] = [];
+    rawList.forEach((task) => {
+      if (!matches(task)) return;
+      const info = getTaskOverdueInfo(
+        task.due_date,
+        task.status,
+        task.actual_completion_date || (task.status === "Completed" ? task.updated_at : null)
+      );
+      if (info.isOverdue) active.push(task);
+      else if (info.isCompletedOverdue) completed.push(task);
     });
+    return { activeOverdue: active, completedOverdue: completed };
   }, [rawList, selectedTeamId, search]);
+  const overdueTasks = tab === "active" ? activeOverdue : completedOverdue;
 
   // Group overdue tasks by team member
   const { employeeGroups, unassignedOverdue } = useMemo(() => {
@@ -276,7 +283,9 @@ export default function OverdueTasksPage() {
             </h1>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Deliverables that missed the 6:30 PM IST daily deadline and require immediate escalation.
+            {tab === "active"
+              ? "Active deliverables that missed the 6:30 PM IST daily deadline and require immediate escalation."
+              : "Deliverables that were completed after their due date."}
           </p>
         </div>
 
@@ -332,6 +341,22 @@ export default function OverdueTasksPage() {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800">
+        {([["active", "Active Overdue", activeOverdue.length], ["completed", "Completed Overdue", completedOverdue.length]] as const).map(([key, label, n]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setTab(key)}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px cursor-pointer ${
+              tab === key ? "border-rose-600 text-rose-600" : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white"
+            }`}
+          >
+            {label} <span className="ml-1 text-xs font-bold">{n}</span>
+          </button>
+        ))}
+      </div>
+
       {/* Search Input */}
       <div className="relative max-w-md">
         <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -355,9 +380,9 @@ export default function OverdueTasksPage() {
           <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto text-lg font-bold">
             ✓
           </div>
-          <p className="text-base font-bold text-slate-800 dark:text-slate-200">No overdue tasks!</p>
+          <p className="text-base font-bold text-slate-800 dark:text-slate-200">{tab === "active" ? "No overdue tasks!" : "No late-completed tasks!"}</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-            All active deliverables are currently on schedule within their 6:30 PM IST timeline.
+            {tab === "active" ? "All active deliverables are currently on schedule within their 6:30 PM IST timeline." : "Every completed deliverable was finished on or before its due date."}
           </p>
         </div>
       ) : viewMode === "grouped" && canEdit ? (
@@ -398,7 +423,7 @@ export default function OverdueTasksPage() {
 
                   <div className="flex items-center gap-3">
                     <span className="text-xs font-bold text-rose-600 dark:text-rose-400">
-                      {group.tasks.length} {group.tasks.length === 1 ? "Overdue Task" : "Overdue Tasks"}
+                      {group.tasks.length} {group.tasks.length === 1 ? "Task" : "Tasks"}
                     </span>
                     <button
                       onClick={() => {
