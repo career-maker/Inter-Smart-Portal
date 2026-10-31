@@ -209,6 +209,7 @@ export function NotificationDropdown() {
       setUnreadCount(0);
       setNotifications([]);
       await api.post("/notifications/mark-as-read");
+      window.dispatchEvent(new Event("notifications-changed"));
     } catch (err) {
       console.error("Failed to mark all notifications as read", err);
       await fetchUnread();
@@ -241,6 +242,7 @@ export function NotificationDropdown() {
       setNotifications(prev => prev.filter(n => n.id !== id));
       setUnreadCount(prev => Math.max(0, prev - 1));
       await api.post(`/notifications/mark-as-read/${id}`);
+      window.dispatchEvent(new Event("notifications-changed"));
     } catch (err) {
       console.error(err);
       await fetchUnread();
@@ -255,7 +257,7 @@ export function NotificationDropdown() {
     if (!notification.read_at) {
       setNotifications(prev => prev.filter(n => n.id !== notification.id));
       setUnreadCount(prev => Math.max(0, prev - 1));
-      api.post(`/notifications/mark-as-read/${notification.id}`).catch((err) => {
+      api.post(`/notifications/mark-as-read/${notification.id}`).then(() => window.dispatchEvent(new Event("notifications-changed"))).catch((err) => {
         console.error("Failed to mark notification as read in background", err);
       });
     }

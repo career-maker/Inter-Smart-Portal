@@ -140,6 +140,7 @@ export default function NotificationsPage() {
   const handleMarkAsRead = async (id: string) => {
     try {
       await api.post(`/notifications/mark-as-read/${id}`);
+      window.dispatchEvent(new Event("notifications-changed"));
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
       );
@@ -151,6 +152,7 @@ export default function NotificationsPage() {
   const handleMarkAllAsRead = async () => {
     try {
       await api.post(`/notifications/mark-as-read`);
+      window.dispatchEvent(new Event("notifications-changed"));
       setNotifications((prev) =>
         prev.map((n) => ({ ...n, read_at: n.read_at || new Date().toISOString() }))
       );

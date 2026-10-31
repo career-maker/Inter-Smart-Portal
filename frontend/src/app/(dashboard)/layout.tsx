@@ -359,9 +359,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [flyoutState, setFlyoutState] = useState<{ groupId: string; top: number } | null>(null);
   const [pendingLeavesCount, setPendingLeavesCount] = useState(0);
   const [pendingWfhCount, setPendingWfhCount] = useState(0);
+  // Unread notifications by the page they open, so the side menu shows the same numbers as the bell.
+  const [unreadByPath, setUnreadByPath] = useState<Record<string, number>>({});
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const load = () =>
+      api.get("/notifications/unread?limit=300").then((r) => {
+        const by: Record<string, number> = {};
+        for (const n of r.data?.data?.notifications ?? []) {
+          const raw: string = n?.data?.action_url || "";
+          if (!raw) continue;
+          let path = raw;
+          try { path = new URL(raw, "http://x").pathname; } catch { /* keep raw */ }
+          by[path] = (by[path] || 0) + 1;
+        }
+        setUnreadByPath(by);
+      }).catch(() => {});
+    load();
+    const t = setInterval(load, 60000);
+    window.addEventListener("notifications-refresh", load);
+    window.addEventListener("notifications-changed", load);
+    return () => { clearInterval(t); window.removeEventListener("notifications-refresh", load); window.removeEventListener("notifications-changed", load); };
+  }, [isAuthenticated, pathname]);
   const [userPermissions, setUserPermissions] = useState<Record<string, boolean>>({});
   const [features, setFeatures] = useState<Record<string, boolean>>({});
   const navGroups = useMemo(() => NAV_GROUPS.filter((g) => !g.feature || features[g.feature]), [features]);
+  // A notification counts on the menu item whose link is its longest match (/work/projects/5 -> "My projects", /work/go-live -> "Go-live requests").
+  const itemUnread = useMemo(() => {
+    const hrefs = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.href.split("?")[0]));
+    const counts: Record<string, number> = {};
+    for (const [path, n] of Object.entries(unreadByPath)) {
+      const best = hrefs.filter((h) => path === h || path.startsWith(h + "/")).sort((a, b) => b.length - a.length)[0];
+      if (best) counts[best] = (counts[best] || 0) + n;
+    }
+    return counts;
+  }, [unreadByPath]);
+  const unreadFor = (href: string) => (href.includes("?") || href === "/leaves/approvals" ? 0 : itemUnread[href] || 0);
   const flyoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -734,7 +767,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       ? pendingLeavesCount
                       : group.id === "wfh"
                       ? pendingWfhCount
-                      : 0;
+                      : group.items.reduce((sum, i) => sum + unreadFor(i.href), 0);
 
                   return (
                     <div
@@ -869,6 +902,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           {pendingWfhCount}
                         </span>
                       )}
+                      {unreadFor(item.href) > 0 && (
+                        <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
+                          {unreadFor(item.href)}
+                        </span>
+                      )}
                       <ChevronRight style={{ color: "rgba(255, 255, 255, 0.6)" }} className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0 ml-1 group-hover:!text-white" />
                     </div>
                   );
@@ -990,6 +1028,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     )}
                                     {item.href === "/leaves/approvals?tab=wfh" && pendingWfhCount > 0 && (
                                       <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingWfhCount}</span>
+                                    )}
+                                    {unreadFor(item.href) > 0 && (
+                                      <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{unreadFor(item.href)}</span>
                                     )}
                                   </span>
                                 </>
