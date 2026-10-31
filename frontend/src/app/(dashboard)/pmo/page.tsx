@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import OpenLink from "@/components/OpenLink";
 import { useEffect, useState, useCallback } from "react";
 import { ClipboardList, Search, Loader2 } from "lucide-react";
@@ -51,7 +52,7 @@ export default function PmoProjectsPage() {
 
       <div className="flex flex-wrap gap-2 items-center">
         {["", ...STATES].map((s) => <Button key={s || "all"} size="sm" variant={state === s ? "default" : "outline"} onClick={() => setState(s)}>{s || "All"}</Button>)}
-        <select className="h-9 rounded-md border bg-transparent px-2 text-sm" value={pc} onChange={(e) => setPc(e.target.value)} aria-label="Filter by project coordinator"><option value="">All coordinators</option>{pcs.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+        <SelectCompat className="h-9 rounded-md border bg-transparent px-2 text-sm" value={pc} onChange={(e) => setPc(e.target.value)} aria-label="Filter by project coordinator"><option value="">All coordinators</option>{pcs.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</SelectCompat>
         <Button size="sm" variant={all ? "default" : "ghost"} onClick={() => setAll(!all)}>{all ? "Including older projects" : "New pipeline only"}</Button>
         <div className="relative ml-auto w-full sm:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

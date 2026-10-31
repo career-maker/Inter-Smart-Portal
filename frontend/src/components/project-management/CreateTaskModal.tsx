@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect, useMemo } from "react";
 import { X, Loader2, Plus, AlertCircle, Sparkles, FolderKanban, Users, ShieldCheck, Calendar, Clock, Layers } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
@@ -293,7 +294,7 @@ export function CreateTaskModal({
               <Sparkles className="w-3.5 h-3.5 text-blue-500" />
               <span>Optional: Select Predefined Task Template</span>
             </div>
-            <select
+            <SelectCompat
               value={formData.catalog_task_id || ""}
               onChange={handleCatalogSelect}
               className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -304,7 +305,7 @@ export function CreateTaskModal({
                   [{cat.category || "General"}] {cat.name}
                 </option>
               ))}
-            </select>
+            </SelectCompat>
             <span className="text-[10px] text-blue-700/80 dark:text-blue-400 block">
               Selecting a template pre-fills task specifications while leaving the title independently editable.
             </span>
@@ -345,7 +346,7 @@ export function CreateTaskModal({
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Priority
               </label>
-              <select
+              <SelectCompat
                 value={formData.priority}
                 onChange={(e) => handleChange("priority", e.target.value as TaskPriority)}
                 className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -355,14 +356,14 @@ export function CreateTaskModal({
                     {p}
                   </option>
                 ))}
-              </select>
+              </SelectCompat>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Initial Status
               </label>
-              <select
+              <SelectCompat
                 value={formData.status}
                 onChange={(e) => handleChange("status", e.target.value as TaskStatus)}
                 className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -372,7 +373,7 @@ export function CreateTaskModal({
                     {s}
                   </option>
                 ))}
-              </select>
+              </SelectCompat>
             </div>
 
             <div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect } from "react";
 import { X, Loader2, Edit3, AlertCircle, Link2 } from "lucide-react";
 import api from "@/services/api";
@@ -224,7 +225,7 @@ export function EditProjectModal({ project, isOpen, onClose, onSuccess }: EditPr
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Project Status
               </label>
-              <select
+              <SelectCompat
                 value={formData.status || "Planning"}
                 onChange={(e) => handleChange("status", e.target.value as ProjectStatus)}
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -234,7 +235,7 @@ export function EditProjectModal({ project, isOpen, onClose, onSuccess }: EditPr
                     {st}
                   </option>
                 ))}
-              </select>
+              </SelectCompat>
             </div>
 
             <div>
@@ -256,7 +257,7 @@ export function EditProjectModal({ project, isOpen, onClose, onSuccess }: EditPr
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Owning Department / Team
               </label>
-              <select
+              <SelectCompat
                 value={formData.team_id || ""}
                 onChange={(e) => handleChange("team_id", e.target.value ? Number(e.target.value) : null)}
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -267,7 +268,7 @@ export function EditProjectModal({ project, isOpen, onClose, onSuccess }: EditPr
                     {t.name}
                   </option>
                 ))}
-              </select>
+              </SelectCompat>
             </div>
 
             <div>

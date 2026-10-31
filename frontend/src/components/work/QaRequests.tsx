@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useCallback, useEffect, useState } from "react";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -27,9 +28,9 @@ export default function QaRequests({ projectId }: { projectId: string | number }
             <span className="text-xs rounded-full border px-2 py-0.5">{q.status}</span>
             {d.can_assign && q.status !== "Done" && (
               <>
-                <select className="h-8 rounded-md border bg-transparent px-2 text-xs" value={pick[q.id] ?? q.assigned_to ?? ""} onChange={(e) => setPick({ ...pick, [q.id]: e.target.value })}>
+                <SelectCompat className="h-8 rounded-md border bg-transparent px-2 text-xs" value={pick[q.id] ?? q.assigned_to ?? ""} onChange={(e) => setPick({ ...pick, [q.id]: e.target.value })}>
                   <option value="">Assign to...</option>{d.qa_members.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
-                </select>
+                </SelectCompat>
                 <input type="date" aria-label="Start date" className="h-8 rounded-md border bg-transparent px-2 text-xs" value={dates[q.id]?.start ?? String(q.start_date || "").slice(0, 10)} onChange={(e) => setDates({ ...dates, [q.id]: { start: e.target.value, end: dates[q.id]?.end ?? String(q.end_date || "").slice(0, 10) } })} />
                 <input type="date" aria-label="End date" className="h-8 rounded-md border bg-transparent px-2 text-xs" value={dates[q.id]?.end ?? String(q.end_date || "").slice(0, 10)} onChange={(e) => setDates({ ...dates, [q.id]: { start: dates[q.id]?.start ?? String(q.start_date || "").slice(0, 10), end: e.target.value } })} />
                 <Button size="sm" variant="outline" disabled={!(pick[q.id] ?? q.assigned_to) || !(dates[q.id]?.start ?? q.start_date) || !(dates[q.id]?.end ?? q.end_date)}

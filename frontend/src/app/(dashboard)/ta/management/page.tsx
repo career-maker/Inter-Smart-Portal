@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -803,7 +804,7 @@ export default function TAManagementPage() {
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   Disbursement / Payment Mode
                 </label>
-                <select
+                <SelectCompat
                   value={approvalForm.payment_mode}
                   onChange={(e) => setApprovalForm({ ...approvalForm, payment_mode: e.target.value })}
                   className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
@@ -812,7 +813,7 @@ export default function TAManagementPage() {
                   <option value="UPI / Google Pay">UPI / Google Pay / PhonePe</option>
                   <option value="Cash">Cash Handover</option>
                   <option value="Company Card">Company Corporate Card</option>
-                </select>
+                </SelectCompat>
               </div>
 
               {/* Optional Payment Proof Screenshot Upload */}
@@ -1005,7 +1006,7 @@ export default function TAManagementPage() {
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                     Claim Status
                   </label>
-                  <select
+                  <SelectCompat
                     value={overrideForm.status}
                     onChange={(e) => setOverrideForm({ ...overrideForm, status: e.target.value })}
                     className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
@@ -1014,7 +1015,7 @@ export default function TAManagementPage() {
                     <option value="Approved">Approved</option>
                     <option value="Paid">Paid & Disbursed</option>
                     <option value="Rejected">Rejected</option>
-                  </select>
+                  </SelectCompat>
                 </div>
 
                 {/* Approved Amount */}
@@ -1064,7 +1065,7 @@ export default function TAManagementPage() {
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                   {overrideForm.items.map((item, idx) => (
                     <div key={idx} className="flex gap-2 items-center">
-                      <select
+                      <SelectCompat
                         value={item.category}
                         onChange={(e) => {
                           const updated = [...overrideForm.items];
@@ -1077,7 +1078,7 @@ export default function TAManagementPage() {
                         <option value="Food">Food</option>
                         <option value="Accommodation">Accommodation</option>
                         <option value="Other">Other</option>
-                      </select>
+                      </SelectCompat>
 
                       <input
                         type="number"

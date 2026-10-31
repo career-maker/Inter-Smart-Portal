@@ -1,5 +1,7 @@
 "use client";
 
+import { UiverseSelect } from "@/components/ui/UiverseSelect";
+import { PriorityDot, PriorityLegend, STATUS_COLORS } from "@/components/project-management/priorityPalette";
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
@@ -414,7 +416,8 @@ export function TaskTrackerTable({
   };
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col gap-2">
+      <PriorityLegend />
       <div className="w-full overflow-x-auto table-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <table className="w-full text-left border-collapse task-tracker-table">
           <thead>
@@ -517,19 +520,14 @@ export function TaskTrackerTable({
                   <td className="py-2 px-1 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-center w-[108px] min-w-[108px]">
                     {canEdit && onPriorityChange ? (
                       <div className="inline-flex items-center justify-center">
-                        <select
+                        <UiverseSelect
                           value={task.priority}
                           disabled={updatingTaskId === task.id}
-                          onChange={(e) => onPriorityChange(task.id, e.target.value as TaskPriority)}
-                          title={`Priority: ${task.priority}`}
-                          className={`task-priority-select px-2.5 py-0.5 rounded-md text-xs font-extrabold border shadow-2xs cursor-pointer outline-none transition-all ${getTaskPriorityClass(task.priority)} disabled:opacity-50`}
-                        >
-                          {TASK_PRIORITIES.map((pr) => (
-                            <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold py-1">
-                              {pr}
-                            </option>
-                          ))}
-                        </select>
+                          onChange={(v) => onPriorityChange(task.id, v as TaskPriority)}
+                          size="sm"
+                          triggerClassName="!px-2 !min-h-[28px] justify-center"
+                          options={TASK_PRIORITIES.map((pr) => ({ value: pr, label: <span className="inline-flex items-center gap-2"><PriorityDot priority={pr} size={12} /><span className="sr-only">{pr}</span></span> }))}
+                        />
                       </div>
                     ) : (
                       <TaskPriorityBadge priority={task.priority} />
@@ -612,19 +610,14 @@ export function TaskTrackerTable({
                   <div className="flex items-center gap-1">
                     {canEdit && onStatusChange ? (
                       <div className="inline-flex items-center">
-                        <select
+                        <UiverseSelect
                           value={task.status}
                           disabled={updatingTaskId === task.id}
-                          onChange={(e) => onStatusChange(task.id, e.target.value as TaskStatus)}
-                          title={`Status: ${task.status}`}
-                          className={`task-status-select px-2.5 py-0.5 rounded-full text-[11px] font-semibold border shadow-2xs cursor-pointer outline-none transition-all ${getTaskStatusClass(task.status)} disabled:opacity-50`}
-                        >
-                          {TASK_STATUSES.map((st) => (
-                            <option key={st} value={st} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium py-1">
-                              {st}
-                            </option>
-                          ))}
-                        </select>
+                          onChange={(v) => onStatusChange(task.id, v as TaskStatus)}
+                          size="sm"
+                          triggerClassName="!rounded-full !px-3 font-semibold"
+                          options={TASK_STATUSES.map((st) => ({ value: st, label: <span className="inline-flex items-center gap-2"><span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[st] || "#A1A1AA" }} />{st}</span> }))}
+                        />
                       </div>
                     ) : (
                       <TaskStatusBadge status={task.status} />

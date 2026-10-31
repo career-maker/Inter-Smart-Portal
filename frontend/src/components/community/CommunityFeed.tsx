@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect, useRef } from "react";
 import {
   MessageSquare,
@@ -873,7 +874,7 @@ export function CommunityFeed() {
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Projects (optional)
               </label>
-              <select
+              <SelectCompat
                 value={selectedProject}
                 onChange={(e) => setSelectedProject(e.target.value)}
                 className="w-full text-xs px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] dark:text-white"
@@ -884,7 +885,7 @@ export function CommunityFeed() {
                     {p.name}
                   </option>
                 ))}
-              </select>
+              </SelectCompat>
             </div>
 
 
@@ -1229,9 +1230,9 @@ export function CommunityFeed() {
                 <div className="flex flex-wrap items-center gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] text-slate-500 dark:text-slate-400">Posting to</span>
-                    <select className="border border-slate-200 dark:border-slate-700 rounded text-[13px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 py-1.5 px-2 focus:outline-none focus:ring-1 focus:ring-[#56348f]">
+                    <SelectCompat className="border border-slate-200 dark:border-slate-700 rounded text-[13px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 py-1.5 px-2 focus:outline-none focus:ring-1 focus:ring-[#56348f]">
                       <option>Organization</option>
-                    </select>
+                    </SelectCompat>
                   </div>
 
                   <label className="flex items-center gap-1.5 cursor-pointer select-none text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
@@ -1290,7 +1291,7 @@ export function CommunityFeed() {
           </span>
 
           {/* Type Filter */}
-          <select
+          <SelectCompat
             value={filterType}
             onChange={(e) => {
               setFilterType(e.target.value);
@@ -1302,10 +1303,10 @@ export function CommunityFeed() {
             <option value="post">Regular Posts</option>
             <option value="poll">Polls</option>
             <option value="praise">Praise & Shoutouts</option>
-          </select>
+          </SelectCompat>
 
           {/* Year Filter */}
-          <select
+          <SelectCompat
             value={filterYear}
             onChange={(e) => {
               setFilterYear(e.target.value);
@@ -1317,10 +1318,10 @@ export function CommunityFeed() {
             <option value="2026">2026</option>
             <option value="2025">2025</option>
             <option value="2024">2024</option>
-          </select>
+          </SelectCompat>
 
           {/* Month Filter */}
-          <select
+          <SelectCompat
             value={filterMonth}
             onChange={(e) => {
               setFilterMonth(e.target.value);
@@ -1333,7 +1334,7 @@ export function CommunityFeed() {
                 {m.label}
               </option>
             ))}
-          </select>
+          </SelectCompat>
 
           {/* Exact Date Filter */}
           <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1">

@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useRef, useEffect } from "react";
 import {
   Upload,
@@ -480,7 +481,7 @@ export function ImportTasksModal({
                     Default Project <span className="text-slate-400 font-normal">(optional fallback if CSV doesn't specify project_name)</span>
                   </label>
                   <div className="relative">
-                    <select
+                    <SelectCompat
                       value={selectedProjectId}
                       onChange={(e) => setSelectedProjectId(e.target.value)}
                       style={{ fontSize: "13px", lineHeight: "20px" }}
@@ -492,7 +493,7 @@ export function ImportTasksModal({
                           {p.name} {p.team?.name ? `(${p.team.name})` : ""}
                         </option>
                       ))}
-                    </select>
+                    </SelectCompat>
                   </div>
                 </div>
               )}

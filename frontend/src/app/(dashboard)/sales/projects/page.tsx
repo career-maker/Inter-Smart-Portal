@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { FolderPlus } from "lucide-react";
 import api from "@/services/api";
@@ -87,37 +88,37 @@ export default function SalesProjectsPage() {
           <CardContent className="grid sm:grid-cols-4 gap-2 items-end">
             <div className="sm:col-span-2"><Label>Project name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
             <div className="sm:col-span-2"><Label>From lead (optional)</Label>
-              <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.lead_id} onChange={(e) => {
+              <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.lead_id} onChange={(e) => {
                 const l = leads.find((x) => String(x.id) === e.target.value);
                 setForm({ ...form, lead_id: e.target.value, client_name: l?.name || form.client_name, client_email: l?.email || form.client_email, client_phone: l?.phone || form.client_phone, budget: l?.expected_value || form.budget });
               }}>
                 <option value="">None</option>
                 {leads.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
-              </select></div>
+              </SelectCompat></div>
             <div><Label>Client</Label><Input value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} /></div>
             <div><Label>Client email</Label><Input value={form.client_email} onChange={(e) => setForm({ ...form, client_email: e.target.value })} /></div>
             <div><Label>Client phone</Label><Input value={form.client_phone} onChange={(e) => setForm({ ...form, client_phone: e.target.value })} /></div>
-            <div><Label>Budget (project value)</Label><div className="flex gap-1"><select className="h-10 rounded-md border bg-transparent px-2 text-sm" value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}><option>INR</option><option>AED</option></select><Input type="number" min="0" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} /></div></div>
+            <div><Label>Budget (project value)</Label><div className="flex gap-1"><SelectCompat className="h-10 rounded-md border bg-transparent px-2 text-sm" value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}><option>INR</option><option>AED</option></SelectCompat><Input type="number" min="0" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} /></div></div>
             <div><Label>Max budget cap (person-days)</Label><Input type="number" min="0" value={form.budget_cap} onChange={(e) => setForm({ ...form, budget_cap: e.target.value })} /><p className="text-xs text-slate-500 mt-1">Most days one person could work on this project (1 day = 8 hours). Two people share it: 50 days = 25 each. Project managers split it across departments and cannot go above it.</p></div>
             <div><Label>Type</Label>
-              <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.site_category} onChange={(e) => setForm({ ...form, site_category: e.target.value, platform: PLATFORMS[e.target.value][0], cms_variant: "" })}>
+              <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.site_category} onChange={(e) => setForm({ ...form, site_category: e.target.value, platform: PLATFORMS[e.target.value][0], cms_variant: "" })}>
                 {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-              </select></div>
+              </SelectCompat></div>
             <div><Label>Platform</Label>
-              <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.platform} onChange={(e) => setForm({ ...form, platform: e.target.value })}>
+              <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.platform} onChange={(e) => setForm({ ...form, platform: e.target.value })}>
                 {PLATFORMS[form.site_category].map((p) => <option key={p}>{p}</option>)}
-              </select></div>
+              </SelectCompat></div>
             {form.site_category === "CMS" && (
               <div><Label>CMS kind</Label>
-                <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.cms_variant} onChange={(e) => setForm({ ...form, cms_variant: e.target.value })}>
+                <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.cms_variant} onChange={(e) => setForm({ ...form, cms_variant: e.target.value })}>
                   <option value="">Standard</option><option>Copy of other website</option><option>AI/Custom</option>
-                </select></div>
+                </SelectCompat></div>
             )}
             <div><Label>Number of pages{form.cms_variant === "Copy of other website" ? " (required)" : ""}</Label><Input type="number" min="1" value={form.pages_count} onChange={(e) => setForm({ ...form, pages_count: e.target.value })} /></div>
             <div><Label>Quality level</Label>
-              <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.quality_level} onChange={(e) => setForm({ ...form, quality_level: e.target.value })}>
+              <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.quality_level} onChange={(e) => setForm({ ...form, quality_level: e.target.value })}>
                 <option>Basic</option><option>Standard</option><option>Premium</option>
-              </select></div>
+              </SelectCompat></div>
             <div className="sm:col-span-4"><Label>Scope / overview</Label><Input value={form.overview} onChange={(e) => setForm({ ...form, overview: e.target.value })} /></div>
             {SALES_SHEET.map((sec) => (
               <div key={sec.title} className="sm:col-span-4 border-t pt-3 mt-2">
@@ -130,9 +131,9 @@ export default function SalesProjectsPage() {
                     return (
                       <div key={f.key} className={wide}><Label>{f.label}</Label>
                         {f.type === "select" ? (
-                          <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={v} onChange={(e) => set(e.target.value)}>
+                          <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={v} onChange={(e) => set(e.target.value)}>
                             <option value="">-</option>{f.options!.map((o) => <option key={o}>{o}</option>)}
-                          </select>
+                          </SelectCompat>
                         ) : f.type === "textarea" ? (
                           <textarea className="w-full rounded-md border bg-transparent px-2 py-1 text-sm" rows={2} value={v} onChange={(e) => set(e.target.value)} />
                         ) : (
@@ -151,9 +152,9 @@ export default function SalesProjectsPage() {
                   {cf.map((f) => (
                     <div key={f.id}><Label>{f.label}{f.required ? " *" : ""}</Label>
                       {f.type === "select" ? (
-                        <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={custom[f.id] ?? ""} onChange={(e) => setCustom({ ...custom, [f.id]: e.target.value })}>
+                        <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={custom[f.id] ?? ""} onChange={(e) => setCustom({ ...custom, [f.id]: e.target.value })}>
                           <option value="">-</option>{f.choices.map((o: string) => <option key={o}>{o}</option>)}
-                        </select>
+                        </SelectCompat>
                       ) : <Input type={f.type === "number" ? "number" : f.type === "date" ? "date" : "text"} value={custom[f.id] ?? ""} onChange={(e) => setCustom({ ...custom, [f.id]: e.target.value })} />}
                     </div>
                   ))}
@@ -169,7 +170,7 @@ export default function SalesProjectsPage() {
                 ))}{cf.length === 0 && <span className="text-xs text-slate-500">No extra fields yet.</span>}</div>
                 <div className="grid sm:grid-cols-5 gap-2 items-end">
                   <div><Label>Field name</Label><Input value={newCf.label} onChange={(e) => setNewCf({ ...newCf, label: e.target.value })} /></div>
-                  <div><Label>Type</Label><select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={newCf.type} onChange={(e) => setNewCf({ ...newCf, type: e.target.value })}><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="select">Dropdown</option></select></div>
+                  <div><Label>Type</Label><SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={newCf.type} onChange={(e) => setNewCf({ ...newCf, type: e.target.value })}><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="select">Dropdown</option></SelectCompat></div>
                   <div><Label>Dropdown choices (comma separated)</Label><Input disabled={newCf.type !== "select"} value={newCf.options} onChange={(e) => setNewCf({ ...newCf, options: e.target.value })} /></div>
                   <label className="flex items-center gap-2 text-sm h-10"><input type="checkbox" checked={newCf.required} onChange={(e) => setNewCf({ ...newCf, required: e.target.checked })} /> Required</label>
                   <Button type="button" variant="outline" disabled={!newCf.label} onClick={async () => {

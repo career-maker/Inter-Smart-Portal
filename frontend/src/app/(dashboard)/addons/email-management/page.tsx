@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
@@ -737,7 +738,7 @@ export default function EmailManagementPage() {
                         <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                           Encryption <span className="text-rose-500">*</span>
                         </label>
-                        <select
+                        <SelectCompat
                           value={smtp.encryption || "tls"}
                           onChange={(e) => setSmtp({ ...smtp, encryption: e.target.value })}
                           className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
@@ -745,7 +746,7 @@ export default function EmailManagementPage() {
                           <option value="tls">TLS (Port 587)</option>
                           <option value="ssl">SSL (Port 465)</option>
                           <option value="none">None</option>
-                        </select>
+                        </SelectCompat>
                       </div>
                     </div>
                   </div>
@@ -1355,7 +1356,7 @@ export default function EmailManagementPage() {
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   Select Employee <span className="text-rose-500">*</span>
                 </label>
-                <select
+                <SelectCompat
                   value={modalForm.user_id}
                   onChange={(e) => setModalForm({ ...modalForm, user_id: Number(e.target.value) })}
                   className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
@@ -1366,7 +1367,7 @@ export default function EmailManagementPage() {
                       {emp.first_name} {emp.last_name} ({emp.employee_code || `ID ${emp.id}`}) — {emp.team?.name || emp.designation || "Unassigned"}
                     </option>
                   ))}
-                </select>
+                </SelectCompat>
               </div>
 
               {/* Action / Trigger Selector */}
@@ -1374,7 +1375,7 @@ export default function EmailManagementPage() {
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   Trigger Event / Action <span className="text-rose-500">*</span>
                 </label>
-                <select
+                <SelectCompat
                   value={modalForm.action}
                   onChange={(e) => setModalForm({ ...modalForm, action: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
@@ -1384,7 +1385,7 @@ export default function EmailManagementPage() {
                       {actDef.label}
                     </option>
                   ))}
-                </select>
+                </SelectCompat>
               </div>
 
               {/* ── Primary Approver / TO Account ── */}
@@ -1394,7 +1395,7 @@ export default function EmailManagementPage() {
                     <span>1. Primary Custom Approver / Manager Account (Optional)</span>
                     <span className="text-[10px] font-normal text-purple-600 dark:text-purple-400">Transfers approval rights</span>
                   </label>
-                  <select
+                  <SelectCompat
                     value={modalForm.approver_user_id}
                     onChange={(e) => {
                       const apprId = Number(e.target.value);
@@ -1413,7 +1414,7 @@ export default function EmailManagementPage() {
                         {emp.first_name} {emp.last_name} ({emp.employee_code || `ID ${emp.id}`}) — {emp.email}
                       </option>
                     ))}
-                  </select>
+                  </SelectCompat>
                 </div>
 
                 <div className="space-y-1">
@@ -1437,7 +1438,7 @@ export default function EmailManagementPage() {
                     <span>2. Second Approver / Multi-Approval Account (Optional)</span>
                     <span className="text-[10px] font-normal text-slate-400">Multi-manager routing</span>
                   </label>
-                  <select
+                  <SelectCompat
                     value={modalForm.approver_user_id_2}
                     onChange={(e) => {
                       const apprId2 = Number(e.target.value);
@@ -1456,7 +1457,7 @@ export default function EmailManagementPage() {
                         {emp.first_name} {emp.last_name} ({emp.employee_code || `ID ${emp.id}`}) — {emp.email}
                       </option>
                     ))}
-                  </select>
+                  </SelectCompat>
                 </div>
 
                 <div className="space-y-1">

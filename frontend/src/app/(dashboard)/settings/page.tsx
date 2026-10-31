@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect } from "react";
 import api from "@/services/api";
 import { Save, Loader2, Server, Shield, Mail, Building, LayoutDashboard } from "lucide-react";
@@ -215,14 +216,14 @@ export default function SettingsPage() {
                         <h4 className="text-sm font-medium">Require Strong Passwords</h4>
                         <p className="text-xs text-muted-foreground">Force employees to use complex passwords</p>
                       </div>
-                      <select 
+                      <SelectCompat 
                         value={settings.strong_passwords || "true"}
                         onChange={(e) => handleChange("strong_passwords", e.target.value)}
                         className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
                       >
                         <option value="true">Enabled</option>
                         <option value="false">Disabled</option>
-                      </select>
+                      </SelectCompat>
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -252,14 +253,14 @@ export default function SettingsPage() {
                           When enabled, non-admin users will see a maintenance page.
                         </p>
                       </div>
-                      <select 
+                      <SelectCompat 
                         value={settings.maintenance_mode || "false"}
                         onChange={(e) => handleChange("maintenance_mode", e.target.value)}
                         className="h-9 rounded-md border border-destructive bg-background px-3 py-1 text-sm font-medium text-destructive"
                       >
                         <option value="false">Off</option>
                         <option value="true">On</option>
-                      </select>
+                      </SelectCompat>
                     </div>
                   </div>
                 </div>

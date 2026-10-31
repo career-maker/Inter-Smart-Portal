@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import api from "@/services/api";
 import { Page, Panel, Row, Dot, Primary, Quiet, Alert, Spinner, Label, field, area, errMsg } from "@/components/clean";
@@ -95,7 +96,7 @@ function MeetingForm({ people, initial, initialIds, label, onSubmit, onCancel }:
     <Panel className="space-y-4">
       {err && <Alert>{err}</Alert>}
       <div className="grid gap-4 md:grid-cols-[160px_1fr]">
-        <div><Label>Type</Label><select className={field} value={f.kind} onChange={(e) => set("kind", e.target.value)}><option value="internal">Internal</option><option value="client">Client</option></select></div>
+        <div><Label>Type</Label><SelectCompat className={field} value={f.kind} onChange={(e) => set("kind", e.target.value)}><option value="internal">Internal</option><option value="client">Client</option></SelectCompat></div>
         <div><Label>Title</Label><input className={field} value={f.title} onChange={(e) => set("title", e.target.value)} /></div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
@@ -164,9 +165,9 @@ function Item({ m, people, onDone }: { m: any; people: any[]; onDone: () => void
             ))}
             <div className="grid gap-4 md:grid-cols-[1fr_200px_auto] items-center">
               <input className={field} placeholder="New follow-up" value={text} onChange={(e) => setText(e.target.value)} />
-              <select className={field} value={owner} onChange={(e) => setOwner(e.target.value)}>
+              <SelectCompat className={field} value={owner} onChange={(e) => setOwner(e.target.value)}>
                 <option value="">Owner</option>{people.map((p) => <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>)}
-              </select>
+              </SelectCompat>
               <Quiet disabled={!text} onClick={() => run(async () => { await api.post(`/meetings/${m.id}/actions`, { text, owner_id: owner ? Number(owner) : null }); setText(""); setOwner(""); })}>Add follow-up</Quiet>
             </div>
           </div>

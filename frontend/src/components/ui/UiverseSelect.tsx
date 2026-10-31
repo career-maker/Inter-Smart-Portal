@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import { SelectCompat } from "@/components/ui/SelectCompat";
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 
 export interface UiverseSelectOption {
   value: string | number;
@@ -25,7 +27,7 @@ export interface UiverseSelectProps {
 /**
  * Uiverse.io Dropdown Component (by 3bdel3ziz-T)
  * Styled with Portal Theme Colors & Dynamic Typography.
- * Drop-in replacement for native <select>.
+ * Drop-in replacement for native <SelectCompat>.
  */
 export function UiverseSelect({
   value,
@@ -44,6 +46,26 @@ export function UiverseSelect({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number; minWidth: number; up: boolean; inline: boolean } | null>(null);
+
+  // The panel is drawn in <body> at a fixed position, so tables, cards and dialogs with overflow never clip it.
+  const place = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const up = window.innerHeight - r.bottom < 260 && r.top > 260;
+    // inside a modal dialog the panel stays in place: a dialog treats a click outside itself as "close"
+    const inline = !!el.closest('[role="dialog"],[data-slot="dialog-content"],[data-slot="sheet-content"]');
+    setPos({ top: up ? r.top - 6 : r.bottom + 6, left: r.left, minWidth: r.width, up, inline });
+  }, []);
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => { window.removeEventListener("resize", place); window.removeEventListener("scroll", place, true); };
+  }, [isOpen, place]);
 
   // Parse options either from options prop or from <option> children
   const parsedOptions: UiverseSelectOption[] = useMemo(() => {
@@ -68,7 +90,8 @@ export function UiverseSelect({
   // Close when clicked outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const t = e.target as Node;
+      if (containerRef.current && !containerRef.current.contains(t) && !(panelRef.current && panelRef.current.contains(t))) {
         setIsOpen(false);
         setSearchTerm("");
       }
@@ -120,14 +143,14 @@ export function UiverseSelect({
         style={{
           fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
         }}
-        className={`selected flex items-center justify-between gap-2.5 px-3 rounded-[6px] border transition-all duration-300 ${isOpen ? "is-open" : ""} ${
+        className={`selected flex items-center justify-between gap-2.5 px-3 rounded-[9px] border transition-all duration-200 ${isOpen ? "is-open" : ""} ${
           size === "sm" ? "py-1 text-xs min-h-[32px]" : "py-2 text-xs sm:text-sm min-h-[38px]"
         } ${
           disabled
             ? "opacity-50 cursor-not-allowed bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400"
             : isOpen
-            ? "bg-white dark:bg-[#1e293b] border-[var(--portal-primary-color,#2563EB)] ring-2 ring-[var(--portal-primary-color,#2563EB)]/20 shadow-md cursor-pointer text-slate-900 dark:text-white"
-            : "bg-white hover:bg-slate-50 dark:bg-[#1e293b] dark:hover:bg-slate-800 border-slate-300 dark:border-slate-700 hover:border-[var(--portal-primary-color,#2563EB)] text-slate-800 dark:text-slate-100 cursor-pointer shadow-xs"
+            ? "bg-white dark:bg-[#1e293b] border-[var(--portal-primary-color,#00BDA1)] ring-2 ring-[var(--portal-primary-color,#00BDA1)]/20 shadow-md cursor-pointer text-slate-900 dark:text-white"
+            : "bg-white hover:bg-slate-50 dark:bg-[#1e293b] dark:hover:bg-slate-800 border-slate-300 dark:border-slate-700 hover:border-[var(--portal-primary-color,#00BDA1)] text-slate-800 dark:text-slate-100 cursor-pointer shadow-xs"
         } ${triggerClassName}`}
       >
         <span className="truncate font-medium flex-1">
@@ -139,7 +162,7 @@ export function UiverseSelect({
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 512 512"
           className={`arrow shrink-0 w-3 h-3 transition-transform duration-300 ${
-            isOpen ? "rotate-0 text-[var(--portal-primary-color,#2563EB)]" : "-rotate-90 text-slate-400 dark:text-slate-500"
+            isOpen ? "rotate-0 text-[var(--portal-primary-color,#00BDA1)]" : "-rotate-90 text-slate-400 dark:text-slate-500"
           }`}
           fill="currentColor"
         >
@@ -148,12 +171,14 @@ export function UiverseSelect({
       </div>
 
       {/* Options Panel (From Uiverse.io by 3bdel3ziz-T) */}
-      {isOpen && (
+      {isOpen && pos && typeof document !== "undefined" && (pos.inline ? (x: React.ReactNode) => x : (x: React.ReactNode) => createPortal(x, document.body))(
         <div
-          style={{
-            fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
-          }}
-          className={`options is-open !opacity-100 !pointer-events-auto absolute ${align === "right" ? "right-0" : "left-0"} top-full mt-1.5 z-50 min-w-full w-max max-w-xs sm:max-w-sm rounded-[6px] p-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-150 animate-in fade-in-50 zoom-in-95 before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']`}
+          ref={panelRef}
+          style={pos.inline
+            ? { fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', position: "absolute", left: 0, minWidth: "100%", zIndex: 100000, ...(pos.up ? { bottom: "100%", marginBottom: 6 } : { top: "100%", marginTop: 6 }) }
+            : { fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', position: "fixed", left: pos.left, minWidth: pos.minWidth, zIndex: 100000, pointerEvents: "auto",
+                ...(pos.up ? { bottom: window.innerHeight - pos.top } : { top: pos.top }) }}
+          className={`options is-open !opacity-100 !pointer-events-auto w-max max-w-xs sm:max-w-sm rounded-[12px] p-1.5 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-150 animate-in fade-in-50 zoom-in-95 before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']`}
         >
           {/* Quick Search if more than 10 options */}
           {isAutoSearchable && (
@@ -164,7 +189,7 @@ export function UiverseSelect({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search..."
-                className="w-full px-2.5 py-1 text-xs rounded-[4px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:border-[var(--portal-primary-color,#2563EB)] focus:ring-1 focus:ring-[var(--portal-primary-color,#2563EB)]"
+                className="w-full px-2.5 py-1 text-xs rounded-[4px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:border-[var(--portal-primary-color,#00BDA1)] focus:ring-1 focus:ring-[var(--portal-primary-color,#00BDA1)]"
               />
             </div>
           )}
@@ -184,15 +209,15 @@ export function UiverseSelect({
                       setIsOpen(false);
                       setSearchTerm("");
                     }}
-                    className={`option px-3 py-1.5 rounded-[5px] text-xs sm:text-sm cursor-pointer transition-all duration-300 flex items-center justify-between gap-2 ${
+                    className={`option px-3 py-1.5 rounded-[8px] text-xs sm:text-sm cursor-pointer transition-all duration-300 flex items-center justify-between gap-2 ${
                       isSelected
-                        ? "bg-[var(--portal-primary-color,#2563EB)]/15 text-[var(--portal-primary-color,#2563EB)] font-semibold"
-                        : "text-slate-700 dark:text-slate-200 hover:bg-[var(--portal-primary-color,#2563EB)]/10 hover:text-[var(--portal-primary-color,#2563EB)] dark:hover:bg-slate-800/80"
+                        ? "bg-[var(--portal-primary-color,#00BDA1)]/15 text-[var(--portal-primary-color,#00BDA1)] font-semibold"
+                        : "text-slate-700 dark:text-slate-200 hover:bg-[var(--portal-primary-color,#00BDA1)]/10 hover:text-[var(--portal-primary-color,#00BDA1)] dark:hover:bg-slate-800/80"
                     }`}
                   >
                     <span className="truncate">{opt.label}</span>
                     {isSelected && (
-                      <span className="text-[var(--portal-primary-color,#2563EB)] font-bold text-xs shrink-0">
+                      <span className="text-[var(--portal-primary-color,#00BDA1)] font-bold text-xs shrink-0">
                         ✓
                       </span>
                     )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Loader2, Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import api from "@/services/api";
@@ -107,11 +108,11 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
               <CardContent className="pt-3 grid sm:grid-cols-4 gap-2 items-end [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500">
                 <div><Label>{kind === "dev" ? "Task no" : "Page no"}</Label><Input type="number" min="1" value={form.no} onChange={(e) => setForm({ ...form, no: e.target.value })} placeholder="auto" /></div>
                 <div className="sm:col-span-2"><Label>{kind === "dev" ? "Task name" : "Page name"}</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-                {kind === "design" && <div><Label>Priority</Label><select className={SELECT} value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>{d.options.priorities.map((x: string) => <option key={x}>{x}</option>)}</select></div>}
-                {kind === "dev" && <div><Label>Work type</Label><select className={SELECT} value={form.work_type} onChange={(e) => setForm({ ...form, work_type: e.target.value })}>{d.options.work_types.map((x: string) => <option key={x}>{x}</option>)}</select></div>}
-                <div><Label>{kind === "dev" ? "Progress" : kind === "design" ? "Design status" : "HTML status"}</Label><select className={SELECT} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>{(kind === "dev" ? d.options.progress : d.options.statuses).map((x: string) => <option key={x}>{x}</option>)}</select></div>
+                {kind === "design" && <div><Label>Priority</Label><SelectCompat className={SELECT} value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>{d.options.priorities.map((x: string) => <option key={x}>{x}</option>)}</SelectCompat></div>}
+                {kind === "dev" && <div><Label>Work type</Label><SelectCompat className={SELECT} value={form.work_type} onChange={(e) => setForm({ ...form, work_type: e.target.value })}>{d.options.work_types.map((x: string) => <option key={x}>{x}</option>)}</SelectCompat></div>}
+                <div><Label>{kind === "dev" ? "Progress" : kind === "design" ? "Design status" : "HTML status"}</Label><SelectCompat className={SELECT} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>{(kind === "dev" ? d.options.progress : d.options.statuses).map((x: string) => <option key={x}>{x}</option>)}</SelectCompat></div>
                 {kind !== "dev" && <div className="sm:col-span-2"><Label>{kind === "design" ? "Design link" : "HTML link"}</Label><Input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder="https://" /></div>}
-                {kind === "design" && <div><Label>Client status</Label><select className={SELECT} value={form.client_status} onChange={(e) => setForm({ ...form, client_status: e.target.value })}>{d.options.client.map((x: string) => <option key={x}>{x}</option>)}</select></div>}
+                {kind === "design" && <div><Label>Client status</Label><SelectCompat className={SELECT} value={form.client_status} onChange={(e) => setForm({ ...form, client_status: e.target.value })}>{d.options.client.map((x: string) => <option key={x}>{x}</option>)}</SelectCompat></div>}
                 {kind === "design" && <div><Label>Days used</Label><Input type="number" min="0" step="0.5" value={form.days} onChange={(e) => setForm({ ...form, days: e.target.value })} /></div>}
                 {kind === "dev" && <div><Label>Time (hrs)</Label><Input type="number" min="0" step="0.5" value={form.hours} onChange={(e) => setForm({ ...form, hours: e.target.value })} /></div>}
                 <div className="sm:col-span-4"><Label>{kind === "design" ? "Design team member(s)" : kind === "frontend" ? "HTML team member(s)" : "Assigned to"}</Label>
@@ -162,7 +163,7 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
               {cols.map((c) => (
                 <th key={c.key} className="p-1 font-normal">
                   {c.type === "select"
-                    ? <select className="w-full h-8 rounded-md border bg-transparent px-1 text-xs" value={filters[c.key] || ""} onChange={(e) => setFilters({ ...filters, [c.key]: e.target.value })}><option value="">All</option>{c.options!.map((o) => <option key={o}>{o}</option>)}</select>
+                    ? <SelectCompat className="w-full h-8 rounded-md border bg-transparent px-1 text-xs" value={filters[c.key] || ""} onChange={(e) => setFilters({ ...filters, [c.key]: e.target.value })}><option value="">All</option>{c.options!.map((o) => <option key={o}>{o}</option>)}</SelectCompat>
                     : <Input className="h-8 text-xs" placeholder="Filter" value={filters[c.key] || ""} onChange={(e) => setFilters({ ...filters, [c.key]: e.target.value })} />}
                 </th>
               ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/services/api";
@@ -268,7 +269,7 @@ export function RaiseIssueDrawer({
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Category <span className="text-rose-500">*</span>
                   </label>
-                  <select
+                  <SelectCompat
                     name="category"
                     required
                     value={formData.category}
@@ -283,14 +284,14 @@ export function RaiseIssueDrawer({
                         {c}
                       </option>
                     ))}
-                  </select>
+                  </SelectCompat>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Priority <span className="text-rose-500">*</span>
                   </label>
-                  <select
+                  <SelectCompat
                     name="priority"
                     required
                     value={formData.priority}
@@ -302,7 +303,7 @@ export function RaiseIssueDrawer({
                         {p}
                       </option>
                     ))}
-                  </select>
+                  </SelectCompat>
                 </div>
               </div>
 
@@ -311,7 +312,7 @@ export function RaiseIssueDrawer({
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Related Module <span className="text-xs font-normal text-slate-400 lowercase">(optional)</span>
                 </label>
-                <select
+                <SelectCompat
                   name="related_module"
                   value={formData.related_module}
                   onChange={handleChange}
@@ -323,7 +324,7 @@ export function RaiseIssueDrawer({
                       {m}
                     </option>
                   ))}
-                </select>
+                </SelectCompat>
               </div>
 
               {/* Description */}

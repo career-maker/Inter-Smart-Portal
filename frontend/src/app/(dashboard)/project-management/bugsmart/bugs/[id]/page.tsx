@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import React, { useState, useEffect, useCallback, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -908,14 +909,14 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                     Link Bug Dependency
                   </h4>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <select
+                    <SelectCompat
                       value={depType}
                       onChange={(e) => setDepType(e.target.value as any)}
                       className="px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"
                     >
                       <option value="depends_on">This bug depends on</option>
                       <option value="blocks">This bug blocks</option>
-                    </select>
+                    </SelectCompat>
 
                     <input
                       type="text"
@@ -1036,7 +1037,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Severity</span>
               {canDevelop ? (
-                <select
+                <SelectCompat
                   value={bug.severity}
                   onChange={(e) => handleInlineUpdate({ severity: e.target.value })}
                   className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"
@@ -1047,7 +1048,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                   <option value="NORMAL">NORMAL</option>
                   <option value="MINOR">MINOR</option>
                   <option value="TRIVIAL">TRIVIAL</option>
-                </select>
+                </SelectCompat>
               ) : (
                 <BugzillaSeverityBadge severity={bug.severity} />
               )}
@@ -1057,7 +1058,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Priority</span>
               {canDevelop ? (
-                <select
+                <SelectCompat
                   value={bug.priority}
                   onChange={(e) => handleInlineUpdate({ priority: e.target.value })}
                   className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"
@@ -1067,7 +1068,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                   <option value="P3">P3 — Normal</option>
                   <option value="P4">P4 — Low</option>
                   <option value="P5">P5 — Lowest</option>
-                </select>
+                </SelectCompat>
               ) : (
                 <BugzillaPriorityBadge priority={bug.priority} />
               )}
@@ -1077,7 +1078,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Assignee</span>
               {canDevelop ? (
-                <select
+                <SelectCompat
                   value={bug.assignee_id || ""}
                   onChange={(e) =>
                     handleInlineUpdate({ assignee_id: e.target.value ? Number(e.target.value) : null })
@@ -1090,7 +1091,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                       {m.first_name} {m.last_name} {m.pivot?.project_role ? `(${m.pivot.project_role})` : ""}
                     </option>
                   ))}
-                </select>
+                </SelectCompat>
               ) : (
                 <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                   {bug.assignee ? `${bug.assignee.first_name} ${bug.assignee.last_name}` : "Unassigned"}
@@ -1102,7 +1103,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Component</span>
               {canDevelop ? (
-                <select
+                <SelectCompat
                   value={bug.component_id || ""}
                   onChange={(e) =>
                     handleInlineUpdate({ component_id: e.target.value ? Number(e.target.value) : null })
@@ -1115,7 +1116,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                       {c.name}
                     </option>
                   ))}
-                </select>
+                </SelectCompat>
               ) : (
                 <div className="text-xs text-slate-800 dark:text-slate-200">
                   {bug.component?.name || "None"}
@@ -1162,7 +1163,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Resolution Code
               </label>
-              <select
+              <SelectCompat
                 value={selectedResolution}
                 onChange={(e) => setSelectedResolution(e.target.value as BugzillaResolution)}
                 className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"
@@ -1172,7 +1173,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                     {r}
                   </option>
                 ))}
-              </select>
+              </SelectCompat>
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2">

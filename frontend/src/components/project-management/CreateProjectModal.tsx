@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect } from "react";
 import { X, Loader2, FolderPlus, AlertCircle, Calendar, Building2, User, Link2, Unlink, CloudDownload, Check } from "lucide-react";
 import api from "@/services/api";
@@ -267,7 +268,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               </div>
             ) : hubstaffProjects.length > 0 ? (
               <div className="space-y-1.5">
-                <select
+                <SelectCompat
                   value={formData.hubstaff_project_id || ""}
                   onChange={(e) => handleHubstaffSelect(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
@@ -282,7 +283,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                       {p.name} {p.is_already_linked ? "(Already Linked)" : ""}
                     </option>
                   ))}
-                </select>
+                </SelectCompat>
                 {formData.hubstaff_project_id && (
                   <p className="text-[11px] text-blue-600 dark:text-blue-400 font-medium">
                     ✓ Authoritative Hubstaff project linked (ID: {formData.hubstaff_project_id})
@@ -348,7 +349,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Initial Status
               </label>
-              <select
+              <SelectCompat
                 value={formData.status}
                 onChange={(e) => handleChange("status", e.target.value as ProjectStatus)}
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -358,7 +359,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                     {st}
                   </option>
                 ))}
-              </select>
+              </SelectCompat>
             </div>
 
             <div>
@@ -381,7 +382,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Owning HR Team
               </label>
-              <select
+              <SelectCompat
                 value={formData.team_id || ""}
                 onChange={(e) => handleChange("team_id", e.target.value ? Number(e.target.value) : null)}
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -392,7 +393,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                     {t.name}
                   </option>
                 ))}
-              </select>
+              </SelectCompat>
             </div>
 
             <div>

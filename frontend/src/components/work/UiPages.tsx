@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { Loader2, Plus } from "lucide-react";
 import api from "@/services/api";
@@ -51,7 +52,7 @@ export default function UiPages({ projectId }: { projectId: string | number }) {
         <Card><CardHeader className="pb-0"><CardTitle className="text-base">Add a page</CardTitle></CardHeader>
           <CardContent className="pt-3 grid sm:grid-cols-5 gap-2 items-end">
             <div className="sm:col-span-2"><Label>Page title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-            <div><Label>Animation</Label><select className={SELECT} value={form.animation_level} onChange={(e) => setForm({ ...form, animation_level: e.target.value })}>{d.animation_levels.map((a: string) => <option key={a}>{a}</option>)}</select></div>
+            <div><Label>Animation</Label><SelectCompat className={SELECT} value={form.animation_level} onChange={(e) => setForm({ ...form, animation_level: e.target.value })}>{d.animation_levels.map((a: string) => <option key={a}>{a}</option>)}</SelectCompat></div>
             <div><Label>Sections planned</Label><Input type="number" min="1" value={form.est_sections} onChange={(e) => setForm({ ...form, est_sections: e.target.value })} /></div>
             <Button disabled={!form.title} onClick={() => run(async () => {
               const r = await api.post(`/work/projects/${projectId}/ui/pages`, { title: form.title, animation_level: form.animation_level, est_sections: form.est_sections ? Number(form.est_sections) : null, figma_url: form.figma_url || null });
@@ -73,11 +74,11 @@ export default function UiPages({ projectId }: { projectId: string | number }) {
                   {p.approval !== "Approved" && <Badge className={p.approval === "Pending" ? "bg-amber-100 text-amber-800" : "bg-red-100 text-red-800"}>{p.approval === "Pending" ? "Waiting for project manager" : "Rejected by project manager"}</Badge>}</td>
                 <td className="p-3">
                   {d.can_work && p.approval === "Approved" ? (
-                    <select className={`rounded-full px-2 py-1 text-xs font-semibold border-0 ${STATUS_COLOR(p.status)}`} value={p.status} onChange={(e) => {
+                    <SelectCompat className={`rounded-full px-2 py-1 text-xs font-semibold border-0 ${STATUS_COLOR(p.status)}`} value={p.status} onChange={(e) => {
                       let note: string | null = null;
                       if (e.target.value === "Rejected") { note = prompt("Why is this page rejected?"); if (!note) return; }
                       run(() => api.post(`/work/ui/pages/${p.id}/status`, { status: e.target.value, note }));
-                    }}>{d.statuses.map((s: string) => <option key={s}>{s}</option>)}</select>
+                    }}>{d.statuses.map((s: string) => <option key={s}>{s}</option>)}</SelectCompat>
                   ) : <span className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_COLOR(p.status)}`}>{p.status}</span>}
                 </td>
                 <td className="p-3">{p.assignee || <span className="text-slate-400">Not assigned</span>}</td>
@@ -138,15 +139,15 @@ function PageDialog({ id, d, onClose, onChanged }: { id: number; d: any; onClose
             <Card><CardHeader className="pb-0"><CardTitle className="text-base">Page details</CardTitle></CardHeader>
               <CardContent className="pt-3 grid grid-cols-2 gap-2">
                 <div className="col-span-2"><Label>Title</Label><Input value={edit.title} onChange={(e) => setEdit({ ...edit, title: e.target.value })} /></div>
-                <div><Label>Animation</Label><select className={SELECT} value={edit.animation_level} onChange={(e) => setEdit({ ...edit, animation_level: e.target.value })}>{d.animation_levels.map((a: string) => <option key={a}>{a}</option>)}</select></div>
+                <div><Label>Animation</Label><SelectCompat className={SELECT} value={edit.animation_level} onChange={(e) => setEdit({ ...edit, animation_level: e.target.value })}>{d.animation_levels.map((a: string) => <option key={a}>{a}</option>)}</SelectCompat></div>
                 <div><Label>Sections planned</Label><Input type="number" min="1" value={edit.est_sections} onChange={(e) => setEdit({ ...edit, est_sections: e.target.value })} /></div>
                 <div><Label>Person-days</Label><Input type="number" min="0" step="0.5" value={edit.budget} onChange={(e) => setEdit({ ...edit, budget: e.target.value })} /></div>
                 <div><Label>Due date</Label><Input type="date" value={edit.due_date} onChange={(e) => setEdit({ ...edit, due_date: e.target.value })} /></div>
                 <div className="col-span-2"><Label>Figma link</Label><Input placeholder="https://" value={edit.figma_url} onChange={(e) => setEdit({ ...edit, figma_url: e.target.value })} /></div>
                 <div className="col-span-2"><Label>Assigned to</Label>
-                  <select className={SELECT} value={edit.assigned_to} onChange={(e) => setEdit({ ...edit, assigned_to: e.target.value })}>
+                  <SelectCompat className={SELECT} value={edit.assigned_to} onChange={(e) => setEdit({ ...edit, assigned_to: e.target.value })}>
                     <option value="">Not assigned</option>{d.ui_team.map((u: any) => <option key={u.id} value={u.id}>{u.name}</option>)}
-                  </select></div>
+                  </SelectCompat></div>
                 <Button className="col-span-2" onClick={() => run(() => api.put(`/work/ui/pages/${id}`, {
                   title: edit.title, animation_level: edit.animation_level, est_sections: edit.est_sections === "" ? null : Number(edit.est_sections),
                   budget: edit.budget === "" ? null : Number(edit.budget), figma_url: edit.figma_url || null, due_date: edit.due_date || null, assigned_to: edit.assigned_to ? Number(edit.assigned_to) : null,
@@ -158,8 +159,8 @@ function PageDialog({ id, d, onClose, onChanged }: { id: number; d: any; onClose
           {d.can_work && !frozen && (
             <Card><CardHeader className="pb-0"><CardTitle className="text-base">Change status</CardTitle></CardHeader>
               <CardContent className="pt-3 grid grid-cols-2 gap-2">
-                <div><Label>Status</Label><select className={SELECT} value={status.status} onChange={(e) => setStatus({ ...status, status: e.target.value })}>{d.statuses.map((s: string) => <option key={s}>{s}</option>)}</select></div>
-                <div><Label>Update type</Label><select className={SELECT} value={status.update_type} onChange={(e) => setStatus({ ...status, update_type: e.target.value })}><option value="">None</option>{d.update_types.map((t: string) => <option key={t}>{t}</option>)}</select></div>
+                <div><Label>Status</Label><SelectCompat className={SELECT} value={status.status} onChange={(e) => setStatus({ ...status, status: e.target.value })}>{d.statuses.map((s: string) => <option key={s}>{s}</option>)}</SelectCompat></div>
+                <div><Label>Update type</Label><SelectCompat className={SELECT} value={status.update_type} onChange={(e) => setStatus({ ...status, update_type: e.target.value })}><option value="">None</option>{d.update_types.map((t: string) => <option key={t}>{t}</option>)}</SelectCompat></div>
                 <div className="col-span-2"><Label>Note{status.status === "Rejected" ? " (required)" : ""}</Label><Input value={status.note} onChange={(e) => setStatus({ ...status, note: e.target.value })} /></div>
                 <Button className="col-span-2" disabled={status.status === page.status} onClick={() => run(async () => { await api.post(`/work/ui/pages/${id}/status`, { status: status.status, update_type: status.update_type || null, note: status.note || null }); setStatus({ status: status.status, update_type: "", note: "" }); })}>Update status</Button>
               </CardContent></Card>

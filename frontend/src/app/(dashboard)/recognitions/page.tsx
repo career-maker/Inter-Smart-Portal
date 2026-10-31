@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageLoader } from "@/components/ui/PageLoader";
@@ -430,7 +431,7 @@ export default function RecognitionsPage() {
                 <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">
                   Achievement Title <span className="text-red-400">*</span>
                 </label>
-                <select
+                <SelectCompat
                   required
                   value={formData.title_selection}
                   onChange={(e) => setFormData({ ...formData, title_selection: e.target.value })}
@@ -449,7 +450,7 @@ export default function RecognitionsPage() {
                       Custom Title...
                     </option>
                   </optgroup>
-                </select>
+                </SelectCompat>
               </div>
 
               {formData.title_selection === "custom" && (

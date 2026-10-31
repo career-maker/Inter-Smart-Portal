@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import {
@@ -557,7 +558,7 @@ export default function LeavePolicyManagementPage() {
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   Monthly Cycle Start Date (Day of Month) <span className="text-rose-500">*</span>
                 </label>
-                <select
+                <SelectCompat
                   value={settings.monthly_cycle_start_day}
                   onChange={(e) => setSettings({ ...settings, monthly_cycle_start_day: Number(e.target.value) })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 outline-none"
@@ -567,7 +568,7 @@ export default function LeavePolicyManagementPage() {
                       Day {day} {day === 26 ? "(Default — 26th of month)" : day === 1 ? "(1st of month / Calendar month)" : `(${day}th of month)`}
                     </option>
                   ))}
-                </select>
+                </SelectCompat>
                 <p className="text-[13px] text-slate-500 leading-relaxed">
                   Configures the start of each monthly payroll and leave cycle. For example, if configured as <strong>{settings.monthly_cycle_start_day}</strong>, the cycle runs from the {settings.monthly_cycle_start_day}th to the {settings.monthly_cycle_start_day === 1 ? 31 : settings.monthly_cycle_start_day - 1}th, with automatic allocations triggering at 12:00 AM on the {settings.monthly_cycle_start_day}th.
                 </p>
@@ -728,7 +729,7 @@ export default function LeavePolicyManagementPage() {
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   Single-Day Leave Approval Level
                 </label>
-                <select
+                <SelectCompat
                   value={settings.single_day_approval_level || "tl_only"}
                   onChange={(e) => setSettings({ ...settings, single_day_approval_level: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 outline-none"
@@ -736,7 +737,7 @@ export default function LeavePolicyManagementPage() {
                   <option value="tl_only">Team Lead Only (Single approval needed)</option>
                   <option value="tl_and_admin">Team Lead + Super Admin (Both approvals required)</option>
                   <option value="admin_only">Super Admin Only</option>
-                </select>
+                </SelectCompat>
                 <p className="text-[13px] text-slate-500">
                   Defines who must review and approve 1-day leave requests.
                 </p>
@@ -1075,7 +1076,7 @@ export default function LeavePolicyManagementPage() {
             </div>
 
             <div className="flex items-center gap-2 self-start sm:self-auto">
-              <select
+              <SelectCompat
                 value={ledgerFilterType}
                 onChange={(e) => setLedgerFilterType(e.target.value)}
                 className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs outline-none"
@@ -1085,7 +1086,7 @@ export default function LeavePolicyManagementPage() {
                 <option value="manual_adjustment">Manual Admin Adjustment</option>
                 <option value="probation_clearance">Probation Clearance</option>
                 <option value="expiration">Year-End / Carry Forward Expiration</option>
-              </select>
+              </SelectCompat>
 
               <button
                 type="button"

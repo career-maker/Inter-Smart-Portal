@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
@@ -704,7 +705,7 @@ export default function LeavesPage() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Leave Category</label>
-              <select
+              <SelectCompat
                 value={filterType}
                 onChange={(e) => { setFilterType(e.target.value); setCurrentPage(1); }}
                 className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-purple-500 cursor-pointer"
@@ -713,7 +714,7 @@ export default function LeavesPage() {
                 <option value="casual">Casual Leaves</option>
                 <option value="sick">Sick Leaves</option>
                 <option value="lop">Loss of Pay (LOP)</option>
-              </select>
+              </SelectCompat>
             </div>
             
             <div className="flex flex-col gap-1">

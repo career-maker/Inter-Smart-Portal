@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState } from "react";
 import { Loader2, X } from "lucide-react";
 import api from "@/services/api";
@@ -56,11 +57,11 @@ export function EditTaskModal({ isOpen, onClose, task, onSuccess }: { isOpen: bo
           {error && <p className="text-sm text-red-600">{error}</p>}
           <label className="block text-xs font-semibold text-slate-500">Title<input required className={field} value={f.title || ""} onChange={(e) => setF({ ...f, title: e.target.value })} /></label>
           <label className="block text-xs font-semibold text-slate-500">Phase
-            <select className={field} value={f.sub_phase_id ?? ""} onChange={(e) => setF({ ...f, sub_phase_id: e.target.value })}>
+            <SelectCompat className={field} value={f.sub_phase_id ?? ""} onChange={(e) => setF({ ...f, sub_phase_id: e.target.value })}>
               <option value="">No phase</option>{phases.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select></label>
+            </SelectCompat></label>
           <label className="block text-xs font-semibold text-slate-500">Priority
-            <select className={field} value={f.priority || "Medium"} onChange={(e) => setF({ ...f, priority: e.target.value })}>{PRIORITIES.map((p) => <option key={p}>{p}</option>)}</select></label>
+            <SelectCompat className={field} value={f.priority || "Medium"} onChange={(e) => setF({ ...f, priority: e.target.value })}>{PRIORITIES.map((p) => <option key={p}>{p}</option>)}</SelectCompat></label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-xs font-semibold text-slate-500">Start<input type="date" className={field} value={f.start_date || ""} onChange={(e) => setF({ ...f, start_date: e.target.value })} /></label>
             <label className="block text-xs font-semibold text-slate-500">Due<input type="date" className={field} value={f.due_date || ""} onChange={(e) => setF({ ...f, due_date: e.target.value })} /></label>

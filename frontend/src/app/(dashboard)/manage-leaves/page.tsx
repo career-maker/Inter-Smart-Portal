@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -181,7 +182,7 @@ export default function ManageLeavesPage() {
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="text-sm text-gray-300">Employee</label>
-            <select
+            <SelectCompat
               value={filters.employee_id}
               onChange={(e) =>
                 setFilters({ ...filters, employee_id: e.target.value })
@@ -194,7 +195,7 @@ export default function ManageLeavesPage() {
                   {emp.first_name} {emp.last_name}
                 </option>
               ))}
-            </select>
+            </SelectCompat>
           </div>
 
           <div>

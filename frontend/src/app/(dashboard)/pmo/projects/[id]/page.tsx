@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -148,10 +149,10 @@ function Overview({ d, meta, run, id }: any) {
           {d.can_manage && (
             <div className="grid sm:grid-cols-3 gap-2 items-end">
               <div className="sm:col-span-2"><Label>Assign coordinator</Label>
-                <select className={SELECT} value={coord} onChange={(e) => setCoord(e.target.value)}>
+                <SelectCompat className={SELECT} value={coord} onChange={(e) => setCoord(e.target.value)}>
                   <option value="">Select</option>
                   {meta.coordinators.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.team})</option>)}
-                </select></div>
+                </SelectCompat></div>
               <Button disabled={!coord} onClick={() => run(() => api.post(`/pmo/projects/${id}/assign`, { coordinator_id: Number(coord) }))}>Assign</Button>
             </div>
           )}
@@ -166,9 +167,9 @@ function Overview({ d, meta, run, id }: any) {
                 <Button onClick={() => run(() => api.post(`/pmo/projects/${id}/resume`))}>Resume project</Button></>
             ) : (
               <><div><Label>Reason</Label>
-                <select className={SELECT} value={hold.reason_code} onChange={(e) => setHold({ ...hold, reason_code: e.target.value })}>
+                <SelectCompat className={SELECT} value={hold.reason_code} onChange={(e) => setHold({ ...hold, reason_code: e.target.value })}>
                   {meta.hold_reasons.map((h: any) => <option key={h.code} value={h.code}>{h.label}</option>)}
-                </select></div>
+                </SelectCompat></div>
                 <div className="sm:col-span-2"><Label>Note{hold.reason_code === "other" ? " (required)" : ""}</Label><Input value={hold.note} onChange={(e) => setHold({ ...hold, note: e.target.value })} /></div>
                 <Button variant="outline" onClick={() => run(() => api.post(`/pmo/projects/${id}/hold`, { reason_code: hold.reason_code, note: hold.note || null }))}>Put on hold</Button></>
             )}
@@ -228,7 +229,7 @@ function Resources({ d, run, id }: any) {
         </div>
       ))}
       <div className="grid sm:grid-cols-4 gap-2 items-end pt-2 border-t">
-        <div><Label>Type</Label><select className={SELECT} value={r.kind} onChange={(e) => setR({ ...r, kind: e.target.value })}>{KINDS.map((k) => <option key={k}>{k}</option>)}</select></div>
+        <div><Label>Type</Label><SelectCompat className={SELECT} value={r.kind} onChange={(e) => setR({ ...r, kind: e.target.value })}>{KINDS.map((k) => <option key={k}>{k}</option>)}</SelectCompat></div>
         <div><Label>Title</Label><Input value={r.title} onChange={(e) => setR({ ...r, title: e.target.value })} /></div>
         <div><Label>Link</Label><Input placeholder="https://" value={r.url} onChange={(e) => setR({ ...r, url: e.target.value })} /></div>
         <Button disabled={!r.title} onClick={() => run(async () => { await api.post(`/pmo/projects/${id}/resources`, { ...r, url: r.url || null }); setR({ kind: "Logo", title: "", url: "" }); })}>Add</Button>

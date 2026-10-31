@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect, useMemo } from "react";
 import { X, Loader2, UserPlus, Trash2, AlertCircle, Users, Check } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
@@ -227,7 +228,7 @@ export function TaskAssigneeModal({
               </h3>
 
               <div className="space-y-3">
-                <select
+                <SelectCompat
                   required
                   value={selectedUserId}
                   onChange={(e) => setSelectedUserId(e.target.value ? Number(e.target.value) : "")}
@@ -242,7 +243,7 @@ export function TaskAssigneeModal({
                         {emp.first_name} {emp.last_name} {emp.employee_code ? `(${emp.employee_code})` : ""} — {emp.department}
                       </option>
                     ))}
-                </select>
+                </SelectCompat>
 
                 <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
                   <input

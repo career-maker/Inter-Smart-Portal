@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { Loader2, Users } from "lucide-react";
 import api from "@/services/api";
@@ -76,9 +77,9 @@ function FeedbackDialog({ member, questions, onClose, onSaved }: { member: any; 
           {err && <div role="alert" className="rounded-lg border border-red-300 bg-red-50 text-red-800 text-sm px-3 py-2">{err}</div>}
           {Object.entries(questions).map(([k, q]) => (
             <div key={k}><Label>{q} (1 = poor, 5 = excellent)</Label>
-              <select className={SELECT} value={scores[k]} onChange={(e) => setScores({ ...scores, [k]: e.target.value })}>
+              <SelectCompat className={SELECT} value={scores[k]} onChange={(e) => setScores({ ...scores, [k]: e.target.value })}>
                 <option value="">Choose</option>{[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
-              </select></div>
+              </SelectCompat></div>
           ))}
           <div><Label>Comment (optional)</Label><Input value={comment} onChange={(e) => setComment(e.target.value)} /></div>
           <Button className="w-full" disabled={Object.values(scores).some((v) => !v)} onClick={save}>Save feedback</Button>

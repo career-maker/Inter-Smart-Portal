@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Trash2 } from "lucide-react";
@@ -66,20 +67,20 @@ export default function ContentCleanupPage() {
       {err && <Alert>{err}</Alert>}
       <Panel className="grid gap-4 md:grid-cols-4">
         <div><Label>Content type</Label>
-          <select className={field} value={type} onChange={(e) => { setType(e.target.value); setPage(1); }}>
+          <SelectCompat className={field} value={type} onChange={(e) => { setType(e.target.value); setPage(1); }}>
             <option value="">Choose…</option>
             {meta.types.map((t: any) => <option key={t.key} value={t.key}>{t.label} ({t.count})</option>)}
-          </select></div>
+          </SelectCompat></div>
         <div><Label>Department</Label>
-          <select className={field} value={teamId} onChange={(e) => { setTeamId(e.target.value); setUserId(""); setPage(1); }}>
+          <SelectCompat className={field} value={teamId} onChange={(e) => { setTeamId(e.target.value); setUserId(""); setPage(1); }}>
             <option value="">All departments</option>
             {meta.teams.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select></div>
+          </SelectCompat></div>
         <div><Label>User</Label>
-          <select className={field} value={userId} onChange={(e) => { setUserId(e.target.value); setPage(1); }}>
+          <SelectCompat className={field} value={userId} onChange={(e) => { setUserId(e.target.value); setPage(1); }}>
             <option value="">All users</option>
             {users.map((u: any) => <option key={u.id} value={u.id}>{u.name}</option>)}
-          </select></div>
+          </SelectCompat></div>
         <div><Label>Search text</Label><input className={field} value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder="Word in the title or text" /></div>
       </Panel>
 

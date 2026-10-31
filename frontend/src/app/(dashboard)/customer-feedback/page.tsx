@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import api from "@/services/api";
 import { Page, Panel, Row, Dot, Primary, Alert, Spinner, Label, field, area, errMsg } from "@/components/clean";
@@ -56,13 +57,13 @@ function Add({ d, onSaved }: { d: any; onSaved: () => void }) {
       {err && <Alert>{err}</Alert>}
       <div className="grid gap-4 md:grid-cols-2">
         <div><Label>When</Label>
-          <select className={field} value={f.stage} onChange={(e) => setF({ ...f, stage: e.target.value, project_id: "" })}>
+          <SelectCompat className={field} value={f.stage} onChange={(e) => setF({ ...f, stage: e.target.value, project_id: "" })}>
             {d.stages.map((s: string) => <option key={s} value={s}>{STAGE[s]}</option>)}
-          </select></div>
+          </SelectCompat></div>
         <div><Label>Project{f.stage === "post_live" ? ", live projects only" : ""}</Label>
-          <select className={field} value={f.project_id} onChange={(e) => set("project_id", e.target.value)}>
+          <SelectCompat className={field} value={f.project_id} onChange={(e) => set("project_id", e.target.value)}>
             <option value="">Choose</option>{projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select></div>
+          </SelectCompat></div>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         <div><Label>Spoke to</Label><input className={field} value={f.contact_name} onChange={(e) => set("contact_name", e.target.value)} /></div>

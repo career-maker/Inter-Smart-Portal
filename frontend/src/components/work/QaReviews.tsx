@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import api from "@/services/api";
@@ -109,7 +110,7 @@ function ReviewDialog({ id, onClose, onChanged }: { id: number; onClose: () => v
               {d.can_test && r.status === "In review" && (
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                   <div className="col-span-2"><Label>Bug title</Label><Input value={bug.title} onChange={(e) => setBug({ ...bug, title: e.target.value })} /></div>
-                  <div><Label>Priority</Label><select className={SELECT} value={bug.priority} onChange={(e) => setBug({ ...bug, priority: e.target.value })}>{d.priorities.map((p: string) => <option key={p}>{p}</option>)}</select></div>
+                  <div><Label>Priority</Label><SelectCompat className={SELECT} value={bug.priority} onChange={(e) => setBug({ ...bug, priority: e.target.value })}>{d.priorities.map((p: string) => <option key={p}>{p}</option>)}</SelectCompat></div>
                   <div><Label>Details</Label><Input value={bug.description} onChange={(e) => setBug({ ...bug, description: e.target.value })} /></div>
                   <Button className="col-span-2" disabled={!bug.title} onClick={() => run(async () => { await api.post(`/work/qa/reviews/${id}/bugs`, { title: bug.title, priority: bug.priority, description: bug.description || null }); setBug({ title: "", priority: "Medium", description: "" }); })}>Add bug</Button>
                 </div>

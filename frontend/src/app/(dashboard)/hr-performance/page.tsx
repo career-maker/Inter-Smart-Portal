@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState } from "react";
 import api from "@/services/api";
 import { Page, Panel, Spinner, field } from "@/components/clean";
@@ -20,10 +21,10 @@ export default function HrPerformancePage() {
   return (
     <Page title="Performance figures" hint={`${d.note} Customer feedback does not count here.`}>
       <div className="max-w-xs">
-        <select className={field} value={team} onChange={(e) => setTeam(e.target.value)}>
+        <SelectCompat className={field} value={team} onChange={(e) => setTeam(e.target.value)}>
           <option value="">All departments</option>
           {d.teams.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
-        </select>
+        </SelectCompat>
       </div>
       <Panel className="p-0 overflow-x-auto">
         <table className="w-full text-sm">

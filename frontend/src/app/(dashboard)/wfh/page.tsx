@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
 import {
@@ -422,7 +423,7 @@ export default function WfhPage() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Status</label>
-                <select
+                <SelectCompat
                   value={filterStatus}
                   onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
                   className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500 cursor-pointer"
@@ -432,12 +433,12 @@ export default function WfhPage() {
                   <option value="Approved">Approved</option>
                   <option value="Rejected">Rejected</option>
                   <option value="Cancelled">Cancelled</option>
-                </select>
+                </SelectCompat>
               </div>
 
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Session Type</label>
-                <select
+                <SelectCompat
                   value={filterDuration}
                   onChange={(e) => { setFilterDuration(e.target.value); setCurrentPage(1); }}
                   className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500 cursor-pointer"
@@ -446,7 +447,7 @@ export default function WfhPage() {
                   <option value="Full">Full Day</option>
                   <option value="Half-Morning">Morning Half</option>
                   <option value="Half-Afternoon">Afternoon Half</option>
-                </select>
+                </SelectCompat>
               </div>
 
               <div className="flex flex-col gap-1">

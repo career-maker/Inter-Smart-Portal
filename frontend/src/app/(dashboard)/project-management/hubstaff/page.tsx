@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import { format, parseISO, subDays, addDays, startOfMonth } from "date-fns";
@@ -996,7 +997,7 @@ export default function HubstaffAnalyticsPage() {
 
             <div className="flex items-center gap-2 flex-wrap">
               {/* Project Filter */}
-              <select
+              <SelectCompat
                 value={projectFilter}
                 onChange={(e) => setProjectFilter(e.target.value)}
                 className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-xl px-3 py-1.5 outline-none"
@@ -1007,10 +1008,10 @@ export default function HubstaffAnalyticsPage() {
                     {p.name}
                   </option>
                 ))}
-              </select>
+              </SelectCompat>
 
               {/* Activity Level Filter */}
-              <select
+              <SelectCompat
                 value={activityFilter}
                 onChange={(e) => setActivityFilter(e.target.value as ActivityLevelFilter)}
                 className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-xl px-3 py-1.5 outline-none"
@@ -1019,7 +1020,7 @@ export default function HubstaffAnalyticsPage() {
                 <option value="high">High (70–100%)</option>
                 <option value="moderate">Moderate (50–69%)</option>
                 <option value="low">Low (&lt;50%)</option>
-              </select>
+              </SelectCompat>
             </div>
           </div>
 

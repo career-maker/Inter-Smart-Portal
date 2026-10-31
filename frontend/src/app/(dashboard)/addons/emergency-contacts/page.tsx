@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
@@ -759,7 +760,7 @@ export default function EmergencyContactsManagementPage() {
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
-          <select
+          <SelectCompat
             value={selectedDept}
             onChange={(e) => setSelectedDept(e.target.value)}
             className="px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium focus:outline-hidden"
@@ -770,9 +771,9 @@ export default function EmergencyContactsManagementPage() {
                 {dept}
               </option>
             ))}
-          </select>
+          </SelectCompat>
 
-          <select
+          <SelectCompat
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
             className="px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium focus:outline-hidden"
@@ -780,7 +781,7 @@ export default function EmergencyContactsManagementPage() {
             <option value="all">All Status</option>
             <option value="active">Active Only</option>
             <option value="inactive">Inactive Only</option>
-          </select>
+          </SelectCompat>
         </div>
       </div>
 
@@ -1047,7 +1048,7 @@ export default function EmergencyContactsManagementPage() {
                       </button>
                     )}
                   </div>
-                  <select
+                  <SelectCompat
                     value={selectedEmployeeId}
                     onChange={(e) => handleSelectEmployee(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-700 text-slate-800 dark:text-white font-medium focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/30 text-xs cursor-pointer shadow-2xs"
@@ -1063,7 +1064,7 @@ export default function EmergencyContactsManagementPage() {
                         </option>
                       );
                     })}
-                  </select>
+                  </SelectCompat>
                   <p className="text-[13px] text-slate-500 dark:text-slate-400">
                     Pick any registered team member to auto-fill their details, or type/customise manually below.
                   </p>

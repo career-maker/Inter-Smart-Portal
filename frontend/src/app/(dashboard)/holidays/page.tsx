@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
@@ -608,7 +609,7 @@ export default function HolidaysPage() {
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                       Select Month & Year
                     </span>
-                    <select
+                    <SelectCompat
                       value={currentDate.getFullYear()}
                       onChange={(e) => handleSelectYear(Number(e.target.value))}
                       className="text-xs font-bold bg-slate-100 dark:bg-slate-800 border-0 rounded px-2 py-1 text-slate-800 dark:text-white focus:outline-none"
@@ -618,7 +619,7 @@ export default function HolidaysPage() {
                           {yr}
                         </option>
                       ))}
-                    </select>
+                    </SelectCompat>
                   </div>
 
                   {/* Months Grid */}
@@ -1286,7 +1287,7 @@ export default function HolidaysPage() {
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Holiday Type *
               </label>
-              <select
+              <SelectCompat
                 value={type}
                 onChange={(e) => setType(e.target.value)}
                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-[#56348f] transition-colors"
@@ -1296,7 +1297,7 @@ export default function HolidaysPage() {
                     {t.label}
                   </option>
                 ))}
-              </select>
+              </SelectCompat>
             </div>
 
             <div>
@@ -1534,20 +1535,20 @@ export default function HolidaysPage() {
                       <div className="flex items-center gap-2 mb-4 p-3 bg-purple-50/60 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/40 rounded-xl">
                         <CalendarIcon className="w-4 h-4 text-purple-600 shrink-0" />
                         <span className="text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0">Select Month:</span>
-                        <select
+                        <SelectCompat
                           value={manageOverrideMonth}
                           onChange={(e) => setManageOverrideMonth(Number(e.target.value))}
                           className="text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-800 dark:text-white focus:outline-none focus:border-purple-400 cursor-pointer"
                         >
                           {MONTH_NAMES.map((m, i) => <option key={i} value={i}>{m}</option>)}
-                        </select>
-                        <select
+                        </SelectCompat>
+                        <SelectCompat
                           value={manageOverrideYear}
                           onChange={(e) => setManageOverrideYear(Number(e.target.value))}
                           className="text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-800 dark:text-white focus:outline-none focus:border-purple-400 cursor-pointer"
                         >
                           {[2024, 2025, 2026, 2027, 2028].map((y) => <option key={y} value={y}>{y}</option>)}
-                        </select>
+                        </SelectCompat>
                       </div>
 
                       <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">

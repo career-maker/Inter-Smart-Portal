@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { CalendarClock } from "lucide-react";
 import api from "@/services/api";
@@ -59,10 +60,10 @@ export default function AmcPage() {
         <CardHeader className="pb-2"><CardTitle className="text-base">Add AMC</CardTitle></CardHeader>
         <CardContent className="grid sm:grid-cols-6 gap-2 items-end">
           <div className="sm:col-span-2"><Label>Project</Label>
-            <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })}>
+            <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })}>
               <option value="">Select</option>
               {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select></div>
+            </SelectCompat></div>
           <div><Label>Client</Label><Input value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} /></div>
           <div><Label>Start</Label><Input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} /></div>
           <div><Label>End</Label><Input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} /></div>

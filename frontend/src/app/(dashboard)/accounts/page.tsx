@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { Wallet, Search, Loader2 } from "lucide-react";
 import api from "@/services/api";
@@ -179,9 +180,9 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
             ))}
             <div className="grid grid-cols-2 gap-2 items-end pt-3 border-t">
               <div><Label>Type</Label>
-                <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={pay.kind} onChange={(e) => setPay({ ...pay, kind: e.target.value })}>
+                <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={pay.kind} onChange={(e) => setPay({ ...pay, kind: e.target.value })}>
                   <option value="advance">Advance received</option><option value="po">PO received (purchase order)</option><option value="override">Override approval (start without payment)</option><option value="installment">Installment</option><option value="final">Final</option>
-                </select></div>
+                </SelectCompat></div>
               <div><Label>Amount</Label><Input type="number" min="0" value={pay.amount} onChange={(e) => setPay({ ...pay, amount: e.target.value })} /></div>
               <div><Label>Due date</Label><Input type="date" value={pay.due_date} onChange={(e) => setPay({ ...pay, due_date: e.target.value })} /></div>
               <div><Label>Reference</Label><Input value={pay.reference} onChange={(e) => setPay({ ...pay, reference: e.target.value })} /></div>
@@ -214,9 +215,9 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
           <CardHeader className="pb-0"><CardTitle className="text-base">Project status ({d.project.status})</CardTitle></CardHeader>
           <CardContent className="grid grid-cols-1 gap-2 pt-0">
             <div><Label>Action</Label>
-              <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={status.status} onChange={(e) => setStatus({ ...status, status: e.target.value })}>
+              <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={status.status} onChange={(e) => setStatus({ ...status, status: e.target.value })}>
                 <option value="On Hold">Hold</option><option value="Cancelled">Terminate</option><option value="Active">Resume</option>
-              </select></div>
+              </SelectCompat></div>
             <div><Label>Reason (required)</Label><Input value={status.reason} onChange={(e) => setStatus({ ...status, reason: e.target.value })} /></div>
             <Button loading={busy} variant="outline" disabled={busy || !status.reason} onClick={() => {
               if (status.status === "Cancelled" && !confirm("Terminate this project?")) return;

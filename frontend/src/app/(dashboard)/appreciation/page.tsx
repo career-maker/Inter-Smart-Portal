@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import api from "@/services/api";
 import { Page, Panel, Row, Dot, Primary, Quiet, Alert, Spinner, Label, field, errMsg } from "@/components/clean";
@@ -41,10 +42,10 @@ function Nominate({ people, onSent }: { people: any[]; onSent: () => void }) {
       {err && <Alert>{err}</Alert>}
       <div className="grid gap-4 md:grid-cols-3">
         <div><Label>Who</Label>
-          <select className={field} value={nominee} onChange={(e) => setNominee(e.target.value)}>
+          <SelectCompat className={field} value={nominee} onChange={(e) => setNominee(e.target.value)}>
             <option value="">Choose a person</option>
             {people.map((p) => <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>)}
-          </select></div>
+          </SelectCompat></div>
         <div><Label>Title, for example Star of the month</Label><input className={field} value={title} onChange={(e) => setTitle(e.target.value)} /></div>
         <div><Label>Why</Label><input className={field} value={reason} onChange={(e) => setReason(e.target.value)} /></div>
       </div>

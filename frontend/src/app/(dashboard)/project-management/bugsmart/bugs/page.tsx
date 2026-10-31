@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -369,7 +370,7 @@ export default function BugzillaBugsListPage() {
         {/* Dropdown Filters */}
         <div className="flex items-center gap-2 flex-wrap">
           {/* Project Filter */}
-          <select
+          <SelectCompat
             value={selectedProject}
             onChange={(e) => {
               setSelectedProject(e.target.value);
@@ -383,10 +384,10 @@ export default function BugzillaBugsListPage() {
                 {p.name}
               </option>
             ))}
-          </select>
+          </SelectCompat>
 
           {/* Status Filter */}
-          <select
+          <SelectCompat
             value={selectedStatus}
             onChange={(e) => {
               setSelectedStatus(e.target.value);
@@ -402,10 +403,10 @@ export default function BugzillaBugsListPage() {
             <option value="VERIFIED">VERIFIED</option>
             <option value="CLOSED">CLOSED</option>
             <option value="REOPENED">REOPENED</option>
-          </select>
+          </SelectCompat>
 
           {/* Severity Filter */}
-          <select
+          <SelectCompat
             value={selectedSeverity}
             onChange={(e) => {
               setSelectedSeverity(e.target.value);
@@ -420,10 +421,10 @@ export default function BugzillaBugsListPage() {
             <option value="NORMAL">NORMAL</option>
             <option value="MINOR">MINOR</option>
             <option value="TRIVIAL">TRIVIAL</option>
-          </select>
+          </SelectCompat>
 
           {/* Priority Filter */}
-          <select
+          <SelectCompat
             value={selectedPriority}
             onChange={(e) => {
               setSelectedPriority(e.target.value);
@@ -437,7 +438,7 @@ export default function BugzillaBugsListPage() {
             <option value="P3">P3 (Medium)</option>
             <option value="P4">P4 (Low)</option>
             <option value="P5">P5 (Lowest)</option>
-          </select>
+          </SelectCompat>
 
           {(search || selectedProject !== "all" || selectedStatus !== "all" || selectedSeverity !== "all" || selectedPriority !== "all") && (
             <button
@@ -476,7 +477,7 @@ export default function BugzillaBugsListPage() {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <select
+            <SelectCompat
               value={bulkStatus}
               onChange={(e) => setBulkStatus(e.target.value)}
               className="px-2.5 py-1 text-xs rounded-xl bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-700 text-slate-800 dark:text-slate-200 focus:outline-none"
@@ -486,9 +487,9 @@ export default function BugzillaBugsListPage() {
               <option value="RESOLVED">RESOLVED</option>
               <option value="CLOSED">CLOSED</option>
               <option value="REOPENED">REOPENED</option>
-            </select>
+            </SelectCompat>
 
-            <select
+            <SelectCompat
               value={bulkPriority}
               onChange={(e) => setBulkPriority(e.target.value)}
               className="px-2.5 py-1 text-xs rounded-xl bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-700 text-slate-800 dark:text-slate-200 focus:outline-none"
@@ -499,7 +500,7 @@ export default function BugzillaBugsListPage() {
               <option value="P3">P3</option>
               <option value="P4">P4</option>
               <option value="P5">P5</option>
-            </select>
+            </SelectCompat>
 
             <button
               type="button"

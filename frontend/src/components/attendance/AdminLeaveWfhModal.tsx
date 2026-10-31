@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -242,7 +243,7 @@ export function AdminLeaveWfhModal({
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
                   Employee <span className="text-red-500">*</span>
                 </label>
-                <select
+                <SelectCompat
                   name="user_id"
                   value={formData.user_id}
                   onChange={handleInputChange}
@@ -256,7 +257,7 @@ export function AdminLeaveWfhModal({
                       {emp.first_name} {emp.last_name || ""} {emp.employee_code ? `(${emp.employee_code})` : ""} {emp.designation ? `• ${emp.designation}` : ""}
                     </option>
                   ))}
-                </select>
+                </SelectCompat>
               </div>
             )}
 
@@ -266,7 +267,7 @@ export function AdminLeaveWfhModal({
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
                   Leave Type <span className="text-red-500">*</span>
                 </label>
-                <select
+                <SelectCompat
                   name="leave_type_id"
                   value={formData.leave_type_id}
                   onChange={handleInputChange}
@@ -277,14 +278,14 @@ export function AdminLeaveWfhModal({
                   {leaveTypes.map(lt => (
                     <option key={lt.id} value={lt.id}>{lt.name}</option>
                   ))}
-                </select>
+                </SelectCompat>
               </div>
             ) : (
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
                   WFH Type <span className="text-red-500">*</span>
                 </label>
-                <select
+                <SelectCompat
                   name="wfh_type"
                   value={formData.wfh_type}
                   onChange={handleInputChange}
@@ -294,7 +295,7 @@ export function AdminLeaveWfhModal({
                   <option value="Full">Full Day WFH</option>
                   <option value="Half-Morning">Half Day – Morning Session</option>
                   <option value="Half-Afternoon">Half Day – Afternoon Session</option>
-                </select>
+                </SelectCompat>
               </div>
             )}
 

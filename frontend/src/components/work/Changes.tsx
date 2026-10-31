@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import api from "@/services/api";
@@ -50,11 +51,11 @@ export default function Changes({ projectId }: { projectId: string | number }) {
         <Card><CardHeader className="pb-0"><CardTitle className="text-base">Raise a correction or change</CardTitle></CardHeader>
           <CardContent className="pt-3 grid gap-2 sm:grid-cols-2 [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500">
             <div><Label>Department</Label>
-              <select className={SELECT} value={form.team_id} onChange={(e) => setForm({ ...form, team_id: e.target.value })}>
+              <SelectCompat className={SELECT} value={form.team_id} onChange={(e) => setForm({ ...form, team_id: e.target.value })}>
                 <option value="">Choose</option>{d.departments.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select></div>
+              </SelectCompat></div>
             <div><Label>Type</Label>
-              <select className={SELECT} value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value })}>{d.kinds.map((k: string) => <option key={k}>{k}</option>)}</select></div>
+              <SelectCompat className={SELECT} value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value })}>{d.kinds.map((k: string) => <option key={k}>{k}</option>)}</SelectCompat></div>
             <div className="sm:col-span-2"><Label>What needs to change</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
             <div className="sm:col-span-2"><Label>Details</Label><Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
             <Button className="sm:col-span-2" disabled={!form.team_id || !form.title}
@@ -110,9 +111,9 @@ function ChangeRow({ c, d, run }: { c: any; d: any; run: (fn: () => Promise<any>
       {c.can_assign && (
         <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
           <div><Label>Assign to</Label>
-            <select className={SELECT} value={assignee} onChange={(e) => setAssignee(e.target.value)}>
+            <SelectCompat className={SELECT} value={assignee} onChange={(e) => setAssignee(e.target.value)}>
               <option value="">Choose</option>{(d.members[c.team_id] || []).map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
-            </select></div>
+            </SelectCompat></div>
           <Button variant="outline" disabled={!assignee} onClick={() => run(() => api.post(`/work/changes/${c.id}/assign`, { assigned_to: Number(assignee) }))}>Assign</Button>
         </div>
       )}

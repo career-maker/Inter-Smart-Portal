@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import React, { useEffect, useState, useMemo } from "react";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
@@ -195,11 +196,11 @@ export default function ReportsPage() {
       <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 flex flex-wrap gap-4 items-end">
         <div className="flex-1 min-w-[200px]">
           <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">Employee</label>
-          <select value={selectedUserId} onChange={e => setSelectedUserId(e.target.value)}
+          <SelectCompat value={selectedUserId} onChange={e => setSelectedUserId(e.target.value)}
             className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500">
             <option value="all">All Employees</option>
             {employeeList.map(e => <option key={e.id} value={String(e.id)}>{e.name} ({e.code})</option>)}
-          </select>
+          </SelectCompat>
         </div>
         {(reportType === "leaves" || reportType === "attendance-summary") && <>
           <div>

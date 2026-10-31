@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { Target, Trash2 } from "lucide-react";
 import api from "@/services/api";
@@ -53,10 +54,10 @@ export default function SalesTargetsPage() {
         <CardContent className="grid sm:grid-cols-4 gap-2 items-end">
           <div><Label>Month</Label><Input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} /></div>
           <div><Label>Person</Label>
-            <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={userId} onChange={(e) => setUserId(e.target.value)}>
+            <SelectCompat className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={userId} onChange={(e) => setUserId(e.target.value)}>
               <option value="">Select</option>
               {employees.map((u: any) => <option key={u.id} value={u.id}>{u.name}</option>)}
-            </select></div>
+            </SelectCompat></div>
           <div><Label>Target amount</Label><Input type="number" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
           <Button disabled={!userId || !amount} onClick={save}>Save target</Button>
           {error && <p className="sm:col-span-4 text-sm text-red-600">{error}</p>}

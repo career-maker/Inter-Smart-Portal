@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Users,
@@ -361,7 +362,7 @@ function ThreeCardsEditor({
           <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
             Primary Approver {isMulti ? "(Level 1)" : ""}
           </label>
-          <select
+          <SelectCompat
             value={rule.to_user_id || 0}
             onChange={(e) => handleToAccount(rule, updater, Number(e.target.value) || null)}
             className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
@@ -372,7 +373,7 @@ function ThreeCardsEditor({
                 {u.first_name} {u.last_name} ({u.employee_code || `ID ${u.id}`}) — {u.email}
               </option>
             ))}
-          </select>
+          </SelectCompat>
         </div>
 
         {/* Second TO Account (Level 2 Approver - Default Super Admin) */}
@@ -386,7 +387,7 @@ function ThreeCardsEditor({
                 Default: Super Admin
               </span>
             </div>
-            <select
+            <SelectCompat
               value={rule.to_user_id_2 || 0}
               onChange={(e) => handleToAccount2(rule, updater, Number(e.target.value) || null)}
               className="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
@@ -397,7 +398,7 @@ function ThreeCardsEditor({
                   {u.first_name} {u.last_name} ({u.employee_code || `ID ${u.id}`}) — {u.email}
                 </option>
               ))}
-            </select>
+            </SelectCompat>
           </div>
         )}
 

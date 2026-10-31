@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect, useMemo } from "react";
 import {
   X,
@@ -409,7 +410,7 @@ export function SyncHubstaffUsersModal({ isOpen, onClose }: SyncHubstaffUsersMod
                           {/* Column 2: Search & Link HR Employee */}
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-2">
-                              <select
+                              <SelectCompat
                                 value={currentSelectedId || ""}
                                 onChange={(e) =>
                                   handleLinkSelect(hsUser.hubstaff_user_id, e.target.value)
@@ -424,7 +425,7 @@ export function SyncHubstaffUsersModal({ isOpen, onClose }: SyncHubstaffUsersMod
                                     {emp.department ? `• ${emp.department}` : ""}
                                   </option>
                                 ))}
-                              </select>
+                              </SelectCompat>
 
                               {currentSelectedId && (
                                 <button

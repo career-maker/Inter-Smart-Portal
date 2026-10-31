@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import api from "@/services/api";
@@ -143,7 +144,7 @@ export default function IssueDetailPage() {
 
         <div className="flex items-center gap-2 flex-wrap">
           {isSuperAdmin && (
-            <select
+            <SelectCompat
               value={issue.status}
               onChange={(e) => handleStatusChange(e.target.value)}
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-[#56348f]"
@@ -151,7 +152,7 @@ export default function IssueDetailPage() {
               {["Open", "In Progress", "Waiting for User Response", "Resolved", "Rejected", "Closed"].map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
-            </select>
+            </SelectCompat>
           )}
 
           {/* Assigned employee can mark as Resolved */}
@@ -323,7 +324,7 @@ export default function IssueDetailPage() {
                   <span className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider block mb-1.5">
                     Assigned To {assigning && <Loader2 className="inline w-3 h-3 animate-spin ml-1" />}
                   </span>
-                  <select
+                  <SelectCompat
                     value={assignedToId ?? ""}
                     onChange={(e) => handleAssign(e.target.value)}
                     disabled={assigning}
@@ -335,7 +336,7 @@ export default function IssueDetailPage() {
                         {emp.first_name} {emp.last_name} ({emp.employee_code || emp.email})
                       </option>
                     ))}
-                  </select>
+                  </SelectCompat>
                   {assignedToObj && (
                     <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
                       <UserCheck className="w-3 h-3" />

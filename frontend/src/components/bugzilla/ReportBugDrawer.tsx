@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import React, { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
@@ -478,7 +479,7 @@ export function ReportBugDrawer({
                   </div>
                 ) : (
                   <>
-                    <select
+                    <SelectCompat
                       value={taskId}
                       onChange={(e) => {
                         const val = e.target.value ? Number(e.target.value) : "";
@@ -502,7 +503,7 @@ export function ReportBugDrawer({
                           </option>
                         );
                       })}
-                    </select>
+                    </SelectCompat>
                     {tasks.length === 0 && !loadingTasks && (
                       <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
                         No tasks found under this project. Tasks assigned by Team Leads will appear here.
@@ -577,7 +578,7 @@ export function ReportBugDrawer({
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Severity <span className="text-red-500">*</span>
                 </label>
-                <select
+                <SelectCompat
                   value={severity}
                   onChange={(e) => setSeverity(e.target.value as BugzillaSeverity)}
                   className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"
@@ -588,14 +589,14 @@ export function ReportBugDrawer({
                   <option value="NORMAL">NORMAL (Default)</option>
                   <option value="MINOR">MINOR (Minor inconvenience)</option>
                   <option value="TRIVIAL">TRIVIAL (Cosmetic/typo)</option>
-                </select>
+                </SelectCompat>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Priority <span className="text-red-500">*</span>
                 </label>
-                <select
+                <SelectCompat
                   value={priority}
                   onChange={(e) => setPriority(e.target.value as BugzillaPriority)}
                   className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none"
@@ -605,7 +606,7 @@ export function ReportBugDrawer({
                   <option value="P3">P3 (Normal)</option>
                   <option value="P4">P4 (Low)</option>
                   <option value="P5">P5 (Lowest)</option>
-                </select>
+                </SelectCompat>
               </div>
             </div>
 

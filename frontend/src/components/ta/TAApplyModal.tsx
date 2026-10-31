@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useRef } from "react";
 import {
   X,
@@ -274,7 +275,7 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
                 >
                   <div className="flex items-center gap-2">
                     <div className="flex-1 min-w-0">
-                      <select
+                      <SelectCompat
                         value={item.category}
                         onChange={(e) => handleItemChange(index, "category", e.target.value)}
                         className="w-full px-3 py-2 bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/30 shadow-xs"
@@ -283,7 +284,7 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
                         <option value="Food">Food & Meals</option>
                         <option value="Accommodation">Hotel & Lodging</option>
                         <option value="Other">Other / Miscellaneous</option>
-                      </select>
+                      </SelectCompat>
                     </div>
 
                     <div className="w-32 relative">

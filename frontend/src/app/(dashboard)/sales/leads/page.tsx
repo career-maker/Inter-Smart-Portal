@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { Users, Search } from "lucide-react";
 import api from "@/services/api";
@@ -103,9 +104,9 @@ export default function LeadsPage() {
                 <tr key={l.id} className="border-b last:border-0 align-top">
                   <td className="p-3"><div className="font-medium text-slate-900 dark:text-white">{l.name}</div><div className="text-xs text-slate-500">{l.contact_name} {l.phone}</div></td>
                   <td className="p-3">
-                    <select className={`rounded-full px-2 py-1 text-xs font-semibold border-0 ${COLOR[l.status]}`} value={l.status} onChange={(e) => setLeadStatus(l, e.target.value)}>
+                    <SelectCompat className={`rounded-full px-2 py-1 text-xs font-semibold border-0 ${COLOR[l.status]}`} value={l.status} onChange={(e) => setLeadStatus(l, e.target.value)}>
                       {STATUSES.map((s) => <option key={s}>{s}</option>)}
-                    </select>
+                    </SelectCompat>
                   </td>
                   <td className="p-3 text-right">{money(l.expected_value)}</td>
                   <td className="p-3">{l.next_followup_at || "-"}</td>
@@ -115,9 +116,9 @@ export default function LeadsPage() {
                     <Button size="sm" variant="outline" onClick={() => setOpen(open === l.id ? null : l.id)}>Add to inbox</Button>
                     {open === l.id && (
                       <div className="mt-2 grid gap-2 text-left">
-                        <select className="h-10 rounded-md border bg-transparent px-2 text-sm" value={act.kind} onChange={(e) => setAct({ ...act, kind: e.target.value })}>
+                        <SelectCompat className="h-10 rounded-md border bg-transparent px-2 text-sm" value={act.kind} onChange={(e) => setAct({ ...act, kind: e.target.value })}>
                           <option value="followup">Follow-up</option><option value="proposal">Proposal</option><option value="meeting">Meeting</option><option value="other">Other</option>
-                        </select>
+                        </SelectCompat>
                         <Input placeholder="What needs doing?" value={act.title} onChange={(e) => setAct({ ...act, title: e.target.value })} />
                         <Input type="date" value={act.due_at} onChange={(e) => setAct({ ...act, due_at: e.target.value })} />
                         <Button size="sm" disabled={!act.title} onClick={() => addActivity(l.id)}>Save</Button>

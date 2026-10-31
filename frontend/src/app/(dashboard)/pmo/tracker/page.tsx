@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import api from "@/services/api";
 import { Page, Panel, Primary, Quiet, Alert, Spinner, Label, field, money, errMsg } from "@/components/clean";
@@ -44,9 +45,9 @@ export default function TrackerPage() {
           <p className="text-sm font-medium text-slate-900 dark:text-white">Put {hold.name} on hold</p>
           <div className="grid gap-4 md:grid-cols-2">
             <div><Label>Reason</Label>
-              <select className={field} value={code} onChange={(e) => setCode(e.target.value)}>
+              <SelectCompat className={field} value={code} onChange={(e) => setCode(e.target.value)}>
                 <option value="">Choose</option>{reasons.map((r) => <option key={r.code} value={r.code}>{r.label}</option>)}
-              </select></div>
+              </SelectCompat></div>
             <div><Label>Note, needed for Other</Label><input className={field} value={note} onChange={(e) => setNote(e.target.value)} /></div>
           </div>
           <div className="flex items-center gap-4"><Primary disabled={!code} onClick={confirmHold}>Put on hold</Primary><Quiet onClick={() => setHold(null)}>Cancel</Quiet></div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import api from "@/services/api";
@@ -54,7 +55,7 @@ export default function Sprints({ projectId }: { projectId: string | number }) {
       {planners.length > 0 && (
         <Card><CardHeader className="pb-0"><CardTitle className="text-base">Plan a sprint</CardTitle></CardHeader>
           <CardContent className="pt-3 grid sm:grid-cols-4 gap-2 items-end">
-            <div><Label>Department</Label><select className={SELECT} value={form.team_id} onChange={(e) => setForm({ ...form, team_id: e.target.value })}><option value="">Select</option>{planners.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
+            <div><Label>Department</Label><SelectCompat className={SELECT} value={form.team_id} onChange={(e) => setForm({ ...form, team_id: e.target.value })}><option value="">Select</option>{planners.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}</SelectCompat></div>
             <div><Label>Sprint title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
             <Button disabled={!form.team_id || !form.title} onClick={() => run(async () => {
               const r = await api.post(`/work/projects/${projectId}/sprints`, { team_id: Number(form.team_id), title: form.title });
@@ -154,12 +155,12 @@ function SprintDialog({ id, onClose, onChanged }: { id: number; onClose: () => v
                   <div className="grid grid-cols-3 gap-2 items-end">
                     <div><Label>Assigned to</Label>
                       {d.can_manage && ["Draft", "Rejected", "Approved", "Scheduled", "In progress"].includes(s.status) ? (
-                        <select className={SELECT} value={it.assigned_to ?? ""} onChange={(e) => run(() => api.put(`/work/sprint-items/${it.id}`, { assigned_to: e.target.value ? Number(e.target.value) : null }))}>
+                        <SelectCompat className={SELECT} value={it.assigned_to ?? ""} onChange={(e) => run(() => api.put(`/work/sprint-items/${it.id}`, { assigned_to: e.target.value ? Number(e.target.value) : null }))}>
                           <option value="">Not assigned</option>{d.members.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
-                        </select>) : <div className="h-10 flex items-center">{it.assignee || "Not assigned"}</div>}
+                        </SelectCompat>) : <div className="h-10 flex items-center">{it.assignee || "Not assigned"}</div>}
                     </div>
                     <div><Label>Status</Label>
-                      {working ? <select className={SELECT} value={it.status} onChange={(e) => setItemStatus({ ...it, status: e.target.value }, {})}>{d.item_statuses.map((x: string) => <option key={x}>{x}</option>)}</select>
+                      {working ? <SelectCompat className={SELECT} value={it.status} onChange={(e) => setItemStatus({ ...it, status: e.target.value }, {})}>{d.item_statuses.map((x: string) => <option key={x}>{x}</option>)}</SelectCompat>
                         : <div className="h-10 flex items-center">{it.status}</div>}
                     </div>
                     <div><Label>Days spent</Label>
@@ -173,7 +174,7 @@ function SprintDialog({ id, onClose, onChanged }: { id: number; onClose: () => v
                 <div className="grid grid-cols-3 gap-2 items-end pt-2 border-t">
                   <div className="col-span-3"><Label>New task</Label><Input value={item.title} onChange={(e) => setItem({ ...item, title: e.target.value })} /></div>
                   <div><Label>Effort (days)</Label><Input type="number" min="0" step="0.5" value={item.effort_days} onChange={(e) => setItem({ ...item, effort_days: e.target.value })} /></div>
-                  <div><Label>Assign to</Label><select className={SELECT} value={item.assigned_to} onChange={(e) => setItem({ ...item, assigned_to: e.target.value })}><option value="">Later</option>{d.members.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></div>
+                  <div><Label>Assign to</Label><SelectCompat className={SELECT} value={item.assigned_to} onChange={(e) => setItem({ ...item, assigned_to: e.target.value })}><option value="">Later</option>{d.members.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}</SelectCompat></div>
                   <Button disabled={!item.title || !item.effort_days} onClick={() => run(async () => { await api.post(`/work/sprints/${id}/items`, { title: item.title, effort_days: Number(item.effort_days), assigned_to: item.assigned_to ? Number(item.assigned_to) : null }); setItem({ title: "", effort_days: "", assigned_to: "" }); })}>Add task</Button>
                 </div>
               )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   BarChart3,
@@ -143,7 +144,7 @@ export default function BugzillaReportsPage() {
 
         <div className="flex items-center gap-3 flex-wrap">
           {/* Project Filter */}
-          <select
+          <SelectCompat
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value ? Number(e.target.value) : "")}
             className="px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none"
@@ -154,7 +155,7 @@ export default function BugzillaReportsPage() {
                 {p.name}
               </option>
             ))}
-          </select>
+          </SelectCompat>
 
           <button
             type="button"

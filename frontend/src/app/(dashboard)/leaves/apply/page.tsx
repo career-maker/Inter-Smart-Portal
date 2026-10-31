@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -406,21 +407,21 @@ export default function ApplyLeavePage() {
 
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Leave Type *</label>
-              <select value={leaveTypeId} onChange={e => handleLeaveTypeChange(e.target.value)} required className={inputCls}>
+              <SelectCompat value={leaveTypeId} onChange={e => handleLeaveTypeChange(e.target.value)} required className={inputCls}>
                 <option value="" disabled>Select leave type...</option>
                 {leaveTypes.map(t => (
                   <option key={t.id} value={t.id.toString()}>{t.name}</option>
                 ))}
-              </select>
+              </SelectCompat>
             </div>
 
             {showDurationSelector && (
               <div>
                 <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Duration (Half Day) *</label>
-                <select value={durationType} onChange={e => setDurationType(e.target.value)} required className={inputCls}>
+                <SelectCompat value={durationType} onChange={e => setDurationType(e.target.value)} required className={inputCls}>
                   <option value="Half-Morning">Morning Half</option>
                   <option value="Half-Afternoon">Afternoon Half</option>
-                </select>
+                </SelectCompat>
               </div>
             )}
 
