@@ -1,5 +1,7 @@
 "use client";
 
+import { UiverseSelect } from "@/components/ui/UiverseSelect";
+
 /** Task priority is shown by colour only. Colours come from the portal palette (teal, coral, blue) plus yellow. */
 export const PRIORITY_COLORS: Record<string, string> = {
   Critical: "#FE586E", // coral
@@ -40,5 +42,37 @@ export function PriorityLegend({ className = "" }: { className?: string }) {
         </span>
       ))}
     </div>
+  );
+}
+
+export const TASK_STATUS_LIST = ["Yet to Start", "Being Developed", "Ready for QA", "Assigned to QA", "In Progress", "On Hold", "Completed", "Forecast", "Rejected", "Cancelled"];
+
+/** The one status dropdown for tasks: pill trigger, a coloured dot per status. Use it wherever task statuses are picked. */
+export function TaskStatusSelect({ value, onChange, disabled, statuses = TASK_STATUS_LIST, className = "" }: { value: string; onChange: (v: string) => void; disabled?: boolean; statuses?: readonly string[]; className?: string }) {
+  return (
+    <UiverseSelect
+      value={value}
+      disabled={disabled}
+      onChange={(v) => onChange(String(v))}
+      size="sm"
+      className={className}
+      triggerClassName="!rounded-full !px-3 font-semibold"
+      options={statuses.map((st) => ({ value: st, label: <span className="inline-flex items-center gap-2"><span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[st] || "#A1A1AA" }} />{st}</span> }))}
+    />
+  );
+}
+
+/** The one priority dropdown: coloured dot, with the name too when showLabel is set (forms). */
+export function TaskPrioritySelect({ value, onChange, disabled, showLabel = false, priorities = PRIORITY_ORDER, className = "" }: { value: string; onChange: (v: string) => void; disabled?: boolean; showLabel?: boolean; priorities?: readonly string[]; className?: string }) {
+  return (
+    <UiverseSelect
+      value={value}
+      disabled={disabled}
+      onChange={(v) => onChange(String(v))}
+      size="sm"
+      className={className}
+      triggerClassName={showLabel ? "!px-3" : "!px-2 !min-h-[28px] justify-center"}
+      options={priorities.map((pr) => ({ value: pr, label: <span className="inline-flex items-center gap-2"><PriorityDot priority={pr} size={12} />{showLabel ? pr : <span className="sr-only">{pr}</span>}</span> }))}
+    />
   );
 }

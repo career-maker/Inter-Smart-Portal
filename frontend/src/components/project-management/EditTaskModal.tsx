@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Loader2, X } from "lucide-react";
 import api from "@/services/api";
 import pmApi from "@/services/pm";
+import { TaskPrioritySelect } from "@/components/project-management/priorityPalette";
 import { Portal } from "@/components/ui/portal";
 import { ProjectTask } from "@/types/pm";
 
@@ -72,7 +73,7 @@ export function EditTaskModal({ isOpen, onClose, task, onSuccess }: { isOpen: bo
               <option value="">No phase</option>{phases.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </SelectCompat></label>
           <label className="block text-xs font-semibold text-slate-500">Priority
-            <SelectCompat className={field} value={f.priority || "Medium"} onChange={(e) => setF({ ...f, priority: e.target.value })}>{PRIORITIES.map((p) => <option key={p}>{p}</option>)}</SelectCompat></label>
+            <TaskPrioritySelect value={f.priority || "Medium"} onChange={(v) => setF({ ...f, priority: v })} showLabel className="w-full mt-1" priorities={PRIORITIES} /></label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-xs font-semibold text-slate-500">Start<input type="date" className={field} value={f.start_date || ""} onChange={(e) => setF({ ...f, start_date: e.target.value })} /></label>
             <label className="block text-xs font-semibold text-slate-500">Due<input type="date" className={field} value={f.due_date || ""} onChange={(e) => setF({ ...f, due_date: e.target.value })} /></label>

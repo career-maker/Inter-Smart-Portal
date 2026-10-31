@@ -1,7 +1,6 @@
 "use client";
 
-import { UiverseSelect } from "@/components/ui/UiverseSelect";
-import { PriorityDot, PriorityLegend, STATUS_COLORS } from "@/components/project-management/priorityPalette";
+import { PriorityLegend, TaskPrioritySelect, TaskStatusSelect } from "@/components/project-management/priorityPalette";
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
@@ -520,14 +519,7 @@ export function TaskTrackerTable({
                   <td className="py-2 px-1 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-center w-[108px] min-w-[108px]">
                     {canEdit && onPriorityChange ? (
                       <div className="inline-flex items-center justify-center">
-                        <UiverseSelect
-                          value={task.priority}
-                          disabled={updatingTaskId === task.id}
-                          onChange={(v) => onPriorityChange(task.id, v as TaskPriority)}
-                          size="sm"
-                          triggerClassName="!px-2 !min-h-[28px] justify-center"
-                          options={TASK_PRIORITIES.map((pr) => ({ value: pr, label: <span className="inline-flex items-center gap-2"><PriorityDot priority={pr} size={12} /><span className="sr-only">{pr}</span></span> }))}
-                        />
+                        <TaskPrioritySelect value={task.priority} disabled={updatingTaskId === task.id} onChange={(v) => onPriorityChange(task.id, v as TaskPriority)} priorities={TASK_PRIORITIES} />
                       </div>
                     ) : (
                       <TaskPriorityBadge priority={task.priority} />
@@ -610,14 +602,7 @@ export function TaskTrackerTable({
                   <div className="flex items-center gap-1">
                     {canEdit && onStatusChange ? (
                       <div className="inline-flex items-center">
-                        <UiverseSelect
-                          value={task.status}
-                          disabled={updatingTaskId === task.id}
-                          onChange={(v) => onStatusChange(task.id, v as TaskStatus)}
-                          size="sm"
-                          triggerClassName="!rounded-full !px-3 font-semibold"
-                          options={TASK_STATUSES.map((st) => ({ value: st, label: <span className="inline-flex items-center gap-2"><span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[st] || "#A1A1AA" }} />{st}</span> }))}
-                        />
+                        <TaskStatusSelect value={task.status} disabled={updatingTaskId === task.id} onChange={(v) => onStatusChange(task.id, v as TaskStatus)} statuses={TASK_STATUSES} />
                       </div>
                     ) : (
                       <TaskStatusBadge status={task.status} />

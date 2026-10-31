@@ -4,6 +4,7 @@ import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { TaskStatusSelect } from "@/components/project-management/priorityPalette";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,9 +65,7 @@ export default function QaReviews({ projectId }: { projectId?: string | number }
                 <td className="p-3">-</td>
                 <td className="p-3">
                   {(reqs.can_assign || q.assigned_to === reqs.me)
-                    ? <SelectCompat className="min-w-[9rem] text-xs h-8" value={q.task_status} onChange={(e) => api.put(`/project-tasks/${q.task_id}`, { status: e.target.value }).then(() => { window.dispatchEvent(new Event("qa-requests-changed")); }).catch((err) => alert(errMsg(err)))}>
-                        {(reqs.task_statuses || []).map((st: string) => <option key={st} value={st}>{st}</option>)}
-                      </SelectCompat>
+                    ? <TaskStatusSelect value={q.task_status} statuses={reqs.task_statuses || []} onChange={(v) => api.put(`/project-tasks/${q.task_id}`, { status: v }).then(() => { window.dispatchEvent(new Event("qa-requests-changed")); }).catch((err) => alert(errMsg(err)))} />
                     : <span className="px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">{q.task_status}</span>}
                 </td>
                 <td className="p-3">-</td>

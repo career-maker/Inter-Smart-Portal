@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import { X, Loader2, Plus, AlertCircle, Sparkles, FolderKanban, Users, ShieldCheck, Calendar, Clock, Layers } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
+import { TaskPrioritySelect, TaskStatusSelect } from "@/components/project-management/priorityPalette";
 import pmApi from "@/services/pm";
 import { SearchableProjectSelect } from "@/components/project-management/SearchableProjectSelect";
 import { Portal } from "@/components/ui/portal";
@@ -346,34 +347,14 @@ export function CreateTaskModal({
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Priority
               </label>
-              <SelectCompat
-                value={formData.priority}
-                onChange={(e) => handleChange("priority", e.target.value as TaskPriority)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-              >
-                {TASK_PRIORITIES.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </SelectCompat>
+              <TaskPrioritySelect value={formData.priority as string} onChange={(v) => handleChange("priority", v as TaskPriority)} priorities={TASK_PRIORITIES} showLabel className="w-full" />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Initial Status
               </label>
-              <SelectCompat
-                value={formData.status}
-                onChange={(e) => handleChange("status", e.target.value as TaskStatus)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-              >
-                {TASK_STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </SelectCompat>
+              <TaskStatusSelect value={formData.status as string} onChange={(v) => handleChange("status", v as TaskStatus)} statuses={TASK_STATUSES} className="w-full" />
             </div>
 
             <div>
