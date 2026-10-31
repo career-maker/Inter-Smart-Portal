@@ -10,6 +10,11 @@ class Meeting extends Model
 
     protected $casts = ['starts_at' => 'datetime', 'ends_at' => 'datetime', 'external_emails' => 'array'];
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id');
+    }
+
     public function organizer()
     {
         return $this->belongsTo(User::class, 'organizer_id');

@@ -389,6 +389,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('/', [$mt, 'index']);
         Route::post('/', [$mt, 'store']);
         Route::get('people', [$mt, 'people']);
+        Route::get('projects', [$mt, 'projects']);
         Route::put('actions/{action}/toggle', [$mt, 'toggleAction']);
         Route::get('{meeting}', [$mt, 'show']);
         Route::put('{meeting}', [$mt, 'update']);

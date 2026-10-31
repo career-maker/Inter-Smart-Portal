@@ -37,13 +37,13 @@ class MeetingController extends Controller
 
     private function load(Meeting $m): Meeting
     {
-        return $m->load(['organizer:id,first_name,last_name', 'attendees:id,first_name,last_name,email', 'actions.owner:id,first_name,last_name']);
+        return $m->load(['organizer:id,first_name,last_name', 'attendees:id,first_name,last_name,email', 'actions.owner:id,first_name,last_name', 'project:id,name']);
     }
 
     public function index(Request $request)
     {
         $user = $request->user();
-        $q = Meeting::with(['organizer:id,first_name,last_name', 'attendees:id,first_name,last_name'])->orderBy('starts_at');
+        $q = Meeting::with(['organizer:id,first_name,last_name', 'attendees:id,first_name,last_name', 'project:id,name'])->orderBy('starts_at');
         if (! $user->hasRole('Super Admin')) {
             $q->where(fn ($w) => $w->where('organizer_id', $user->id)->orWhereHas('attendees', fn ($a) => $a->where('users.id', $user->id)));
         }
@@ -55,6 +55,12 @@ class MeetingController extends Controller
     public function people()
     {
         return response()->json(['data' => \App\Models\User::where('status', 'Active')->orderBy('first_name')->get(['id', 'first_name', 'last_name'])]);
+    }
+
+    /** Projects a meeting can be linked to (id and name only). */
+    public function projects()
+    {
+        return response()->json(['data' => \App\Models\Project::orderBy('name')->get(['id', 'name'])]);
     }
 
     public function show(Request $request, Meeting $meeting)
