@@ -153,7 +153,7 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
         <Card>
           <CardHeader className="pb-0"><CardTitle className="text-base">Contract value</CardTitle></CardHeader>
           <CardContent className="flex gap-2 items-end pt-0">
-            <div className="flex-1"><Label>Amount</Label><Input type="number" min="0" value={contract} onChange={(e) => setContract(e.target.value)} /></div>
+            <div className="flex-1"><Label>{pay.kind === "po" || pay.kind === "override" ? "Amount (optional)" : "Amount"}</Label><Input type="number" min="0" value={contract} onChange={(e) => setContract(e.target.value)} /></div>
             <Button disabled={busy || contract === ""} onClick={() => run(() => api.put(`/accounts/projects/${id}/finance`, { contract_value: Number(contract) }))}>Save</Button>
           </CardContent>
         </Card>
@@ -180,13 +180,13 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
             <div className="grid grid-cols-2 gap-2 items-end pt-3 border-t">
               <div><Label>Type</Label>
                 <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={pay.kind} onChange={(e) => setPay({ ...pay, kind: e.target.value })}>
-                  <option value="advance">Advance</option><option value="installment">Installment</option><option value="final">Final</option>
+                  <option value="advance">Advance received</option><option value="po">PO received (purchase order)</option><option value="override">Override approval (start without payment)</option><option value="installment">Installment</option><option value="final">Final</option>
                 </select></div>
               <div><Label>Amount</Label><Input type="number" min="0" value={pay.amount} onChange={(e) => setPay({ ...pay, amount: e.target.value })} /></div>
               <div><Label>Due date</Label><Input type="date" value={pay.due_date} onChange={(e) => setPay({ ...pay, due_date: e.target.value })} /></div>
               <div><Label>Reference</Label><Input value={pay.reference} onChange={(e) => setPay({ ...pay, reference: e.target.value })} /></div>
-              <Button disabled={busy || !pay.amount} onClick={() => run(async () => {
-                await api.post(`/accounts/projects/${id}/payments`, { ...pay, amount: Number(pay.amount), due_date: pay.due_date || null, reference: pay.reference || null });
+              <Button disabled={busy || (!pay.amount && pay.kind !== "po" && pay.kind !== "override")} onClick={() => run(async () => {
+                await api.post(`/accounts/projects/${id}/payments`, { ...pay, amount: pay.amount ? Number(pay.amount) : null, due_date: pay.due_date || null, reference: pay.reference || null });
                 setPay({ kind: "installment", amount: "", due_date: "", reference: "" });
               })}>Add payment</Button>
             </div>

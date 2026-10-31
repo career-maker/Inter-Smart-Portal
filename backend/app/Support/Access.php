@@ -161,6 +161,12 @@ class Access
         return $user !== null && ($user->hasRole('Super Admin') || self::has('pmo', $user));
     }
 
+    /** Project cost (contract value, budget, payments) is for Sales, Accounts and Super Admin only. */
+    public static function seesProjectCost(?User $user): bool
+    {
+        return $user !== null && ($user->hasRole('Super Admin') || self::has('sales', $user) || self::has('sales_lead', $user) || self::has('accounts', $user));
+    }
+
     /** Project manager powers (assign, budget, hold, approve): Super Admin or anyone given the Project manager privilege. */
     public static function pmoManager(User $user): bool
     {

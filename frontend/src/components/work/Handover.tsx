@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const errMsg = (e: any) => (e?.response?.data?.errors ? Object.values(e.response.data.errors as Record<string, string[]>)[0]?.[0] : e?.response?.data?.message) || "Something went wrong. Please try again.";
 const SELECT = "w-full h-10 rounded-md border bg-transparent px-2 text-sm";
 
-/** Project Office hand-overs: ask Accounts for a payment, and ask the system admin team for a server and go-live. */
+/** Project Office hand-overs: tell Accounts a milestone is complete, and ask the system admin team for a server and go-live. */
 export default function Handover({ projectId }: { projectId: string | number }) {
   const [gl, setGl] = useState<any>(null);
   const [pay, setPay] = useState({ kind: "installment", amount: "", due_date: "", notes: "" });
@@ -28,13 +28,11 @@ export default function Handover({ projectId }: { projectId: string | number }) 
         {msg && <div role="alert" className={`rounded-lg border px-3 py-2 ${msg.ok ? "border-green-300 bg-green-50 text-green-800" : "border-red-300 bg-red-50 text-red-800"}`}>{msg.text}</div>}
 
         <div className="grid grid-cols-2 gap-2">
-          <div className="col-span-2 font-semibold">Ask Accounts for a payment</div>
-          <div><Label>Type</Label><select className={SELECT} value={pay.kind} onChange={(e) => setPay({ ...pay, kind: e.target.value })}><option value="installment">Instalment</option><option value="final">Final</option></select></div>
-          <div><Label>Amount</Label><Input inputMode="decimal" value={pay.amount} onChange={(e) => setPay({ ...pay, amount: e.target.value })} /></div>
-          <div><Label>Due date (optional)</Label><Input type="date" value={pay.due_date} onChange={(e) => setPay({ ...pay, due_date: e.target.value })} /></div>
-          <div><Label>Note (optional)</Label><Input value={pay.notes} onChange={(e) => setPay({ ...pay, notes: e.target.value })} /></div>
-          <Button className="col-span-2" variant="outline" disabled={!pay.amount}
-            onClick={() => run(async () => { await api.post(`/pmo/projects/${projectId}/payment-request`, { kind: pay.kind, amount: Number(pay.amount), due_date: pay.due_date || null, notes: pay.notes || null }); setPay({ ...pay, amount: "", notes: "" }); }, "Accounts has been asked for this payment.")}>Send to Accounts</Button>
+          <div className="col-span-2 font-semibold">Milestone completed</div>
+          <div><Label>What was completed (e.g. design approval)</Label><Input value={pay.notes} onChange={(e) => setPay({ ...pay, notes: e.target.value })} /></div>
+          <div><Label>% of project cost due (e.g. 25)</Label><Input inputMode="decimal" value={pay.amount} onChange={(e) => setPay({ ...pay, amount: e.target.value })} /></div>
+          <Button className="col-span-2" variant="outline" disabled={!pay.amount || !pay.notes}
+            onClick={() => run(async () => { await api.post(`/pmo/projects/${projectId}/payment-request`, { milestone: pay.notes, percent: Number(pay.amount) }); setPay({ ...pay, amount: "", notes: "" }); }, "Accounts has been told about this milestone.")}>Tell Accounts</Button>
         </div>
 
         <div className="space-y-2 border-t pt-3">

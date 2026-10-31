@@ -265,6 +265,10 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     });
 
     // Sales module (Phase 2): hidden (404) until module.sales.enabled is switched on.
+    // Extra fields on the Sales new-project form: read by Sales/Project Office, changed by the project manager / Super Admin (checked in the controller).
+    Route::get('project-custom-fields', [\App\Http\Controllers\Api\Sales\ProjectCustomFieldController::class, 'index']);
+    Route::post('project-custom-fields', [\App\Http\Controllers\Api\Sales\ProjectCustomFieldController::class, 'store']);
+    Route::delete('project-custom-fields/{id}', [\App\Http\Controllers\Api\Sales\ProjectCustomFieldController::class, 'destroy']);
     Route::prefix('sales')->middleware(['feature:sales', 'sales.access'])->group(function () {
         Route::get('dashboard', [\App\Http\Controllers\Api\Sales\SalesDashboardController::class, 'index']);
 

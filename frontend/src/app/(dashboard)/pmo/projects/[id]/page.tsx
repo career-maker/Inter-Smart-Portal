@@ -113,7 +113,7 @@ function Overview({ d, meta, run, id }: any) {
       {intake && (
         <Card><CardHeader className="pb-0"><CardTitle className="text-base">Project details from Sales</CardTitle></CardHeader>
           <CardContent className="grid sm:grid-cols-4 gap-3 text-sm pt-3">
-            {[["Client", intake.client_name], ["Type", `${intake.site_category}${intake.cms_variant ? ` (${intake.cms_variant})` : ""}`], ["Platform", intake.platform], ["Pages", intake.pages_count ?? "-"], ["Quality", intake.quality_level ?? "-"], ["Budget", money(intake.budget)], ["Client email", intake.client_email ?? "-"], ["Client phone", intake.client_phone ?? "-"]].map(([k, v]) => (
+            {[["Client", intake.client_name], ["Type", `${intake.site_category}${intake.cms_variant ? ` (${intake.cms_variant})` : ""}`], ["Platform", intake.platform], ["Pages", intake.pages_count ?? "-"], ["Quality", intake.quality_level ?? "-"], ...(d.can_see_cost ? [["Budget", `${intake.currency || "INR"} ${money(intake.budget)}`]] : []), ["Client email", intake.client_email ?? "-"], ["Client phone", intake.client_phone ?? "-"]].map(([k, v]) => (
               <div key={k as string}><div className="text-xs text-slate-500">{k}</div><div className="font-medium break-words">{v}</div></div>
             ))}
             {intake.overview && <div className="sm:col-span-4"><div className="text-xs text-slate-500">Scope</div><div>{intake.overview}</div></div>}
@@ -122,6 +122,7 @@ function Overview({ d, meta, run, id }: any) {
       {intake?.details && Object.keys(intake.details).length > 0 && (
         <Card><CardHeader className="pb-0"><CardTitle className="text-base">Sales sheet</CardTitle></CardHeader>
           <CardContent className="pt-3 space-y-4 text-sm">
+            {intake.details.custom && <div><div className="font-semibold mb-1">Extra fields</div><div className="grid sm:grid-cols-3 gap-x-4 gap-y-2">{Object.entries(intake.details.custom).map(([k, v]) => <div key={k}><div className="text-xs text-slate-500">{k}</div><div>{String(v)}</div></div>)}</div></div>}
             {SALES_SHEET.map((sec) => {
               const filled = sec.fields.filter((f) => intake.details[f.key]);
               return filled.length === 0 ? null : (
@@ -245,7 +246,7 @@ function Budget({ d, meta, run, id }: any) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-        {[["Project value", `${cur} ${money(d.intake?.budget ?? contract)}`], ["Max person-days (Sales cap)", hasCap ? money(limit) : "No cap set"], ["Allocated (person-days)", money(total)], ["Unallocated (person-days)", hasCap ? money(limit - total) : "-"]].map(([k, v]) => (
+        {[...(d.can_see_cost ? [["Project value", `${cur} ${money(d.intake?.budget ?? contract)}`]] : []), ["Max person-days (Sales cap)", hasCap ? money(limit) : "No cap set"], ["Allocated (person-days)", money(total)], ["Unallocated (person-days)", hasCap ? money(limit - total) : "-"]].map(([k, v]) => (
           <div key={k} className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2"><div className="text-xs text-slate-500">{k}</div><div className="font-semibold">{v}</div></div>
         ))}
       </div>

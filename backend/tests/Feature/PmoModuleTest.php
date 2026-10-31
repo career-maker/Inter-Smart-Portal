@@ -128,7 +128,9 @@ class PmoModuleTest extends TestCase
     public function test_list_is_scoped_coordinators_see_only_their_projects(): void
     {
         $a = $this->salesProject('Alpha');
-        $this->salesProject('Beta');
+        $b = $this->salesProject('Beta');
+        $this->approveAdvance($a);
+        $this->approveAdvance($b); // a project reaches the Project Office only once paid / PO / override
         $this->assign($a);
 
         $this->assertCount(2, $this->as($this->manager)->getJson('/api/pmo/projects')->json('data'));
@@ -214,7 +216,8 @@ class PmoModuleTest extends TestCase
         $this->as($this->manager)->postJson("/api/pmo/projects/{$id}/hold", ['reason_code' => 'smtp', 'note' => 'Waiting for SMTP login'])->assertOk();
 
         $this->assertSame('On Hold', Project::find($id)->status);
-        $row = collect($this->as($this->manager)->getJson('/api/pmo/projects')->json('data'))->firstWhere('id', $id);
+        $this->assertCount(0, $this->as($this->manager)->getJson('/api/pmo/projects')->json('data')); // unpaid: not in the Project Office yet
+        $row = collect($this->as($this->manager)->getJson('/api/pmo/projects?payment_state=Advance%20awaiting')->json('data'))->firstWhere('id', $id);
         $this->assertSame('SMTP details', $row['hold_reason']);
         $this->assertTrue($this->sales->notifications()->get()->pluck('data.event')->contains('project_on_hold'));
 
@@ -256,8 +259,52 @@ class PmoModuleTest extends TestCase
         $this->assertTrue($row['date_exceeded']);
         $this->assertSame('Advance awaiting', $row['state']);
         $this->assertNotNull($row['sales_person']);
-        $this->assertEquals(100000, $row['unallocated']);
+        $this->assertNull($row['unallocated']);      // project cost is hidden from the Project Office
+        $this->assertNull($row['contract_value']);
         $this->assertCount(1, $this->as($this->manager)->getJson('/api/pmo/projects?payment_state=Advance%20awaiting')->json('data'));
         $this->assertCount(0, $this->as($this->manager)->getJson('/api/pmo/projects?payment_state=Paid%20in%20full')->json('data'));
+    }
+    public function test_po_or_override_opens_a_project_and_project_cost_is_hidden_from_the_project_office(): void
+    {
+        $po = $this->salesProject('PO job');
+        $ov = $this->salesProject('Override job');
+        $none = $this->salesProject('Unpaid job');
+        foreach ([[$po, 'po'], [$ov, 'override']] as [$id, $kind]) {
+            $pid = $this->as($this->accounts)->postJson("/api/accounts/projects/{$id}/payments", ['kind' => $kind])->assertCreated()->json('data.id'); // no amount needed
+            $this->as($this->accounts)->postJson("/api/accounts/payments/{$pid}/approve")->assertOk();
+        }
+        $this->as($this->accounts)->postJson("/api/accounts/projects/{$none}/payments", ['kind' => 'installment'])->assertStatus(422); // an instalment still needs an amount
+
+        $names = collect($this->as($this->manager)->getJson('/api/pmo/projects')->json('data'))->pluck('name')->all();
+        $this->assertEqualsCanonicalizing(['PO job', 'Override job'], $names);
+
+        $show = $this->as($this->manager)->getJson("/api/pmo/projects/{$po}")->assertOk();
+        $this->assertFalse($show->json('can_see_cost'));
+        $this->assertNull($show->json('intake.budget'));
+        $this->assertNull($show->json('gate.payment.contract_value'));
+        $this->assertEquals(100000, $this->as($this->admin)->getJson("/api/pmo/projects/{$po}")->json('gate.payment.contract_value'));
+    }
+
+    public function test_milestone_tells_accounts_and_the_amount_is_a_share_of_the_project_cost(): void
+    {
+        $id = $this->salesProject();
+        $this->assign($id);
+        $this->approveAdvance($id);
+
+        $this->as($this->coordinator)->postJson("/api/pmo/projects/{$id}/payment-request", ['milestone' => 'Design approved', 'percent' => 25])->assertCreated();
+        $this->assertDatabaseHas('project_payments', ['project_id' => $id, 'kind' => 'milestone', 'amount' => 25000, 'status' => 'Awaiting']);
+        $this->assertTrue($this->accounts->notifications()->get()->pluck('data.event')->contains('payment_requested'));
+    }
+
+    public function test_only_the_project_manager_or_admin_defines_extra_sales_fields(): void
+    {
+        $this->as($this->sales)->postJson('/api/project-custom-fields', ['label' => 'GST number', 'type' => 'text'])->assertForbidden();
+        $this->as($this->manager)->postJson('/api/project-custom-fields', ['label' => 'GST number', 'type' => 'text', 'required' => true])->assertCreated();
+        $fid = $this->as($this->sales)->getJson('/api/project-custom-fields')->assertOk()->json('data.0.id');
+
+        $body = ['name' => 'With extra', 'client_name' => 'Acme', 'site_category' => 'CMS', 'platform' => 'WordPress', 'pages_count' => 10, 'budget' => 100000];
+        $this->as($this->sales)->postJson('/api/sales/projects', $body)->assertStatus(422); // required extra field missing
+        $id = $this->as($this->sales)->postJson('/api/sales/projects', $body + ['custom' => [$fid => '32ABC']])->assertCreated()->json('data.id');
+        $this->assertSame('32ABC', \App\Models\ProjectIntake::where('project_id', $id)->first()->details['custom']['GST number']);
     }
 }

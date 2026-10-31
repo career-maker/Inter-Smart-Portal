@@ -73,7 +73,7 @@ export default function PmoProjectsPage() {
                     <td className="p-3"><Badge variant="outline">{r.status}</Badge>{r.hold_reason && <div className="text-xs text-amber-700 mt-1">{r.hold_reason}</div>}</td>
                     <td className="p-3">{r.coordinator ? <>{r.coordinator}{!r.accepted && <div className="text-xs text-amber-700">Not accepted yet</div>}</> : <span className="text-slate-400">Not assigned</span>}</td>
                     <td className="p-3"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${STATE_COLOR[r.state]}`}>{r.state}</span></td>
-                    <td className="p-3 text-right">{money(r.contract_value)}</td>
+                    <td className="p-3 text-right">{r.contract_value == null ? "-" : money(r.contract_value)}</td>
                     <td className="p-3 text-right">{money(r.allocated)}</td>
                     <td className="p-3">{r.progress_percent === null ? "-" : `${r.progress_percent}%`}</td>
                     <td className="p-3 space-x-1">

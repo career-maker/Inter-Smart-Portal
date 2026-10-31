@@ -20,17 +20,24 @@ use Illuminate\Validation\Rule;
  */
 class GoLiveController extends Controller
 {
-    /** Coordinator or manager asks Accounts for a payment. It appears in Accounts as "Awaiting". */
+    /**
+     * Milestone completed: the project manager or coordinator tells Accounts in words what was finished (design approval, front end done...)
+     * and which share of the project cost is due (25%, 30%...). The money is worked out here, so the Project Office never types or sees an amount.
+     * It appears in Accounts as an "Awaiting" milestone payment. It never blocks the project.
+     */
     public function requestPayment(Request $request, Project $project)
     {
         abort_unless(PmoProjectController::canView($request->user(), $project), 403, 'This project is not assigned to you.');
-        $data = $request->validate(['kind' => ['required', Rule::in(['installment', 'final'])], 'amount' => 'required|numeric|gt:0|max:100000000', 'due_date' => 'nullable|date', 'notes' => 'nullable|string|max:2000']);
+        $data = $request->validate(['milestone' => 'required|string|max:255', 'percent' => 'required|numeric|gt:0|max:100', 'notes' => 'nullable|string|max:2000']);
 
-        $payment = ProjectPayment::create($data + ['project_id' => $project->id, 'status' => 'Awaiting', 'requested_by' => $request->user()->id]);
-        $accounts = Access::usersWith('accounts');
-        Notify::users($accounts, 'Payment requested', "\"{$project->name}\": the Project Office asks for a {$data['kind']} payment of " . number_format($data['amount'], 2) . '.', 'payment_requested', $project->id, $request->user());
+        $value = (float) (\App\Models\ProjectFinance::where('project_id', $project->id)->value('contract_value') ?? 0);
+        $amount = round($value * $data['percent'] / 100, 2);
+        $note = "Milestone: {$data['milestone']} ({$data['percent']}% of project cost)" . (! empty($data['notes']) ? "
+{$data['notes']}" : '');
+        $payment = ProjectPayment::create(['project_id' => $project->id, 'kind' => 'milestone', 'amount' => $amount, 'notes' => $note, 'status' => 'Awaiting', 'requested_by' => $request->user()->id]);
+        Notify::users(Access::usersWith('accounts'), 'Milestone completed', "\"{$project->name}\": {$data['milestone']} is complete. {$data['percent']}% of the project cost (" . number_format($amount, 2) . ') is due.', 'payment_requested', $project->id, $request->user());
 
-        return response()->json(['data' => $payment], 201);
+        return response()->json(['data' => $payment->makeHidden(['amount'])], 201);
     }
 
     public function show(Request $request, Project $project)

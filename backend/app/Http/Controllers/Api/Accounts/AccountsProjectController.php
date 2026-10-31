@@ -82,13 +82,17 @@ class AccountsProjectController extends Controller
     public function requestPayment(Request $request, Project $project)
     {
         $data = $request->validate([
-            'kind' => 'required|in:advance,installment,final',
-            'amount' => 'required|numeric|gt:0',
+            'kind' => 'required|in:advance,installment,final,po,override', // po = purchase order received; override = Accounts lets the project start with no payment yet
+            'amount' => 'nullable|numeric|min:0',
             'due_date' => 'nullable|date',
             'reference' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:2000',
         ]);
 
+        if (! in_array($data['kind'], ['po', 'override'], true) && (float) ($data['amount'] ?? 0) <= 0) {
+            return response()->json(['message' => 'Enter the amount.', 'errors' => ['amount' => ['Enter the amount.']]], 422);
+        }
+        $data['amount'] = $data['amount'] ?? 0;
         $payment = ProjectPayment::create($data + ['project_id' => $project->id, 'requested_by' => $request->user()->id]);
 
         return response()->json(['data' => $payment], 201);
@@ -125,9 +129,10 @@ class AccountsProjectController extends Controller
         $this->audit($request, $payment, strtolower($status) . ' payment', ['amount' => $payment->amount, 'kind' => $payment->kind]);
 
         if ($status === 'Approved') {
-            $label = $payment->kind === 'advance' ? 'Advance payment approved' : 'Payment approved';
+            $label = match ($payment->kind) { 'advance' => 'Advance payment approved', 'po' => 'Purchase order received', 'override' => 'Accounts approved the start', default => 'Payment approved' };
+            // No amount here: the Project Office must not see project cost.
             $this->notify($this->recipients($project, $finance, includePmo: true),
-                $label, "{$label} for \"{$project->name}\" ({$amount}). You can proceed.", 'payment_approved', $project->id, $request->user());
+                $label, "{$label} for \"{$project->name}\". You can proceed.", 'payment_approved', $project->id, $request->user());
         }
 
         return response()->json(['data' => $payment->fresh()]);

@@ -76,6 +76,8 @@ class SalesProjectController extends Controller
             'budget_cap' => 'nullable|numeric|min:0|max:100000', // max person-days (8h each), not money
             'details' => 'nullable|array',
             'details.*' => 'nullable|string|max:2000',
+            'custom' => 'nullable|array', // answers to the extra fields, keyed by field id
+            'custom.*' => 'nullable|string|max:2000',
             'overview' => 'nullable|string|max:5000',
             'lead_id' => 'nullable|exists:leads,id',
         ]);
@@ -83,6 +85,26 @@ class SalesProjectController extends Controller
         // Copying another website is priced on budget and page count only (sheet), so pages are required there.
         if (($data['cms_variant'] ?? null) === 'Copy of other website' && empty($data['pages_count'])) {
             return response()->json(['message' => 'Number of pages is required for a copy of another website.', 'errors' => ['pages_count' => ['Number of pages is required for a copy of another website.']]], 422);
+        }
+
+        // Extra fields set up by the project manager: required ones must be answered, dropdowns must use a listed choice. Saved by label.
+        $custom = [];
+        foreach (\Illuminate\Support\Facades\DB::table('project_custom_fields')->where('active', true)->get() as $f) {
+            $v = trim((string) ($data['custom'][$f->id] ?? ''));
+            $msg = null;
+            if ($v === '' && $f->required) {
+                $msg = "{$f->label} is required.";
+            } elseif ($v !== '' && $f->type === 'select' && ! in_array($v, json_decode((string) $f->options, true) ?: [], true)) {
+                $msg = "{$f->label}: pick one of the listed choices.";
+            } elseif ($v !== '' && $f->type === 'number' && ! is_numeric($v)) {
+                $msg = "{$f->label} must be a number.";
+            }
+            if ($msg) {
+                return response()->json(['message' => $msg, 'errors' => ['custom' => [$msg]]], 422);
+            }
+            if ($v !== '') {
+                $custom[$f->label] = $v;
+            }
         }
 
         if ($problem = \App\Support\SalesSheet::problem($data['details'] ?? [])) {
@@ -109,7 +131,7 @@ class SalesProjectController extends Controller
                     'site_category' => $data['site_category'], 'cms_variant' => $data['cms_variant'] ?? null, 'platform' => $data['platform'],
                     'pages_count' => $data['pages_count'] ?? null, 'quality_level' => $data['quality_level'] ?? null,
                     'budget' => $data['budget'], 'currency' => $data['currency'] ?? 'INR', 'budget_cap' => $data['budget_cap'] ?? null, 'overview' => $data['overview'] ?? null,
-                    'details' => $data['details'] ?? null,
+                    'details' => (($data['details'] ?? []) + ($custom ? ['custom' => $custom] : [])) ?: null,
                 ]);
                 $lead?->update(['status' => 'Won', 'converted_project_id' => $project->id]);
 

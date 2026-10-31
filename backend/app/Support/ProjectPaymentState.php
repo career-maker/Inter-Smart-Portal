@@ -20,7 +20,7 @@ class ProjectPaymentState
 
         if (! $finance) {
             $state = self::NO_RECORD;
-        } elseif ($approved->where('kind', 'advance')->isEmpty()) {
+        } elseif ($approved->whereIn('kind', ['advance', 'po', 'override'])->isEmpty()) { // the only three ways a project reaches the Project Office
             $state = self::ADVANCE_AWAITING;
         } elseif ($received < $value) {
             $state = self::PENDING;

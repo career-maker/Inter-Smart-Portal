@@ -310,3 +310,11 @@ Sales document fields; budget-per-department formula (sections x animation level
 
 ## Budget cap = person-days (31 Oct 2026)
 Sales `budget_cap` is the max PERSON-DAYS (1 day = 8h; 2 people share it, 50 days = 25 each), not money. `budget` stays the real value, with new `project_intake.currency` (INR/AED). Department allocations (`project_budget_allocations.amount`) are now person-days, split by PMO within the cap (no cap = no limit). Sprints/changes/budget-watch compare `effort_days` (sprint items + counted changes), not `cost_estimate`. Existing live allocations were money: re-enter them in days. Tests updated but NOT run (no local PHP); run before relying on them. Needs `migrate` on live.
+
+## Payment gate, cost hiding, custom fields, milestones (31 Oct 2026)
+- Accounts payment types now include `po` (purchase order) and `override` (start with no payment); amount optional for those. A project reaches the Project Office only by approved advance / PO / override (or the older Super Admin payment override). Default PMO list hides the rest (`?payment_state=` or `?scope=all` still shows them).
+- Project cost (contract value, intake budget/currency, payments) is returned only to Super Admin, Sales/Sales lead and Accounts (`Access::seesProjectCost`); the PMO sees null. Payment-approved notifications no longer carry the amount.
+- `project_custom_fields` (new): project manager / Super Admin add extra fields on the Sales new-project form; answers saved in `project_intake.details.custom` by label. Routes: `/api/project-custom-fields`.
+- PMO "Ask Accounts for a payment" became "Milestone completed": text + % of project cost; server computes the amount (kind `milestone`, Awaiting) and notifies Accounts. Never blocks PM/PC.
+- Coordinator assignment unchanged: needs the Project manager privilege (any number of holders, any PMO team); coordinator must be in a PMO team; coordinators see only their projects.
+- Needs `migrate` on live. Tests written, not run (no local PHP).

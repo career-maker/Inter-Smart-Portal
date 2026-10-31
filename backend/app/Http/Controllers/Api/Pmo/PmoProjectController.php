@@ -84,8 +84,11 @@ class PmoProjectController extends Controller
         $users = User::whereIn('id', $projects->pluck('project_coordinator_id')->merge($finance->pluck('sales_user_id'))->filter()->unique())->get()->keyBy('id');
         $name = fn ($id) => $id && $users->has($id) ? trim($users[$id]->first_name . ' ' . $users[$id]->last_name) : null;
 
-        $rows = $projects->map(function ($p) use ($finance, $payments, $alloc, $accept, $holds, $oos, $tasks, $name) {
+        $sees = Access::seesProjectCost($user);
+        $paymentOverride = ProjectOverride::whereIn('project_id', $ids)->where('type', 'payment')->pluck('project_id')->flip();
+        $rows = $projects->map(function ($p) use ($finance, $payments, $alloc, $accept, $holds, $oos, $tasks, $name, $sees) {
             $pay = ProjectPaymentState::for($finance->get($p->id), $payments->get($p->id, collect()));
+            $hide = ! $sees ? ['contract_value' => null, 'received' => null, 'balance' => null] : [];
             $t = $tasks->get($p->id);
             $hold = $holds->get($p->id);
 
@@ -95,15 +98,18 @@ class PmoProjectController extends Controller
                 'coordinator_id' => $p->project_coordinator_id, 'coordinator' => $name($p->project_coordinator_id),
                 'accepted' => (bool) $accept->get($p->id)?->accepted_at,
                 'sales_person' => $name($finance->get($p->id)?->sales_user_id),
-                'allocated' => (float) ($alloc[$p->id] ?? 0), 'unallocated' => (float) $pay['contract_value'] - (float) ($alloc[$p->id] ?? 0),
+                'allocated' => (float) ($alloc[$p->id] ?? 0), 'unallocated' => $sees ? (float) $pay['contract_value'] - (float) ($alloc[$p->id] ?? 0) : null,
                 'pending_out_of_scope' => (int) ($oos[$p->id] ?? 0),
                 'progress_percent' => $t && $t->total > 0 ? (int) round(100 * $t->done / $t->total) : null,
                 'date_exceeded' => $p->expected_end_date && $p->expected_end_date->isPast() && ! in_array($p->status, ['Completed', 'Cancelled'], true),
-            ] + $pay;
+            ] + $hide + $pay;
         });
 
         if ($request->filled('payment_state')) {
             $rows = $rows->where('state', $request->payment_state);
+        } elseif ($request->input('scope') !== 'all') {
+            // A project reaches the Project Office only by an approved advance, a purchase order, an Accounts override, or a Super Admin payment override.
+            $rows = $rows->reject(fn ($r) => in_array($r['state'], [ProjectPaymentState::NO_RECORD, ProjectPaymentState::ADVANCE_AWAITING], true) && ! $paymentOverride->has($r['id']));
         }
 
         return response()->json(['data' => $rows->values()]);
@@ -112,11 +118,17 @@ class PmoProjectController extends Controller
     public function show(Request $request, Project $project)
     {
         $this->authorizeView($request, $project);
-        $gate = ProjectGate::state($project);
+        $gate = $this->gateFor($request, $project);
+        $sees = Access::seesProjectCost($request->user());
+        $intake = ProjectIntake::where('project_id', $project->id)->first();
+        if (! $sees) {
+            $intake?->makeHidden(['budget', 'currency']);
+        }
 
         return response()->json([
+            'can_see_cost' => $sees,
             'project' => $project->only(['id', 'name', 'status', 'description', 'project_coordinator_id', 'start_date', 'expected_end_date']),
-            'intake' => ProjectIntake::where('project_id', $project->id)->first(),
+            'intake' => $intake,
             'acceptance' => ProjectAcceptance::where('project_id', $project->id)->first(),
             'hold' => ProjectHold::where('project_id', $project->id)->whereNull('cleared_at')->first(),
             'allocations' => ProjectBudgetAllocation::with('team:id,name')->where('project_id', $project->id)->get(),
@@ -218,7 +230,7 @@ class PmoProjectController extends Controller
             Notify::users(User::role('Super Admin')->get(), 'Person-days allocated over cap', "\"{$project->name}\": departments were given " . number_format($total, 2) . ' person-days against ' . $what . ' ' . number_format($limit, 2) . ". Reason: {$reason}", 'budget_over_contract', $project->id, $request->user());
         }
 
-        return response()->json(['gate' => ProjectGate::state($project), 'allocations' => ProjectBudgetAllocation::with('team:id,name')->where('project_id', $project->id)->get()]);
+        return response()->json(['gate' => $this->gateFor($request, $project), 'allocations' => ProjectBudgetAllocation::with('team:id,name')->where('project_id', $project->id)->get()]);
     }
 
     public function hold(Request $request, Project $project)
@@ -266,7 +278,7 @@ class PmoProjectController extends Controller
         ProjectOverride::updateOrCreate(['project_id' => $project->id, 'type' => $data['type']], ['reason' => $data['reason'], 'by_user_id' => $request->user()->id]);
         $this->audit($request, $project, "overrode {$data['type']} lock", ['reason' => $data['reason']]);
 
-        return response()->json(['gate' => ProjectGate::state($project)]);
+        return response()->json(['gate' => $this->gateFor($request, $project)]);
     }
 
     public function removeOverride(Request $request, Project $project, string $type)
@@ -276,7 +288,7 @@ class PmoProjectController extends Controller
         ProjectOverride::where('project_id', $project->id)->where('type', $type)->delete();
         $this->audit($request, $project, "removed {$type} override", []);
 
-        return response()->json(['gate' => ProjectGate::state($project)]);
+        return response()->json(['gate' => $this->gateFor($request, $project)]);
     }
 
     // ---- shared helpers (also used by PmoWorkController) -------------------------
@@ -289,6 +301,17 @@ class PmoProjectController extends Controller
     private function authorizeView(Request $request, Project $project): void
     {
         abort_unless(self::canView($request->user(), $project), 403, 'This project is not assigned to you.');
+    }
+
+    /** Gate state with the money figures removed for anyone who may not see project cost. */
+    private function gateFor(Request $request, Project $project): array
+    {
+        $gate = ProjectGate::state($project);
+        if (! Access::seesProjectCost($request->user())) {
+            $gate['payment'] = array_merge($gate['payment'], ['contract_value' => null, 'received' => null, 'balance' => null]);
+        }
+
+        return $gate;
     }
 
     private function requireManager(Request $request, string $power = 'pmo_manager'): void

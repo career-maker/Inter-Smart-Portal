@@ -31,6 +31,11 @@ export default function SalesProjectsPage() {
   const [form, setForm] = useState<any>(EMPTY);
   const [showForm, setShowForm] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [cf, setCf] = useState<any[]>([]);          // extra fields set up by the project manager / Super Admin
+  const [canManageCf, setCanManageCf] = useState(false);
+  const [custom, setCustom] = useState<Record<string, string>>({});
+  const [newCf, setNewCf] = useState({ label: "", type: "text", options: "", required: false });
+  const loadCf = useCallback(() => { api.get("/project-custom-fields").then((r) => { setCf(r.data.data); setCanManageCf(r.data.can_manage); }).catch(() => {}); }, []);
 
   const load = useCallback(async () => {
     const r = await api.get("/sales/projects");
@@ -38,8 +43,9 @@ export default function SalesProjectsPage() {
   }, []);
   useEffect(() => {
     load().catch(() => {});
+    loadCf();
     api.get("/sales/leads").then((r) => setLeads(r.data.data.filter((l: any) => l.status !== "Won" && l.status !== "Lost"))).catch(() => {});
-  }, [load]);
+  }, [load, loadCf]);
 
   const create = async () => {
     setBusy(true);
@@ -47,10 +53,11 @@ export default function SalesProjectsPage() {
       await api.post("/sales/projects", {
         ...form, budget: Number(form.budget), budget_cap: form.budget_cap === "" ? null : Number(form.budget_cap), pages_count: form.pages_count ? Number(form.pages_count) : null,
         cms_variant: form.cms_variant || null, lead_id: form.lead_id ? Number(form.lead_id) : null,
-        details: Object.fromEntries(Object.entries(form.details).filter(([, v]) => v !== "")),
+        details: Object.fromEntries(Object.entries(form.details).filter(([, v]) => v !== "")), custom,
         client_email: form.client_email || null, client_phone: form.client_phone || null, overview: form.overview || null,
       });
       setForm(EMPTY);
+      setCustom({});
       setShowForm(false);
       load();
     } catch (e: any) { alert(errMsg(e)); } finally { setBusy(false); }
@@ -137,6 +144,41 @@ export default function SalesProjectsPage() {
                 </div>
               </div>
             ))}
+            {cf.length > 0 && (
+              <div className="sm:col-span-4 border-t pt-3 mt-2">
+                <div className="font-semibold text-slate-900 dark:text-white mb-2">Extra fields</div>
+                <div className="grid sm:grid-cols-4 gap-2 items-end">
+                  {cf.map((f) => (
+                    <div key={f.id}><Label>{f.label}{f.required ? " *" : ""}</Label>
+                      {f.type === "select" ? (
+                        <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={custom[f.id] ?? ""} onChange={(e) => setCustom({ ...custom, [f.id]: e.target.value })}>
+                          <option value="">-</option>{f.choices.map((o: string) => <option key={o}>{o}</option>)}
+                        </select>
+                      ) : <Input type={f.type === "number" ? "number" : f.type === "date" ? "date" : "text"} value={custom[f.id] ?? ""} onChange={(e) => setCustom({ ...custom, [f.id]: e.target.value })} />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {canManageCf && (
+              <div className="sm:col-span-4 border-t pt-3 mt-2 space-y-2">
+                <div className="font-semibold text-slate-900 dark:text-white">Manage extra fields (Project manager / Super Admin)</div>
+                <div className="flex flex-wrap gap-2">{cf.map((f) => (
+                  <Badge key={f.id} variant="outline">{f.label} ({f.type}){f.required ? " *" : ""}
+                    <button className="ml-2 text-red-600" onClick={async () => { try { await api.delete(`/project-custom-fields/${f.id}`); loadCf(); } catch (e: any) { alert(errMsg(e)); } }}>x</button></Badge>
+                ))}{cf.length === 0 && <span className="text-xs text-slate-500">No extra fields yet.</span>}</div>
+                <div className="grid sm:grid-cols-5 gap-2 items-end">
+                  <div><Label>Field name</Label><Input value={newCf.label} onChange={(e) => setNewCf({ ...newCf, label: e.target.value })} /></div>
+                  <div><Label>Type</Label><select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={newCf.type} onChange={(e) => setNewCf({ ...newCf, type: e.target.value })}><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="select">Dropdown</option></select></div>
+                  <div><Label>Dropdown choices (comma separated)</Label><Input disabled={newCf.type !== "select"} value={newCf.options} onChange={(e) => setNewCf({ ...newCf, options: e.target.value })} /></div>
+                  <label className="flex items-center gap-2 text-sm h-10"><input type="checkbox" checked={newCf.required} onChange={(e) => setNewCf({ ...newCf, required: e.target.checked })} /> Required</label>
+                  <Button type="button" variant="outline" disabled={!newCf.label} onClick={async () => {
+                    try { await api.post("/project-custom-fields", { label: newCf.label, type: newCf.type, required: newCf.required, options: newCf.type === "select" ? newCf.options.split(",").map((x) => x.trim()).filter(Boolean) : null }); setNewCf({ label: "", type: "text", options: "", required: false }); loadCf(); }
+                    catch (e: any) { alert(errMsg(e)); }
+                  }}>Add field</Button>
+                </div>
+              </div>
+            )}
             <p className="sm:col-span-4 text-xs text-slate-500">The salesperson is you (recorded automatically).</p>
             <Button disabled={busy || !form.name || !form.client_name || form.budget === ""} onClick={create}>Create project</Button>
             <p className="sm:col-span-3 text-xs text-slate-500">Accounts is told an advance payment is awaiting. You are told when it is approved.</p>
