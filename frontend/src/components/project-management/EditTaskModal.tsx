@@ -15,6 +15,7 @@ const day = (v?: string | null) => (v ? String(v).slice(0, 10) : "");
 /** Planning fields of a task: title, phase, priority, dates, description. Assignees use the Manage Assignees panel. */
 export function EditTaskModal({ isOpen, onClose, task, onSuccess }: { isOpen: boolean; onClose: () => void; task: ProjectTask; onSuccess: (t: ProjectTask) => void }) {
   const [phases, setPhases] = useState<{ id: number; name: string }[]>([]);
+  const [catalogs, setCatalogs] = useState<{ id: number; name: string }[]>([]);
   const [f, setF] = useState<any>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +23,8 @@ export function EditTaskModal({ isOpen, onClose, task, onSuccess }: { isOpen: bo
   useEffect(() => {
     if (!isOpen) return;
     setError(null);
-    setF({ title: task.title, description: task.description || "", sub_phase_id: task.sub_phase_id ?? "", priority: task.priority || "Medium", start_date: day(task.start_date), due_date: day(task.due_date) });
+    setF({ title: task.title, description: task.description || "", sub_phase_id: task.sub_phase_id ?? "", catalog_task_id: task.catalog_task_id ?? "", priority: task.priority || "Medium", start_date: day(task.start_date), due_date: day(task.due_date) });
+    pmApi.getTaskCatalog({ is_active: true, all: true }).then((r: any) => setCatalogs(Array.isArray(r?.data) ? r.data : [])).catch(() => setCatalogs([]));
     api.get(`/project-tasks/${task.id}/phases`).then((r) => setPhases(r.data.data)).catch(() => setPhases([]));
   }, [isOpen, task]);
 
@@ -34,7 +36,7 @@ export function EditTaskModal({ isOpen, onClose, task, onSuccess }: { isOpen: bo
     setError(null);
     try {
       const res = await pmApi.updateTask(task.id, {
-        title: f.title, description: f.description || null, sub_phase_id: f.sub_phase_id === "" ? null : Number(f.sub_phase_id),
+        title: f.title, description: f.description || null, sub_phase_id: f.sub_phase_id === "" ? null : Number(f.sub_phase_id), catalog_task_id: f.catalog_task_id === "" ? null : Number(f.catalog_task_id),
         priority: f.priority, start_date: f.start_date || null, due_date: f.due_date || null,
       } as any);
       const fresh = await pmApi.getTask(task.id); // the update response has no phase / assignee names
@@ -56,7 +58,16 @@ export function EditTaskModal({ isOpen, onClose, task, onSuccess }: { isOpen: bo
             <button type="button" onClick={onClose} aria-label="Close"><X className="h-5 w-5" /></button></div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <label className="block text-xs font-semibold text-slate-500">Title<input required className={field} value={f.title || ""} onChange={(e) => setF({ ...f, title: e.target.value })} /></label>
-          <label className="block text-xs font-semibold text-slate-500">Phase
+          <label className="block text-xs font-semibold text-slate-500">Task (from the task catalog)
+            <SelectCompat className={field} value={f.catalog_task_id ?? ""} onChange={(e) => {
+              const c = catalogs.find((x) => String(x.id) === e.target.value);
+              const was = catalogs.find((x) => String(x.id) === String(f.catalog_task_id));
+              // choosing a catalog task names the task after it, unless the title was typed by hand
+              setF({ ...f, catalog_task_id: e.target.value, title: c && (!f.title || f.title === was?.name) ? c.name : f.title });
+            }}>
+              <option value="">Custom task (no catalog template)</option>{catalogs.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </SelectCompat></label>
+          <label className="block text-xs font-semibold text-slate-500">Sub phase
             <SelectCompat className={field} value={f.sub_phase_id ?? ""} onChange={(e) => setF({ ...f, sub_phase_id: e.target.value })}>
               <option value="">No phase</option>{phases.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </SelectCompat></label>
