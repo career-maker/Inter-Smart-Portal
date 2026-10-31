@@ -178,7 +178,7 @@ export function UiverseSelect({
             ? { fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', position: "absolute", left: 0, minWidth: "100%", zIndex: 100000, ...(pos.up ? { bottom: "100%", marginBottom: 6 } : { top: "100%", marginTop: 6 }) }
             : { fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', position: "fixed", left: pos.left, minWidth: pos.minWidth, zIndex: 100000, pointerEvents: "auto",
                 ...(pos.up ? { bottom: window.innerHeight - pos.top } : { top: pos.top }) }}
-          className={`options is-open !opacity-100 !pointer-events-auto w-max max-w-xs sm:max-w-sm rounded-[12px] p-1.5 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-150 animate-in fade-in-50 zoom-in-95 before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']`}
+          className={`uv-panel w-max max-w-xs sm:max-w-sm rounded-[12px] p-1.5 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-150 animate-in fade-in-50 zoom-in-95 before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']`}
         >
           {/* Quick Search if more than 10 options */}
           {isAutoSearchable && (
