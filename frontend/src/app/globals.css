@@ -3902,6 +3902,24 @@ body:has(.fixed.inset-y-0.right-0:not([data-chat-widget="true"])) [aria-label="O
   --tw-gradient-from: color-mix(in srgb, var(--portal-light-bg, #F8FAFC) 70%, transparent) !important;
 }
 
+/* ── Gradient stops (from/via/to) in purple/violet/indigo → brand palette ── */
+.from-purple-500, .from-purple-600, .to-purple-500, .to-indigo-600, .to-violet-500\/10 {
+  --tw-gradient-from: var(--portal-primary-color, #2563EB) !important;
+  --tw-gradient-to: var(--portal-primary-color, #2563EB) !important;
+}
+.from-purple-50, .from-purple-100, .from-violet-50, .from-violet-50\/80, .from-purple-50\/50, .from-purple-50\/80, .from-purple-50\/90,
+.via-purple-50, .via-purple-50\/30, .via-purple-50\/40, .via-indigo-50, .via-indigo-50\/50,
+.to-purple-50, .to-indigo-50\/60, .to-indigo-100 {
+  --tw-gradient-from: var(--portal-light-bg, #E6F8F6) !important;
+  --tw-gradient-via: var(--portal-light-bg, #E6F8F6) !important;
+  --tw-gradient-to: var(--portal-light-bg, #E6F8F6) !important;
+}
+.from-indigo-900, .from-purple-900\/60, .from-purple-950\/20, .from-purple-950\/40, .from-violet-950\/30,
+.to-indigo-950\/30, .to-purple-950\/20, .to-purple-950\/30, .to-purple-950\/40 {
+  --tw-gradient-from: var(--portal-dark-text, #0F172A) !important;
+  --tw-gradient-to: var(--portal-dark-text, #0F172A) !important;
+}
+
 /* ── Group-hover colors ───────────────────────────────────────────────── */
 .group:hover .group-hover\:text-purple-600,
 .group:hover .group-hover\:text-violet-600 {
