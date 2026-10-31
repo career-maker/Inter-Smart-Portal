@@ -211,12 +211,22 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
 
 function Subtasks({ row, canEdit, run }: { row: any; canEdit: boolean; run: (fn: () => Promise<any>) => Promise<void> }) {
   const [t, setT] = useState({ title: "", hours: "", create_task: false });
+  const [editing, setEditing] = useState<number | null>(null);
+  const [e, setE] = useState({ title: "", hours: "" });
   return (
     <div className="space-y-2 text-sm">
       <div className="font-medium">Timeline for "{row.name}": {num(row.planned_hours)} hrs</div>
       {row.subtasks.length === 0 && <p className="text-slate-500">No sub-tasks yet.</p>}
-      {row.subtasks.map((x: any) => (
+      {row.subtasks.map((x: any) => editing === x.id ? (
+        <div key={x.id} className="grid grid-cols-[1fr_8rem_auto_auto] gap-2 items-center border-b py-1">
+          <Input value={e.title} onChange={(ev) => setE({ ...e, title: ev.target.value })} />
+          <Input type="number" min="0" step="0.5" value={e.hours} onChange={(ev) => setE({ ...e, hours: ev.target.value })} />
+          <Button size="sm" disabled={!e.title || e.hours === ""} onClick={() => run(async () => { await api.put(`/work/tracker/subtasks/${x.id}`, { title: e.title, hours: Number(e.hours) }); setEditing(null); })}>Save</Button>
+          <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
+        </div>
+      ) : (
         <div key={x.id} className="flex items-center gap-3 border-b py-1"><span className="flex-1">{x.title}</span><span>{num(x.hours)} hrs</span>
+          {canEdit && <Button size="icon" variant="ghost" onClick={() => { setEditing(x.id); setE({ title: x.title, hours: String(x.hours) }); }} aria-label="Edit sub-task"><Pencil className="h-4 w-4" /></Button>}
           {canEdit && <Button size="icon" variant="ghost" onClick={() => run(() => api.delete(`/work/tracker/subtasks/${x.id}`))} aria-label="Remove sub-task"><Trash2 className="h-4 w-4 text-red-600" /></Button>}</div>
       ))}
       {canEdit && (

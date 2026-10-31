@@ -317,6 +317,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::put('tracker/rows/{row}', [$tr, 'update']);
         Route::delete('tracker/rows/{row}', [$tr, 'destroy']);
         Route::post('tracker/rows/{row}/subtasks', [$tr, 'addSubtask']);
+        Route::put('tracker/subtasks/{subtask}', [$tr, 'updateSubtask']);
         Route::delete('tracker/subtasks/{subtask}', [$tr, 'destroySubtask']);
         $qr = \App\Http\Controllers\Api\Work\QaRequestController::class;
         Route::get('projects/{project}/qa-requests', [$qr, 'index']);

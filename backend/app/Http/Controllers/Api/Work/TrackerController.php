@@ -224,6 +224,20 @@ class TrackerController extends Controller
         return response()->json(['data' => DB::table('work_tracker_subtasks')->find($id)], 201);
     }
 
+    public function updateSubtask(Request $request, int $subtask)
+    {
+        $s = DB::table('work_tracker_subtasks')->find($subtask);
+        abort_unless($s, 404);
+        $r = DB::table('work_tracker_rows')->find($s->row_id);
+        abort_unless($this->canEditHours($request->user(), Project::findOrFail($r->project_id)), 403, 'Only the Frontend team or the project manager can change planned hours.');
+        $d = $request->validate(['title' => 'required|string|max:255', 'hours' => 'required|numeric|min:0|max:10000']);
+        DB::table('work_tracker_subtasks')->where('id', $subtask)->update($d + ['updated_at' => now()]);
+        // keep the tasks it created in step
+        ProjectTask::whereIn('id', json_decode((string) $s->task_ids, true) ?: [])->update(['title' => $d['title'], 'allotted_days' => round($d['hours'] / self::HOURS_PER_DAY, 2)]);
+
+        return response()->json(['data' => DB::table('work_tracker_subtasks')->find($subtask)]);
+    }
+
     public function destroySubtask(Request $request, int $subtask)
     {
         $s = DB::table('work_tracker_subtasks')->find($subtask);
