@@ -76,7 +76,11 @@ class Access
         }
         $cfg = self::settings()[$key] ?? null;
         if ($cfg !== null) {
-            return in_array($user->id, $cfg['users'], true) || ($user->team_id !== null && in_array((int) $user->team_id, $cfg['teams'], true));
+            // Project manager given to a TEAM means that team's lead only; the team members are the coordinators and must not get manager powers.
+            $byTeam = $user->team_id !== null && in_array((int) $user->team_id, $cfg['teams'], true)
+                && ($key !== 'pmo_manager' || Team::where('id', $user->team_id)->where('team_lead_id', $user->id)->exists());
+
+            return in_array($user->id, $cfg['users'], true) || $byTeam;
         }
 
         $follows = self::PRIVILEGES[$key][2] ?? null;
@@ -89,7 +93,11 @@ class Access
     {
         $cfg = self::settings()[$key] ?? null;
         if ($cfg !== null) {
-            return User::with('team')->where('status', 'Active')->where(fn ($q) => $q->whereIn('id', $cfg['users'])->orWhereIn('team_id', $cfg['teams']))->get();
+            $viaTeams = $key === 'pmo_manager' ? Team::whereIn('id', $cfg['teams'])->pluck('team_lead_id')->filter()->all() : null; // team grant = team lead only
+
+            return User::with('team')->where('status', 'Active')->where(fn ($q) => $viaTeams !== null
+                ? $q->whereIn('id', $cfg['users'])->orWhereIn('id', $viaTeams)
+                : $q->whereIn('id', $cfg['users'])->orWhereIn('team_id', $cfg['teams']))->get();
         }
 
         $follows = self::PRIVILEGES[$key][2] ?? null;

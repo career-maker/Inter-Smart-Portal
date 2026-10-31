@@ -303,4 +303,16 @@ class PmoModuleTest extends TestCase
         $id = $this->as($this->sales)->postJson('/api/sales/projects', $body + ['custom' => [$fid => '32ABC']])->assertCreated()->json('data.id');
         $this->assertSame('32ABC', \App\Models\ProjectIntake::where('project_id', $id)->first()->details['custom']['GST number']);
     }
+    public function test_project_manager_given_to_a_team_means_its_lead_only_so_other_coordinators_never_see_the_project(): void
+    {
+        $a = $this->salesProject('Alpha');
+        $this->approveAdvance($a);
+        $this->assign($a); // coordinator = $this->coordinator
+        \App\Support\Access::saveSetting('pmo_manager', [], [$this->manager->team_id]); // granted to the whole PMO team in settings
+
+        $this->assertTrue(\App\Support\Access::pmoManager($this->manager));         // the team lead
+        $this->assertFalse(\App\Support\Access::pmoManager($this->otherPc));        // a team member is only a coordinator
+        $this->assertCount(0, $this->as($this->otherPc)->getJson('/api/pmo/projects')->json('data'));
+        $this->assertCount(1, $this->as($this->coordinator)->getJson('/api/pmo/projects')->json('data'));
+    }
 }
