@@ -203,9 +203,9 @@ export default function RecognitionsPage() {
         <div className="flex items-center gap-3 flex-wrap">
           <Link
             href="/recognitions/leaderboard"
-            className="flex items-center gap-2 border border-amber-500/30 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2 rounded-xl text-sm font-semibold transition"
+            className="flex items-center gap-2 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-400 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition"
           >
-            <Trophy className="w-4 h-4" />
+            <Trophy className="w-4 h-4 text-amber-500" />
             View Leaderboard
           </Link>
           {isSuperAdmin && (
