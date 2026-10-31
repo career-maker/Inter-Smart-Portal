@@ -4,13 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import UiPages from "@/components/work/UiPages";
-import Sprints from "@/components/work/Sprints";
+import DeptTracker from "@/components/work/DeptTracker";
+import QaRequests from "@/components/work/QaRequests";
 import QaReviews from "@/components/work/QaReviews";
 import Changes from "@/components/work/Changes";
 
 // Tabs are added here as each department's work screens are built.
-const TABS = [{ key: "ui", label: "UI pages" }, { key: "sprints", label: "UX / Dev sprints" }, { key: "qa", label: "QA" }, { key: "changes", label: "Corrections and changes" }];
+const TABS = [{ key: "ui", label: "Design" }, { key: "frontend", label: "Frontend (HTML)" }, { key: "dev", label: "Dev" }, { key: "qa", label: "QA" }, { key: "changes", label: "Corrections and changes" }];
 
 export default function WorkProjectPage() {
   const id = useParams<{ id: string }>().id;
@@ -28,9 +28,10 @@ export default function WorkProjectPage() {
             className={`px-3 py-2 text-sm rounded-t-md ${tab === t.key ? "bg-white dark:bg-slate-800 font-semibold border border-b-0 border-slate-200 dark:border-slate-700" : "text-slate-500 hover:text-slate-900 dark:hover:text-white"}`}>{t.label}</button>
         ))}
       </div>
-      {tab === "ui" && <UiPages projectId={id} />}
-      {tab === "sprints" && <Sprints projectId={id} />}
-      {tab === "qa" && <QaReviews projectId={id} />}
+      {tab === "ui" && <DeptTracker projectId={id} kind="design" />}
+      {tab === "frontend" && <DeptTracker projectId={id} kind="frontend" />}
+      {tab === "dev" && <DeptTracker projectId={id} kind="dev" />}
+      {tab === "qa" && <div className="space-y-4"><QaRequests projectId={id} /><QaReviews projectId={id} /></div>}
       {tab === "changes" && <Changes projectId={id} />}
     </div>
   );

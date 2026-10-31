@@ -310,6 +310,20 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::put('ui/sections/{section}', [$ui, 'updateSection']);
         Route::delete('ui/sections/{section}', [$ui, 'destroySection']);
 
+        // Department tables: Design, Frontend (HTML) and Dev, plus QA requests raised from the Frontend and Dev tables.
+        $tr = \App\Http\Controllers\Api\Work\TrackerController::class;
+        Route::get('projects/{project}/tracker/{kind}', [$tr, 'index']);
+        Route::post('projects/{project}/tracker/{kind}', [$tr, 'store']);
+        Route::put('tracker/rows/{row}', [$tr, 'update']);
+        Route::delete('tracker/rows/{row}', [$tr, 'destroy']);
+        Route::post('tracker/rows/{row}/subtasks', [$tr, 'addSubtask']);
+        Route::delete('tracker/subtasks/{subtask}', [$tr, 'destroySubtask']);
+        $qr = \App\Http\Controllers\Api\Work\QaRequestController::class;
+        Route::get('projects/{project}/qa-requests', [$qr, 'index']);
+        Route::post('tracker/rows/{row}/qa-request', [$qr, 'store']);
+        Route::post('qa-requests/{qaRequest}/assign', [$qr, 'assign']);
+        Route::post('qa-requests/{qaRequest}/status', [$qr, 'status']);
+
         $sp = \App\Http\Controllers\Api\Work\SprintController::class;
         Route::get('projects/{project}/sprints', [$sp, 'index']);
         Route::post('projects/{project}/sprints', [$sp, 'store']);

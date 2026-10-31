@@ -12,8 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Handover from "@/components/work/Handover";
-import UiPages from "@/components/work/UiPages";
-import Sprints from "@/components/work/Sprints";
+import DeptTracker from "@/components/work/DeptTracker";
+import QaRequests from "@/components/work/QaRequests";
 import QaReviews from "@/components/work/QaReviews";
 import Changes from "@/components/work/Changes";
 
@@ -81,9 +81,10 @@ export default function PmoProjectPage() {
       {current.enabled && tab === "business_analysis" && <BusinessAnalysis d={d} run={run} id={id} />}
       {current.enabled && tab === "resources" && <Resources d={d} run={run} id={id} />}
       {current.enabled && tab === "budget" && <Budget d={d} meta={meta} run={run} id={id} />}
-      {current.enabled && tab === "ui" && <UiPages projectId={id} />}
-      {current.enabled && (tab === "ux" || tab === "dev") && <Sprints projectId={id} />}
-      {current.enabled && tab === "qa" && <QaReviews projectId={id} />}
+      {current.enabled && tab === "ui" && <DeptTracker projectId={id} kind="design" />}
+      {current.enabled && tab === "ux" && <DeptTracker projectId={id} kind="frontend" />}
+      {current.enabled && tab === "dev" && <DeptTracker projectId={id} kind="dev" />}
+      {current.enabled && tab === "qa" && <div className="space-y-4"><QaRequests projectId={id} /><QaReviews projectId={id} /></div>}
       {current.enabled && tab === "bugs" && <Changes projectId={id} />}
       {current.enabled && !current.ready && !["bugs"].includes(tab) && (
         <Card><CardContent className="p-4 text-sm text-slate-600 dark:text-slate-300">The {current.label} tab is open for this project. Its working screens arrive in the next phase.</CardContent></Card>
