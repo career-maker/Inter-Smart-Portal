@@ -95,12 +95,17 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{TITLE[kind]}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-        {cards.map(([k, v, bad], i) => {
-          const c = ["#0780B7", "#00BDA1", "#FE586E"][i]; // blue, teal, coral from the portal palette
+        {cards.map(([k, v], i) => {
+          // allocated, used, deviation
+          const t = [
+            { bg: "#E6F1FA", text: "#087DB5", border: "#A9D2EC" },
+            { bg: "#E2F5F0", text: "#009F83", border: "#9ADBCB" },
+            { bg: "#F8E8ED", text: "#922B52", border: "#E6B4C3" },
+          ][i];
           return (
-            <div key={k} className="rounded-[14px] border px-4 py-3" style={{ backgroundColor: `${c}14`, borderColor: `${c}55`, borderLeftWidth: 4, borderLeftColor: c }}>
-              <div className="text-xs font-medium" style={{ color: c }}>{k}</div>
-              <div className="text-base font-bold" style={{ color: bad ? "#C2334D" : c }}>{v}</div>
+            <div key={k} className="rounded-[14px] border px-4 py-3" style={{ backgroundColor: t.bg, borderColor: t.border }}>
+              <div className="text-xs font-medium" style={{ color: t.text }}>{k}</div>
+              <div className="text-base font-bold" style={{ color: t.text }}>{v}</div>
             </div>
           );
         })}
