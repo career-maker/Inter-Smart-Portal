@@ -10,7 +10,7 @@ use App\Models\ProjectPayment;
 
 /**
  * Which tabs of a project are open (the sheet's payment lock and budget lock).
- *  - Payment lock: tabs open once the advance is approved, or the Super Admin overrode payment.
+ *  - No payment lock: Accounts decides what reaches the Project Office, so PM and coordinator are never blocked by payment.
  *  - Budget lock: working tabs (UI, UX, Dev, QA) also need a department budget, or a PMO budget override.
  * Tabs marked ready=false are shown but built in a later phase.
  */
@@ -38,7 +38,8 @@ class ProjectGate
         $overrides = ProjectOverride::where('project_id', $project->id)->get()->keyBy('type');
         $allocated = (float) ProjectBudgetAllocation::where('project_id', $project->id)->sum('amount');
 
-        $paymentOpen = in_array($pay['state'], [ProjectPaymentState::PENDING, ProjectPaymentState::PAID], true) || $overrides->has('payment');
+        // Payment never blocks the Project Office: a project only reaches it once Accounts has approved a payment, PO or override.
+        $paymentOpen = true;
         $budgetOpen = $allocated > 0 || $overrides->has('budget');
 
         return [

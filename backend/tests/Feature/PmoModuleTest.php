@@ -141,30 +141,24 @@ class PmoModuleTest extends TestCase
         $this->as($this->otherPc)->getJson("/api/pmo/projects/{$a}")->assertStatus(403);
     }
 
-    public function test_payment_lock_blocks_work_tabs_until_advance_approved_or_super_admin_overrides(): void
+    public function test_payment_never_locks_the_project_office_tabs(): void
     {
         $id = $this->salesProject();
         $this->assign($id);
         $ba = ['purpose' => 'Sell more', 'usp' => 'Fast'];
 
-        $this->as($this->coordinator)->putJson("/api/pmo/projects/{$id}/business-analysis", $ba)->assertStatus(423);
+        // No block for the coordinator even before any payment is recorded.
         $tabs = collect($this->as($this->coordinator)->getJson("/api/pmo/projects/{$id}")->json('gate.tabs'))->keyBy('key');
-        $this->assertTrue($tabs['overview']['enabled']);
-        $this->assertFalse($tabs['business_analysis']['enabled']);
-
-        // PMO manager cannot override payment; Super Admin can.
-        $this->as($this->manager)->postJson("/api/pmo/projects/{$id}/overrides", ['type' => 'payment', 'reason' => 'x'])->assertStatus(403);
-        $this->as($this->admin)->postJson("/api/pmo/projects/{$id}/overrides", ['type' => 'payment', 'reason' => 'Client is paying tomorrow'])->assertOk();
-        $this->as($this->coordinator)->putJson("/api/pmo/projects/{$id}/business-analysis", $ba)->assertOk();
-
-        // Removing the override re-locks; approving the advance opens it for real.
-        $this->as($this->admin)->deleteJson("/api/pmo/projects/{$id}/overrides/payment")->assertOk();
-        $this->as($this->coordinator)->putJson("/api/pmo/projects/{$id}/business-analysis", $ba)->assertStatus(423);
-        $this->approveAdvance($id);
+        $this->assertTrue($tabs['business_analysis']['enabled']);
         $this->as($this->coordinator)->putJson("/api/pmo/projects/{$id}/business-analysis", $ba)->assertOk()->assertJsonPath('data.purpose', 'Sell more');
 
         $this->as($this->coordinator)->postJson("/api/pmo/projects/{$id}/resources", ['kind' => 'Logo', 'title' => 'Logo pack', 'url' => 'https://example.com/logo.zip'])->assertCreated();
         $this->as($this->coordinator)->postJson("/api/pmo/projects/{$id}/resources", ['kind' => 'Spaceship', 'title' => 'x'])->assertStatus(422);
+
+        // Any approved payment (here an instalment) moves the state off "Advance awaiting".
+        $pid = $this->as($this->accounts)->postJson("/api/accounts/projects/{$id}/payments", ['kind' => 'installment', 'amount' => 5000])->json('data.id');
+        $this->as($this->accounts)->postJson("/api/accounts/payments/{$pid}/approve")->assertOk();
+        $this->assertSame('Pending payment', collect($this->as($this->manager)->getJson('/api/pmo/projects')->json('data'))->firstWhere('id', $id)['state']);
     }
 
     public function test_department_budget_total_cannot_exceed_contract_without_confirmation_and_unlocks_working_tabs(): void
