@@ -245,7 +245,7 @@ export default function TaskCatalogPage() {
               type="button"
               onClick={() => {
                 setSearch("");
-                fetchCatalog(1);
+                return fetchCatalog(1);
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
             >

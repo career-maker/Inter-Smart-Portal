@@ -94,7 +94,7 @@ export function CSVImport({ onSuccess }: { onSuccess?: () => void }) {
           <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
             Click to select CSV file or drag and drop
           </p>
-          <Button
+          <Button loading={loading}
             disabled={loading}
             className="bg-amber-600 hover:bg-amber-700"
           >

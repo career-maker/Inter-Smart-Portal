@@ -86,7 +86,7 @@ export default function UiPages({ projectId }: { projectId: string | number }) {
                 <td className="p-3 text-right space-x-1 whitespace-nowrap">
                   {d.is_manager && p.approval === "Pending" && <>
                     <Button size="sm" onClick={() => run(() => api.post(`/work/ui/pages/${p.id}/decision`, { decision: "approve" }))}>Approve</Button>
-                    <Button size="sm" variant="outline" onClick={() => { const n = prompt("Why is this page rejected?"); if (n) run(() => api.post(`/work/ui/pages/${p.id}/decision`, { decision: "reject", note: n })); }}>Reject</Button>
+                    <Button size="sm" variant="outline" onClick={() => { const n = prompt("Why is this page rejected?"); if (n) return run(() => api.post(`/work/ui/pages/${p.id}/decision`, { decision: "reject", note: n })); }}>Reject</Button>
                   </>}
                   <Button size="sm" variant="outline" onClick={() => setOpenId(p.id)}>Open</Button>
                 </td>

@@ -401,8 +401,8 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
         )}
 
         <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline" size="lg" className="rounded-xl cursor-pointer" onClick={() => router.push("/employees")}>Cancel</Button>
-          <Button type="submit" size="lg" className="rounded-xl bg-[#56348f] hover:bg-[#432870] !text-white font-semibold cursor-pointer shadow-sm" disabled={isLoading}>{isLoading ? "Saving..." : "Save Employee Profile"}</Button>
+          <Button type="button" variant="outline" size="lg" className="rounded-xl cursor-pointer" href="/employees">Cancel</Button>
+          <Button loading={isLoading} type="submit" size="lg" className="rounded-xl bg-[#56348f] hover:bg-[#432870] !text-white font-semibold cursor-pointer shadow-sm" disabled={isLoading}>{isLoading ? "Saving..." : "Save Employee Profile"}</Button>
         </div>
       </form>
     </Form>

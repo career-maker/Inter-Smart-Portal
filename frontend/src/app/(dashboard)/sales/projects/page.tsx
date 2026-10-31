@@ -180,7 +180,7 @@ export default function SalesProjectsPage() {
               </div>
             )}
             <p className="sm:col-span-4 text-xs text-slate-500">The salesperson is you (recorded automatically).</p>
-            <Button disabled={busy || !form.name || !form.client_name || form.budget === ""} onClick={create}>Create project</Button>
+            <Button loading={busy} disabled={busy || !form.name || !form.client_name || form.budget === ""} onClick={create}>Create project</Button>
             <p className="sm:col-span-3 text-xs text-slate-500">Accounts is told an advance payment is awaiting. You are told when it is approved.</p>
           </CardContent>
         </Card>

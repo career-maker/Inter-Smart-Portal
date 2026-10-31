@@ -154,7 +154,7 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
           <CardHeader className="pb-0"><CardTitle className="text-base">Contract value</CardTitle></CardHeader>
           <CardContent className="flex gap-2 items-end pt-0">
             <div className="flex-1"><Label>{pay.kind === "po" || pay.kind === "override" ? "Amount (optional)" : "Amount"}</Label><Input type="number" min="0" value={contract} onChange={(e) => setContract(e.target.value)} /></div>
-            <Button disabled={busy || contract === ""} onClick={() => run(() => api.put(`/accounts/projects/${id}/finance`, { contract_value: Number(contract) }))}>Save</Button>
+            <Button loading={busy} disabled={busy || contract === ""} onClick={() => run(() => api.put(`/accounts/projects/${id}/finance`, { contract_value: Number(contract) }))}>Save</Button>
           </CardContent>
         </Card>
 
@@ -170,9 +170,9 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
                 <Badge className="ml-auto">{p.status}</Badge>
                 {p.status === "Awaiting" && (
                   <>
-                    <Button size="sm" disabled={busy} onClick={() => run(() => api.post(`/accounts/payments/${p.id}/approve`))}>Approve</Button>
+                    <Button loading={busy} size="sm" disabled={busy} onClick={() => run(() => api.post(`/accounts/payments/${p.id}/approve`))}>Approve</Button>
                     <Input className="w-40 h-8" placeholder="Reject reason" value={rejectReason[p.id] || ""} onChange={(e) => setRejectReason({ ...rejectReason, [p.id]: e.target.value })} />
-                    <Button size="sm" variant="outline" disabled={busy || !rejectReason[p.id]} onClick={() => run(() => api.post(`/accounts/payments/${p.id}/reject`, { reason: rejectReason[p.id] }))}>Reject</Button>
+                    <Button loading={busy} size="sm" variant="outline" disabled={busy || !rejectReason[p.id]} onClick={() => run(() => api.post(`/accounts/payments/${p.id}/reject`, { reason: rejectReason[p.id] }))}>Reject</Button>
                   </>
                 )}
               </div>
@@ -185,7 +185,7 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
               <div><Label>Amount</Label><Input type="number" min="0" value={pay.amount} onChange={(e) => setPay({ ...pay, amount: e.target.value })} /></div>
               <div><Label>Due date</Label><Input type="date" value={pay.due_date} onChange={(e) => setPay({ ...pay, due_date: e.target.value })} /></div>
               <div><Label>Reference</Label><Input value={pay.reference} onChange={(e) => setPay({ ...pay, reference: e.target.value })} /></div>
-              <Button disabled={busy || (!pay.amount && pay.kind !== "po" && pay.kind !== "override")} onClick={() => run(async () => {
+              <Button loading={busy} disabled={busy || (!pay.amount && pay.kind !== "po" && pay.kind !== "override")} onClick={() => run(async () => {
                 await api.post(`/accounts/projects/${id}/payments`, { ...pay, amount: pay.amount ? Number(pay.amount) : null, due_date: pay.due_date || null, reference: pay.reference || null });
                 setPay({ kind: "installment", amount: "", due_date: "", reference: "" });
               })}>Add payment</Button>
@@ -198,7 +198,7 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
           <CardContent className="grid grid-cols-1 gap-2 pt-0">
             <div><Label>New total</Label><Input type="number" min="0" value={budget.new_value} onChange={(e) => setBudget({ ...budget, new_value: e.target.value })} /></div>
             <div><Label>Reason</Label><Input value={budget.reason} onChange={(e) => setBudget({ ...budget, reason: e.target.value })} /></div>
-            <Button disabled={busy || !budget.new_value || !budget.reason} onClick={() => run(async () => {
+            <Button loading={busy} disabled={busy || !budget.new_value || !budget.reason} onClick={() => run(async () => {
               await api.post(`/accounts/projects/${id}/budget-increase`, { new_value: Number(budget.new_value), reason: budget.reason });
               setBudget({ new_value: "", reason: "" });
             })}>Increase &amp; notify</Button>
@@ -218,7 +218,7 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
                 <option value="On Hold">Hold</option><option value="Cancelled">Terminate</option><option value="Active">Resume</option>
               </select></div>
             <div><Label>Reason (required)</Label><Input value={status.reason} onChange={(e) => setStatus({ ...status, reason: e.target.value })} /></div>
-            <Button variant="outline" disabled={busy || !status.reason} onClick={() => {
+            <Button loading={busy} variant="outline" disabled={busy || !status.reason} onClick={() => {
               if (status.status === "Cancelled" && !confirm("Terminate this project?")) return;
               return run(async () => { await api.post(`/accounts/projects/${id}/status`, status); setStatus({ ...status, reason: "" }); });
             }}>Apply</Button>

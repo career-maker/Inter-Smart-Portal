@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Loader2Icon } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -44,7 +45,12 @@ const buttonVariants = cva(
   }
 )
 
-/** An onClick that returns a promise (async handler) puts the button in a loading state until it settles. */
+/**
+ * Loading state: shown (spinner + disabled) when
+ *  - onClick returns a promise (async handler), until it settles,
+ *  - `loading` is true (for buttons driven by a busy/saving state),
+ *  - `href` is set: the button navigates and spins until the next page is ready (use instead of onClick={() => router.push(...)}).
+ */
 function Button({
   className,
   variant = "default",
@@ -52,14 +58,19 @@ function Button({
   onClick,
   disabled,
   children,
+  loading,
+  href,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants> & { loading?: boolean; href?: string }) {
+  const router = useRouter()
+  const [navigating, startNav] = React.useTransition()
   const [pending, setPending] = React.useState(false)
   const alive = React.useRef(true)
   React.useEffect(() => () => { alive.current = false }, [])
 
   const handleClick = (e: any) => {
-    if (pending) return
+    if (pending || navigating) return
+    if (href) { startNav(() => router.push(href)); return }
     const r: any = (onClick as any)?.(e)
     if (r && typeof r.then === "function") {
       setPending(true)
@@ -72,12 +83,12 @@ function Button({
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
-      onClick={onClick ? handleClick : undefined}
-      disabled={disabled || pending}
-      aria-busy={pending || undefined}
+      onClick={onClick || href ? handleClick : undefined}
+      disabled={disabled || pending || navigating || loading}
+      aria-busy={pending || navigating || loading || undefined}
       {...props}
     >
-      {pending && <Loader2Icon className="animate-spin" aria-hidden />}
+      {(pending || navigating || loading) && <Loader2Icon className="animate-spin" aria-hidden />}
       {children}
     </ButtonPrimitive>
   )

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { TrendingUp, Loader2 } from "lucide-react";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -44,9 +43,9 @@ export default function SalesDashboardPage() {
           <p className="text-slate-600 dark:text-slate-300">{d.scope === "all" ? "All salespeople" : "Your numbers"}</p>
         </div>
         <div className="flex gap-2">
-          <Link href="/sales/leads"><Button variant="outline">Leads</Button></Link>
-          <Link href="/sales/inbox"><Button variant="outline">Inbox</Button></Link>
-          <Link href="/sales/projects"><Button>Projects</Button></Link>
+          <Button href="/sales/leads" variant="outline">Leads</Button>
+          <Button href="/sales/inbox" variant="outline">Inbox</Button>
+          <Button href="/sales/projects">Projects</Button>
         </div>
       </div>
 

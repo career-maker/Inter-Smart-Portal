@@ -557,7 +557,7 @@ export default function AllTasksPage() {
                 type="button"
                 onClick={() => {
                   setSearch("");
-                  fetchTasks(1);
+                  return fetchTasks(1);
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >

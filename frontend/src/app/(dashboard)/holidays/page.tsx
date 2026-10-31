@@ -716,7 +716,7 @@ export default function HolidaysPage() {
                       type="button"
                       onClick={() => {
                         setShowAdminMenu(false);
-                        seedKeralaHolidays();
+                        return seedKeralaHolidays();
                       }}
                       className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-left cursor-pointer"
                     >
@@ -962,7 +962,7 @@ export default function HolidaysPage() {
                             </button>
                             <button
                               type="button"
-                              onClick={(e) => { e.stopPropagation(); deleteHoliday(holiday.id); }}
+                              onClick={(e) => { e.stopPropagation(); return deleteHoliday(holiday.id); }}
                               title="Delete holiday"
                               className="p-1 rounded-md text-rose-600 dark:text-rose-400 hover:bg-rose-200/60 dark:hover:bg-rose-900/60 transition-colors cursor-pointer"
                             >
@@ -1020,7 +1020,7 @@ export default function HolidaysPage() {
                             </button>
                             <button
                               type="button"
-                              onClick={(e) => { e.stopPropagation(); deleteHoliday(holiday.id); }}
+                              onClick={(e) => { e.stopPropagation(); return deleteHoliday(holiday.id); }}
                               title="Delete holiday"
                               className="p-1 rounded-md text-rose-600 dark:text-rose-400 hover:bg-rose-200/60 dark:hover:bg-rose-900/60 transition-colors cursor-pointer"
                             >
@@ -1045,7 +1045,7 @@ export default function HolidaysPage() {
                         {isSuperAdmin && (
                           <button
                             type="button"
-                            onClick={(e) => { e.stopPropagation(); deleteOverride(override.id); }}
+                            onClick={(e) => { e.stopPropagation(); return deleteOverride(override.id); }}
                             title="Remove working day override (revert to weekend)"
                             className="mt-1 text-[9px] font-bold text-rose-500 hover:text-rose-700 transition-colors cursor-pointer"
                           >
@@ -1319,7 +1319,7 @@ export default function HolidaysPage() {
                 type="button"
                 onClick={() => {
                   setShowDialog(false);
-                  deleteHoliday(editId);
+                  return deleteHoliday(editId);
                 }}
                 className="text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors"
               >

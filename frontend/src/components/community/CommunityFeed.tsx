@@ -1744,7 +1744,7 @@ export function CommunityFeed() {
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleToggleLike(post.id, re.id);
+                                  return handleToggleLike(post.id, re.id);
                                 }}
                                 className={`w-8 h-8 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-125 cursor-pointer ${
                                   isSelected ? "scale-110 ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30" : "hover:bg-slate-100 dark:hover:bg-slate-700"

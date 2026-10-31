@@ -144,7 +144,7 @@ export default function TeamsPage() {
               Hierarchy
             </button>
           </div>
-          <Button onClick={() => router.push("/teams/create")}>
+          <Button href="/teams/create">
             <Plus className="mr-2 h-4 w-4" /> Create Department
           </Button>
         </div>

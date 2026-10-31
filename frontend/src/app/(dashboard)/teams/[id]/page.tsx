@@ -148,7 +148,7 @@ export default function EditTeamPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => router.push(`/teams?refresh=${Date.now()}`)}>
+        <Button variant="outline" size="icon" href={`/teams?refresh=${Date.now()}`}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
@@ -368,7 +368,7 @@ export default function EditTeamPage() {
                   Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{filteredUsers.length}</span> of{" "}
                   <span className="font-semibold text-slate-700 dark:text-slate-200">{eligibleUsers.length}</span> eligible employees
                 </p>
-                <Button
+                <Button loading={membersLoading}
                   onClick={handleSyncMembers}
                   disabled={membersLoading}
                   className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6"

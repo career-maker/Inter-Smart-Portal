@@ -283,7 +283,7 @@ export default function MyProfilePage() {
                     </div>
                   </CardContent>
                   <div className="px-6 pb-6 pt-2 flex justify-end">
-                    <Button type="submit" disabled={saving}>
+                    <Button loading={saving} type="submit" disabled={saving}>
                       {saving
                         ? "Submitting..."
                         : user?.role === "Super Admin"

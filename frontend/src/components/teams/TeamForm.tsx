@@ -139,8 +139,8 @@ export default function TeamForm({ initialData, isEdit }: TeamFormProps) {
             )} />
 
             <div className="flex justify-end gap-4 border-t pt-6">
-              <Button type="button" variant="outline" onClick={() => router.push("/teams")}>Cancel</Button>
-              <Button type="submit" disabled={isLoading}>{isLoading ? "Saving..." : "Save Team"}</Button>
+              <Button type="button" variant="outline" href="/teams">Cancel</Button>
+              <Button loading={isLoading} type="submit" disabled={isLoading}>{isLoading ? "Saving..." : "Save Team"}</Button>
             </div>
           </form>
         </Form>

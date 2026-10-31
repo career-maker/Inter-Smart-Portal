@@ -563,7 +563,7 @@ export default function AnnouncementsPage() {
                     onChange={(e) => setNewCategoryName(e.target.value)}
                     autoFocus
                   />
-                  <Button
+                  <Button loading={creatingCategory}
                     size="icon"
                     variant="ghost"
                     onClick={() => setIsAddingCategory(false)}

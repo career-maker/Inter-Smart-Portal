@@ -373,7 +373,7 @@ export function AdminLeaveWfhModal({
 
             {/* Buttons */}
             <div className="flex gap-2 justify-end pt-2">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="rounded-xl text-xs">
+              <Button loading={isLoading} type="button" variant="outline" onClick={onClose} disabled={isLoading} className="rounded-xl text-xs">
                 Cancel
               </Button>
               <Button

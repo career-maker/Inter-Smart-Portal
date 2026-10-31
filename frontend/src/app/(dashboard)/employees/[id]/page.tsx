@@ -296,7 +296,7 @@ export default function EditEmployeePage() {
                   <Label htmlFor="password_confirmation">Confirm Password</Label>
                   <Input id="password_confirmation" name="password_confirmation" type="password" required minLength={6} />
                 </div>
-                <Button type="submit" disabled={passwordLoading}>
+                <Button loading={passwordLoading} type="submit" disabled={passwordLoading}>
                   {passwordLoading ? "Updating..." : "Update Password"}
                 </Button>
               </form>

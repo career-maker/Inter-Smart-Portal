@@ -101,7 +101,7 @@ export default function EmployeesPage() {
               >
                 <Link2 className="h-4 w-4 text-blue-500" /> Sync Users with Hubstaff
               </Button>
-              <Button onClick={() => router.push("/employees/create")} className="bg-amber-500 hover:bg-amber-600 text-white font-semibold gap-2">
+              <Button href="/employees/create" className="bg-amber-500 hover:bg-amber-600 text-white font-semibold gap-2">
                 <Plus className="h-4 w-4" /> Add Employee
               </Button>
             </>
@@ -239,7 +239,7 @@ export default function EmployeesPage() {
                 Page <span className="font-semibold text-slate-900 dark:text-white">{currentPage}</span> of <span className="font-semibold text-slate-900 dark:text-white">{totalPages}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Button
+                <Button loading={isLoading}
                   variant="outline"
                   size="sm"
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
@@ -271,7 +271,7 @@ export default function EmployeesPage() {
                   })}
                 </div>
 
-                <Button
+                <Button loading={isLoading}
                   variant="outline"
                   size="sm"
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}

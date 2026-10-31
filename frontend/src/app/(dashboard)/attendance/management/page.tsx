@@ -1101,7 +1101,7 @@ export default function AttendanceManagementPage() {
                   />
                 </div>
 
-                <Button
+                <Button loading={isLoadingDetails}
                   onClick={handleExportCSV}
                   disabled={allEmployeesDateData.length === 0 || isLoadingDetails}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3.5 py-2 rounded-lg shadow-sm gap-1.5"

@@ -210,7 +210,7 @@ export default function NotificationsPage() {
           </div>
           {unreadTotal > 0 && (
             <Button
-              onClick={(e) => { e.stopPropagation(); handleMarkAllAsRead(); }}
+              onClick={(e) => { e.stopPropagation(); return handleMarkAllAsRead(); }}
               variant="outline"
               size="sm"
               className="h-9 gap-2 border-slate-200 dark:border-slate-700 text-[#56348f] dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 rounded-xl font-semibold cursor-pointer shadow-2xs"
@@ -311,7 +311,7 @@ export default function NotificationsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={(e) => { e.stopPropagation(); handleMarkAsRead(notif.id); }}
+                        onClick={(e) => { e.stopPropagation(); return handleMarkAsRead(notif.id); }}
                         className="shrink-0 h-8 text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:text-purple-900 hover:bg-purple-100/80 dark:hover:bg-purple-950/60 rounded-lg cursor-pointer"
                       >
                         Mark as read
