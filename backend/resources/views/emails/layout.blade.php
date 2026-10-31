@@ -1,3 +1,4 @@
+@php $fe = rtrim(config('app.frontend_url'), '/'); @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,9 +22,17 @@
         .items .r, .kv .r { text-align: right; }
         .btn { display: inline-block; margin: 0 8px 8px 0; padding: 10px 18px; background: #111111; color: #ffffff !important; border: 1px solid #111111; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; }
         .btn.alt { background: #ffffff; color: #111111 !important; border-color: #d0d7de; }
+        .logo { display: block; height: 36px; width: auto; border: 0; }
+        .logo-night { display: none; }
+        .brand { margin: 0 0 24px; padding-bottom: 16px; border-bottom: 1px solid #d8dee4; }
+        .brand-name { margin: 8px 0 0; font-size: 13px; font-weight: 600; color: #57606a; }
+        .links a { margin-right: 14px; }
         .muted { color: #6e7781; font-size: 13px; }
         .foot { margin-top: 32px; padding-top: 16px; border-top: 1px solid #d8dee4; }
         @media (prefers-color-scheme: dark) {
+            .logo-day { display: none !important; }
+            .logo-night { display: block !important; }
+            .brand, .brand-name { border-color: #30363d; color: #8b949e; }
             body, .wrap { background: #0d1117 !important; color: #e6edf3 !important; }
             a { color: #79b8ff; }
             .quote { border-color: #3d444d; color: #9da7b3; }
@@ -36,8 +45,22 @@
 </head>
 <body>
     <div class="wrap">
+        <div class="brand">
+            <a href="{{ $fe }}"><img class="logo logo-day" src="{{ $fe }}/logo-dark.png" alt="Inter Smart"></a>
+            <a href="{{ $fe }}"><img class="logo logo-night" src="{{ $fe }}/logo.png" alt="Inter Smart"></a>
+            <div class="brand-name">Inter Smart Employee Portal</div>
+        </div>
         @yield('body')
-        <div class="foot muted">Inter Smart HR Portal &middot; Automated message, please do not reply.</div>
+        <p style="margin-top: 28px;">Wishing you a productive and wonderful day ahead.<br>Team Inter Smart</p>
+        <div class="foot muted">
+            <div class="links">
+                <a href="{{ $fe }}/dashboard">Dashboard</a>
+                <a href="{{ $fe }}/leaves">Leaves</a>
+                <a href="{{ $fe }}/calendar">Calendar</a>
+                <a href="{{ $fe }}/policies">Policies</a>
+            </div>
+            <div style="margin-top: 10px;">Inter Smart Employee Portal &middot; Automated message, please do not reply.</div>
+        </div>
     </div>
 </body>
 </html>
