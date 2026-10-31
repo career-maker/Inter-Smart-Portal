@@ -3,8 +3,10 @@
 import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import api from "@/services/api";
-import { Page, Panel, Row, Dot, Primary, Quiet, Alert, Spinner, Label, field, area, errMsg } from "@/components/clean";
+import { ChevronDown } from "lucide-react";
+import { Page, Section, Panel, Row, Dot, Primary, Quiet, Alert, Spinner, Label, field, area, errMsg } from "@/components/clean";
 
+const COLS = "md:grid-cols-[minmax(0,1fr)_110px_190px_130px_24px]";
 const ist = (iso: string) => new Date(iso).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" });
 
 /** Client and internal meetings: schedule with a calendar invite, then record minutes and follow-up actions. */
@@ -20,11 +22,20 @@ export default function MeetingsPage() {
 
   return (
     <Page title="Meetings" hint="Schedule client and internal meetings. Everyone invited gets a calendar invite by email. Times are India time.">
-      <Schedule people={people} onSaved={load} />
-      <Panel className="p-0">
-        {rows.length === 0 && <Row className="text-slate-500">No meetings yet.</Row>}
-        {rows.map((m) => <Item key={m.id} m={m} people={people} onDone={load} />)}
-      </Panel>
+      <Section title="Schedule a meeting">
+        <Schedule people={people} onSaved={load} />
+      </Section>
+      <Section title="Scheduled meetings" count={rows.length}>
+        <Panel className="p-0 overflow-hidden">
+          {rows.length > 0 && (
+            <div className={`${COLS} hidden md:grid items-center gap-4 px-4 h-10 bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-xs font-medium uppercase tracking-wide text-slate-500`}>
+              <span>Meeting</span><span>Type</span><span>When (IST)</span><span>Status</span><span />
+            </div>
+          )}
+          {rows.length === 0 && <Row className="text-slate-500 justify-center py-8">No meetings yet. Schedule the first one above.</Row>}
+          {rows.map((m) => <Item key={m.id} m={m} people={people} onDone={load} />)}
+        </Panel>
+      </Section>
     </Page>
   );
 }
@@ -93,30 +104,34 @@ function MeetingForm({ people, initial, initialIds, label, onSubmit, onCancel }:
     } catch (e: any) { setErr(errMsg(e)); }
   };
   return (
-    <Panel className="space-y-4">
+    <Panel className="space-y-6">
       {err && <Alert>{err}</Alert>}
-      <div className="grid gap-4 md:grid-cols-[160px_1fr]">
-        <div><Label>Type</Label><SelectCompat className={field} value={f.kind} onChange={(e) => set("kind", e.target.value)}><option value="internal">Internal</option><option value="client">Client</option></SelectCompat></div>
-        <div><Label>Title</Label><input className={field} value={f.title} onChange={(e) => set("title", e.target.value)} /></div>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div><Label>Starts</Label><input type="datetime-local" className={field} value={f.start} onChange={(e) => set("start", e.target.value)} /></div>
-        <div><Label>Ends</Label><input type="datetime-local" className={field} value={f.end} onChange={(e) => set("end", e.target.value)} /></div>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div><Label>Room or meeting link</Label><input className={field} value={f.location} onChange={(e) => set("location", e.target.value)} /></div>
-        <div><Label>Agenda</Label><input className={field} value={f.agenda} onChange={(e) => set("agenda", e.target.value)} /></div>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <Label>Colleagues to invite</Label>
-          <PeoplePicker people={people} ids={ids} onChange={setIds} />
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Details</h3>
+          <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
+            <div><Label>Type</Label><SelectCompat className={field} value={f.kind} onChange={(e) => set("kind", e.target.value)}><option value="internal">Internal</option><option value="client">Client</option></SelectCompat></div>
+            <div><Label>Title</Label><input className={field} value={f.title} onChange={(e) => set("title", e.target.value)} /></div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div><Label>Starts</Label><input type="datetime-local" className={field} value={f.start} onChange={(e) => set("start", e.target.value)} /></div>
+            <div><Label>Ends</Label><input type="datetime-local" className={field} value={f.end} onChange={(e) => set("end", e.target.value)} /></div>
+          </div>
+          <div><Label>Room or meeting link</Label><input className={field} value={f.location} onChange={(e) => set("location", e.target.value)} /></div>
+          <div><Label>Agenda</Label><input className={field} value={f.agenda} onChange={(e) => set("agenda", e.target.value)} /></div>
         </div>
-        <div><Label>Client email addresses, separated by commas</Label><input className={field} value={f.emails} onChange={(e) => set("emails", e.target.value)} /></div>
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Who to invite</h3>
+          <div>
+            <Label>Colleagues</Label>
+            <PeoplePicker people={people} ids={ids} onChange={setIds} />
+          </div>
+          <div><Label>Client email addresses, separated by commas</Label><input className={field} value={f.emails} onChange={(e) => set("emails", e.target.value)} /></div>
+        </div>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <Primary disabled={!f.title || !f.start || !f.end} onClick={save}>{label}</Primary>
+      <div className="flex flex-wrap justify-end gap-2 border-t border-slate-200 dark:border-white/10 pt-4">
         {onCancel && <Quiet onClick={onCancel}>Close without saving</Quiet>}
+        <Primary disabled={!f.title || !f.start || !f.end} onClick={save}>{label}</Primary>
       </div>
     </Panel>
   );
@@ -137,16 +152,17 @@ function Item({ m, people, onDone }: { m: any; people: any[]; onDone: () => void
 
   return (
     <div className="border-b border-slate-200 dark:border-white/10 last:border-0">
-      <button className="w-full text-left" onClick={() => setOpen(!open)}>
-        <Row className="border-b-0">
-          <span className="font-medium text-slate-900 dark:text-white">{m.title}</span>
+      <button className={`w-full text-left hover:bg-slate-50 dark:hover:bg-white/5 ${open ? "bg-slate-50 dark:bg-white/5" : ""}`} onClick={() => setOpen(!open)} aria-expanded={open}>
+        <div className={`${COLS} grid items-center gap-x-4 gap-y-1 px-4 py-3 text-sm`}>
+          <span className="font-medium text-slate-900 dark:text-white truncate">{m.title}</span>
           <span className="text-slate-500">{m.kind === "client" ? "Client" : "Internal"}</span>
           <span className="text-slate-600 dark:text-slate-300">{ist(m.starts_at)}</span>
-          <span className="ml-auto"><Dot tone={tone}>{m.status}</Dot></span>
-        </Row>
+          <span><Dot tone={tone}>{m.status}</Dot></span>
+          <ChevronDown className={`hidden md:block h-4 w-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+        </div>
       </button>
       {open && d && (
-        <div className="px-4 pb-4 space-y-4">
+        <div className="px-4 py-4 space-y-4 border-t border-slate-200 dark:border-white/10">
           {err && <Alert>{err}</Alert>}
           <p className="text-xs text-slate-500">Organiser {d.organizer?.first_name} {d.organizer?.last_name}. Invited: {[...d.attendees.map((a: any) => `${a.first_name} ${a.last_name}`), ...(d.external_emails || [])].join(", ") || "nobody"}.{d.location ? ` Where: ${d.location}.` : ""}</p>
           {d.agenda && <p className="text-sm text-slate-600 dark:text-slate-300">Agenda: {d.agenda}</p>}
