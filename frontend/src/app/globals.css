@@ -9,7 +9,7 @@
   width: 52%;
   height: 250px;
   border-radius: 55% 55% 0 0;
-  background: linear-gradient(145deg, rgba(161, 132, 255, 0.32), rgba(255, 255, 255, 0));
+  background: linear-gradient(145deg, color-mix(in srgb, var(--portal-primary-color, #2563EB) 32%, transparent), rgba(255, 255, 255, 0));
   transform: rotate(14deg);
   z-index: 2;
   pointer-events: none;
@@ -3896,6 +3896,7 @@ body:has(.fixed.inset-y-0.right-0:not([data-chat-widget="true"])) [aria-label="O
 /* ── Shadow tints ─────────────────────────────────────────────────────── */
 .shadow-purple-900\/20 { --tw-shadow-color: color-mix(in srgb, var(--portal-primary-color, #2563EB) 20%, transparent) !important; }
 .shadow-purple-900\/30 { --tw-shadow-color: color-mix(in srgb, var(--portal-primary-color, #2563EB) 30%, transparent) !important; }
+.shadow-purple-500\/20, .shadow-purple-600\/20, .shadow-purple-900\/25 { --tw-shadow-color: color-mix(in srgb, var(--portal-primary-color, #2563EB) 20%, transparent) !important; }
 
 /* ── Gradient from purple/violet (banners) ────────────────────────────── */
 .from-purple-50\/70, .from-violet-50\/70, .from-indigo-50\/70 {
