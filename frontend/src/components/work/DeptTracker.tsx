@@ -24,7 +24,7 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [editId, setEditId] = useState<number | null>(null);
   const [openRow, setOpenRow] = useState<number | null>(null);
-  const empty = { no: "", name: "", priority: "P2", status: kind === "dev" ? "Not started" : "Yet to start", link: "", work_type: "Backend", client_status: "Not shared", members: [] as number[], days: "", hours: "", subtasks: [] as { title: string; hours: string }[] };
+  const empty = { no: "", name: "", priority: "P2", status: kind === "dev" ? "Not started" : "Yet to start", link: "", work_type: "Backend", client_status: "Not shared", members: [] as number[], days: "", hours: "", subtasks: [] as { title: string; hours: string; create_task?: boolean }[] };
   const [form, setForm] = useState<any>(empty);
   const [showForm, setShowForm] = useState(false);
 
@@ -81,7 +81,7 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
     const p: any = { name: form.name, status: form.status, link: form.link || null, members: form.members, no: form.no ? Number(form.no) : undefined };
     if (kind === "design") Object.assign(p, { priority: form.priority, client_status: form.client_status, days: form.days === "" ? null : Number(form.days) });
     if (kind === "dev") Object.assign(p, { work_type: form.work_type, hours: form.hours === "" ? null : Number(form.hours) });
-    if (kind === "frontend" && !editId) p.subtasks = form.subtasks.filter((x: any) => x.title).map((x: any) => ({ title: x.title, hours: Number(x.hours || 0) }));
+    if (kind === "frontend" && !editId) p.subtasks = form.subtasks.filter((x: any) => x.title).map((x: any) => ({ title: x.title, hours: Number(x.hours || 0), create_task: !!x.create_task }));
     return p;
   };
   const save = () => run(async () => {
@@ -127,6 +127,7 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
                       <div key={i} className="grid grid-cols-[1fr_8rem_auto] gap-2">
                         <Input placeholder="Sub-task" value={t.title} onChange={(e) => setForm({ ...form, subtasks: form.subtasks.map((x: any, j: number) => (j === i ? { ...x, title: e.target.value } : x)) })} />
                         <Input type="number" min="0" step="0.5" placeholder="Hours" value={t.hours} onChange={(e) => setForm({ ...form, subtasks: form.subtasks.map((x: any, j: number) => (j === i ? { ...x, hours: e.target.value } : x)) })} />
+                        <label className="col-span-3 flex items-center gap-2 text-xs"><input type="checkbox" checked={!!t.create_task} onChange={(e) => setForm({ ...form, subtasks: form.subtasks.map((x: any, j: number) => (j === i ? { ...x, create_task: e.target.checked } : x)) })} />Create a task on the Tasks page (for the selected HTML team members, unassigned if none)</label>
                         <Button type="button" variant="ghost" size="icon" onClick={() => setForm({ ...form, subtasks: form.subtasks.filter((_: any, j: number) => j !== i) })} aria-label="Remove sub-task"><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     ))}
@@ -209,7 +210,7 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
 }
 
 function Subtasks({ row, canEdit, run }: { row: any; canEdit: boolean; run: (fn: () => Promise<any>) => Promise<void> }) {
-  const [t, setT] = useState({ title: "", hours: "" });
+  const [t, setT] = useState({ title: "", hours: "", create_task: false });
   return (
     <div className="space-y-2 text-sm">
       <div className="font-medium">Timeline for "{row.name}": {num(row.planned_hours)} hrs</div>
@@ -222,7 +223,8 @@ function Subtasks({ row, canEdit, run }: { row: any; canEdit: boolean; run: (fn:
         <div className="grid grid-cols-[1fr_8rem_auto] gap-2 items-end">
           <Input placeholder="Sub-task" value={t.title} onChange={(e) => setT({ ...t, title: e.target.value })} />
           <Input type="number" min="0" step="0.5" placeholder="Hours" value={t.hours} onChange={(e) => setT({ ...t, hours: e.target.value })} />
-          <Button variant="outline" disabled={!t.title || t.hours === ""} onClick={() => run(async () => { await api.post(`/work/tracker/rows/${row.id}/subtasks`, { title: t.title, hours: Number(t.hours) }); setT({ title: "", hours: "" }); })}>Add</Button>
+          <Button variant="outline" disabled={!t.title || t.hours === ""} onClick={() => run(async () => { await api.post(`/work/tracker/rows/${row.id}/subtasks`, { title: t.title, hours: Number(t.hours), create_task: t.create_task }); setT({ title: "", hours: "", create_task: false }); })}>Add</Button>
+          <label className="col-span-3 flex items-center gap-2 text-xs"><input type="checkbox" checked={t.create_task} onChange={(e) => setT({ ...t, create_task: e.target.checked })} />Create a task on the Tasks page (for this page's HTML team members, unassigned if none)</label>
         </div>
       )}
     </div>

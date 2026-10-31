@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Work;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\ProjectTask;
+use App\Models\ProjectTaskAssignee;
 use App\Models\ProjectBudgetAllocation;
 use App\Models\Team;
 use App\Models\User;
@@ -145,7 +147,7 @@ class TrackerController extends Controller
             $r += ['priority' => ['nullable', Rule::in(self::PRIORITIES)], 'client_status' => ['nullable', Rule::in(self::CLIENT)], 'days' => 'nullable|numeric|min:0|max:10000'];
         }
         if ($kind === 'frontend') {
-            $r += ['subtasks' => 'nullable|array', 'subtasks.*.title' => 'required|string|max:255', 'subtasks.*.hours' => 'required|numeric|min:0|max:10000'];
+            $r += ['subtasks' => 'nullable|array', 'subtasks.*.title' => 'required|string|max:255', 'subtasks.*.hours' => 'required|numeric|min:0|max:10000', 'subtasks.*.create_task' => 'nullable|boolean'];
         }
         if ($kind === 'dev') {
             $r += ['work_type' => ['nullable', Rule::in(self::WORK_TYPES)], 'hours' => 'nullable|numeric|min:0|max:100000'];
@@ -169,7 +171,9 @@ class TrackerController extends Controller
             'days' => $d['days'] ?? null, 'hours' => $d['hours'] ?? null, 'created_by' => $request->user()->id, 'created_at' => now(), 'updated_at' => now(),
         ]);
         foreach ($this->canEditHours($request->user(), $project) ? ($d['subtasks'] ?? []) : [] as $s) {
-            DB::table('work_tracker_subtasks')->insert(['row_id' => $id, 'title' => $s['title'], 'hours' => $s['hours'], 'created_at' => now(), 'updated_at' => now()]);
+            DB::table('work_tracker_subtasks')->insert(['row_id' => $id, 'title' => $s['title'], 'hours' => $s['hours'],
+                'task_ids' => ! empty($s['create_task']) ? json_encode($this->makeTasks($project, $d['name'], $s['title'], (float) $s['hours'], $d['members'] ?? [], $request->user())) : null,
+                'created_at' => now(), 'updated_at' => now()]);
         }
         $this->tell($project, $kind, $d['members'] ?? [], $d['name'], $request->user());
 
@@ -210,8 +214,12 @@ class TrackerController extends Controller
         $r = DB::table('work_tracker_rows')->find($row);
         abort_unless($r && $r->kind === 'frontend', 404);
         abort_unless($this->canEditHours($request->user(), Project::findOrFail($r->project_id)), 403, 'Only the Frontend team or the project manager can change planned hours.');
-        $d = $request->validate(['title' => 'required|string|max:255', 'hours' => 'required|numeric|min:0|max:10000']);
-        $id = DB::table('work_tracker_subtasks')->insertGetId($d + ['row_id' => $row, 'created_at' => now(), 'updated_at' => now()]);
+        $d = $request->validate(['title' => 'required|string|max:255', 'hours' => 'required|numeric|min:0|max:10000', 'create_task' => 'nullable|boolean']);
+        $taskIds = $request->boolean('create_task')
+            ? $this->makeTasks(Project::findOrFail($r->project_id), $r->name, $d['title'], (float) $d['hours'], json_decode((string) $r->members, true) ?: [], $request->user())
+            : null;
+        $id = DB::table('work_tracker_subtasks')->insertGetId(['title' => $d['title'], 'hours' => $d['hours'], 'task_ids' => $taskIds ? json_encode($taskIds) : null,
+            'row_id' => $row, 'created_at' => now(), 'updated_at' => now()]);
 
         return response()->json(['data' => DB::table('work_tracker_subtasks')->find($id)], 201);
     }
@@ -222,9 +230,31 @@ class TrackerController extends Controller
         abort_unless($s, 404);
         $r = DB::table('work_tracker_rows')->find($s->row_id);
         abort_unless($this->canEditHours($request->user(), Project::findOrFail($r->project_id)), 403, 'Only the Frontend team or the project manager can change planned hours.');
+        ProjectTask::whereIn('id', json_decode((string) $s->task_ids, true) ?: [])->delete();
         DB::table('work_tracker_subtasks')->where('id', $subtask)->delete();
 
         return response()->json(['message' => 'Removed.']);
+    }
+
+    /** One task on the Tasks page per assigned member (the Tasks page works one assignee per task); no members = one unassigned task. */
+    private function makeTasks(Project $project, string $page, string $title, float $hours, array $memberIds, User $actor): array
+    {
+        $days = max(1, (int) ceil($hours / self::HOURS_PER_DAY));
+        $base = [
+            'project_id' => $project->id, 'title' => $title, 'description' => "From the Frontend (HTML) table, page \"{$page}\". Planned {$hours} hrs.",
+            'status' => 'Yet to Start', 'priority' => 'Medium', 'start_date' => now()->toDateString(), 'due_date' => now()->addDays($days)->toDateString(),
+            'allotted_days' => round($hours / self::HOURS_PER_DAY, 2), 'created_by' => $actor->id,
+        ];
+        $ids = [];
+        foreach ($memberIds ?: [null] as $i => $uid) {
+            $t = ProjectTask::create($base + ['team_id' => $uid ? User::find($uid)?->team_id : null]);
+            if ($uid) {
+                ProjectTaskAssignee::create(['task_id' => $t->id, 'user_id' => (int) $uid, 'assigned_by' => $actor->id, 'is_primary' => true]);
+            }
+            $ids[] = $t->id;
+        }
+
+        return $ids;
     }
 
     private function tell(Project $project, string $kind, array $memberIds, string $name, User $actor): void
