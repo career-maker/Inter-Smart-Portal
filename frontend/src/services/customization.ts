@@ -44,13 +44,13 @@ export interface CustomizationSettings {
 
 export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   font_family: "Poppins",
-  header_bg_color: "#A8325C",
+  header_bg_color: "#252525",
   header_text_color: "#FFFFFF",
-  sidebar_bg_color: "#A8325C",
+  sidebar_bg_color: "#1C1C1C",
   header_subtitle: "PERFECTION AT ITS FINEST",
   show_header_subtitle: true,
-  sidebar_active_color: "#7E2345",
-  sidebar_hover_color: "#B94670",
+  sidebar_active_color: "#A8325C",
+  sidebar_hover_color: "#333333",
   hover_color: "#00A58C",
   active_color: "#A8325C",
   dark_text_color: "#161D2C",
