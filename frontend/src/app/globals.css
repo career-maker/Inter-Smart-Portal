@@ -5278,3 +5278,45 @@ html button[class~="bg-[#1F5C4E]"], html button[class~="bg-[#184a3e]"], html a[c
   color: #FFFFFF !important;
   border-radius: var(--portal-button-radius, 9px) !important;
 }
+
+/* ── Motion: page titles and cards ease in, cards lift on hover ──
+   Entrance uses fill-mode "backwards" so nothing stays transformed afterwards
+   (no stacking-context side effects on dropdowns). Skipped for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes portal-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes portal-title {
+    from { opacity: 0; transform: translateX(-12px); letter-spacing: 0.02em; }
+    to   { opacity: 1; transform: none; letter-spacing: inherit; }
+  }
+  main h1 {
+    animation: portal-title 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+  main h2, main h3 {
+    animation: portal-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+  }
+  main [data-slot="card"],
+  main div.rounded-2xl.border,
+  main div.rounded-xl.border.shadow-sm {
+    animation: portal-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  /* stagger siblings (first 8) */
+  main :is([data-slot="card"], div.rounded-2xl.border, div.rounded-xl.border.shadow-sm):nth-child(2) { animation-delay: 0.06s; }
+  main :is([data-slot="card"], div.rounded-2xl.border, div.rounded-xl.border.shadow-sm):nth-child(3) { animation-delay: 0.12s; }
+  main :is([data-slot="card"], div.rounded-2xl.border, div.rounded-xl.border.shadow-sm):nth-child(4) { animation-delay: 0.18s; }
+  main :is([data-slot="card"], div.rounded-2xl.border, div.rounded-xl.border.shadow-sm):nth-child(5) { animation-delay: 0.24s; }
+  main :is([data-slot="card"], div.rounded-2xl.border, div.rounded-xl.border.shadow-sm):nth-child(6) { animation-delay: 0.30s; }
+  main :is([data-slot="card"], div.rounded-2xl.border, div.rounded-xl.border.shadow-sm):nth-child(n+7) { animation-delay: 0.36s; }
+  /* hover lift, only on devices that hover */
+  @media (hover: hover) {
+    main [data-slot="card"]:hover,
+    main div.rounded-2xl.border:hover,
+    main div.rounded-xl.border.shadow-sm:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px -12px rgb(15 23 42 / 0.22);
+    }
+  }
+}
