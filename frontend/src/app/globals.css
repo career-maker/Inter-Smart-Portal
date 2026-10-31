@@ -3921,6 +3921,11 @@ body:has(.fixed.inset-y-0.right-0:not([data-chat-widget="true"])) [aria-label="O
   --tw-gradient-to: var(--portal-dark-text, #0F172A) !important;
 }
 
+.to-\[\#4f46e5\], .from-\[\#56348f\] {
+  --tw-gradient-from: var(--portal-primary-color, #2563EB) !important;
+  --tw-gradient-to: var(--portal-primary-color, #2563EB) !important;
+}
+
 /* ── Group-hover colors ───────────────────────────────────────────────── */
 .group:hover .group-hover\:text-purple-600,
 .group:hover .group-hover\:text-violet-600 {
