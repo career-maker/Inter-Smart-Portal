@@ -406,16 +406,16 @@ export function AttendanceWidget({
                 fontSize: "11px",
                 lineHeight: "16px",
               }}
-              className={`px-3 py-1 rounded-full font-semibold uppercase tracking-wider border ${
+              className={`px-1 py-1 font-semibold uppercase tracking-wider ${
                 data?.status === "Checked In"
-                  ? "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700"
+                  ? "text-emerald-700 dark:text-emerald-300"
                   : data?.status === "On Break"
-                  ? "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700"
+                  ? "text-amber-700 dark:text-amber-300"
                   : data?.status === "Checked Out"
                   ? data?.has_approved_wfh_today
-                    ? "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700"
-                    : "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600"
-                  : "bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-700"
+                    ? "text-amber-700 dark:text-amber-300"
+                    : "text-slate-700 dark:text-slate-300"
+                  : "text-rose-700 dark:text-rose-300"
               }`}
             >
               {data?.status === "Checked Out" && data?.has_approved_wfh_today
