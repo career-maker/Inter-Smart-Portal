@@ -36,6 +36,16 @@ class QaRequestController extends Controller
     {
         $user = $request->user();
         abort_unless(WorkAccess::canWork($user, $project), 403, 'This project is not on your work list.');
+        // requests assigned before the Tasks page link existed get their task now
+        foreach (DB::table('qa_requests')->where('project_id', $project->id)->whereNotNull('assigned_to')->whereNull('task_id')->where('status', '!=', 'Done')->get() as $old) {
+            $start = now()->toDateString();
+            $end = now()->addDays(2)->toDateString();
+            $taskId = $this->taskFor($old, $project, (int) $old->assigned_to, $start, $end, $user);
+            DB::table('qa_requests')->where('id', $old->id)->update(['task_id' => $taskId, 'start_date' => $start, 'end_date' => $end]);
+            if ($old->status === 'In testing') {
+                ProjectTask::whereKey($taskId)->update(['status' => 'In Progress']);
+            }
+        }
         $rows = DB::table('qa_requests')->where('project_id', $project->id)->orderByDesc('id')->get();
         $names = User::whereIn('id', $rows->pluck('requested_by')->merge($rows->pluck('assigned_to'))->filter()->unique())->get()->keyBy('id');
         $nm = fn ($id) => $id && $names->has($id) ? trim($names[$id]->first_name . ' ' . $names[$id]->last_name) : null;

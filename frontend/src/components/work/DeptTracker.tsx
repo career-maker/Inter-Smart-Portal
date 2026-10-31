@@ -178,7 +178,17 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
                   {kind === "frontend" && <td className="p-2"><button onClick={() => setOpenRow(openRow === r.id ? null : r.id)} aria-label="Show timeline">{openRow === r.id ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</button></td>}
                   {cols.map((c) => (
                     <td key={c.key} className="p-2 max-w-[16rem] break-words">
-                      {c.key === "link" ? (r.link ? <a className="underline text-blue-600" href={r.link} target="_blank" rel="noreferrer">Open</a> : "-")
+                      {d.can_edit && c.type === "select" ? (
+                        <SelectCompat className="min-w-[8rem] text-xs h-8" value={r[c.key] ?? ""} onChange={(e) => run(() => api.put(`/work/tracker/rows/${r.id}`, { [c.key]: e.target.value }))}>
+                          {c.options!.map((o) => <option key={o} value={o}>{o}</option>)}
+                        </SelectCompat>
+                      ) : d.can_edit && ["no", "name", "link", "days", "hours"].includes(c.key) ? (
+                        <Input key={`${r.id}-${c.key}-${r[c.key]}`} className="h-8 text-xs min-w-[5rem]" type={["no", "days", "hours"].includes(c.key) ? "number" : "text"} step={c.key === "no" ? "1" : "0.5"} min="0"
+                          defaultValue={r[c.key] ?? ""} placeholder={c.key === "link" ? "https://" : ""}
+                          onBlur={(e) => { const v = e.target.value.trim(); if (v === String(r[c.key] ?? "")) return; if (c.key === "name" && !v) return; return run(() => api.put(`/work/tracker/rows/${r.id}`, { [c.key]: ["no", "days", "hours"].includes(c.key) ? (v === "" ? null : Number(v)) : (v === "" ? null : v) })); }}
+                          onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />
+                      )
+                      : c.key === "link" ? (r.link ? <a className="underline text-blue-600" href={r.link} target="_blank" rel="noreferrer">Open</a> : "-")
                         : c.key === "planned_hours" || c.key === "hours" || c.key === "days" ? (r[c.key] == null ? "-" : num(r[c.key]))
                         : String((c.get ? c.get(r) : r[c.key]) || "-")}
                     </td>
