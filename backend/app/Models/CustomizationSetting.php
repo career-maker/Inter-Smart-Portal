@@ -107,7 +107,7 @@ class CustomizationSetting extends Model
 
     public function getSidebarHoverColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['sidebar_hover_color'] ?? '#232C42');
+        return $value ?: ($this->extra_colors['sidebar_hover_color'] ?? '#B94670');
     }
 
     public function getHoverColorAttribute($value): string
@@ -117,7 +117,7 @@ class CustomizationSetting extends Model
 
     public function getActiveColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['active_color'] ?? '#276BFA');
+        return $value ?: ($this->extra_colors['active_color'] ?? '#A8325C');
     }
 
     public function getDarkTextColorAttribute($value): string
@@ -142,12 +142,12 @@ class CustomizationSetting extends Model
 
     public function getSidebarBgColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['sidebar_bg_color'] ?? '#161D2C');
+        return $value ?: ($this->extra_colors['sidebar_bg_color'] ?? '#A8325C');
     }
 
     public function getSidebarActiveColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['sidebar_active_color'] ?? '#276BFA');
+        return $value ?: ($this->extra_colors['sidebar_active_color'] ?? '#7E2345');
     }
 
     public function getSubHeaderBgAttribute($value): string
@@ -164,15 +164,15 @@ class CustomizationSetting extends Model
     {
         return [
             'font_family'               => 'Poppins',
-            'header_bg_color'           => '#276BFA',
+            'header_bg_color'           => '#A8325C',
             'header_text_color'         => '#FFFFFF',
-            'sidebar_bg_color'          => '#161D2C',
+            'sidebar_bg_color'          => '#A8325C',
             'header_subtitle'           => 'PERFECTION AT ITS FINEST',
             'show_header_subtitle'      => true,
-            'sidebar_active_color'      => '#276BFA',
-            'sidebar_hover_color'       => '#232C42',
+            'sidebar_active_color'      => '#7E2345',
+            'sidebar_hover_color'       => '#B94670',
             'hover_color'               => '#00A58C',
-            'active_color'              => '#276BFA',
+            'active_color'              => '#A8325C',
             'dark_text_color'           => '#161D2C',
             'light_bg_color'            => '#F5F7FC',
             'card_bg_color'             => '#FDFBFE',
@@ -194,7 +194,7 @@ class CustomizationSetting extends Model
             'login_bg_video_url'        => '/videos/login-bg.mp4',
             'border_radius'             => '14px',
             'sub_header_bg'             => '#FFFFFF',
-            'sub_header_active_color'   => '#276BFA',
+            'sub_header_active_color'   => '#A8325C',
             'login_heading'             => 'Sign in to your workplace',
             'login_subheading'          => 'Perfection at its finest. Workforce management portal',
             'title_separator'           => '|',
