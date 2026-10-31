@@ -105,7 +105,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto p-6 sm:p-8 space-y-6">
+      <div className="space-y-6">
         <div className="py-24 text-center text-slate-500 space-y-3 animate-pulse">
           <Layers className="w-10 h-10 mx-auto text-slate-400 opacity-60" />
           <p className="text-sm font-semibold">Loading task specifications…</p>
@@ -116,7 +116,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
 
   if (error || !task) {
     return (
-      <div className="max-w-7xl mx-auto p-6 sm:p-8 space-y-6">
+      <div className="space-y-6">
         <div className="p-6 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-300 space-y-3">
           <div className="flex items-center gap-2 font-bold text-base">
             <AlertCircle className="w-5 h-5" />
@@ -155,7 +155,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="space-y-6">
       {/* ── Top Breadcrumbs & Header ── */}
       <div className="border-b border-slate-200/80 dark:border-slate-800/80 pb-6 space-y-4">
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">

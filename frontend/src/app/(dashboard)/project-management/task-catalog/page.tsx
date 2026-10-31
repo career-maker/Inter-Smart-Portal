@@ -138,7 +138,7 @@ export default function TaskCatalogPage() {
 
   if (!isSuperAdmin) {
     return (
-      <div className="max-w-7xl mx-auto p-6 sm:p-8 space-y-6">
+      <div className="space-y-6">
         <div className="p-6 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-300 space-y-2">
           <h2 className="text-base font-bold flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-amber-600" />
@@ -164,7 +164,7 @@ export default function TaskCatalogPage() {
   const lastPage = catalogData?.last_page || 1;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="space-y-6">
       {/* ── Top Header Bar ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-6">
         <div>
