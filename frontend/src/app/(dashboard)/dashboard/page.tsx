@@ -1362,7 +1362,7 @@ export default function DashboardPage() {
             
             <Link 
               href="/leaves/apply" 
-              className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold py-3.5 px-6 rounded-md hover:shadow-xl hover:shadow-amber-400/15 transition-all duration-300 active:scale-95 whitespace-nowrap"
+              className="w-full flex items-center justify-center gap-2 bg-[#00BDA1] hover:bg-[#00A58C] text-white font-semibold py-3.5 px-6 rounded-[9px] hover:shadow-xl transition-all duration-300 active:scale-95 whitespace-nowrap"
             >
               <Palmtree className="w-5 h-5" />
               Apply for Leave
@@ -1376,7 +1376,7 @@ export default function DashboardPage() {
         <div className="fixed bottom-4 left-4 right-24 z-40 md:hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
           <Link
             href="/leaves/apply"
-            className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-6 rounded-md shadow-md active:scale-95 transition-all duration-150 border border-amber-400/30"
+            className="w-full flex items-center justify-center gap-2 bg-[#00BDA1] hover:bg-[#00A58C] text-white font-semibold py-3.5 px-6 rounded-[9px] shadow-md active:scale-95 transition-all duration-150"
           >
             <Plus className="w-5 h-5" />
             Apply Leave
