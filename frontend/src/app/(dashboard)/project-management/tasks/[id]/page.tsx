@@ -170,7 +170,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
           <span className="text-slate-900 dark:text-white truncate max-w-xs">{task.title}</span>
         </div>
 
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
@@ -208,7 +208,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-2.5 flex-nowrap overflow-x-auto [&>*]:shrink-0 [&_button]:whitespace-nowrap">
             <button
               onClick={() => fetchTaskDetails(true)}
               disabled={refreshing}

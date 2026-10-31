@@ -86,6 +86,8 @@ export interface Project {
   status: ProjectStatus;
   is_live?: boolean;
   can_make_live?: boolean;
+  can_manage?: boolean;
+  can_create_task?: boolean;
   live_date?: string | null;
   live_notes?: string | null;
   live_marked_by?: number | null;

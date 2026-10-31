@@ -63,10 +63,11 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const router = useRouter();
 
   const { user } = useAuthStore();
-  const isSuperAdmin = (user?.role || "").toLowerCase() === "super admin";
-  const isTeamLead = (user?.role || "").toLowerCase() === "team lead";
 
   const [project, setProject] = useState<Project | null>(null);
+  // Permissions come from the API, the same rules the server enforces.
+  const canManage = project?.can_manage === true;
+  const canCreateTask = project?.can_create_task === true;
   const [members, setMembers] = useState<ProjectMemberUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -189,7 +190,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
     try {
       const coordId = selectedCoordinatorId ? Number(selectedCoordinatorId) : null;
       const res = await pmApi.setProjectCoordinator(projectId, { project_coordinator_id: coordId });
-      setProject(res.data);
+      setProject((prev) => ({ ...prev, ...res.data, can_manage: prev?.can_manage, can_create_task: prev?.can_create_task }));
       alert("Project Coordinator updated successfully.");
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to update project coordinator.");
@@ -276,7 +277,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
           </button>
 
-          <button
+          {canCreateTask && (<button
             type="button"
             onClick={() => setIsCreateTaskModalOpen(true)}
             style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
@@ -284,9 +285,9 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           >
             <Plus className="w-4 h-4 !text-white shrink-0" />
             <span className="whitespace-nowrap !text-white">Add Task</span>
-          </button>
+          </button>)}
 
-          {isSuperAdmin && (
+          {canManage && (
             <>
               <button
                 type="button"
@@ -436,7 +437,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 </span>
               </div>
 
-              {(isSuperAdmin || isTeamLead) && (
+              {canManage && (
                 <button
                   onClick={() => setIsAddMemberModalOpen(true)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs font-semibold border border-blue-200 dark:border-blue-800/60 transition-colors"
@@ -486,7 +487,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                       </div>
                     </div>
 
-                    {(isSuperAdmin || isTeamLead) && (
+                    {canManage && (
                       <button
                         onClick={() => handleRemoveMember(member.id)}
                         disabled={removingMemberId === member.id}
@@ -521,7 +522,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               who receive milestone notifications and coordinate delivery.
             </p>
 
-            {isSuperAdmin ? (
+            {canManage ? (
               <div className="space-y-3 pt-2">
                 <SearchableCoordinatorSelect
                   value={selectedCoordinatorId ? Number(selectedCoordinatorId) : null}
@@ -582,7 +583,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         project={project}
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onSuccess={(updated) => setProject(updated)}
+        onSuccess={(updated) => setProject((prev) => ({ ...prev, ...updated, can_manage: prev?.can_manage, can_create_task: prev?.can_create_task }))}
       />
 
       {/* ── Add Project Member Modal ── */}

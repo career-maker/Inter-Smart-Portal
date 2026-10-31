@@ -116,6 +116,8 @@ class ProjectController extends Controller
     {
         foreach ($projects as $p) {
             $p->setAttribute('can_make_live', $this->canMakeLive($user, $p));
+            $p->setAttribute('can_manage', $this->auth->canManageProject($user, $p));
+            $p->setAttribute('can_create_task', $this->auth->canCreateTask($user, $p));
         }
     }
 
@@ -155,6 +157,7 @@ class ProjectController extends Controller
         }
 
         $project->load(['team:id,name', 'coordinator:id,first_name,last_name,email', 'creator:id,first_name,last_name']);
+        $this->flagCanMakeLive($user, [$project]);
 
         return response()->json(['data' => $project]);
     }
@@ -511,7 +514,7 @@ class ProjectController extends Controller
 
         $totalMembersCount = count($hubstaffMembersList) > 0 ? count($hubstaffMembersList) : $project->members->count();
 
-        $project->setAttribute('can_make_live', $this->canMakeLive($user, $project));
+        $this->flagCanMakeLive($user, [$project]);
 
         return response()->json([
             'data' => [
