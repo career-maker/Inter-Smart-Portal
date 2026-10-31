@@ -311,6 +311,12 @@ function groupHasVisibleItems(group: NavGroup, role: string, permissions: Record
   return group.items.some((item) => isItemVisible(item, role, permissions));
 }
 
+/** The side-menu item a page belongs to: the longest menu link that is the path or a parent of it. */
+function bestMenuItem(path: string): string | undefined {
+  const hrefs = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.href.split("?")[0]));
+  return hrefs.filter((h) => path === h || path.startsWith(h + "/")).sort((a, b) => b.length - a.length)[0];
+}
+
 function pathBelongsToGroup(group: NavGroup, pathname: string, currentTab?: string | null) {
   if (group.id === "wfh") {
     if (pathname === "/wfh" || pathname.startsWith("/wfh/")) return true;
@@ -366,14 +372,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const load = () =>
       api.get("/notifications/unread?limit=300").then((r) => {
         const by: Record<string, number> = {};
+        const opened: string[] = [];
+        const here = bestMenuItem(pathname || "");
         for (const n of r.data?.data?.notifications ?? []) {
           const raw: string = n?.data?.action_url || "";
           if (!raw) continue;
           let path = raw;
           try { path = new URL(raw, "http://x").pathname; } catch { /* keep raw */ }
+          // opening a menu item clears the notifications that belong to it
+          if (here && bestMenuItem(path) === here) { opened.push(n.id); continue; }
           by[path] = (by[path] || 0) + 1;
         }
         setUnreadByPath(by);
+        if (opened.length) {
+          Promise.allSettled(opened.map((id) => api.post(`/notifications/mark-as-read/${id}`))).then(() => window.dispatchEvent(new Event("notifications-refresh")));
+        }
       }).catch(() => {});
     load();
     const t = setInterval(load, 60000);
@@ -386,10 +399,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navGroups = useMemo(() => NAV_GROUPS.filter((g) => !g.feature || features[g.feature]), [features]);
   // A notification counts on the menu item whose link is its longest match (/work/projects/5 -> "My projects", /work/go-live -> "Go-live requests").
   const itemUnread = useMemo(() => {
-    const hrefs = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.href.split("?")[0]));
     const counts: Record<string, number> = {};
     for (const [path, n] of Object.entries(unreadByPath)) {
-      const best = hrefs.filter((h) => path === h || path.startsWith(h + "/")).sort((a, b) => b.length - a.length)[0];
+      const best = bestMenuItem(path);
       if (best) counts[best] = (counts[best] || 0) + n;
     }
     return counts;
