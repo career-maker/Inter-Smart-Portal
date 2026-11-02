@@ -718,8 +718,6 @@ export default function WfhPage() {
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>{cancellingId === req.id ? "…" : "Delete"}</span>
                               </button>
-                            ) : !canApproveRow && req.status !== "Pending" ? (
-                              <span className="text-xs text-slate-400 dark:text-slate-600">—</span>
                             ) : null}
                           </div>
                         </td>
