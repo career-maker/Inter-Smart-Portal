@@ -5,7 +5,7 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
 import {
   Calendar, Clock, CheckCircle, XCircle, Loader2, Home,
-  X, Plus, Check, Users, User, Trash2, Paperclip
+  X, Plus, Check, Users, User, Trash2, Paperclip, Eye
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -84,6 +84,7 @@ export default function WfhPage() {
 
   // Reject dialog state
   const [rejectDialogId, setRejectDialogId]     = useState<number | null>(null);
+  const [viewReq, setViewReq]                   = useState<any>(null);
   const [rejectReason, setRejectReason]         = useState("");
 
   // Filters
@@ -268,6 +269,42 @@ export default function WfhPage() {
   return (
     <div className="space-y-7">
 
+
+      {/* ── View Details Dialog ───────────────────────────────────── */}
+      {viewReq && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setViewReq(null)} />
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">WFH Request Details</h2>
+              <button onClick={() => setViewReq(null)} className="text-slate-400 hover:text-slate-600 cursor-pointer"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="px-6 py-5 space-y-3 text-sm text-slate-700 dark:text-slate-300">
+              <p className="font-semibold text-slate-900 dark:text-white">
+                {`${viewReq.user?.first_name || ""} ${viewReq.user?.last_name || ""}`.trim()}
+              </p>
+              <p className="text-xs">
+                {viewReq.start_date ? fmtDate(viewReq.start_date) : "—"}
+                {viewReq.end_date && viewReq.end_date !== viewReq.start_date && ` → ${fmtDate(viewReq.end_date)}`}
+                {` • ${calcWfhDays(viewReq)} day(s)`}
+              </p>
+              <p className="whitespace-pre-wrap break-words">{viewReq.reason || "—"}</p>
+              {viewReq.remarks && (
+                <p className="text-xs italic text-amber-600 dark:text-amber-400">Note: {viewReq.remarks}</p>
+              )}
+              {viewReq.has_attachment && (
+                <button
+                  type="button"
+                  onClick={() => openAttachment(viewReq)}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
+                >
+                  <Paperclip className="w-3.5 h-3.5" /> {viewReq.attachment_name || "View attachment"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Reject Reason Dialog ──────────────────────────────────── */}
       {rejectDialogId && (
@@ -599,7 +636,7 @@ export default function WfhPage() {
                               onClick={() => openAttachment(req)}
                               className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:underline cursor-pointer"
                             >
-                              <Paperclip className="w-3 h-3" /> {req.attachment_name || "Attachment"}
+                              <Paperclip className="w-3 h-3" /> View attachment
                             </button>
                           )}
                           {req.remarks && (
@@ -613,6 +650,14 @@ export default function WfhPage() {
 
                         <td className="px-3 py-3 align-middle text-center">
                           <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setViewReq(req)}
+                              title="View details"
+                              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            >
+                              <Eye className="w-3.5 h-3.5" /> View
+                            </button>
                             {/* If manager/admin can approve */}
                             {canApproveRow ? (
                               <>
