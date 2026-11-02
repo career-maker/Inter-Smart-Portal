@@ -159,6 +159,10 @@ class WfhRequestController extends Controller
 
             if ($request->has('status') && $request->status === 'Pending') {
                 $query->where('tl_status', 'Pending')->where('status', 'Pending');
+            } elseif ($request->status === 'Approved') {
+                // Approver's own approval counts even while Super Admin final approval is pending
+                $query->where(fn($q) => $q->where('status', 'Approved')
+                    ->orWhere(fn($q2) => $q2->where('tl_status', 'Approved')->where('status', 'Pending')));
             } elseif ($request->has('status')) {
                 $query->where('status', $request->status);
             }
