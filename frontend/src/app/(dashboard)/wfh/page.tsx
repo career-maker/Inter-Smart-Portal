@@ -634,7 +634,8 @@ export default function WfhPage() {
                             <button
                               type="button"
                               onClick={() => openAttachment(req)}
-                              className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:underline cursor-pointer"
+                              style={{ fontSize: 10, lineHeight: "14px", textAlign: "left", justifyContent: "flex-start" }}
+                              className="mt-0.5 flex w-full items-center justify-start gap-1 text-left text-[10px] font-medium text-blue-600 hover:underline cursor-pointer"
                             >
                               <Paperclip className="w-3 h-3" /> View attachment
                             </button>
