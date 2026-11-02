@@ -189,6 +189,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('leave-requests/{leaveRequest}/status', [\App\Http\Controllers\Api\LeaveRequestController::class, 'updateStatus']);
     Route::post('wfh-requests/{wfhRequest}/cancel', [\App\Http\Controllers\Api\WfhRequestController::class, 'cancel']);
     Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store', 'destroy']);
+    Route::get('wfh-requests/{wfhRequest}/attachment', [\App\Http\Controllers\Api\WfhRequestController::class, 'attachment']);
     Route::post('wfh-requests/{wfhRequest}/status', [\App\Http\Controllers\Api\WfhRequestController::class, 'updateStatus']);
 
     // Attendance Routes

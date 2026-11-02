@@ -18,6 +18,7 @@ import { GuidelinesCard, NeedHelpCard, RecentRequestsCard, type RecentWfhRequest
 const MORNING_CUTOFF_MIN = 9 * 60 + 45;
 const AFTERNOON_CUTOFF_MIN = 14 * 60 + 30;
 const REASON_MAX = 500;
+const ATTACHMENT_MAX_BYTES = 10 * 1024 * 1024;
 
 const TYPE_OPTIONS = [
   {
@@ -174,6 +175,22 @@ export function WfhRequestForm({ onCancel, onViewAll, onSubmitted }: WfhRequestF
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [cutoffWarning, setCutoffWarning] = useState<string | null>(null);
   const [recent, setRecent] = useState<RecentWfhRequest[] | null>(null);
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const [attachmentError, setAttachmentError] = useState<string | null>(null);
+
+  const pickAttachment = (file: File | null) => {
+    setAttachmentError(null);
+    if (!file) return setAttachment(null);
+    if (file.size > ATTACHMENT_MAX_BYTES) {
+      setAttachmentError("File is larger than 10 MB.");
+      return setAttachment(null);
+    }
+    if (!/\.(pdf|docx?|xlsx?|csv|txt|jpe?g|png)$/i.test(file.name)) {
+      setAttachmentError("Only PDF, Word, Excel, CSV, TXT, JPG or PNG files are allowed.");
+      return setAttachment(null);
+    }
+    setAttachment(file);
+  };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -254,12 +271,13 @@ export function WfhRequestForm({ onCancel, onViewAll, onSubmitted }: WfhRequestF
 
     setIsSubmitting(true);
     try {
-      await api.post("/wfh-requests", {
-        duration_type: values.duration_type,
-        start_date: values.start_date,
-        end_date: values.duration_type === "Full" ? values.end_date || values.start_date : values.start_date,
-        reason: values.reason,
-      });
+      const body = new FormData();
+      body.append("duration_type", values.duration_type);
+      body.append("start_date", values.start_date);
+      body.append("end_date", values.duration_type === "Full" ? values.end_date || values.start_date : values.start_date);
+      body.append("reason", values.reason);
+      if (attachment) body.append("attachment", attachment);
+      await api.post("/wfh-requests", body, { headers: { "Content-Type": "multipart/form-data" } });
       onSubmitted();
     } catch (e) {
       const data = (e as ApiError).response?.data;
@@ -423,6 +441,19 @@ export function WfhRequestForm({ onCancel, onViewAll, onSubmitted }: WfhRequestF
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Attachment */}
+          <div>
+            <FieldLabel optional>Attachment</FieldLabel>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png"
+              onChange={(e) => pickAttachment(e.target.files?.[0] ?? null)}
+              className="block w-full text-sm text-slate-600 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-700 dark:text-slate-300"
+            />
+            <p className="mt-1.5 text-xs text-slate-500">PDF, Word, Excel, CSV, TXT, JPG or PNG. Max 10 MB. Visible to your approvers.</p>
+            <FieldError message={attachmentError ?? undefined} />
           </div>
 
           {/* Cutoff note */}

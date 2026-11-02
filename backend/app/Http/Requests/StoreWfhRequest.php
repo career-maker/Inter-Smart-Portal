@@ -22,6 +22,8 @@ class StoreWfhRequest extends FormRequest
                                 ? 'nullable|date|same:start_date'
                                 : 'required|date|after_or_equal:start_date',
             'reason'        => 'required|string|max:1000',
+            // Documents and images only (no scripts/archives/html/svg), 10 MB max
+            'attachment'    => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,csv,txt,jpg,jpeg,png|max:10240',
         ];
     }
 

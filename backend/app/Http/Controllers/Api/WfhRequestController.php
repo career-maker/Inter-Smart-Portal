@@ -294,7 +294,17 @@ class WfhRequestController extends Controller
             $adminStatus = 'Pending';
         }
 
+        // Private disk (not web-reachable); stored under a random name with a safe extension
+        $attachmentPath = $attachmentName = null;
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $attachmentName = mb_substr(preg_replace('/[^\w.\- ]/u', '_', $file->getClientOriginalName()), 0, 150);
+            $attachmentPath = $file->storeAs('wfh-attachments', \Illuminate\Support\Str::random(40) . '.' . $file->guessExtension(), 'local');
+        }
+
         $wfhRequest = WfhRequest::create([
+            'attachment_path' => $attachmentPath,
+            'attachment_name' => $attachmentName,
             'user_id'       => $user->id,
             'duration_type' => $data['duration_type'],
             'wfh_date'      => $data['start_date'],  // legacy NOT NULL column fallback
@@ -367,6 +377,28 @@ class WfhRequestController extends Controller
             'message' => 'WFH request submitted successfully',
             'data'    => $wfhRequest
         ], 201);
+    }
+
+    /**
+     * Download the attachment: applicant, Super Admin/HR, or an approver of the applicant.
+     */
+    public function attachment(Request $request, WfhRequest $wfhRequest)
+    {
+        $user = $request->user();
+        $applicant = $wfhRequest->user;
+
+        $allowed = $wfhRequest->user_id === $user->id
+            || $user->hasRole('Super Admin') || $user->hasRole('HR')
+            || \App\Services\ApprovalRoutingService::isUserAuthorizedApprover($user, $applicant, 'wfh', (float) $wfhRequest->days_count)
+            || collect(\App\Models\EmailSetting::getByKey('employee_overrides', []))->contains(fn ($i) =>
+                ($i['enabled'] ?? true) && (int) ($i['user_id'] ?? 0) === (int) $applicant->id
+                && in_array($user->id, [(int) ($i['approver_user_id'] ?? 0), (int) ($i['approver_user_id_2'] ?? 0)], true))
+            || ($applicant->team_id && \App\Models\Team::where('id', $applicant->team_id)->where('team_lead_id', $user->id)->exists());
+
+        abort_unless($allowed, 403, 'Unauthorized.');
+        abort_unless($wfhRequest->attachment_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($wfhRequest->attachment_path), 404, 'No attachment.');
+
+        return \Illuminate\Support\Facades\Storage::disk('local')->download($wfhRequest->attachment_path, $wfhRequest->attachment_name);
     }
 
     public function updateStatus(UpdateLeaveStatusRequest $request, WfhRequest $wfhRequest)

@@ -9,7 +9,14 @@ class WfhRequest extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['days_count'];
+    protected $appends = ['days_count', 'has_attachment'];
+
+    protected $hidden = ['attachment_path'];
+
+    public function getHasAttachmentAttribute(): bool
+    {
+        return !empty($this->attachment_path);
+    }
 
     public function user() {
         return $this->belongsTo(User::class);

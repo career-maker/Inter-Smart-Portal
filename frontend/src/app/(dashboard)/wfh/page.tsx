@@ -5,7 +5,7 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
 import {
   Calendar, Clock, CheckCircle, XCircle, Loader2, Home,
-  X, Plus, Check, Users, User, Trash2
+  X, Plus, Check, Users, User, Trash2, Paperclip
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -125,6 +125,21 @@ export default function WfhPage() {
       console.error(e);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Bearer auth, so fetch as a blob and save it
+  const openAttachment = async (req: any) => {
+    try {
+      const res = await api.get(`/wfh-requests/${req.id}/attachment`, { responseType: "blob" });
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = req.attachment_name || "attachment";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Could not download the attachment.");
     }
   };
 
@@ -578,6 +593,15 @@ export default function WfhPage() {
 
                         <td className="px-3 py-3 align-middle text-xs text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight">
                           <p className="line-clamp-2" title={req.reason || ""}>{req.reason || "—"}</p>
+                          {req.has_attachment && (
+                            <button
+                              type="button"
+                              onClick={() => openAttachment(req)}
+                              className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:underline cursor-pointer"
+                            >
+                              <Paperclip className="w-3 h-3" /> {req.attachment_name || "Attachment"}
+                            </button>
+                          )}
                           {req.remarks && (
                             <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 italic">Note: {req.remarks}</p>
                           )}
