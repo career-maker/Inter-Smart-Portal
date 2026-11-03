@@ -92,6 +92,8 @@ function LeaveTypeIcon({ leaveTypeName }: { leaveTypeName?: string }) {
 
 export default function ApprovalsPage() {
   const { user } = useAuthStore();
+  // cache is per user: a shared browser must never show another person's approvals, even for a moment
+  const ck = `${CACHE_KEY}_u${user?.id ?? "anon"}`;
   const router = useRouter();
   const searchParams = useSearchParams();
   const isSuperAdmin = user?.role === "Super Admin";
@@ -143,7 +145,7 @@ export default function ApprovalsPage() {
   const [leaveRequests, setLeaveRequests] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem(`${CACHE_KEY}_pending`);
+        const cached = user?.id && localStorage.getItem(`${ck}_pending`);
         if (cached) return JSON.parse(cached);
       } catch {}
     }
@@ -152,7 +154,7 @@ export default function ApprovalsPage() {
   const [approvedLeaves, setApprovedLeaves] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem(`${CACHE_KEY}_approved`);
+        const cached = user?.id && localStorage.getItem(`${ck}_approved`);
         if (cached) return JSON.parse(cached);
       } catch {}
     }
@@ -161,7 +163,7 @@ export default function ApprovalsPage() {
   const [rejectedLeaves, setRejectedLeaves] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem(`${CACHE_KEY}_rejected`);
+        const cached = user?.id && localStorage.getItem(`${ck}_rejected`);
         if (cached) return JSON.parse(cached);
       } catch {}
     }
@@ -170,7 +172,7 @@ export default function ApprovalsPage() {
   const [cancelledLeaves, setCancelledLeaves] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem(`${CACHE_KEY}_cancelled`);
+        const cached = user?.id && localStorage.getItem(`${ck}_cancelled`);
         if (cached) return JSON.parse(cached);
       } catch {}
     }
@@ -179,7 +181,7 @@ export default function ApprovalsPage() {
   const [wfhRequests, setWfhRequests] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem(`${CACHE_KEY}_wfh_pending`) || localStorage.getItem(`${CACHE_KEY}_wfh`);
+        const cached = user?.id && localStorage.getItem(`${ck}_wfh_pending`) || localStorage.getItem(`${ck}_wfh`);
         if (cached) return JSON.parse(cached);
       } catch {}
     }
@@ -188,7 +190,7 @@ export default function ApprovalsPage() {
   const [approvedWfh, setApprovedWfh] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem(`${CACHE_KEY}_wfh_approved`);
+        const cached = user?.id && localStorage.getItem(`${ck}_wfh_approved`);
         if (cached) return JSON.parse(cached);
       } catch {}
     }
@@ -197,7 +199,7 @@ export default function ApprovalsPage() {
   const [rejectedWfh, setRejectedWfh] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem(`${CACHE_KEY}_wfh_rejected`);
+        const cached = user?.id && localStorage.getItem(`${ck}_wfh_rejected`);
         if (cached) return JSON.parse(cached);
       } catch {}
     }
@@ -206,7 +208,7 @@ export default function ApprovalsPage() {
   const [cancelledWfh, setCancelledWfh] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem(`${CACHE_KEY}_wfh_cancelled`);
+        const cached = user?.id && localStorage.getItem(`${ck}_wfh_cancelled`);
         if (cached) return JSON.parse(cached);
       } catch {}
     }
@@ -271,15 +273,15 @@ export default function ApprovalsPage() {
       if (pendingLeavesRes.status === "fulfilled") {
         const pendingData = pendingLeavesRes.value.data?.data?.data ?? [];
         setLeaveRequests(pendingData);
-        try { localStorage.setItem(`${CACHE_KEY}_pending`, JSON.stringify(pendingData)); } catch {}
+        try { localStorage.setItem(`${ck}_pending`, JSON.stringify(pendingData)); } catch {}
       }
 
       if (pendingWfhRes.status === "fulfilled") {
         const pendingWfhData = pendingWfhRes.value.data?.data?.data ?? [];
         setWfhRequests(pendingWfhData);
         try {
-          localStorage.setItem(`${CACHE_KEY}_wfh_pending`, JSON.stringify(pendingWfhData));
-          localStorage.setItem(`${CACHE_KEY}_wfh`, JSON.stringify(pendingWfhData));
+          localStorage.setItem(`${ck}_wfh_pending`, JSON.stringify(pendingWfhData));
+          localStorage.setItem(`${ck}_wfh`, JSON.stringify(pendingWfhData));
         } catch {}
       }
 
@@ -298,32 +300,32 @@ export default function ApprovalsPage() {
       if (approvedLeavesRes.status === "fulfilled") {
         const d = approvedLeavesRes.value.data?.data?.data ?? [];
         setApprovedLeaves(d);
-        try { localStorage.setItem(`${CACHE_KEY}_approved`, JSON.stringify(d)); } catch {}
+        try { localStorage.setItem(`${ck}_approved`, JSON.stringify(d)); } catch {}
       }
       if (rejectedLeavesRes.status === "fulfilled") {
         const d = rejectedLeavesRes.value.data?.data?.data ?? [];
         setRejectedLeaves(d);
-        try { localStorage.setItem(`${CACHE_KEY}_rejected`, JSON.stringify(d)); } catch {}
+        try { localStorage.setItem(`${ck}_rejected`, JSON.stringify(d)); } catch {}
       }
       if (cancelledLeavesRes.status === "fulfilled") {
         const d = cancelledLeavesRes.value.data?.data?.data ?? [];
         setCancelledLeaves(d);
-        try { localStorage.setItem(`${CACHE_KEY}_cancelled`, JSON.stringify(d)); } catch {}
+        try { localStorage.setItem(`${ck}_cancelled`, JSON.stringify(d)); } catch {}
       }
       if (approvedWfhRes.status === "fulfilled") {
         const d = approvedWfhRes.value.data?.data?.data ?? [];
         setApprovedWfh(d);
-        try { localStorage.setItem(`${CACHE_KEY}_wfh_approved`, JSON.stringify(d)); } catch {}
+        try { localStorage.setItem(`${ck}_wfh_approved`, JSON.stringify(d)); } catch {}
       }
       if (rejectedWfhRes.status === "fulfilled") {
         const d = rejectedWfhRes.value.data?.data?.data ?? [];
         setRejectedWfh(d);
-        try { localStorage.setItem(`${CACHE_KEY}_wfh_rejected`, JSON.stringify(d)); } catch {}
+        try { localStorage.setItem(`${ck}_wfh_rejected`, JSON.stringify(d)); } catch {}
       }
       if (cancelledWfhRes.status === "fulfilled") {
         const d = cancelledWfhRes.value.data?.data?.data ?? [];
         setCancelledWfh(d);
-        try { localStorage.setItem(`${CACHE_KEY}_wfh_cancelled`, JSON.stringify(d)); } catch {}
+        try { localStorage.setItem(`${ck}_wfh_cancelled`, JSON.stringify(d)); } catch {}
       }
     } catch (e) {
       console.error("Failed to load approval requests", e);
@@ -331,9 +333,15 @@ export default function ApprovalsPage() {
       setIsLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [ck]);
 
   useEffect(() => {
+    // drop the old shared (non per-user) cache that could show someone else's data
+    try {
+      Object.keys(localStorage).forEach((k) => {
+        if (k.startsWith(CACHE_KEY) && !k.startsWith(`${CACHE_KEY}_u`)) localStorage.removeItem(k);
+      });
+    } catch {}
     fetchRequests();
   }, [fetchRequests]);
 

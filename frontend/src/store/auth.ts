@@ -53,6 +53,7 @@ export const useAuthStore = create<AuthState>()(
           try {
             localStorage.removeItem('token');
             localStorage.removeItem('auth-storage');
+            Object.keys(localStorage).forEach((k) => { if (k.startsWith('intersmart_approvals_cache')) localStorage.removeItem(k); });
             clearAuthCookie();
           } catch {}
         }
