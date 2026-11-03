@@ -516,7 +516,7 @@ export default function HubstaffAnalyticsPage() {
       </div>
 
       {/* ── Date Controls Ribbon ── */}
-      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
+      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Mode Switcher & Date Pickers */}
           <div className="flex items-center gap-3 flex-wrap">

@@ -371,12 +371,12 @@ export default function OverdueTasksPage() {
 
       {/* Main Content */}
       {loading ? (
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-16 text-center text-slate-500 space-y-3 animate-pulse">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-16 text-center text-slate-500 space-y-3 animate-pulse">
           <Clock className="w-8 h-8 mx-auto text-rose-400 opacity-60" />
           <p className="text-sm font-semibold">Checking overdue deadlines…</p>
         </div>
       ) : overdueTasks.length === 0 ? (
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 py-16 text-center p-6 space-y-3">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 py-16 text-center p-6 space-y-3">
           <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto text-lg font-bold">
             ✓
           </div>
@@ -394,7 +394,7 @@ export default function OverdueTasksPage() {
             return (
               <div
                 key={group.member.id}
-                className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-rose-200/80 dark:border-rose-900/40 shadow-sm overflow-hidden"
+                className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-rose-200/80 dark:border-rose-900/40 shadow-sm overflow-hidden"
               >
                 {/* Employee Header */}
                 <div className="flex items-center justify-between px-5 py-3.5 bg-rose-50/60 dark:bg-rose-950/30 border-b border-rose-200/80 dark:border-rose-900/40">
@@ -453,7 +453,7 @@ export default function OverdueTasksPage() {
 
           {/* Unassigned Overdue Block */}
           {unassignedOverdue.length > 0 && (
-            <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-rose-300 dark:border-rose-900/60 shadow-sm overflow-hidden">
+            <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-rose-300 dark:border-rose-900/60 shadow-sm overflow-hidden">
               <div className="flex items-center justify-between px-5 py-3.5 bg-rose-100/60 dark:bg-rose-950/50 border-b border-rose-200 dark:border-rose-900">
                 <div className="flex items-center gap-2 text-rose-800 dark:text-rose-300 font-bold text-sm">
                   <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
@@ -473,7 +473,7 @@ export default function OverdueTasksPage() {
         </div>
       ) : (
         /* Flat Table View */
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
           <TaskTrackerTable
             tasks={overdueTasks}
             canEdit={canEdit}

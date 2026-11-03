@@ -361,7 +361,7 @@ export default function GamePage() {
 
           {/* In-Game Slide-over Leaderboard Drawer */}
           {showInGameLeaderboard && (
-            <div className="absolute top-12 sm:top-14 right-0 bottom-0 w-full sm:w-[420px] bg-slate-900/95 backdrop-blur-xl border-l border-white/10 z-[1000001] shadow-2xl p-4 overflow-y-auto animate-in slide-in-from-right duration-200">
+            <div className="absolute top-12 sm:top-14 right-0 bottom-0 w-full sm:w-[420px] bg-slate-900/95 border-l border-white/10 z-[1000001] shadow-2xl p-4 overflow-y-auto animate-in slide-in-from-right duration-200">
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
                 <div className="flex items-center gap-2 text-white font-extrabold text-sm">
                   <Trophy className="w-4 h-4 text-amber-400" />

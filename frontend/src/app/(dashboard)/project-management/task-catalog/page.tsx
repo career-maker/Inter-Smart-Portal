@@ -209,7 +209,7 @@ export default function TaskCatalogPage() {
       </div>
 
       {/* ── Filters & Search ── */}
-      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
+      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
         {/* Active Status Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {["All", "Active", "Inactive"].map((tab) => {
@@ -273,7 +273,7 @@ export default function TaskCatalogPage() {
       )}
 
       {/* ── Catalog Table ── */}
-      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
         {loading ? (
           <div className="py-16 text-center text-slate-500 space-y-3 animate-pulse">
             <BookOpen className="w-8 h-8 mx-auto text-slate-400 opacity-60" />

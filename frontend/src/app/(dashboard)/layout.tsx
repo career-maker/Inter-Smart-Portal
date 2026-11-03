@@ -1118,7 +1118,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               fontFamily: 'var(--portal-font-family, "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)'
             }}
             className={`${
-              !isDark ? "" : "bg-slate-900/90 backdrop-blur-md border-b border-white/10 text-slate-200"
+              !isDark ? "" : "bg-slate-900/95 border-b border-white/10 text-slate-200"
             } transition-colors w-full`}
           >
             <div className="px-2.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-6">

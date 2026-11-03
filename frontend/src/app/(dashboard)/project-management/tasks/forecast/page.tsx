@@ -354,12 +354,12 @@ export default function ForecastTasksPage() {
 
       {/* Main Content */}
       {loading ? (
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-16 text-center text-slate-500 space-y-3 animate-pulse">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-16 text-center text-slate-500 space-y-3 animate-pulse">
           <Sparkles className="w-8 h-8 mx-auto text-cyan-400 opacity-60" />
           <p className="text-sm font-semibold">Loading planned forecast deliverables…</p>
         </div>
       ) : forecastTasks.length === 0 ? (
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 py-16 text-center p-6 space-y-3">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 py-16 text-center p-6 space-y-3">
           <Sparkles className="w-10 h-10 mx-auto text-slate-400 opacity-50" />
           <p className="text-base font-bold text-slate-800 dark:text-slate-200">No forecast tasks found</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
@@ -375,7 +375,7 @@ export default function ForecastTasksPage() {
             return (
               <div
                 key={group.member.id}
-                className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden"
+                className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden"
               >
                 {/* Employee Header */}
                 <div className="flex items-center justify-between px-5 py-3.5 bg-cyan-50/50 dark:bg-cyan-950/20 border-b border-slate-200/90 dark:border-slate-800">
@@ -434,7 +434,7 @@ export default function ForecastTasksPage() {
 
           {/* Unassigned Forecast Block */}
           {unassignedForecast.length > 0 && (
-            <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+            <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
               <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2 text-slate-800 dark:text-slate-300 font-bold text-sm">
                   <Sparkles className="w-4 h-4 text-cyan-600 shrink-0" />
@@ -454,7 +454,7 @@ export default function ForecastTasksPage() {
         </div>
       ) : (
         /* Flat Table View */
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
           <TaskTrackerTable
             tasks={forecastTasks}
             canEdit={canEdit}

@@ -210,7 +210,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
   if (error || !project) {
     return (
-      <div className="max-w-xl mx-auto p-6 my-16 text-center rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-4">
+      <div className="max-w-xl mx-auto p-6 my-16 text-center rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-4">
         <AlertCircle className="w-12 h-12 text-rose-500 mx-auto" />
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">Project Inaccessible</h2>
         <p className="text-xs text-slate-500 dark:text-slate-400">{error || "Project could not be found."}</p>
@@ -315,7 +315,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
       {/* ── Key Metrics Overview Row ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Owning Team */}
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             <Building2 className="w-4 h-4 text-blue-500" />
             <span>Owning Department</span>
@@ -327,7 +327,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         </div>
 
         {/* Metric 2: Project Coordinator */}
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             <User className="w-4 h-4 text-purple-500" />
             <span>Project Coordinator</span>
@@ -351,7 +351,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         </div>
 
         {/* Metric 3: Timeline */}
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             <Calendar className="w-4 h-4 text-emerald-500" />
             <span>Target Timeline</span>
@@ -363,7 +363,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         </div>
 
         {/* Metric 4: Effort & Budget */}
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             <Clock className="w-4 h-4 text-amber-500" />
             <span>Effort & Budget</span>
@@ -392,7 +392,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         {/* Left Column (2 Cols on lg screen): Description, Notes & Members */}
         <div className="lg:col-span-2 space-y-6">
           {/* Section: Description & Scope */}
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm space-y-4">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm space-y-4">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
               <FileText className="w-4 h-4 text-blue-500" />
               <span>Project Description & Scope</span>
@@ -428,7 +428,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           </div>
 
           {/* Section: Project Members Roster */}
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm space-y-4">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-blue-500" />
@@ -511,7 +511,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         {/* Right Column (1 Col on lg screen): Coordinator Settings & Roadmap Notice */}
         <div className="space-y-6">
           {/* Section: Coordinator Assignment Box */}
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm space-y-4">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm space-y-4">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
               <ShieldCheck className="w-4 h-4 text-purple-500" />
               <span>Project Coordinator</span>

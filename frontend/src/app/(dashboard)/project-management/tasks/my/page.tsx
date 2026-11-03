@@ -208,7 +208,7 @@ export default function MyTasksPage() {
       </div>
 
       {/* ── Filters & Search Header ── */}
-      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
+      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
         {/* Status Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {["Active", "All", ...TASK_STATUSES].map((status) => {
@@ -269,12 +269,12 @@ export default function MyTasksPage() {
 
       {/* ── Main Content Area ── */}
       {loading ? (
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-16 text-center text-slate-500 space-y-3 animate-pulse">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-16 text-center text-slate-500 space-y-3 animate-pulse">
           <Layers className="w-8 h-8 mx-auto text-slate-400 opacity-60" />
           <p className="text-sm font-semibold">Loading your assignments…</p>
         </div>
       ) : filteredTasks.length === 0 ? (
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 py-16 text-center p-6 space-y-3">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 py-16 text-center p-6 space-y-3">
           <CheckSquare className="w-10 h-10 mx-auto text-slate-400 opacity-50" />
           <p className="text-base font-bold text-slate-800 dark:text-slate-200">No tasks assigned</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
@@ -284,7 +284,7 @@ export default function MyTasksPage() {
           </p>
         </div>
       ) : (
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
           <TaskTrackerTable
             tasks={filteredTasks}
             canEdit={true}

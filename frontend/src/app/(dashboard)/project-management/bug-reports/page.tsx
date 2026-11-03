@@ -143,7 +143,7 @@ export default function BugReportsPage() {
       {/* ── Summary KPI Cards ── */}
       {summary && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Total Bugs
             </span>
@@ -153,7 +153,7 @@ export default function BugReportsPage() {
             <span className="text-[11px] text-slate-400">All recorded QA issues</span>
           </div>
 
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               HTML Bugs
             </span>
@@ -163,7 +163,7 @@ export default function BugReportsPage() {
             <span className="text-[11px] text-slate-400">UI / Markup defects</span>
           </div>
 
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Functional Bugs
             </span>
@@ -173,7 +173,7 @@ export default function BugReportsPage() {
             <span className="text-[11px] text-slate-400">Logic & workflow bugs</span>
           </div>
 
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Tasks with Bugs
             </span>
@@ -188,7 +188,7 @@ export default function BugReportsPage() {
       )}
 
       {/* ── Search & Filter Controls ── */}
-      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
         <form onSubmit={handleSearchSubmit} className="relative flex-1 w-full">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -222,7 +222,7 @@ export default function BugReportsPage() {
       </div>
 
       {/* ── Bug Reports Table ── */}
-      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px] text-left text-xs border-collapse">
             <thead>

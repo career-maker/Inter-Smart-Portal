@@ -303,7 +303,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
         {/* ── Left Column: Specs, Execution & Discussion (2/3) ── */}
         <div className="lg:col-span-2 space-y-6">
           {/* Status & Highlights Card */}
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-5 sm:p-6 shadow-sm">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-5 sm:p-6 shadow-sm">
             <div className="flex items-center justify-between gap-4 flex-wrap pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-500">Status:</span>
@@ -333,7 +333,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
           </div>
 
           {/* Execution & Schedule Deviation Card */}
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-5 sm:p-6 shadow-sm space-y-5">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-5 sm:p-6 shadow-sm space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -479,7 +479,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
         {/* ── Right Column: Assignees, Project & Meta (1/3) ── */}
         <div className="space-y-6">
           {/* Assignees Card */}
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm space-y-4">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -529,7 +529,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
           </div>
 
           {/* Planning Dates Card */}
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm space-y-3.5">
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm space-y-3.5">
             <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
               <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Milestone Dates</h3>
@@ -571,7 +571,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
 
           {/* Target Project Card */}
           {task.project && (
-            <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm space-y-3">
+            <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm space-y-3">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
                 <FolderKanban className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">Target Project</h3>
@@ -602,7 +602,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
 
           {/* BugSmart Project Card (Optional - Section 18 & 19) */}
           {task.project && (
-            <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm space-y-3">
+            <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <Bug className="w-4 h-4 text-rose-600 dark:text-rose-400" />
