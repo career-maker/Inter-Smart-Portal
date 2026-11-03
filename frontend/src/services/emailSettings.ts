@@ -97,6 +97,18 @@ export interface EmployeeApprovalRuleGroup {
 
 export type EmployeeApprovalRule = EmployeeApprovalRuleGroup;
 
+/** Department-wise rule: one set of 4 routing cards applied to every member of the chosen departments (teams). */
+export interface DepartmentApprovalRuleGroup {
+  id: string;
+  name?: string;
+  team_ids: number[];
+  wfh: RoleApprovalRule;
+  wfh_multi_day?: RoleApprovalRule;
+  leave_single_day: RoleApprovalRule;
+  leave_multi_day: RoleApprovalRule;
+  enabled: boolean;
+}
+
 export interface ApprovalRoutingRules {
   role_rules: {
     team_lead: {
@@ -108,7 +120,7 @@ export interface ApprovalRoutingRules {
     [roleKey: string]: Record<string, RoleApprovalRule>;
   };
   team_lead_rules?: TeamLeadApprovalRuleGroup[];
-  department_rules?: DepartmentApprovalRule[];
+  department_rules?: (DepartmentApprovalRule | DepartmentApprovalRuleGroup)[];
   employee_rules: EmployeeApprovalRuleGroup[];
 }
 

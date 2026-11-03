@@ -29,6 +29,7 @@ import emailSettingsApi, {
   RoleApprovalRule,
   TeamLeadApprovalRuleGroup,
   EmployeeApprovalRuleGroup,
+  DepartmentApprovalRuleGroup,
 } from "@/services/emailSettings";
 import { Portal } from "@/components/ui/portal";
 
@@ -136,7 +137,7 @@ export const normalizeCard = (card: RoleApprovalRule, allUsers: any[]): RoleAppr
   };
 };
 
-export const normalizeRuleGroup = <T extends TeamLeadApprovalRuleGroup | EmployeeApprovalRuleGroup>(
+export const normalizeRuleGroup = <T extends TeamLeadApprovalRuleGroup | EmployeeApprovalRuleGroup | DepartmentApprovalRuleGroup>(
   rule: T,
   allUsers: any[]
 ): T => {
@@ -678,7 +679,7 @@ export default function ApprovalRoutingTab() {
   const [teamLeads, setTeamLeads] = useState<any[]>([]);
 
   // Sub-tabs: 'role' (Team Leads) | 'employee' (Employee-Wise)
-  const [subTab, setSubTab] = useState<"role" | "employee">("role");
+  const [subTab, setSubTab] = useState<"role" | "employee" | "department">("role");
 
   // Modal / Creator State for Team Lead Rules
   const [isTlModalOpen, setIsTlModalOpen] = useState(false);
@@ -792,6 +793,7 @@ export default function ApprovalRoutingTab() {
         role_rules: rules.role_rules,
         team_lead_rules: rules.team_lead_rules || [],
         employee_rules: rules.employee_rules || [],
+        department_rules: rules.department_rules || [],
       };
       const res = await emailSettingsApi.updateApprovalRouting(payload);
       setSuccessMessage(res.message || "Approval and email routing rules saved successfully.");
@@ -902,6 +904,7 @@ export default function ApprovalRoutingTab() {
         role_rules: rules.role_rules,
         team_lead_rules: updatedTlRules,
         employee_rules: rules.employee_rules || [],
+        department_rules: rules.department_rules || [],
       };
       const res = await emailSettingsApi.updateApprovalRouting(payload);
       setSuccessMessage(res.message || "Team Lead routing rule saved successfully.");
@@ -955,6 +958,90 @@ export default function ApprovalRoutingTab() {
     } finally {
       setSaving(false);
     }
+  };
+
+  // Modal / Creator State for Department Rules
+  const [isDeptModalOpen, setIsDeptModalOpen] = useState(false);
+  const [deptModalForm, setDeptModalForm] = useState<DepartmentApprovalRuleGroup>({
+    id: "",
+    name: "",
+    team_ids: [],
+    ...createDefaultThreeCards(),
+    enabled: true,
+  });
+  // Only the modern (team_ids) department rules are managed here; legacy single-team rules stay untouched.
+  const deptRules = useMemo(
+    () => (rules.department_rules || []).filter((r: any) => Array.isArray(r.team_ids)) as DepartmentApprovalRuleGroup[],
+    [rules.department_rules]
+  );
+  const teamPickerItems = useMemo(
+    () =>
+      teams.map((t) => ({
+        id: t.id,
+        first_name: t.name,
+        last_name: "",
+        employee_code: t.code,
+        email: `${users.filter((u) => Number(u.team_id) === Number(t.id)).length} member(s)`,
+      })),
+    [teams, users]
+  );
+
+  const persistDeptRules = async (nextDept: DepartmentApprovalRuleGroup[], okMsg: string): Promise<boolean> => {
+    const legacy = (rules.department_rules || []).filter((r: any) => !Array.isArray(r.team_ids));
+    const department_rules = [...legacy, ...nextDept];
+    setSaving(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
+    try {
+      const res = await emailSettingsApi.updateApprovalRouting({ ...rules, department_rules });
+      setSuccessMessage(okMsg);
+      setRules((prev) => ({
+        ...prev,
+        department_rules: res.data?.department_rules || department_rules,
+      }));
+      return true;
+    } catch (err: any) {
+      setErrorMessage(err?.response?.data?.message || err?.message || "Failed to save Department routing rule.");
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openNewDeptRuleModal = () => {
+    const d = createDefaultCards();
+    setDeptModalForm({
+      id: "dept_rule_" + Date.now(),
+      name: "",
+      team_ids: [],
+      wfh: normalizeCard(d.wfh, users),
+      wfh_multi_day: normalizeCard(d.wfh_multi_day, users),
+      leave_single_day: normalizeCard(d.leave_single_day, users),
+      leave_multi_day: normalizeCard(d.leave_multi_day, users),
+      enabled: true,
+    });
+    setIsDeptModalOpen(true);
+  };
+
+  const openEditDeptRuleModal = (rule: DepartmentApprovalRuleGroup) => {
+    setDeptModalForm(normalizeRuleGroup(rule, users));
+    setIsDeptModalOpen(true);
+  };
+
+  const saveDeptRuleModal = async () => {
+    if (deptModalForm.team_ids.length === 0) {
+      alert("Please select at least one Department for this routing rule.");
+      return;
+    }
+    const form = normalizeRuleGroup(deptModalForm, users);
+    const idx = deptRules.findIndex((r) => r.id === form.id);
+    const next = idx >= 0 ? deptRules.map((r) => (r.id === form.id ? form : r)) : [...deptRules, form];
+    if (await persistDeptRules(next, "Department routing rule saved successfully.")) setIsDeptModalOpen(false);
+  };
+
+  const deleteDeptRule = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this Department routing rule?")) return;
+    await persistDeptRules(deptRules.filter((r) => r.id !== id), "Department routing rule deleted successfully.");
   };
 
   // ── Employee Rule Modal Handlers ──
@@ -1018,6 +1105,7 @@ export default function ApprovalRoutingTab() {
         role_rules: rules.role_rules,
         team_lead_rules: rules.team_lead_rules || [],
         employee_rules: updatedEmpRules,
+        department_rules: rules.department_rules || [],
       };
       const res = await emailSettingsApi.updateApprovalRouting(payload);
       setSuccessMessage(res.message || "Employee routing rule saved successfully.");
@@ -1125,14 +1213,14 @@ export default function ApprovalRoutingTab() {
             System Routing Invariant
           </h4>
           <p className="text-xs text-blue-700/90 dark:text-blue-300/80 leading-relaxed">
-            Employee-specific rules take highest priority, followed by specific Team Lead rules, default role rules, and finally direct fallback to <strong>Super Admin</strong>.
+            Employee-specific rules take highest priority, followed by Department rules, specific Team Lead rules, default role rules, and finally direct fallback to <strong>Super Admin</strong>.
           </p>
         </div>
       </div>
 
       {/* Sub-Tab Navigation (Role-Wise & Employee-Wise ONLY) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl">
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl">
           <button
             type="button"
             onClick={() => setSubTab("role")}
@@ -1147,6 +1235,24 @@ export default function ApprovalRoutingTab() {
             {(rules.team_lead_rules?.length || 0) > 0 && (
               <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
                 {rules.team_lead_rules?.length} custom
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSubTab("department")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              subTab === "department"
+                ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            <span>Department-Wise Routing</span>
+            {deptRules.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
+                {deptRules.length}
               </span>
             )}
           </button>
@@ -1840,6 +1946,119 @@ export default function ApprovalRoutingTab() {
         </Portal>
       )}
 
+      {/* SUB-TAB: DEPARTMENT-WISE */}
+      {subTab === "department" && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <div className="space-y-1 min-w-0">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-[#56348f]" />
+                <span>Department-Wise Approval & Mail Routing</span>
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
+                Pick one or more departments and set the approvers and CCs for their WFH and leave requests. Applies to every member of those departments unless an Employee-Wise rule exists for that person.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={openNewDeptRuleModal}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all cursor-pointer shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Department Rule</span>
+            </button>
+          </div>
+
+          {deptRules.length === 0 ? (
+            <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+              <Building2 className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600" />
+              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">No Department Rules Configured</h4>
+              <p className="text-xs text-slate-400 max-w-md mx-auto">
+                Departments currently use the standard team lead and default approval routing.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {deptRules.map((rule, idx) => {
+                const selectedTeams = teams.filter((t) => (rule.team_ids || []).map(Number).includes(Number(t.id)));
+                const cards: [string, any][] = [
+                  ["1-Day WFH", rule.wfh],
+                  ["Multi-Day WFH", rule.wfh_multi_day || rule.wfh],
+                  ["1-Day Leave", rule.leave_single_day],
+                  ["Multi-Day Leave", rule.leave_multi_day],
+                ];
+                const nameOf = (id: any, email: any) =>
+                  users.find((u) => Number(u.id) === Number(id))?.first_name || email || "Super Admin";
+                return (
+                  <div key={rule.id} className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300">
+                            Rule #{idx + 1}
+                          </span>
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                            {rule.name || `Routing for ${selectedTeams.length} Department(s)`}
+                          </h4>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                          <span className="text-[11px] text-slate-400 font-medium">Departments:</span>
+                          {selectedTeams.map((t) => (
+                            <span key={t.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                              <Building2 className="w-3 h-3 text-[#56348f]" />
+                              <span>{t.name}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => openEditDeptRuleModal(rule)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold transition-colors cursor-pointer"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>Edit Rule</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteDeptRule(rule.id)}
+                          className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                          title="Delete Rule"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                      {cards.map(([label, c]) => (
+                        <div key={label} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-bold text-slate-900 dark:text-white">{label}</span>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${c?.enabled ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" : "bg-slate-200 text-slate-600 dark:bg-slate-700"}`}>
+                              {c?.enabled ? "Enabled" : "Disabled"}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 break-words">
+                            Approver: <strong className="text-slate-800 dark:text-slate-200">{nameOf(c?.to_user_id, c?.to_email)}</strong>
+                            {c?.approval_level === "multi" && (
+                              <span className="text-[#56348f] dark:text-purple-300 font-semibold"> → {nameOf(c?.to_user_id_2, c?.to_email_2)}</span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-slate-400">
+                            {c?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} • {getCcCount(c, users)} CC(s)
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ══════════════════════════════════════════════════════════════
           SIDE POPUP DRAWER: EMPLOYEE ROUTING RULE
       ══════════════════════════════════════════════════════════════ */}
@@ -1952,6 +2171,125 @@ export default function ApprovalRoutingTab() {
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   <span>{saving ? "Saving Rule..." : "Save Employee Rule"}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          SIDE POPUP DRAWER: DEPARTMENT ROUTING RULE
+      ══════════════════════════════════════════════════════════════ */}
+      {isDeptModalOpen && (
+        <Portal>
+          <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+            {/* Backdrop */}
+            <div
+              onClick={() => setIsDeptModalOpen(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            />
+
+            {/* Side Drawer */}
+            <div
+              data-side-popup="true"
+              className="fixed inset-y-0 right-0 w-full sm:w-[680px] md:w-[820px] lg:w-[980px] xl:w-[1100px] max-w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300 overflow-hidden"
+            >
+              {/* Sticky Top Header */}
+              <div className="p-4 px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300">
+                    <Building2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                      {deptModalForm.id.includes(Date.now().toString().slice(0, 5))
+                        ? "Create Department-Wise Routing Rule"
+                        : "Edit Department-Wise Routing Rule"}
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      Choose departments (multi-select) and configure the 4 routing cards
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsDeptModalOpen(false)}
+                  className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable Content Body */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Rule Name / Label */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Rule Label (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Sales & Marketing Routing"
+                    value={deptModalForm.name || ""}
+                    onChange={(e) => setDeptModalForm({ ...deptModalForm, name: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+                  />
+                </div>
+
+                {/* Check Employee Names (Search & Multi-Select with Team Lead Filter) */}
+                <MultiSelectUserPicker
+                  availableUsers={teamPickerItems}
+                  selectedIds={deptModalForm.team_ids}
+                  onChangeSelectedIds={(ids) => setDeptModalForm({ ...deptModalForm, team_ids: ids })}
+                  title="Select Departments for this Rule"
+                  placeholder="Search department by name or code..."
+                  emptyNotice="No departments found."
+                />
+
+                {/* The 4 CARDS for Employee Routing */}
+                <div className="space-y-2 pt-2">
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                    Routing Cards for Selected Departments
+                  </h4>
+                  <ThreeCardsEditor
+                    wfh={deptModalForm.wfh}
+                    wfhMulti={deptModalForm.wfh_multi_day || deptModalForm.wfh}
+                    leaveSingle={deptModalForm.leave_single_day}
+                    leaveMulti={deptModalForm.leave_multi_day}
+                    users={users}
+                    onUpdateWfh={(wfh) => setDeptModalForm((prev) => ({ ...prev, wfh }))}
+                    onUpdateWfhMulti={(wfh_multi_day) =>
+                      setDeptModalForm((prev) => ({ ...prev, wfh_multi_day }))
+                    }
+                    onUpdateLeaveSingle={(leaveSingle) =>
+                      setDeptModalForm((prev) => ({ ...prev, leave_single_day: leaveSingle }))
+                    }
+                    onUpdateLeaveMulti={(leaveMulti) =>
+                      setDeptModalForm((prev) => ({ ...prev, leave_multi_day: leaveMulti }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Sticky Bottom Actions */}
+              <div className="p-4 px-6 border-t border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs flex items-center justify-end gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsDeptModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={saveDeptRuleModal}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  <span>{saving ? "Saving Rule..." : "Save Department Rule"}</span>
                 </button>
               </div>
             </div>

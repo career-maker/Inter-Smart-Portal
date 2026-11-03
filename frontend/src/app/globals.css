@@ -5318,3 +5318,16 @@ html button[class~="bg-[#1F5C4E]"], html button[class~="bg-[#184a3e]"], html a[c
     }
   }
 }
+
+/* ── Overlap guards (all screen sizes) ──
+   `.select{width:fit-content}` above is unlayered, so it beat Tailwind's w-full and let long dropdown labels
+   grow past their card and cover neighbours. Keep every select inside its container and truncate. */
+.select.uiverse-select { max-width: 100%; min-width: 0; }
+.select.uiverse-select.w-full { width: 100%; }
+.select.uiverse-select > .selected { min-width: 0; max-width: 100%; }
+.select.uiverse-select > .selected > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* tables that are wider than their box scroll inside it instead of spilling over neighbours */
+div:has(> table):not([class*="overflow"]) { max-width: 100%; overflow-x: auto; }
+table td, table th { overflow-wrap: break-word; }
+/* grid/flex children may shrink below their content width */
+main :is(.grid, .flex) > * { min-width: 0; }

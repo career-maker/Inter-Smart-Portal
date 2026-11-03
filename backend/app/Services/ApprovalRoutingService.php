@@ -235,6 +235,16 @@ class ApprovalRoutingService
         // 2. Department / Team-level rule (legacy fallback)
         if (!$matchedRule && $hasTeam) {
             foreach ($rules['department_rules'] as $dr) {
+                // Modern format: one rule for several departments (team_ids) with the 4 routing cards
+                if (!empty($dr['enabled']) && !empty($dr['team_ids']) && is_array($dr['team_ids'])
+                    && in_array((int)$applicant->team_id, array_map('intval', $dr['team_ids']), true)) {
+                    $card = $getCardFromRule($dr);
+                    if ($card) {
+                        $matchedRule = $card;
+                        $matchedType = 'department';
+                        break;
+                    }
+                }
                 if (!empty($dr['enabled']) && (int)($dr['team_id'] ?? 0) === (int)$applicant->team_id) {
                     $reqType = $dr['request_type'] ?? 'all';
                     if ($reqType === 'all' || ($isWfh && in_array($reqType, ['wfh', 'wfh_single_day', 'wfh_multi_day'])) || (!$isWfh && in_array($reqType, ['leave', $targetAction]))) {
@@ -475,6 +485,14 @@ class ApprovalRoutingService
 
         // 3. From department rules (legacy)
         foreach ($rules['department_rules'] as $dr) {
+            if (!empty($dr['enabled']) && !empty($dr['team_ids']) && is_array($dr['team_ids'])) {
+                foreach (['wfh', 'wfh_multi_day', 'leave_single_day', 'leave_multi_day'] as $cardKey) {
+                    if (!empty($dr[$cardKey]['enabled']) && ((int)($dr[$cardKey]['to_user_id'] ?? 0) === $approverId || (int)($dr[$cardKey]['to_user_id_2'] ?? 0) === $approverId)) {
+                        $applicantIds = array_merge($applicantIds, User::whereIn('team_id', $dr['team_ids'])->pluck('id')->all());
+                        break;
+                    }
+                }
+            }
             if (!empty($dr['enabled']) && !empty($dr['team_id'])) {
                 if ((int)($dr['to_user_id'] ?? 0) === $approverId || (int)($dr['to_user_id_2'] ?? 0) === $approverId) {
                     $teamUserIds = User::where('team_id', $dr['team_id'])->pluck('id')->all();
