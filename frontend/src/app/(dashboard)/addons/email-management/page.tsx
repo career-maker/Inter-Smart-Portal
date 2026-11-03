@@ -567,23 +567,6 @@ export default function EmailManagementPage() {
           <span>Approvals & Routing (WFH & Leaves)</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab("overrides")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-            activeTab === "overrides"
-              ? "bg-[#56348f] text-white shadow-sm"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-          }`}
-        >
-          <UserCheck className="w-4 h-4" />
-          <span>Employee-Specific Overrides</span>
-          {overrides.length > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-bold ml-1">
-              {overrides.length}
-            </span>
-          )}
-        </button>
-      </div>
 
       {loading ? (
         <div className="py-24 text-center text-slate-400 space-y-3">
