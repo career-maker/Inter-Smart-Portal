@@ -566,7 +566,7 @@ export default function EmailManagementPage() {
           <ShieldCheck className="w-4 h-4" />
           <span>Approvals & Routing (WFH & Leaves)</span>
         </button>
-
+      </div>
 
       {loading ? (
         <div className="py-24 text-center text-slate-400 space-y-3">
