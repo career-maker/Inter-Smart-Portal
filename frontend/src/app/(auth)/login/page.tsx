@@ -10,6 +10,10 @@ import { Eye, EyeOff, LogIn, Lock, Mail, AlertCircle } from "lucide-react";
 import { useCustomization } from "@/context/CustomizationContext";
 import { resolveCustomizationAssetUrl } from "@/services/customization";
 
+const homePath = () => {
+  try { return localStorage.getItem("mobile_app") === "1" ? "/m" : "/dashboard"; } catch { return "/dashboard"; }
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -36,7 +40,7 @@ export default function LoginPage() {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (token) {
       setAuthCookie(token);
-      router.replace("/dashboard");
+      router.replace(homePath());
     } else {
       setIsCheckingAuth(false);
     }
@@ -109,7 +113,7 @@ export default function LoginPage() {
           // Navigate immediately — auth state & cookie are already set.
           // Do NOT wrap in setTimeout; that races against page unmount
           // and occasionally leaves the user on the login page.
-          router.push("/dashboard");
+          router.push(homePath());
           return {
             title: "Login Successful",
             description: `Welcome back, ${data.user?.first_name || "Employee"}! Preparing your workspace…`,
