@@ -3,12 +3,59 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Mic, Send, Trash2 } from "lucide-react";
 
-const MAX_SECONDS = 180; // keeps a voice note well under the 5 MB upload limit
+// Recorded as 16 kHz mono WAV: unlike MediaRecorder's webm/mp4 the file has a real duration header and plays
+// in every browser (iPhone Safari included). 120 s is about 3.8 MB, under the 5 MB upload limit.
+const MAX_SECONDS = 120;
+const TARGET_RATE = 16000;
 
-function pickMimeType(): string | undefined {
-  if (typeof MediaRecorder === "undefined") return undefined;
-  const candidates = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"];
-  return candidates.find((m) => MediaRecorder.isTypeSupported(m));
+function encodeWav(chunks: Float32Array[], inputRate: number): Blob {
+  let total = 0;
+  chunks.forEach((c) => (total += c.length));
+  const input = new Float32Array(total);
+  let off = 0;
+  chunks.forEach((c) => {
+    input.set(c, off);
+    off += c.length;
+  });
+
+  // Downsample by averaging each window (cheap low-pass), then normalise quiet phone recordings
+  const ratio = inputRate / TARGET_RATE;
+  const outLen = Math.floor(input.length / ratio);
+  const out = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) {
+    const start = Math.floor(i * ratio);
+    const end = Math.min(input.length, Math.floor((i + 1) * ratio));
+    let sum = 0;
+    for (let j = start; j < end; j++) sum += input[j];
+    out[i] = end > start ? sum / (end - start) : 0;
+  }
+  let peak = 0;
+  for (let i = 0; i < out.length; i++) peak = Math.max(peak, Math.abs(out[i]));
+  const gain = peak > 0.001 ? Math.min(0.95 / peak, 10) : 1;
+
+  const buffer = new ArrayBuffer(44 + outLen * 2);
+  const view = new DataView(buffer);
+  const writeStr = (o: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i));
+  };
+  writeStr(0, "RIFF");
+  view.setUint32(4, 36 + outLen * 2, true);
+  writeStr(8, "WAVE");
+  writeStr(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, 1, true); // mono
+  view.setUint32(24, TARGET_RATE, true);
+  view.setUint32(28, TARGET_RATE * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeStr(36, "data");
+  view.setUint32(40, outLen * 2, true);
+  for (let i = 0; i < outLen; i++) {
+    const s = Math.max(-1, Math.min(1, out[i] * gain));
+    view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return new Blob([buffer], { type: "audio/wav" });
 }
 
 /**
@@ -28,81 +75,93 @@ export function VoiceRecorder({
 }) {
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const sendOnStopRef = useRef(false);
+  const ctxRef = useRef<AudioContext | null>(null);
+  const nodeRef = useRef<ScriptProcessorNode | null>(null);
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const chunksRef = useRef<Float32Array[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const rateRef = useRef(48000);
 
-  const cleanup = () => {
+  const teardown = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = null;
+    if (nodeRef.current) {
+      nodeRef.current.onaudioprocess = null;
+      nodeRef.current.disconnect();
+    }
+    sourceRef.current?.disconnect();
     streamRef.current?.getTracks().forEach((t) => t.stop());
+    ctxRef.current?.close().catch(() => {});
+    nodeRef.current = null;
+    sourceRef.current = null;
     streamRef.current = null;
-    recorderRef.current = null;
+    ctxRef.current = null;
+  };
+
+  useEffect(() => teardown, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const reset = () => {
+    teardown();
     chunksRef.current = [];
     setRecording(false);
     setSeconds(0);
     onRecordingChange?.(false);
   };
 
-  useEffect(() => {
-    return () => {
-      sendOnStopRef.current = false;
-      if (recorderRef.current && recorderRef.current.state !== "inactive") recorderRef.current.stop();
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
   const start = async () => {
-    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+    const Ctor = typeof window !== "undefined" ? window.AudioContext || (window as any).webkitAudioContext : null;
+    if (!navigator.mediaDevices?.getUserMedia || !Ctor) {
       onError?.("Voice notes are not supported in this browser.");
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      });
+      const ctx: AudioContext = new Ctor();
+      if (ctx.state === "suspended") await ctx.resume();
       streamRef.current = stream;
-      const mimeType = pickMimeType();
-      const rec = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      ctxRef.current = ctx;
+      rateRef.current = ctx.sampleRate;
+      const source = ctx.createMediaStreamSource(stream);
+      // ScriptProcessor is deprecated but the one capture API that works in every browser without a separate worklet file
+      const node = ctx.createScriptProcessor(4096, 1, 1);
       chunksRef.current = [];
-      rec.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
+      node.onaudioprocess = (e) => {
+        chunksRef.current.push(new Float32Array(e.inputBuffer.getChannelData(0)));
       };
-      rec.onstop = () => {
-        const type = rec.mimeType || mimeType || "audio/webm";
-        const blob = new Blob(chunksRef.current, { type });
-        const send = sendOnStopRef.current;
-        cleanup();
-        if (send && blob.size > 0) {
-          const ext = type.includes("mp4") ? "m4a" : type.includes("ogg") ? "ogg" : "webm";
-          onRecorded(new File([blob], `voice-note-${Date.now()}.${ext}`, { type }));
-        }
-      };
-      recorderRef.current = rec;
-      rec.start();
+      source.connect(node);
+      node.connect(ctx.destination); // outputs silence; needed for the node to run
+      sourceRef.current = source;
+      nodeRef.current = node;
+
       setRecording(true);
       setSeconds(0);
       onRecordingChange?.(true);
       timerRef.current = setInterval(() => {
         setSeconds((s) => {
-          if (s + 1 >= MAX_SECONDS) {
-            sendOnStopRef.current = true;
-            if (recorderRef.current?.state !== "inactive") recorderRef.current?.stop();
-          }
+          if (s + 1 >= MAX_SECONDS) finish(true);
           return s + 1;
         });
       }, 1000);
     } catch {
-      cleanup();
-      onError?.("Microphone access was blocked. Allow the microphone in your browser to record voice notes.");
+      reset();
+      onError?.("Microphone access was blocked. Allow the microphone for this site in your browser settings to record voice notes.");
     }
   };
 
   const finish = (send: boolean) => {
-    sendOnStopRef.current = send;
-    if (recorderRef.current && recorderRef.current.state !== "inactive") recorderRef.current.stop();
-    else cleanup();
+    const chunks = chunksRef.current;
+    const rate = rateRef.current;
+    reset();
+    if (!send || chunks.length === 0) return;
+    const blob = encodeWav(chunks, rate);
+    if (blob.size < 1000) {
+      onError?.("The recording was too short.");
+      return;
+    }
+    onRecorded(new File([blob], `voice-note-${Date.now()}.wav`, { type: "audio/wav" }));
   };
 
   if (!recording) {
@@ -120,7 +179,7 @@ export function VoiceRecorder({
     );
   }
 
-  const mm = String(Math.floor(seconds / 60)).padStart(1, "0");
+  const mm = String(Math.floor(seconds / 60));
   const ss = String(seconds % 60).padStart(2, "0");
   return (
     <div className="flex items-center gap-2 flex-1 min-w-0">
