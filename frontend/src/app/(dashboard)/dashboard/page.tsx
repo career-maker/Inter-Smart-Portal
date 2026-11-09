@@ -698,7 +698,7 @@ export default function DashboardPage() {
                     const isUltraCompact = teamMembers.length > 4;
 
                     return (
-                      <div className="relative flex items-center justify-between gap-3 sm:gap-4 pt-1">
+                      <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-1">
                         {/* Member Cards Area (All in one line, wrapping to multiple lines if many members) */}
                         <div className="flex-1 min-w-0 flex flex-wrap items-center gap-2 sm:gap-2.5 max-h-[110px] overflow-y-auto pr-1 [scrollbar-width:thin]">
                           {teamMembers.length > 0 ? (
@@ -746,7 +746,7 @@ export default function DashboardPage() {
                                       ? "gap-1.5 p-1 px-2 rounded-xl"
                                       : isCompact
                                       ? "gap-2 p-1.5 px-2.5 rounded-xl"
-                                      : "gap-2.5 sm:gap-3 py-2 px-3 rounded-2xl flex-1 min-w-[150px] max-w-[220px]"
+                                      : "gap-2.5 sm:gap-3 py-2 px-3 rounded-2xl flex-1 min-w-[140px] max-w-[220px]"
                                   } ${cardBg} border hover:shadow-2xs transition-all duration-200 text-left cursor-pointer shrink-0`}
                                   title={`Click to view punches for ${member.name} (${statusLabel})`}
                                 >
@@ -821,7 +821,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Vertical Divider */}
-                        <div className="w-px h-12 sm:h-14 bg-slate-200/80 dark:bg-slate-700/80 shrink-0 mx-0.5 sm:mx-1" />
+                        <div className="hidden sm:block w-px h-12 sm:h-14 bg-slate-200/80 dark:bg-slate-700/80 shrink-0 mx-0.5 sm:mx-1" />
 
                         {/* Right: Donut Chart + Statistics */}
                         <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0 z-10 pr-1">

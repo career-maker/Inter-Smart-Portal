@@ -65,32 +65,72 @@ html[data-ui-theme="neumorphism"] {
 }
 
 html[data-ui-theme="brutalism"] {
-  --t-page-color: #FFF4D6;
+  --t-page-color: #F6F4EC;
   --t-page-image: none;
-  --t-card-bg: #FFFFFF;
-  --t-card-border: 3px solid #111111;
+  --t-card-bg: #FFFEF8;
+  --t-card-border: 2px solid #000000;
   --t-card-radius: 0px;
-  --t-card-shadow: 6px 6px 0 #111111;
+  --t-card-shadow: 6px 6px 0 #000000;
   --t-card-blur: none;
-  --t-tile-bg: #FFFFFF;
-  --t-tile-border: 2px solid #111111;
+  --t-tile-bg: #FFFEF8;
+  --t-tile-border: 2px solid #000000;
   --t-tile-radius: 0px;
-  --t-tile-shadow: 3px 3px 0 #111111;
-  --t-input-bg: #FFFFFF;
-  --t-input-border: 2px solid #111111;
+  --t-tile-shadow: 3px 3px 0 #000000;
+  --t-input-bg: #FFFEF8;
+  --t-input-border: 2px solid #000000;
   --t-input-radius: 0px;
-  --t-input-shadow: 2px 2px 0 #111111;
-  --t-popup-bg: #FFFFFF;
-  --t-popup-border: 3px solid #111111;
-  --t-popup-shadow: 8px 8px 0 #111111;
+  --t-input-shadow: 2px 2px 0 #000000;
+  --t-popup-bg: #FFFEF8;
+  --t-popup-border: 2px solid #000000;
+  --t-popup-shadow: 8px 8px 0 #000000;
   --t-popup-blur: none;
-  --t-thead-bg: #FFE66D;
-  --t-row-hover: #FFF4D6;
-  --t-row-line: #111111;
-  --t-sidebar: #111111;
+  --t-thead-bg: #FFD600;
+  --t-row-hover: #FFF6C2;
+  --t-row-line: #000000;
+  --t-sidebar: #101010;
   --t-btn-image: none;
-  --t-btn-shadow: 4px 4px 0 #111111;
+  --t-btn-shadow: 4px 4px 0 #000000;
+  /* active navigation = yellow (customization vars are set inline, so !important is needed) */
+  --portal-sidebar-active: #FFD600 !important;
+  --portal-sub-header-active: #000000 !important;
 }
+
+/* Brutalism extras: header, hero, nav, buttons, tiles, headings */
+html[data-ui-theme="brutalism"] #portal-top-header { background: #101010 !important; border-bottom: 2px solid #000 !important; }
+html[data-ui-theme="brutalism"] #light-theme-sidebar [data-active="true"],
+html[data-ui-theme="brutalism"] #light-theme-sidebar a.active,
+html[data-ui-theme="brutalism"] #light-theme-sidebar button.active { background-color: #FFD600 !important; color: #000 !important; }
+html[data-ui-theme="brutalism"] #light-theme-sidebar [data-active="true"] *,
+html[data-ui-theme="brutalism"] #light-theme-sidebar a.active *,
+html[data-ui-theme="brutalism"] #light-theme-sidebar button.active * { color: #000 !important; stroke: #000 !important; }
+html[data-ui-theme="brutalism"] #sub-header-tabs-bar a[data-subtab="active"] { background-color: #FFD600 !important; color: #000 !important; border: 2px solid #000; border-bottom: 0; font-weight: 800; }
+
+html[data-ui-theme="brutalism"] #welcome-hero-banner {
+  background: #2563FF !important;
+  border: 3px solid #000 !important;
+  border-radius: 0 !important;
+  box-shadow: 6px 6px 0 #000 !important;
+}
+html[data-ui-theme="brutalism"] #welcome-hero-banner > .absolute { display: none !important; }
+
+html[data-ui-theme="brutalism"] main :is(.bg-primary, button[class*="bg-primary"]) {
+  background: #FFD600 !important;
+  color: #000 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  font-weight: 800;
+}
+html[data-ui-theme="brutalism"] main :is(.bg-primary, button[class*="bg-primary"]):active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 #000 !important; }
+html[data-ui-theme="brutalism"] main :is(h1, h2, h3, .box-title) { font-weight: 800 !important; letter-spacing: -0.01em; }
+html[data-ui-theme="brutalism"] main :is(button, a, [role="button"]).rounded-full { border-radius: 0 !important; }
+
+/* Attendance tiles: solid palette colours, black border, hard shadow, bold caps */
+html[data-ui-theme="brutalism"] main .stat-tile { border: 2px solid #000 !important; box-shadow: 4px 4px 0 #000 !important; }
+html[data-ui-theme="brutalism"] main .stat-tile.stat-in    { background-color: #6EE7B7 !important; }
+html[data-ui-theme="brutalism"] main .stat-tile.stat-out   { background-color: #FB7185 !important; }
+html[data-ui-theme="brutalism"] main .stat-tile.stat-break { background-color: #FACC15 !important; }
+html[data-ui-theme="brutalism"] main .stat-tile.stat-work  { background-color: #A78BFA !important; }
+html[data-ui-theme="brutalism"] main .stat-tile * { color: #000 !important; font-weight: 800 !important; }
 
 html[data-ui-theme="clay"] {
   --t-page-color: #F1EAFB;
@@ -240,4 +280,13 @@ html[data-ui-theme]:not([data-ui-theme="classic"]) :is(.bg-primary, button[class
 
 @media (prefers-reduced-transparency: reduce) {
   html[data-ui-theme="glass"] { --t-card-bg: rgba(255, 255, 255, 0.95); --t-popup-bg: #fff; --t-card-blur: none; --t-popup-blur: none; }
+}
+
+/* ── Mobile overflow guards (all themes) ── */
+@media (max-width: 640px) {
+  main :where(img, video, canvas, svg, iframe) { max-width: 100%; }
+  main :where(h1, h2, h3, h4, p, a, label, td, th) { overflow-wrap: anywhere; }
+  main .grid > * { min-width: 0; }
+  main :not(.overflow-x-auto) > table { display: block; max-width: 100%; overflow-x: auto; }
+  [role="dialog"] { max-width: calc(100vw - 24px) !important; }
 }

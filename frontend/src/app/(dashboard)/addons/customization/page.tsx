@@ -999,7 +999,7 @@ export default function CustomizationPage() {
           </div>
         </div>
 
-        <div className="fixed bottom-5 right-24 z-40 flex items-center gap-3 p-2 rounded-2xl bg-white/95 backdrop-blur border border-slate-200 shadow-xl">
+        <div className="fixed bottom-20 right-3 sm:bottom-5 sm:right-24 z-40 flex items-center gap-2 sm:gap-3 p-2 rounded-2xl bg-white/95 backdrop-blur border border-slate-200 shadow-xl">
           <button
             type="button"
             onClick={handleReset}
