@@ -896,7 +896,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
     setUserSearchQuery("");
 
     const existing = conversations.find(
-      (c) => c.other_user?.id === targetUser.id || c.participants.some((p) => p.id === targetUser.id)
+      (c) => c.type !== "group" && (c.other_user?.id === targetUser.id || c.participants.some((p) => p.id === targetUser.id))
     );
 
     if (existing) {
