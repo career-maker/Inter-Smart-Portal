@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Phone, Mail, LifeBuoy, ChevronRight, UserPlus } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
@@ -40,6 +40,18 @@ export function EmergencyContactsCard({
 
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [loading, setLoading] = useState(true);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const [scroll, setScroll] = useState(false);
+
+  // Marquee only when content overflows; list is rendered twice for a seamless loop.
+  useEffect(() => {
+    const box = boxRef.current, el = listRef.current;
+    if (!box || !el) return;
+    const total = scroll ? el.scrollHeight / 2 : el.scrollHeight;
+    setScroll(total > box.clientHeight);
+  }, [contacts, scroll]);
+  const list = scroll ? [...contacts, ...contacts] : contacts;
 
   useEffect(() => {
     let isMounted = true;
@@ -205,10 +217,20 @@ export function EmergencyContactsCard({
         </div>
       )}
 
-      {/* Assigned Contacts List - Displays all assigned employees with smooth internal scrolling */}
+      {/* Assigned Contacts - auto-scrolls upward (marquee), pauses on hover */}
       {!loading && contacts.length > 0 && (
-        <div className="flex-1 max-h-[220px] sm:max-h-[240px] overflow-y-auto pr-2 -mr-1 space-y-3 divide-y divide-slate-100 dark:divide-slate-700/50 scrollbar-thin [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-700 hover:[&::-webkit-scrollbar-thumb]:bg-slate-300 dark:hover:[&::-webkit-scrollbar-thumb]:bg-slate-600">
-          {contacts.map((contact, index) => {
+        <div
+          ref={boxRef}
+          className="group/marquee flex-1 h-[220px] sm:h-[240px] overflow-hidden"
+        >
+          <style>{`@keyframes ec-marquee{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+@media (prefers-reduced-motion:reduce){.ec-marquee{animation:none!important}}`}</style>
+          <div
+            ref={listRef}
+            className="ec-marquee space-y-3 pb-3 divide-y divide-slate-100 dark:divide-slate-700/50 group-hover/marquee:[animation-play-state:paused]"
+            style={scroll ? { animation: `ec-marquee ${contacts.length * 4}s linear infinite` } : undefined}
+          >
+          {list.map((contact, index) => {
             const avatarClass =
               contact.avatar_bg &&
               (contact.avatar_bg.startsWith("bg-[#") ||
@@ -224,7 +246,7 @@ export function EmergencyContactsCard({
 
             return (
               <div
-                key={contact.id || index}
+                key={`${contact.id || index}-${index}`}
                 className={`space-y-1.5 ${index > 0 ? "pt-3" : "pt-0"} pb-1`}
               >
                 <div className="flex items-center justify-between gap-3">
@@ -314,6 +336,7 @@ export function EmergencyContactsCard({
               </div>
             );
           })}
+          </div>
         </div>
       )}
     </div>
