@@ -700,7 +700,7 @@ export default function DashboardPage() {
                     return (
                       <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-1">
                         {/* Member Cards Area (All in one line, wrapping to multiple lines if many members) */}
-                        <div className="flex-1 min-w-0 flex flex-wrap items-center gap-2 sm:gap-2.5 max-h-[120px] overflow-y-auto pr-1 pt-2 pb-1.5 -mt-1 [scrollbar-width:thin]">
+                        <div className={`flex-1 min-w-0 flex flex-wrap items-center gap-2 sm:gap-2.5 pr-1 pt-2 pb-1.5 -mt-1 [scrollbar-width:thin] ${teamMembers.length > 8 ? "max-h-[120px] overflow-y-auto" : ""}`}>
                           {teamMembers.length > 0 ? (
                             teamMembers.map((member: any) => {
                               const statusLower = (member.status || "").toLowerCase();
