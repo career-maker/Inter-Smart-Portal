@@ -14,7 +14,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Sparkles,
   Search,
   Check,
   Eye,
@@ -1206,9 +1205,6 @@ export default function CustomizationPage() {
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800 flex-wrap">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
-                  <Sparkles className="w-5 h-5" />
-                </div>
                 <div>
                   <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
                     Dashboard Welcome Card Background (Image or Video)
@@ -1366,7 +1362,7 @@ export default function CustomizationPage() {
                 <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ zIndex: 10 }}>
                   <div className="space-y-1">
                     <span className="text-[10px] uppercase font-bold tracking-wider text-amber-300 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
+Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     </span>
                     <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
                       Good Day, {user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : "Abhiram"}
@@ -1579,7 +1575,6 @@ export default function CustomizationPage() {
                 className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer self-start sm:self-auto shrink-0"
                 title="Apply standard InterSmart Green / Teal 8-color system"
               >
-                <Sparkles className="w-3.5 h-3.5" />
                 <span>Reset to Default Teal</span>
                 <div className="flex items-center -space-x-1 ml-1">
                   {["#0F766E", "#138A80", "#14A092", "#093E3A", "#E6F8F6", "#F2FCFB", "#CBEFEA", "#FFFFFF"].map((c, i) => (
@@ -2285,9 +2280,6 @@ export default function CustomizationPage() {
           {/* 5. UI SHAPES, ELEVATION & CORNER RADIUS */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
-              <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
-                <Sparkles className="w-5 h-5" />
-              </div>
               <div>
                 <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">UI Shapes, Elevation & Corner Roundness</h2>
                 <p className="text-[13px] text-slate-500 dark:text-slate-400">
@@ -2873,7 +2865,6 @@ export default function CustomizationPage() {
           {/* Quick Info Box */}
           <div className="p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
             <div className="font-bold flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               <span>Instant Universal Application</span>
             </div>
             <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed">

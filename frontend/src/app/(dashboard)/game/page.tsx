@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { 
-  Gamepad2, Play, ArrowLeft, Trophy, Sparkles, Zap, 
+  Gamepad2, Play, ArrowLeft, Trophy, Zap, 
   Maximize2, Swords, Crosshair, Rocket, Cpu, Search, Filter, ExternalLink, X
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
@@ -531,7 +531,6 @@ export default function GamePage() {
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md text-[10px] font-black border border-white/15 shadow-sm"
                   style={{ color: game.accentColor }}
                 >
-                  <Sparkles className="w-3 h-3" />
                   {game.tag}
                 </span>
                 <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-md border ${game.badgeColor}`}>

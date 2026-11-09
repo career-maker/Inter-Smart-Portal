@@ -20,7 +20,6 @@ import {
   AlertCircle,
   ExternalLink,
   ChevronRight,
-  Sparkles,
   Loader2,
   FolderKanban,
 } from "lucide-react";
@@ -642,7 +641,6 @@ export function ProjectStatusDrawer({
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-800/40 text-xs text-slate-700 dark:text-slate-300 space-y-1">
                       <div className="flex items-center gap-1.5 font-bold text-[#56348f] dark:text-purple-300">
-                        <Sparkles className="w-4 h-4" />
                         <span>Post-Launch Testing & Warranty Tasks</span>
                       </div>
                       <p className="text-slate-600 dark:text-slate-400 text-[13px] leading-[18px]">

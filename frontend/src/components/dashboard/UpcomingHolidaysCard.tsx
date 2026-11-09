@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import NextLink from "next/link";
-import { ChevronLeft, ChevronRight, CalendarDays, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { format, differenceInCalendarDays, parseISO } from "date-fns";
 import { useAuthStore } from "@/store/auth";
 import { resolveCustomizationAssetUrl } from "@/services/customization";

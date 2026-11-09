@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { WifiOff, RefreshCw, Trophy, Gamepad2, ArrowUp, Sparkles, Award, Flame, Crown } from "lucide-react";
+import { WifiOff, RefreshCw, Trophy, Gamepad2, ArrowUp, Award, Flame, Crown } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { getGameLeaderboard, recordGameScore, GameLeaderboardEntry } from "@/lib/gameLeaderboards";
 
@@ -559,7 +559,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
               </div>
             ) : (
               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <Sparkles className="w-4 h-4 text-purple-500 shrink-0" />
+
                 <span>Play to set your first score on the workplace leaderboard!</span>
               </div>
             )}
@@ -638,12 +638,12 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
         {/* Footer note */}
         {standalone ? (
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-4 flex items-center justify-center gap-1.5">
-            <Sparkles className="w-3 h-3 text-purple-500" />
+
             <span>Tip: Space or ↑ to Jump. Beat your teammates&apos; high scores!</span>
           </p>
         ) : (
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-4 flex items-center justify-center gap-1.5">
-            <Sparkles className="w-3 h-3 text-emerald-500" />
+
             <span>Will automatically reconnect when your internet is back online</span>
           </p>
         )}

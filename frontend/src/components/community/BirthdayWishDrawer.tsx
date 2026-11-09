@@ -9,7 +9,6 @@ import {
   Loader2,
   Heart,
   MessageSquare,
-  Sparkles,
   Gift,
   Smile,
   CheckCircle2,
@@ -208,7 +207,7 @@ export function BirthdayWishDrawer({
 
                 <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-200/60 dark:border-slate-700/50">
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+
                     <span>Delivered to their Birthday Inbox</span>
                   </div>
 

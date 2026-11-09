@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Trophy,
   Award,
-  Sparkles,
   ChevronRight,
   X,
   Star,
@@ -168,7 +167,6 @@ export function LeaderboardWidget() {
             }}
             className="dark:text-slate-400 flex items-center gap-1.5"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
             Celebrate peer milestones
           </span>
 

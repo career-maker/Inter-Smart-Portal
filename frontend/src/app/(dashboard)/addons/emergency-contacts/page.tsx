@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
-  Sparkles,
   ToggleLeft,
   ToggleRight,
   User,

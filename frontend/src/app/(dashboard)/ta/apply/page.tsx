@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, CheckCircle2, Car, Utensils, Hotel, HelpCircle, ShieldCheck, Banknote, Sparkles } from "lucide-react";
+import { Plus, CheckCircle2, Car, Utensils, Hotel, HelpCircle, ShieldCheck, Banknote } from "lucide-react";
 import { TAApplyModal } from "@/components/ta/TAApplyModal";
 
 export default function TAApplyPage() {
@@ -64,7 +64,6 @@ export default function TAApplyPage() {
         {/* How It Works */}
         <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
           <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             <span>How the Process Works</span>
           </h2>
 

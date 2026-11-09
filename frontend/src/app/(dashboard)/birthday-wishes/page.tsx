@@ -8,7 +8,6 @@ import {
   Loader2,
   Search,
   Calendar,
-  Sparkles,
   MessageSquare,
   Smile,
   CheckCircle2,
@@ -281,7 +280,6 @@ export default function BirthdayWishesPage() {
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            <Sparkles className="w-4 h-4 text-amber-500" />
             <span>Send Wishes / Upcoming</span>
             {upcomingBirthdays.length > 0 && (
               <span className="text-[11px] px-1.5 py-0.2 rounded-full font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
@@ -932,9 +930,6 @@ export default function BirthdayWishesPage() {
           ) : (
             <div className="flex-1 flex items-center justify-center p-8 text-center">
               <div className="max-w-xs space-y-2">
-                <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
-                  <Sparkles className="w-6 h-6" />
-                </div>
                 <h3
                   style={{
                     fontSize: "15px",

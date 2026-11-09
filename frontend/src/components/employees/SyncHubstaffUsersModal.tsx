@@ -14,7 +14,6 @@ import {
   Users,
   Building2,
   Save,
-  Sparkles,
   CheckCircle2,
 } from "lucide-react";
 import { Portal } from "@/components/ui/portal";
@@ -334,7 +333,6 @@ export function SyncHubstaffUsersModal({ isOpen, onClose }: SyncHubstaffUsersMod
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
                 title="Automatically match employees by full name or email address"
               >
-                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
                 <span>Auto-Match</span>
               </button>
 

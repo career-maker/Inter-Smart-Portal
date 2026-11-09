@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   CalendarDays,
   Palmtree,
-  Sparkles,
   Link as LinkIcon,
   ClipboardCheck,
   BookOpen,
@@ -219,7 +218,7 @@ function CommunityPageContent() {
               <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" /> My Leave Balances
+My Leave Balances
                   </span>
                   <Link
                     href="/leaves"

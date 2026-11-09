@@ -16,7 +16,6 @@ import {
   Check,
   Search,
   Globe,
-  Sparkles,
   SlidersHorizontal,
   FileText,
   AlertCircle,

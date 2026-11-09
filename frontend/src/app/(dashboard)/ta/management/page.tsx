@@ -31,7 +31,6 @@ import {
   CreditCard,
   DollarSign,
   Trash2,
-  Sparkles,
   Printer,
   X,
 } from "lucide-react";

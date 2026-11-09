@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { format, parseISO, formatDistanceToNow } from "date-fns";
-import { MessageSquare, Send, Loader2, User, AlertCircle, RefreshCw, Sparkles } from "lucide-react";
+import { MessageSquare, Send, Loader2, User, AlertCircle, RefreshCw } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
 import { ProjectTaskComment } from "@/types/pm";

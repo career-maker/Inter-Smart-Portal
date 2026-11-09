@@ -16,7 +16,6 @@ import {
   AlertCircle,
   ChevronRight,
   ChevronLeft,
-  Sparkles,
   ShieldCheck,
   ToggleLeft,
   ToggleRight,

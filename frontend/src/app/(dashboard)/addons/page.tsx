@@ -17,7 +17,6 @@ import {
   Loader2,
   Plus,
   Settings2,
-  Sparkles,
   ToggleLeft,
   ToggleRight,
   HardDrive,
@@ -280,7 +279,6 @@ export default function PmAddonsPage() {
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
                       <div className="font-bold flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>Portal Branding, Typography & Theme Customization</span>
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -310,7 +308,6 @@ export default function PmAddonsPage() {
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
                       <div className="font-bold flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>System Policy Engine & Employee Accrual Rules</span>
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -340,7 +337,6 @@ export default function PmAddonsPage() {
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
                       <div className="font-bold flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>SMTP Server & Notification Recipient Matrix</span>
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -370,7 +366,6 @@ export default function PmAddonsPage() {
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
                       <div className="font-bold flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>Team & Role Permissions Matrix</span>
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">

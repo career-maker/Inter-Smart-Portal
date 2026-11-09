@@ -6,7 +6,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Plus, Calendar, Clock, CheckCircle, XCircle, 
-  Info, Sparkles, FileText, ChevronRight, X, Trash2
+  Info, FileText, ChevronRight, X, Trash2
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -359,9 +359,6 @@ export default function LeavesPage() {
       {/* ── Top Header Banner (Keka Style) ────────────────────────── */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-950/60 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 border border-purple-200 dark:border-purple-800/60">
-            <Sparkles className="w-6 h-6" />
-          </div>
           <div>
             <h2 className="text-base md:text-lg font-bold text-slate-900 dark:text-white">
               {pendingRequestsCount === 0 ? (

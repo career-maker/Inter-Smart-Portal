@@ -2,7 +2,7 @@
 
 import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useState, useEffect, useMemo } from "react";
-import { X, Loader2, Plus, AlertCircle, Sparkles, FolderKanban, Users, ShieldCheck, Calendar, Clock, Layers } from "lucide-react";
+import { X, Loader2, Plus, AlertCircle, FolderKanban, Users, ShieldCheck, Calendar, Clock, Layers } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
 import { TaskPrioritySelect, TaskStatusSelect } from "@/components/project-management/priorityPalette";
@@ -292,7 +292,6 @@ export function CreateTaskModal({
           {/* Predefined Template Dropdown (Optional Helper) */}
           <div className="p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 space-y-1.5">
             <div className="flex items-center gap-1.5 text-xs font-bold text-blue-900 dark:text-blue-300">
-              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
               <span>Optional: Select Predefined Task Template</span>
             </div>
             <SelectCompat

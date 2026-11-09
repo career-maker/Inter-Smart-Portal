@@ -8,7 +8,6 @@ import {
   Send,
   Loader2,
   Trash2,
-  Sparkles,
   Star,
   Image as ImageIcon,
   X,

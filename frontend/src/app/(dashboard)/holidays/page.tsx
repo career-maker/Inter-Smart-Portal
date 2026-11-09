@@ -18,7 +18,6 @@ import {
   Edit,
   Loader2,
   CheckCircle,
-  Sparkles,
   Settings2,
   X,
 } from "lucide-react";
@@ -737,7 +736,6 @@ export default function HolidaysPage() {
                       }}
                       className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-left cursor-pointer"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                       <span>Pre-add Kerala Holidays</span>
                     </button>
                     <div className="border-t border-slate-100 dark:border-slate-800 pt-1">

@@ -31,7 +31,6 @@ import {
   AlertCircle,
   CheckCircle2,
   ChevronRight,
-  Sparkles,
   Info,
   FolderKanban,
   FolderPlus,
@@ -613,7 +612,6 @@ export default function PermissionsManagementPage() {
       {/* ── Sticky Bottom Save Bar ── */}
       <div className="sticky bottom-4 z-30 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl">
         <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#56348f] dark:text-purple-400 shrink-0" />
           <span className="font-medium">
             Changes take effect immediately across all active user sessions upon saving.
           </span>

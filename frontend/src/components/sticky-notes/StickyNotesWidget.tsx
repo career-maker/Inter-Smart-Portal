@@ -10,7 +10,6 @@ import {
   RotateCcw,
   Check,
   Loader2,
-  Sparkles,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";

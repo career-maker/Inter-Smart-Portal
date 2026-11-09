@@ -22,8 +22,7 @@ import {
   Lock,
   ChevronDown,
   Layers,
-  Sparkles,
-} from "lucide-react";
+  } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { Portal } from "@/components/ui/portal";

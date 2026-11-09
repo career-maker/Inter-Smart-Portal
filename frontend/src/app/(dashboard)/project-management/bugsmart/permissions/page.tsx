@@ -26,7 +26,6 @@ import {
   AlertCircle,
   CheckCircle2,
   ChevronRight,
-  Sparkles,
   Info,
   Bug,
 } from "lucide-react";

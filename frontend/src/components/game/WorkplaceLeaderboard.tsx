@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { 
-  Trophy, Award, Crown, Flame, Sparkles, Play, Gamepad2, ChevronRight 
+  Trophy, Award, Crown, Flame, Play, Gamepad2, ChevronRight 
 } from "lucide-react";
 import { 
   GameKeyType, GAME_INFO_MAP, getGameLeaderboard, GameLeaderboardEntry, CurrentUserInfo 
@@ -121,7 +121,7 @@ export function WorkplaceLeaderboard({
                 </span>
               ) : (
                 <span className="flex items-center gap-1.5 text-slate-500">
-                  <Sparkles className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+
                   Play to log your score on the workplace leaderboard!
                 </span>
               )}

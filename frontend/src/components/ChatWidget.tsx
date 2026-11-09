@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, Send, Sparkles, AlertCircle, RotateCcw, Clock, CheckCircle2, Palmtree, BarChart3, Users, FolderOpen } from "lucide-react";
+import { X, Send, AlertCircle, RotateCcw, Clock, CheckCircle2, Palmtree, BarChart3, Users, FolderOpen } from "lucide-react";
 
-const QUICK_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { Palmtree, BarChart3, Users, Sparkles, FolderOpen };
+const QUICK_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { Palmtree, BarChart3, Users, FolderOpen };
 import api from "@/services/api";
 import { Portal } from "@/components/ui/portal";
 
@@ -20,7 +20,7 @@ const PRE_QUESTIONS = [
   { text: "Who is on leave today?", icon: "Palmtree" },
   { text: "What is my leave status & balance?", icon: "BarChart3" },
   { text: "Who are the team leads?", icon: "Users" },
-  { text: "When is our next company holiday?", icon: "Sparkles" },
+  { text: "When is our next company holiday?", icon: "Palmtree" },
   { text: "What projects am I working on?", icon: "FolderOpen" },
 ];
 
@@ -361,7 +361,7 @@ export default function ChatWidget() {
                 <div>
                   <h3 className="text-base font-semibold text-slate-900 flex items-center gap-1.5 m-0 leading-tight">
                     Portal Assistant
-                    <Sparkles className="w-4 h-4 text-[#56348f] animate-pulse" />
+
                   </h3>
                   <p className="text-xs text-slate-500 font-normal m-0">
                     Powered by Gemini AI • Live Data
@@ -437,7 +437,7 @@ export default function ChatWidget() {
                         onClick={() => handleSend(q.text)}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white hover:bg-purple-50 text-slate-700 hover:text-[#56348f] border border-slate-200 hover:border-[#56348f]/40 rounded-full transition-all shadow-xs active:scale-95 cursor-pointer text-left"
                       >
-                        {(() => { const Icon = QUICK_ICONS[q.icon] || Sparkles; return <Icon className="w-4 h-4 shrink-0" />; })()}
+                        {(() => { const Icon = QUICK_ICONS[q.icon] || Palmtree; return <Icon className="w-4 h-4 shrink-0" />; })()}
                         <span>{q.text}</span>
                       </button>
                     ))}

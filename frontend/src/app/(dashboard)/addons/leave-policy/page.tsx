@@ -19,7 +19,6 @@ import {
   Search,
   Filter,
   ArrowRight,
-  Sparkles,
   Calendar,
   Clock,
   UserCheck,
@@ -430,7 +429,6 @@ export default function LeavePolicyManagementPage() {
           <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
               <span>Monthly Allocation Quota</span>
-              <Sparkles className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="text-2xl font-bold text-slate-900 dark:text-white">
               +{settings.default_monthly_cl} CL <span className="text-slate-400">/</span> +{settings.default_monthly_sl} SL
@@ -596,7 +594,6 @@ export default function LeavePolicyManagementPage() {
             {/* Section B: Monthly Allocation Quotas */}
             <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
               <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
-                <Sparkles className="w-4 h-4 text-emerald-600" />
                 <span>Monthly Allocation Quotas</span>
               </div>
 
@@ -961,7 +958,6 @@ export default function LeavePolicyManagementPage() {
                           <td className="py-3 px-4">
                             {emp.probation_cleared_manually ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800">
-                                <Sparkles className="w-3 h-3 text-purple-500" />
                                 Cleared Manually
                               </span>
                             ) : emp.is_in_probation ? (

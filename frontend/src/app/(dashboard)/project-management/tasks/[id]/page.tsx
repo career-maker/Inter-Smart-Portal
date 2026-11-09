@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   AlertCircle,
   AlertTriangle,
-  Sparkles,
   TrendingUp,
   ExternalLink,
   Edit3,
@@ -178,7 +177,6 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
               </h1>
               {task.catalogTask && (
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 px-2.5 py-0.5 rounded-full">
-                  <Sparkles className="w-3 h-3" />
                   <span>Template: {task.catalogTask.name}</span>
                 </span>
               )}

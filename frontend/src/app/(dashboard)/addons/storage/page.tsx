@@ -17,7 +17,6 @@ import {
   RefreshCw,
   ShieldAlert,
   MessageSquare,
-  Sparkles,
   Layers,
   Save,
   HelpCircle,
@@ -227,7 +226,6 @@ export default function StorageRetentionAddonPage() {
         <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
           <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
             <span className="flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-purple-600" />
               Community Posts
             </span>
             <span className="font-mono font-bold text-slate-900 dark:text-slate-100">

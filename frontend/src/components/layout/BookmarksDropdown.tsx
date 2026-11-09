@@ -9,7 +9,6 @@ import {
   Plus,
   Trash2,
   ExternalLink,
-  Sparkles,
   ChevronRight,
   Layers,
 } from "lucide-react";

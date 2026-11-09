@@ -12,7 +12,6 @@ import {
   Download,
   Calendar,
   MessageSquare,
-  Sparkles,
   ArrowRight,
   Maximize2,
   X,

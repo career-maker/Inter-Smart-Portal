@@ -19,8 +19,7 @@ import {
   TrendingUp,
   ShieldCheck,
   User,
-  Sparkles,
-} from "lucide-react";
+  } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
 import { ProjectTask, BugReportSummary } from "@/types/pm";

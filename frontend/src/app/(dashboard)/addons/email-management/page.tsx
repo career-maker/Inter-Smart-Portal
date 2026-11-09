@@ -26,7 +26,6 @@ import {
   DollarSign,
   Info,
   Clock,
-  Sparkles,
   ArrowRight,
   Eye,
   EyeOff,
@@ -83,7 +82,7 @@ const ACTION_DEFINITIONS: Record<
   ta_approved: {
     label: "Travel Allowance (TA) Approval & Receipt Voucher",
     description: "Fired when an admin approves or settles a claim, sending the invoice receipt voucher and payment screenshot to the employee + CCs.",
-    icon: Sparkles,
+    icon: FileText,
     color: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800",
   },
   document_request: {

@@ -19,7 +19,6 @@ import {
   Check,
   CheckCheck,
   Clock,
-  Sparkles,
   User,
   ChevronRight,
   Maximize2,
@@ -1266,9 +1265,6 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
       >
         <div className="p-3.5 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-[#f0f2f5] dark:bg-[#202c33] shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-[#56348f]/15 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold shadow-xs">
-              <Sparkles className="w-5 h-5" />
-            </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 leading-tight">
                 Chats
@@ -1574,9 +1570,6 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center p-6">
-                  <div className="w-14 h-14 rounded-full bg-white dark:bg-slate-800 text-[#56348f] dark:text-purple-300 flex items-center justify-center mb-2.5 shadow-sm">
-                    <Sparkles className="w-7 h-7" />
-                  </div>
                   <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
                     Chat with {activeConversation.other_user?.first_name || "colleague"}
                   </h3>
@@ -1897,10 +1890,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
               <div className="absolute -top-2 right-0 text-purple-400 text-xs">✦</div>
 
               {/* Front Main Chat Bubble */}
-              <div className="relative z-10 w-16 h-13 bg-gradient-to-br from-purple-100 via-purple-50 to-indigo-100 dark:from-purple-900/60 dark:to-slate-800 rounded-2xl rounded-bl-sm shadow-md border border-purple-200/60 dark:border-purple-700/40 flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-[#56348f] dark:text-purple-300" />
               </div>
-            </div>
 
             <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 relative z-10">
               InterSmart Direct Chat

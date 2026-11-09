@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/services/api";
-import { Sparkles, Cake, Megaphone } from "lucide-react";
+import { Cake, Megaphone } from "lucide-react";
 
 interface RecognitionTickerProps {
   isDark?: boolean;
@@ -135,7 +135,6 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 !text-white shrink-0" />
                   <span style={{ color: "#ffffff" }} className="!text-white">
                     Congratulations <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong> for being awarded as <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.icon} {item.title}</strong>! {item.description?.length > 60 ? '' : item.description}
                   </span>
@@ -168,7 +167,6 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 !text-white shrink-0" />
                   <span style={{ color: "#ffffff" }} className="!text-white">
                     Congratulations <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong> for being awarded as <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.icon} {item.title}</strong>! {item.description?.length > 60 ? '' : item.description}
                   </span>

@@ -14,7 +14,6 @@ import {
   Copy,
   Check,
   Loader2,
-  Sparkles,
   Trophy,
   Search,
   ChevronRight,
@@ -403,7 +402,6 @@ export function EmployeeIdCardDrawer({
                               TENURE
                             </span>
                             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border border-[#FDE68A] shadow-2xs">
-                              <Sparkles className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
                               <span className="text-xs font-black text-[#78350F]">
                                 {data.tenure_text || `${data.tenure_years} Years`}
                               </span>

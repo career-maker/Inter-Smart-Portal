@@ -26,7 +26,6 @@ import {
   Search,
   Check,
   Clock,
-  Sparkles,
   Save,
   Sliders,
   FileText,
@@ -402,7 +401,6 @@ export default function LeaveBalancesPage() {
                       <td className="py-3 px-4">
                         {emp.probation_cleared_manually ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800">
-                            <Sparkles className="w-3 h-3 text-purple-500" />
                             Cleared Manually
                           </span>
                         ) : emp.is_in_probation ? (
