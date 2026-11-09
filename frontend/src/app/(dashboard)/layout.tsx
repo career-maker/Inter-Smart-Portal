@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
 import { useThemeStore } from "@/store/theme";
@@ -119,10 +120,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/addons", label: "All Add-ons Directory" },
       { href: "/addons/customization", label: "Portal Customization" },
       { href: "/addons/email-management", label: "Email & SMTP Management" },
-      { href: "/addons/leave-policy", label: "Leave Policy Management" },
       { href: "/addons/permissions", label: "Team & Role Permissions" },
-      { href: "/project-management/bug-reports", label: "Bug Tracker & Reports" },
-      { href: "/project-management/bugsmart", label: "BugSmart" },
     ],
   },
   {
@@ -1227,27 +1225,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <NotificationDropdown />
 
-                <Link
-                  href="/profile"
-                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 ml-0.5"
-                  title={`${user?.first_name} ${user?.last_name}`}
-                >
-                  <RoyalAvatar
-                    src={user?.profile_photo_path}
-                    name={`${user?.first_name} ${user?.last_name}`}
-                    userId={user?.id}
-                    className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full ring-1.5 ring-white/30"
-                  />
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  style={{ color: "var(--portal-header-text, #ffffff)" }}
-                  className="header-logout-btn hidden lg:flex items-center gap-1.5 text-xs bg-white/10 hover:bg-white/20 transition-colors px-3 py-1.5 rounded-lg font-medium cursor-pointer shrink-0"
-                >
-                  <LogOut className="h-4 w-4 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
-                  <span style={{ color: "var(--portal-header-text, #ffffff)" }} className="portal-header-label font-semibold">Logout</span>
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 ml-0.5 focus-visible:outline-2 focus-visible:outline-white"
+                    aria-label="Account menu"
+                    title={`${user?.first_name} ${user?.last_name}`}
+                  >
+                    <RoyalAvatar
+                      src={user?.profile_photo_path}
+                      name={`${user?.first_name} ${user?.last_name}`}
+                      userId={user?.id}
+                      className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full ring-1.5 ring-white/30"
+                    />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-white border-slate-200 min-w-40">
+                    <DropdownMenuItem onClick={() => router.push("/profile")} className="cursor-pointer text-slate-700">
+                      My profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-slate-700">
+                      <LogOut className="mr-2 h-4 w-4" /> Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
@@ -1287,7 +1286,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 opacity: 0.75;
               }
             `}</style>
-            <div className="px-4 sm:px-8 flex items-center gap-6 sm:gap-8 h-10 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="px-4 sm:px-8 flex items-center gap-6 sm:gap-8 h-11 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {subTabs.map((tab) => {
                 const active = tab.href === "/dashboard"
                   ? pathname === "/dashboard"
@@ -1301,7 +1300,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     data-subtab={active ? "active" : "inactive"}
                     style={{
                       fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
-                      fontSize: "11px",
+                      fontSize: "14px",
                       lineHeight: "16px",
                       fontWeight: active ? 600 : 500,
                       color: active
@@ -1309,7 +1308,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         : "rgb(71, 85, 105)",
                       backgroundColor: "transparent",
                     }}
-                    className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer focus:outline-none focus:ring-0 !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
+                    className="relative h-full flex items-center transition-colors shrink-0 gap-1.5 cursor-pointer focus:outline-none focus:ring-0 !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
                   >
                     <span className="py-2">{tab.label}</span>
                     {tab.badge && (
