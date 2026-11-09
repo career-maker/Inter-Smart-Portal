@@ -605,14 +605,14 @@ export default function DashboardPage() {
         SEAMLESS DASHBOARD GRID (ZERO GAPS - CONTINUOUS COLUMNS)
         ===================================================================
       */}
-      <div className="space-y-6 mb-8">
+      <div className="space-y-6">
         
         {/* ── ROW 1 (Team Lead only): Team Status Today + Pending Approvals ── */}
         {user?.role === "Team Lead" && data && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             {/* Team Status Today Card */}
             <div className="lg:col-span-2 flex flex-col">
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-xs h-full flex flex-col justify-between relative overflow-hidden">
+              <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-xs h-full flex flex-col justify-between relative overflow-hidden">
                 <div>
                   {/* Card Header */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 mb-1.5 gap-2">
@@ -1057,7 +1057,7 @@ export default function DashboardPage() {
                   return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
                 });
                 return (
-                  <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
+                  <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
                     <div>
                       <div className="mb-3">
                         <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
@@ -1093,7 +1093,7 @@ export default function DashboardPage() {
               })()}
 
               {/* Upcoming Birthdays with Wishes */}
-              <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
+              <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
                 <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
               </div>
             </div>
@@ -1112,16 +1112,16 @@ export default function DashboardPage() {
 
       {/* Super Admin Analytics (Rendered for Super Admin below main grid) */}
       {user?.role === "Super Admin" && data && (
-        <div className="space-y-6 mb-8">
+        <div className="space-y-6">
           {/* Key Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { label: 'Total Employees', value: data?.widgets?.total_employees ?? 0, trend: 2, direction: 'up' },
               { label: 'Active Employees', value: data?.widgets?.active_employees ?? 0, trend: -1, direction: 'down' },
               { label: 'Today Absent', value: data?.widgets?.absent_today ?? 0, trend: -5, direction: 'down' },
               { label: 'Pending Leaves', value: data?.widgets?.pending_leave_requests ?? 0, trend: 3, direction: 'up' }
             ].map((metric, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-800 rounded-md p-4 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
+              <div key={idx} className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">{metric.label}</p>
                 <div className="flex items-end justify-between">
                   <p
@@ -1146,7 +1146,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Audit Logs */}
-          <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
@@ -1195,12 +1195,12 @@ export default function DashboardPage() {
         MAIN CONTENT SPLIT (Left: Menu, Right: Metrics)
         ========================================
       */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* LEFT / CENTER: MAIN MENU HUB (8 Cols) */}
-        <div className="lg:col-span-8 space-y-8">
+        <div className="lg:col-span-8 space-y-6">
           
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             <MenuCard 
               href="/leaves" 
               icon={Palmtree} 
@@ -1285,7 +1285,7 @@ export default function DashboardPage() {
           RIGHT: UPCOMING HOLIDAYS (4 Cols)
           ========================================
         */}
-        <div className="lg:col-span-4 space-y-8">
+        <div className="lg:col-span-4 space-y-6">
           {/* Upcoming Holidays */}
           <UpcomingHolidaysCard holidays={widgets.upcoming_holidays || []} />
         </div>
