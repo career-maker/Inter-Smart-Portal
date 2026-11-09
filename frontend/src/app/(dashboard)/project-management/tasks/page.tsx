@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import {
   Layers,
@@ -56,6 +57,7 @@ export default function AllTasksPage() {
   const canEditTasks = !isEmployee || Boolean(userPermissions.task_cross_team_assign) || Boolean(userPermissions.task_cross_team_edit);
 
   const [loading, setLoading] = useState(true);
+  const [showEveryone, setShowEveryone] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -394,7 +396,7 @@ export default function AllTasksPage() {
                 onClick={() => setViewMode("grouped")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === "grouped"
-                    ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
+                    ? "bg-white dark:bg-slate-900 text-[#00806E] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -406,7 +408,7 @@ export default function AllTasksPage() {
                 onClick={() => setViewMode("flat")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === "flat"
-                    ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
+                    ? "bg-white dark:bg-slate-900 text-[#00806E] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -416,23 +418,33 @@ export default function AllTasksPage() {
             </div>
           )}
 
-          <button
-            onClick={() => setIsDailyReportOpen(true)}
-            style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
-            title="Open Role-Based Daily Reports"
-          >
-            <FileText className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
-            <span>Daily Reports</span>
-          </button>
 
           <Link
             href="/project-management/tasks/my"
-            style={{ backgroundColor: "#f3e8ff", color: "#56348f", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-            className="px-3.5 py-2 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200/80 !text-[#56348f] dark:!text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-300 dark:border-purple-800/80 transition-colors"
+            style={{ backgroundColor: "#f3e8ff", color: "#00806E", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="px-3.5 py-2 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200/80 !text-[#00806E] dark:!text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-300 dark:border-purple-800/80 transition-colors"
           >
             My Tasks
           </Link>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className="h-9 px-3 rounded-md border border-slate-200 bg-white text-sm text-slate-700 hover:bg-slate-50 cursor-pointer"
+              aria-label="More actions"
+            >
+              More
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-white border-slate-200 min-w-44">
+              <DropdownMenuItem onClick={() => setIsDailyReportOpen(true)} className="cursor-pointer text-slate-700">
+                <FileText className="mr-2 h-4 w-4" /> Daily Reports
+              </DropdownMenuItem>
+              {canEditTasks && (
+                <DropdownMenuItem onClick={() => setIsImportModalOpen(true)} className="cursor-pointer text-slate-700">
+                  <Upload className="mr-2 h-4 w-4" /> Import Tasks
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <button
             onClick={() => fetchTasks(currentPage, true)}
@@ -441,33 +453,19 @@ export default function AllTasksPage() {
             className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 !text-slate-800 dark:!text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50"
             title="Refresh List"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : "text-slate-700 dark:text-slate-300"}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#00806E]" : "text-slate-700 dark:text-slate-300"}`} />
           </button>
 
           {canEditTasks && (
             <>
-              <button
-                onClick={() => setIsImportModalOpen(true)}
-                style={{
-                  fontFamily: '"Proxima Nova", sans-serif',
-                  fontSize: "13px",
-                  lineHeight: "20px",
-                  fontWeight: 400,
-                }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
-                title="Import Tasks from CSV spreadsheet"
-              >
-                <Upload className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
-                <span>Import Tasks</span>
-              </button>
 
               <button
                 onClick={() => {
                   setSelectedAssigneeForModal(undefined);
                   setIsCreateModalOpen(true);
                 }}
-                style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
+                style={{ backgroundColor: "#00806E", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#00806E] hover:bg-[#006B5C] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4 !text-white" />
                 <span className="!text-white">Create Task</span>
@@ -500,7 +498,7 @@ export default function AllTasksPage() {
                 }}
                 className={`px-3.5 py-1.5 rounded-xl text-[13px] leading-[20px] transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-[#56348f] text-white shadow-xs"
+                    ? "bg-[#00806E] text-white shadow-xs"
                     : "bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700"
                 }`}
               >
@@ -530,7 +528,7 @@ export default function AllTasksPage() {
                   }}
                   className={`px-2.5 py-1 rounded-lg text-xs whitespace-nowrap transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-purple-100 dark:bg-purple-950 text-[#56348f] dark:text-purple-300 border border-purple-300 dark:border-purple-800 font-semibold"
+                      ? "bg-purple-100 dark:bg-purple-950 text-[#00806E] dark:text-purple-300 border border-purple-300 dark:border-purple-800 font-semibold"
                       : "bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60"
                   }`}
                 >
@@ -646,7 +644,20 @@ export default function AllTasksPage() {
            GROUPED BY EMPLOYEE TABLES VIEW (For Team Leads & Admins)
            ══════════════════════════════════════════════════════════════════ */
         <div className="space-y-6">
-          {employeeGroups.map((group) => {
+          {(() => {
+            const idle = employeeGroups.filter((g) => g.tasks.length === 0).length;
+            return idle > 0 ? (
+              <button
+                type="button"
+                aria-pressed={showEveryone}
+                onClick={() => setShowEveryone((v) => !v)}
+                className="h-9 px-3 rounded-md text-sm border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                {showEveryone ? "Hide people with no tasks" : `Show everyone (${idle} with no tasks hidden)`}
+              </button>
+            ) : null;
+          })()}
+          {employeeGroups.filter((g) => showEveryone || g.tasks.length > 0).map((group) => {
             const initial = group.member.first_name?.[0] || group.member.name?.[0] || "U";
 
             return (
@@ -657,7 +668,7 @@ export default function AllTasksPage() {
                 {/* Employee Header Bar */}
                 <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200/90 dark:border-slate-800">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-[#56348f] dark:text-purple-300 font-bold text-xs flex items-center justify-center border border-purple-200 dark:border-purple-800">
+                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-[#00806E] dark:text-purple-300 font-bold text-xs flex items-center justify-center border border-purple-200 dark:border-purple-800">
                       {initial}
                     </div>
                     <div>
@@ -688,7 +699,7 @@ export default function AllTasksPage() {
                         setSelectedAssigneeForModal(group.member.id);
                         setIsCreateModalOpen(true);
                       }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#00806E] hover:bg-[#006B5C] text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
                       title={`Assign task to ${group.member.name}`}
                     >
                       <Plus className="w-3.5 h-3.5" />
