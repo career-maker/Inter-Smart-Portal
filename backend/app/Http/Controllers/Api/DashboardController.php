@@ -227,7 +227,7 @@ class DashboardController extends Controller
         $upcomingHolidays = Holiday::where('date', '>=', Carbon::today('Asia/Kolkata'))
             ->orderBy('date', 'asc')
             ->take(6)
-            ->get(['id', 'name', 'date', 'type', 'description']);
+            ->get(['id', 'name', 'date', 'type', 'description', 'image_url']);
 
         // 4. Widgets: Latest Company Updates
         $latestUpdates = Announcement::where(function ($query) {

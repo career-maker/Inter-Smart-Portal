@@ -22,6 +22,7 @@ import {
   Settings2,
   X,
 } from "lucide-react";
+import { resolveCustomizationAssetUrl } from "@/services/customization";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { RoyalAvatar } from "@/components/ui/RoyalAvatar";
@@ -188,6 +189,9 @@ export default function HolidaysPage() {
   const [date, setDate] = useState("");
   const [type, setType] = useState("Company Holiday");
   const [description, setDescription] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
 
   // Override Form
   const [overrideDate, setOverrideDate] = useState("");
@@ -388,6 +392,9 @@ export default function HolidaysPage() {
     setDate(format(currentDate, "yyyy-MM-dd"));
     setType("Company Holiday");
     setDescription("");
+    setImageFile(null);
+    setImagePreview(null);
+    setRemoveImage(false);
     setShowDialog(true);
   };
 
@@ -397,6 +404,9 @@ export default function HolidaysPage() {
     setDate(h.date);
     setType(h.type || "Company Holiday");
     setDescription(h.description || "");
+    setImageFile(null);
+    setImagePreview(h.image_url ? resolveCustomizationAssetUrl(h.image_url) : null);
+    setRemoveImage(false);
     setShowDialog(true);
   };
 
@@ -405,12 +415,18 @@ export default function HolidaysPage() {
     setActionLoading(true);
     try {
       const payload = { name, date, type, description };
+      const body = new FormData();
+      Object.entries(payload).forEach(([k, v]) => body.append(k, v ?? ""));
+      if (imageFile) body.append("image", imageFile);
+      if (removeImage && !imageFile) body.append("remove_image", "1");
       if (editId) {
-        await api.put(`/holidays/${editId}`, payload);
+        // PHP does not parse multipart PUT, so spoof the method on a POST
+        body.append("_method", "PUT");
+        await api.post(`/holidays/${editId}`, body, { headers: { "Content-Type": "multipart/form-data" } });
         setHolidays(holidays.map((h) => (h.id === editId ? { ...h, ...payload } : h)));
         setSuccessMessage("Holiday updated successfully!");
       } else {
-        const res = await api.post("/holidays", payload);
+        const res = await api.post("/holidays", body, { headers: { "Content-Type": "multipart/form-data" } });
         const newHoliday = res.data?.data || { id: Date.now(), ...payload };
         setHolidays([...holidays, newHoliday]);
         setSuccessMessage("Holiday added successfully!");
@@ -1310,6 +1326,44 @@ export default function HolidaysPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Additional notes..."
                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3.5 py-2 outline-none focus:border-[#56348f] resize-none transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                Image <span className="text-slate-400 normal-case font-normal">(optional, shown on the dashboard holiday card)</span>
+              </label>
+              {imagePreview && !removeImage && (
+                <div className="relative mb-2 h-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+                  <img src={imagePreview} alt="Holiday preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview(null);
+                      setRemoveImage(true);
+                    }}
+                    className="absolute top-1.5 right-1.5 px-2 py-0.5 text-[11px] font-bold rounded-lg bg-white/90 text-rose-600 hover:bg-white"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                onChange={(e) => {
+                  const f = e.target.files?.[0] || null;
+                  if (f && f.size > 5 * 1024 * 1024) {
+                    alert("Image must be 5 MB or smaller.");
+                    e.target.value = "";
+                    return;
+                  }
+                  setImageFile(f);
+                  setRemoveImage(false);
+                  setImagePreview(f ? URL.createObjectURL(f) : null);
+                }}
+                className="block w-full text-xs text-slate-600 dark:text-slate-300 file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:bg-slate-100 file:text-slate-700 file:font-semibold hover:file:bg-slate-200"
               />
             </div>
           </div>

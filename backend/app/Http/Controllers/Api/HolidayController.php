@@ -32,6 +32,7 @@ class HolidayController extends Controller
             'date'        => 'required|date',
             'type'        => 'required|string|in:' . implode(',', self::ALLOWED_TYPES),
             'description' => 'nullable|string',
+            'image'       => 'nullable|image|mimes:png,jpg,jpeg,webp,gif|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -43,6 +44,7 @@ class HolidayController extends Controller
             'date'        => $request->date,
             'type'        => $request->type,
             'description' => $request->description,
+            'image_url'   => $this->saveImage($request),
             'created_by'  => $request->user()->id,
         ]);
 
@@ -58,23 +60,47 @@ class HolidayController extends Controller
             'date'        => 'required|date',
             'type'        => 'required|string|in:' . implode(',', self::ALLOWED_TYPES),
             'description' => 'nullable|string',
+            'image'       => 'nullable|image|mimes:png,jpg,jpeg,webp,gif|max:5120',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $holiday->update([
+        $fields = [
             'name'        => $request->name,
             'date'        => $request->date,
             'type'        => $request->type,
             'description' => $request->description,
             'updated_by'  => $request->user()->id,
-        ]);
+        ];
+        if ($request->hasFile('image')) {
+            $fields['image_url'] = $this->saveImage($request);
+        } elseif ($request->boolean('remove_image')) {
+            $fields['image_url'] = null;
+        }
+        $holiday->update($fields);
 
         Cache::forget('all_holidays');
 
         return response()->json(['message' => 'Holiday updated successfully', 'data' => $holiday]);
+    }
+
+    /** Saves the optional holiday image next to other customization assets and returns its /uploads path. */
+    private function saveImage(Request $request): ?string
+    {
+        if (!$request->hasFile('image')) {
+            return null;
+        }
+        $file = $request->file('image');
+        $filename = 'holiday_' . time() . '_' . substr(md5(uniqid()), 0, 8) . '.' . strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $dir = public_path('uploads/customization');
+        if (!file_exists($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $file->move($dir, $filename);
+
+        return '/uploads/customization/' . $filename;
     }
 
     public function destroy(Request $request, Holiday $holiday)

@@ -5,6 +5,7 @@ import NextLink from "next/link";
 import { ChevronLeft, ChevronRight, CalendarDays, Sparkles } from "lucide-react";
 import { format, differenceInCalendarDays, parseISO } from "date-fns";
 import { useAuthStore } from "@/store/auth";
+import { resolveCustomizationAssetUrl } from "@/services/customization";
 
 interface Holiday {
   id?: number | string;
@@ -12,6 +13,7 @@ interface Holiday {
   date: string;
   type?: string;
   description?: string;
+  image_url?: string | null;
 }
 
 interface UpcomingHolidaysCardProps {
@@ -129,6 +131,18 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
     <div
       className={`premium-card p-5 sm:p-6 flex flex-col relative overflow-hidden ${className}`}
     >
+      {/* Optional holiday image as card background, with a wash so the text stays readable */}
+      {currentHoliday?.image_url && (
+        <>
+          <div
+            aria-hidden
+            className="absolute inset-0 z-0 bg-cover bg-center"
+            style={{ backgroundImage: `url('${resolveCustomizationAssetUrl(currentHoliday.image_url)}')` }}
+          />
+          <div aria-hidden className="absolute inset-0 z-0 bg-white/65 dark:bg-slate-900/70" />
+        </>
+      )}
+
       {/* Celebration Confetti Particles Overlay on Manual Pop */}
       {particles.length > 0 && (
         <div className="absolute right-12 top-10 pointer-events-none z-30">
