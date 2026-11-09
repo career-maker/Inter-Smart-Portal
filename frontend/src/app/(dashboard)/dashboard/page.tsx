@@ -973,7 +973,7 @@ export default function DashboardPage() {
         )}
 
         {/* ── MAIN DASHBOARD GRID (Zero Gaps: Left Column & Right Column Flow Seamlessly) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
           {/* ── LEFT COLUMN (Spans 2 columns on desktop) ── */}
           <div className="lg:col-span-2 space-y-6">
             {/* Today's Attendance */}
@@ -1100,12 +1100,14 @@ export default function DashboardPage() {
           </div>
 
           {/* ── RIGHT COLUMN (Spans 1 column on desktop) ── */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 flex flex-col gap-6">
             {/* Emergency Contacts Card */}
             <EmergencyContactsCard />
 
-            {/* Wall of Fame / Leaderboard Widget */}
-            <LeaderboardWidget />
+            {/* Wall of Fame / Leaderboard Widget: grows to the bottom of the row so no gap is left above Holidays */}
+            <div className="flex-1 flex flex-col [&>div:first-child]:flex-1">
+              <LeaderboardWidget />
+            </div>
           </div>
         </div>
       </div>
