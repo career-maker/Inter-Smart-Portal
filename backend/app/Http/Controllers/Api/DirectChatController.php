@@ -401,7 +401,7 @@ class DirectChatController extends Controller
         }
 
         $activeUserIds = $this->getActiveUserIds();
-        $users = $usersQuery->orderBy('first_name')->take(50)->get();
+        $users = $usersQuery->orderBy('first_name')->take($q === '' ? 2000 : 200)->get();
 
         return response()->json([
             'status' => 'success',
@@ -580,6 +580,11 @@ class DirectChatController extends Controller
         });
 
         $chatMessage->load(['sender.team', 'attachments']);
+
+        // Browser / phone push for the other members, sent after the response so the sender is not kept waiting
+        app()->terminating(function () use ($conversation, $chatMessage, $user) {
+            app(\App\Services\ChatPushNotifier::class)->notify($conversation, $chatMessage, $user);
+        });
 
         return response()->json([
             'status' => 'success',

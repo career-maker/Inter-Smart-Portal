@@ -26,6 +26,53 @@ let sharedLatestConvId: number | null = null;
 let sharedPermission: "default" | "granted" | "denied" | "unsupported" = "default";
 const stateListeners = new Set<(count: number, convId: number | null, perm: typeof sharedPermission) => void>();
 
+// One AudioContext shared by every chime. Browsers only let audio start after a user gesture, so it is
+// created/resumed on the first click or key press; later chimes then play even when no one is clicking.
+let sharedAudioCtx: AudioContext | null = null;
+function getAudioCtx(): AudioContext | null {
+  if (typeof window === "undefined") return null;
+  const Ctor = window.AudioContext || (window as any).webkitAudioContext;
+  if (!Ctor) return null;
+  if (!sharedAudioCtx) sharedAudioCtx = new Ctor();
+  return sharedAudioCtx;
+}
+if (typeof window !== "undefined") {
+  const unlock = () => {
+    const ctx = getAudioCtx();
+    if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
+  };
+  ["pointerdown", "keydown", "touchstart"].forEach((ev) => window.addEventListener(ev, unlock, { passive: true }));
+}
+
+// True once this browser has a push subscription saved on the server. Server push then shows the
+// notification (even with the browser closed), so the local poll only plays the sound.
+let pushActive = false;
+
+function urlBase64ToUint8Array(base64: string): Uint8Array {
+  const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+  const raw = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+}
+
+async function ensurePushSubscription(): Promise<void> {
+  try {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    if (Notification.permission !== "granted") return;
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      const keyRes = await api.get("/push/public-key");
+      const key = keyRes.data?.public_key;
+      if (!key) return; // push not configured on the server yet
+      sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(key) as BufferSource });
+    }
+    await api.post("/push/subscribe", sub.toJSON());
+    pushActive = true;
+  } catch (err) {
+    console.warn("Push subscription failed:", err);
+  }
+}
+
 function notifyListeners() {
   stateListeners.forEach((fn) => fn(sharedUnreadCount, sharedLatestConvId, sharedPermission));
 }
@@ -52,6 +99,13 @@ export function useChatPushNotifications() {
     }
   }, []);
 
+  // Already allowed on this device: make sure the server can push to it
+  useEffect(() => {
+    if (user && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      ensurePushSubscription();
+    }
+  }, [user]);
+
   // Register Service Worker reliably
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
@@ -69,9 +123,8 @@ export function useChatPushNotifications() {
   // Play subtle web audio notification chime with automatic resource cleanup
   const playChime = useCallback(() => {
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
+      const ctx = getAudioCtx();
+      if (!ctx) return;
       if (ctx.state === "suspended") {
         ctx.resume().catch(() => {});
       }
@@ -87,13 +140,6 @@ export function useChatPushNotifications() {
       gain.connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.35);
-
-      // Clean up AudioContext so WebKit / iOS does not exhaust hardware audio daemon
-      setTimeout(() => {
-        try {
-          ctx.close().catch(() => {});
-        } catch {}
-      }, 500);
     } catch {
       // Audio autoplay policy fallback
     }
@@ -102,6 +148,10 @@ export function useChatPushNotifications() {
   // Trigger native mobile notification in phone's notification shade
   const triggerMobileNotification = useCallback(
     async (title: string, body: string, targetUrl: string, tagId?: string) => {
+      if (pushActive && tagId?.startsWith("chat_")) {
+        playChime(); // the server push already shows the notification
+        return;
+      }
       const tag = tagId || `msg_${Date.now()}`;
       const isIOS =
         typeof navigator !== "undefined" &&
@@ -171,6 +221,7 @@ export function useChatPushNotifications() {
       notifyListeners();
 
       if (result === "granted") {
+        ensurePushSubscription();
         triggerMobileNotification(
           "Inter Smart Portal",
           "🎉 Notifications enabled! You will now receive alerts for new chats on your phone.",
@@ -235,8 +286,6 @@ export function useChatPushNotifications() {
     }
 
     const checkUnread = async () => {
-      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
-
       // Skip background polling if user is actively looking at the chat page
       const isLookingAtChat =
         typeof window !== "undefined" &&
@@ -342,7 +391,7 @@ export function useChatPushNotifications() {
 
     if (!globalInterval) {
       checkUnread();
-      globalInterval = setInterval(checkUnread, 45000); // 45s: the host handles only a few requests per second
+      globalInterval = setInterval(checkUnread, 30000); // 30s, also while the tab is in the background (browsers slow hidden tabs to about 1 per minute)
     }
 
     return () => {

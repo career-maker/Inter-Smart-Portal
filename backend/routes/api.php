@@ -685,6 +685,13 @@ Route::middleware('auth:sanctum')->prefix('pm/hubstaff')->group(function () {
     Route::post('sync-users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'syncUsers']);
 });
 
+// Browser / phone push subscriptions (chat notifications)
+Route::middleware('auth:sanctum')->prefix('push')->group(function () {
+    Route::get('public-key', [\App\Http\Controllers\Api\PushController::class, 'publicKey']);
+    Route::post('subscribe', [\App\Http\Controllers\Api\PushController::class, 'subscribe']);
+    Route::post('unsubscribe', [\App\Http\Controllers\Api\PushController::class, 'unsubscribe']);
+});
+
 // Direct Chat / Community Private Messaging routes
 Route::middleware('auth:sanctum')->prefix('direct-chat')->group(function () {
     Route::get('conversations', [\App\Http\Controllers\Api\DirectChatController::class, 'index']);
