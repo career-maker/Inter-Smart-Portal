@@ -629,7 +629,7 @@ export default function DashboardPage() {
                             lineHeight: '20px',
                             fontStyle: 'normal',
                           }}
-                          className="text-[#0f1824] dark:text-slate-100 tracking-tight"
+                          className="box-title text-[#0f1824] dark:text-slate-100 tracking-tight"
                         >
                           Team Status Today
                         </h2>
