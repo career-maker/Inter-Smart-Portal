@@ -291,3 +291,24 @@ html[data-ui-theme]:not([data-ui-theme="classic"]) :is(.bg-primary, button[class
   main :not(.overflow-x-auto) > table { display: block; max-width: 100%; overflow-x: auto; }
   [role="dialog"] { max-width: calc(100vw - 24px) !important; }
 }
+
+/* ── Holidays card: text must stay readable with any image, or none (all themes) ── */
+.holiday-card[data-img="1"] .hc-heading,
+.holiday-card[data-img="1"] .hc-title,
+.holiday-card[data-img="1"] .hc-date,
+.holiday-card[data-img="1"] .hc-type,
+.holiday-card[data-img="1"] .hc-other {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85), 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+.holiday-card[data-img="1"] .hc-pill { background: rgba(255, 255, 255, 0.95) !important; color: #0f172a !important; border-color: #ffffff !important; text-shadow: none; }
+.holiday-card[data-img="1"] .hc-arrow { color: #ffffff !important; background: rgba(0, 0, 0, 0.45) !important; }
+.holiday-card[data-img="1"] .hc-arrow svg { stroke: #ffffff !important; }
+
+.holiday-card[data-img="0"] .hc-heading { color: #0f1824 !important; }
+.holiday-card[data-img="0"] .hc-title,
+.holiday-card[data-img="0"] .hc-date { color: #006b5c !important; }
+.holiday-card[data-img="0"] .hc-type { color: #475569 !important; }
+.holiday-card[data-img="0"] .hc-other { color: #334155 !important; }
+.holiday-card[data-img="0"] .hc-arrow { color: #006b5c !important; }
+.holiday-card[data-img="0"] .hc-arrow svg { stroke: #006b5c !important; }
