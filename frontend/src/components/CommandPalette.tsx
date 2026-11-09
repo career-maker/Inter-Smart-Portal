@@ -74,7 +74,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   React.useEffect(() => {
     if (!open) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const el = containerRef.current;
+      // layout.tsx mounts two instances (desktop + mobile); the one hidden by CSS must not treat clicks in the visible one as "outside"
+      if (el && el.getClientRects().length > 0 && !el.contains(e.target as Node)) {
         onOpenChange(false);
       }
     };
