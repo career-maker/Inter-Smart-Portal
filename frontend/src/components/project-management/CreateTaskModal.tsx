@@ -480,7 +480,7 @@ export function CreateTaskModal({
               type="button"
               onClick={onClose}
               disabled={submitting}
-              style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+              style={{ fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
               className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 !text-slate-800 dark:!text-slate-200 text-[13px] leading-[20px] font-normal transition-colors"
             >
               Cancel
@@ -488,16 +488,16 @@ export function CreateTaskModal({
             <button
               type="submit"
               disabled={submitting || !formData.title.trim() || !projectId}
-              style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+              style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
               className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
             >
               {submitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin !text-white" />
-                  <span style={{ color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Creating…</span>
+                  <span style={{ color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Creating…</span>
                 </>
               ) : (
-                <span style={{ color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Create Task</span>
+                <span style={{ color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Create Task</span>
               )}
             </button>
           </div>

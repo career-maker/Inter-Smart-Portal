@@ -421,7 +421,7 @@ export default function AllTasksPage() {
 
           <Link
             href="/project-management/tasks/my"
-            style={{ backgroundColor: "#f3e8ff", color: "#00806E", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            style={{ backgroundColor: "#f3e8ff", color: "#00806E", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
             className="px-3.5 py-2 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200/80 !text-[#00806E] dark:!text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-300 dark:border-purple-800/80 transition-colors"
           >
             My Tasks
@@ -464,7 +464,7 @@ export default function AllTasksPage() {
                   setSelectedAssigneeForModal(undefined);
                   setIsCreateModalOpen(true);
                 }}
-                style={{ backgroundColor: "#00806E", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+                style={{ backgroundColor: "#00806E", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#00806E] hover:bg-[#006B5C] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4 !text-white" />
@@ -491,7 +491,7 @@ export default function AllTasksPage() {
                 key={tab.value}
                 onClick={() => setStatusFilter(tab.value)}
                 style={{
-                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: "13px",
                   lineHeight: "20px",
                   fontWeight: isSelected ? 600 : 400,
@@ -521,7 +521,7 @@ export default function AllTasksPage() {
                   key={st}
                   onClick={() => setStatusFilter(st)}
                   style={{
-                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: "12px",
                     lineHeight: "16px",
                     fontWeight: isSelected ? 600 : 400,

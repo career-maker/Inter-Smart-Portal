@@ -135,7 +135,7 @@ export default function StorageRetentionAddonPage() {
   return (
     <div
       style={{
-        fontFamily: '"Google Sans", "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: '"Google Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className="pb-16 space-y-6"
     >

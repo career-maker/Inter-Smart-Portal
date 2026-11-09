@@ -91,7 +91,7 @@ export function MarkLiveModal({
         <div
           className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
           data-side-popup="true"
-          style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+          style={{ fontFamily: 'Inter, sans-serif' }}
         >
           {/* Header */}
           <div className="px-6 py-5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-purple-50 via-white to-white dark:from-slate-800/80 dark:via-slate-900 dark:to-slate-900 shrink-0">
@@ -175,7 +175,7 @@ export function MarkLiveModal({
                 onClick={onClose}
                 disabled={submitting}
                 style={{
-                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: "13px",
                   lineHeight: "20px",
                   fontWeight: 400,
@@ -190,7 +190,7 @@ export function MarkLiveModal({
                 style={{
                   backgroundColor: "var(--portal-primary-color, #0F766E)",
                   color: "rgb(255, 255, 255)",
-                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: "13px",
                   lineHeight: "20px",
                   fontWeight: 400,

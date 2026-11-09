@@ -11,7 +11,7 @@ export function NotFoundPage() {
     <section
       style={{
         fontFamily:
-          '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className="bg-white dark:bg-slate-950 min-h-screen flex items-center justify-center p-4 select-none"
     >

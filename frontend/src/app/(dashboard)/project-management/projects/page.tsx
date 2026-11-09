@@ -216,12 +216,12 @@ export default function ProjectsListPage() {
               type="button"
               onClick={handleImportHubstaff}
               disabled={importingHubstaff || loading}
-              style={{ backgroundColor: "#ffffff", color: "#0f172a", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+              style={{ backgroundColor: "#ffffff", color: "#0f172a", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 !text-slate-900 dark:!text-slate-100 text-[13px] leading-[20px] font-normal border border-slate-300 dark:border-slate-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
               title="Import all active projects from Hubstaff without duplicating"
             >
               <CloudDownload className={`w-4 h-4 text-sky-600 dark:text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
-              <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-slate-900 dark:!text-slate-100">{importingHubstaff ? "Importing Hubstaff…" : "Import from Hubstaff"}</span>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-slate-900 dark:!text-slate-100">{importingHubstaff ? "Importing Hubstaff…" : "Import from Hubstaff"}</span>
             </button>
           )}
 
@@ -230,11 +230,11 @@ export default function ProjectsListPage() {
             <button
               type="button"
               onClick={() => setIsCreateModalOpen(true)}
-              style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+              style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4 !text-white" />
-              <span style={{ color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Create Project</span>
+              <span style={{ color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Create Project</span>
             </button>
           )}
         </div>
@@ -289,7 +289,7 @@ export default function ProjectsListPage() {
                 style={{
                   backgroundColor: isSelected ? "var(--portal-primary-color, #0F766E)" : undefined,
                   color: isSelected ? "rgb(255, 255, 255)" : undefined,
-                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: "13px",
                   lineHeight: "20px",
                   fontWeight: 400,
@@ -347,7 +347,7 @@ export default function ProjectsListPage() {
       {/* ── Projects Data Table ── */}
       <div
         style={{
-          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         }}
         className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden"
       >
@@ -478,7 +478,7 @@ export default function ProjectsListPage() {
                             style={{
                               backgroundColor: "var(--portal-primary-color, #0F766E)",
                               color: "rgb(255, 255, 255)",
-                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontFamily: 'Inter, sans-serif',
                               fontSize: "12px",
                               lineHeight: "18px",
                               fontWeight: 500,
@@ -493,7 +493,7 @@ export default function ProjectsListPage() {
                         <Link
                           href={`/project-management/projects/${project.id}`}
                           style={{
-                            fontFamily: '"Proxima Nova", sans-serif',
+                            fontFamily: 'Inter, sans-serif',
                             fontSize: "12px",
                             lineHeight: "18px",
                             fontWeight: 400,

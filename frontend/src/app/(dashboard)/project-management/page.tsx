@@ -248,7 +248,7 @@ export default function ProjectManagementDashboard() {
   return (
     <div
       style={{
-        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className="space-y-6 sm:space-y-8"
     >
@@ -275,21 +275,21 @@ export default function ProjectManagementDashboard() {
 
           <Link
             href="/project-management/tasks/my"
-            style={{ backgroundColor: "#E6F8F6", color: "#0F766E", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            style={{ backgroundColor: "#E6F8F6", color: "#0F766E", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100/80 dark:hover:bg-teal-900/80 !text-teal-800 dark:!text-teal-300 text-[13px] leading-[20px] font-normal border border-teal-200 dark:border-teal-800/80 shadow-2xs transition-colors"
           >
             <ListTodo className="w-4 h-4 !text-teal-700 dark:!text-teal-300" />
-            <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-teal-800 dark:!text-teal-300">My Tasks</span>
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-teal-800 dark:!text-teal-300">My Tasks</span>
           </Link>
 
 
           <Link
             href="/project-management/projects"
-            style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors"
           >
             <FolderKanban className="w-4 h-4 !text-white" />
-            <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400, color: "rgb(255, 255, 255)" }} className="!text-white">View Projects</span>
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400, color: "rgb(255, 255, 255)" }} className="!text-white">View Projects</span>
           </Link>
         </div>
       </div>

@@ -35,13 +35,13 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
   return (
     <div
       style={{
-        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}
     >
       <div className="mb-3">
         <h3
           style={{
-            fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+            fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
             fontSize: "calc(14px * var(--portal-heading-multiplier, 1))",
             lineHeight: "20px",
             fontWeight: 600,

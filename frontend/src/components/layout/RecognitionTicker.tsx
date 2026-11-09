@@ -89,7 +89,7 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
     <div
       style={{
         backgroundColor: "#56348f",
-        fontFamily: '"Google Sans", "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: '"Google Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className={`fixed bottom-0 right-0 z-30 ${leftOffsetClass} transition-all duration-300 ease-in-out text-white overflow-hidden h-9 sm:h-9.5 flex items-center border-t border-purple-700/60 shadow-2xl select-none`}
     >

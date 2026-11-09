@@ -97,7 +97,7 @@ export function ProjectStatusDrawer({
 
         <div
           style={{
-            fontFamily: '"Proxima Nova", sans-serif',
+            fontFamily: 'Inter, sans-serif',
           }}
           className="fixed inset-y-0 right-0 max-w-full flex pl-10 sm:pl-16 z-10"
           data-side-popup="true"
@@ -148,7 +148,7 @@ export function ProjectStatusDrawer({
                   style={{
                     backgroundColor: "#56348f",
                     color: "rgb(255, 255, 255)",
-                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: "13px",
                     lineHeight: "20px",
                     fontWeight: 400,
@@ -186,7 +186,7 @@ export function ProjectStatusDrawer({
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as DrawerTab)}
                   style={{
-                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: "13px",
                     lineHeight: "20px",
                     fontWeight: 400,
@@ -265,7 +265,7 @@ export function ProjectStatusDrawer({
                             style={{
                               backgroundColor: "#56348f",
                               color: "rgb(255, 255, 255)",
-                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontFamily: 'Inter, sans-serif',
                               fontSize: "13px",
                               lineHeight: "20px",
                               fontWeight: 400,

@@ -149,7 +149,7 @@ export default function ProjectStatusPage() {
   return (
     <div
       style={{
-        fontFamily: '"Proxima Nova", sans-serif',
+        fontFamily: 'Inter, sans-serif',
       }}
       className="space-y-6"
     >
@@ -237,7 +237,7 @@ export default function ProjectStatusPage() {
                   style={{
                     backgroundColor: isSelected ? "#56348f" : undefined,
                     color: isSelected ? "rgb(255, 255, 255)" : undefined,
-                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: "13px",
                     lineHeight: "20px",
                     fontWeight: 400,
@@ -301,7 +301,7 @@ export default function ProjectStatusPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search projects by name, category, department, coordinator, or go-live notes..."
             style={{
-              fontFamily: '"Proxima Nova", sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: "13px",
               lineHeight: "20px",
               fontWeight: 400,
@@ -432,7 +432,7 @@ export default function ProjectStatusPage() {
                             type="button"
                             onClick={() => handleOpenDrawer(p)}
                             style={{
-                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontFamily: 'Inter, sans-serif',
                               fontSize: "13px",
                               lineHeight: "20px",
                               fontWeight: 400,
@@ -451,7 +451,7 @@ export default function ProjectStatusPage() {
                               style={{
                                 backgroundColor: "#56348f",
                                 color: "rgb(255, 255, 255)",
-                                fontFamily: '"Proxima Nova", sans-serif',
+                                fontFamily: 'Inter, sans-serif',
                                 fontSize: "13px",
                                 lineHeight: "20px",
                                 fontWeight: 400,

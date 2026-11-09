@@ -59,7 +59,7 @@ export function MilestoneCelebrationsWidget({
   return (
     <div
       style={{
-        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/60 shadow-xs p-5 flex flex-col justify-between w-full h-full min-h-[220px]"
     >

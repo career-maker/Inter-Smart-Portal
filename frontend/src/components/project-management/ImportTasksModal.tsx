@@ -353,7 +353,7 @@ export function ImportTasksModal({
         <div
           className="fixed inset-y-0 right-0 max-w-2xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
           data-side-popup="true"
-          style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+          style={{ fontFamily: 'Inter, sans-serif' }}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-200/80 dark:border-slate-800 shrink-0">
@@ -658,7 +658,7 @@ export function ImportTasksModal({
                     type="submit"
                     disabled={(!selectedFile && parsedRows.length === 0) || uploading}
                     style={{
-                      fontFamily: '"Proxima Nova", sans-serif',
+                      fontFamily: 'Inter, sans-serif',
                       fontSize: "13px",
                       lineHeight: "20px",
                       fontWeight: 500,

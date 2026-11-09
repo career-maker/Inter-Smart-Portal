@@ -76,7 +76,7 @@ export function SearchableProjectSelect({
     <div
       ref={containerRef}
       className={`relative w-full ${isOpen ? "z-[60]" : "z-10"} ${className}`}
-      style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+      style={{ fontFamily: 'Inter, sans-serif' }}
     >
       {/* Hidden input for form requirement */}
       {required && (
@@ -206,7 +206,7 @@ export function SearchableProjectSelect({
                 style={{
                   backgroundColor: !value || value === "" ? "var(--portal-primary-color, #0F766E)" : undefined,
                   color: !value || value === "" ? "#ffffff" : undefined,
-                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                 }}
                 className={`px-3 py-2 rounded-xl cursor-pointer flex items-center justify-between gap-3 text-xs transition-colors duration-150 ${
                   !value || value === ""
@@ -250,7 +250,7 @@ export function SearchableProjectSelect({
                     style={{
                       backgroundColor: isSelected ? "var(--portal-primary-color, #0F766E)" : undefined,
                       color: isSelected ? "#ffffff" : undefined,
-                      fontFamily: '"Proxima Nova", sans-serif',
+                      fontFamily: 'Inter, sans-serif',
                     }}
                     className={`px-3 py-2 rounded-[5px] cursor-pointer flex items-center justify-between gap-3 text-xs transition-all duration-300 ${
                       isSelected

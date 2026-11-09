@@ -43,7 +43,7 @@ export interface CustomizationSettings {
 }
 
 export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
-  font_family: "Poppins",
+  font_family: "Inter",
   header_bg_color: "#252525",
   header_text_color: "#FFFFFF",
   sidebar_bg_color: "#1C1C1C",

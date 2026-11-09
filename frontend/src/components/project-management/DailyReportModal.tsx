@@ -341,7 +341,7 @@ export function DailyReportModal({
     // 2. Header Section
     // Brand Tag
     ctx.fillStyle = "#56348f";
-    ctx.font = "bold 11px 'Proxima Nova', sans-serif";
+    ctx.font = "bold 11px Inter, sans-serif";
     ctx.fillText("INTER SMART WORKPLACE", marginX, 30);
 
     // Report Title — adapts to selected date: today vs future vs past
@@ -371,12 +371,12 @@ export function DailyReportModal({
         : "TEAM DAILY WORK REPORT";
 
     ctx.fillStyle = "#0f172a";
-    ctx.font = "bold 20px 'Proxima Nova', sans-serif";
+    ctx.font = "bold 20px Inter, sans-serif";
     ctx.fillText(reportTitle, marginX, 54);
 
     // Subtitle / Date & Scope
     ctx.fillStyle = "#64748b";
-    ctx.font = "12px 'Proxima Nova', sans-serif";
+    ctx.font = "12px Inter, sans-serif";
     const dateFormatted = format(parseISO(reportData.date || selectedDate), "EEEE, dd MMMM yyyy");
     const entityName = isSingleMemberScope
       ? `${reportData.member_reports?.[0]?.name || loggedInUserName}  •  ${reportData.team?.name || "Inter Smart"}`
@@ -391,10 +391,10 @@ export function DailyReportModal({
     ctx.fillRect(width - marginX - 140, 24, 140, 48);
 
     ctx.fillStyle = "#56348f";
-    ctx.font = "bold 9px 'Proxima Nova', sans-serif";
+    ctx.font = "bold 9px Inter, sans-serif";
     ctx.fillText("OFFICIAL REPORT", width - marginX - 128, 42);
     ctx.fillStyle = "#64748b";
-    ctx.font = "9px 'Proxima Nova', sans-serif";
+    ctx.font = "9px Inter, sans-serif";
     ctx.fillText("VERIFIED ACCURACY", width - marginX - 128, 58);
 
     // 3. Summary Metric Grid (Clean rectangular data boxes, NO pill shapes)
@@ -428,12 +428,12 @@ export function DailyReportModal({
 
       // Metric Label
       ctx.fillStyle = "#64748b";
-      ctx.font = "bold 9px 'Proxima Nova', sans-serif";
+      ctx.font = "bold 9px Inter, sans-serif";
       ctx.fillText(m.label, kx + 10, kpiY + 18);
 
       // Metric Value
       ctx.fillStyle = m.valColor;
-      ctx.font = "bold 20px 'Proxima Nova', sans-serif";
+      ctx.font = "bold 20px Inter, sans-serif";
       ctx.fillText(String(m.val), kx + 10, kpiY + 41);
     });
 
@@ -458,7 +458,7 @@ export function DailyReportModal({
 
       // Column Header Labels
       ctx.fillStyle = "#334155";
-      ctx.font = "bold 10px 'Proxima Nova', sans-serif";
+      ctx.font = "bold 10px Inter, sans-serif";
 
       // Col 1: #
       ctx.textAlign = "center";
@@ -502,7 +502,7 @@ export function DailyReportModal({
 
       // Col 1: Index Number
       ctx.fillStyle = "#64748b";
-      ctx.font = "bold 11px 'Proxima Nova', sans-serif";
+      ctx.font = "bold 11px Inter, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(String(index + 1), colX[0] + colWidths[0] / 2, y + 32);
       ctx.textAlign = "left";
@@ -510,12 +510,12 @@ export function DailyReportModal({
       // Col 2: Project Tag & Task Title
       const projTag = `[${t.project_name || "Project"}] `;
       ctx.fillStyle = "#56348f";
-      ctx.font = "bold 11px 'Proxima Nova', sans-serif";
+      ctx.font = "bold 11px Inter, sans-serif";
       ctx.fillText(projTag, colX[1] + 10, y + 22);
 
       const tagWidth = ctx.measureText(projTag).width;
       ctx.fillStyle = "#0f172a";
-      ctx.font = "bold 11px 'Proxima Nova', sans-serif";
+      ctx.font = "bold 11px Inter, sans-serif";
 
       // Truncate task title if too wide for column
       let titleStr = t.title || "Task";
@@ -532,7 +532,7 @@ export function DailyReportModal({
       if (t.current_updates || t.description) {
         const noteStr = t.current_updates || t.description;
         ctx.fillStyle = "#64748b";
-        ctx.font = "10px 'Proxima Nova', sans-serif";
+        ctx.font = "10px Inter, sans-serif";
         let subNote = `↳ Updates: ${noteStr}`;
         if (ctx.measureText(subNote).width > colWidths[1] - 20) {
           subNote = subNote.substring(0, 48) + "...";
@@ -540,7 +540,7 @@ export function DailyReportModal({
         ctx.fillText(subNote, colX[1] + 10, y + 42);
       } else {
         ctx.fillStyle = "#94a3b8";
-        ctx.font = "10px 'Proxima Nova', sans-serif";
+        ctx.font = "10px Inter, sans-serif";
         ctx.fillText(`ID: #${t.id || "—"}`, colX[1] + 10, y + 42);
       }
 
@@ -563,23 +563,23 @@ export function DailyReportModal({
       ctx.strokeRect(ptyBoxX, ptyBoxY, ptyBoxW, ptyBoxH);
 
       ctx.fillStyle = ptyColor;
-      ctx.font = "bold 9px 'Proxima Nova', sans-serif";
+      ctx.font = "bold 9px Inter, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(pty.toUpperCase(), ptyBoxX + ptyBoxW / 2, ptyBoxY + 14);
       ctx.textAlign = "left";
 
       // Col 4: Schedule / Timeline
       ctx.fillStyle = "#475569";
-      ctx.font = "10px 'Proxima Nova', sans-serif";
+      ctx.font = "10px Inter, sans-serif";
       ctx.fillText(`Start: ${formatShortDate(t.start_date)}`, colX[3] + 10, y + 21);
 
       ctx.fillStyle = "#0f172a";
-      ctx.font = "bold 10px 'Proxima Nova', sans-serif";
+      ctx.font = "bold 10px Inter, sans-serif";
       ctx.fillText(`Due:   ${formatShortDate(t.due_date)}`, colX[3] + 10, y + 36);
 
       if (t.actual_completion_date) {
         ctx.fillStyle = "#059669";
-        ctx.font = "10px 'Proxima Nova', sans-serif";
+        ctx.font = "10px Inter, sans-serif";
         ctx.fillText(`Achieved: ${formatShortDate(t.actual_completion_date)}`, colX[3] + 10, y + 50);
       }
 
@@ -591,7 +591,7 @@ export function DailyReportModal({
       const statColor = isComp ? "#047857" : isOvd ? "#b91c1c" : t.status === "In Progress" ? "#1d4ed8" : "#6d28d9";
       const statLabel = isComp ? "COMPLETED" : isOvd ? `OVERDUE (${t.delay_days}d)` : t.status.toUpperCase();
 
-      ctx.font = "bold 9px 'Proxima Nova', sans-serif";
+      ctx.font = "bold 9px Inter, sans-serif";
       const statW = ctx.measureText(statLabel).width + 16;
       const statBoxY = y + 14;
 
@@ -606,15 +606,15 @@ export function DailyReportModal({
       // Line 2 Remarks
       if (t.is_overdue) {
         ctx.fillStyle = "#dc2626";
-        ctx.font = "bold 9px 'Proxima Nova', sans-serif";
+        ctx.font = "bold 9px Inter, sans-serif";
         ctx.fillText(`⚠️ Deviated (+${t.delay_days}d delay)`, colX[4] + 10, y + 48);
       } else if (t.deviation) {
         ctx.fillStyle = "#d97706";
-        ctx.font = "bold 9px 'Proxima Nova', sans-serif";
+        ctx.font = "bold 9px Inter, sans-serif";
         ctx.fillText(`⚠️ ${t.deviation}`, colX[4] + 10, y + 48);
       } else if (isComp) {
         ctx.fillStyle = "#059669";
-        ctx.font = "9px 'Proxima Nova', sans-serif";
+        ctx.font = "9px Inter, sans-serif";
         ctx.fillText("⚡ On-Time Completion", colX[4] + 10, y + 48);
       }
     };
@@ -634,11 +634,11 @@ export function DailyReportModal({
         ctx.strokeRect(marginX, currentY, tableWidth, 34);
 
         ctx.fillStyle = "#56348f";
-        ctx.font = "bold 10px 'Proxima Nova', sans-serif";
+        ctx.font = "bold 10px Inter, sans-serif";
         ctx.fillText("⏱️ TIME TRACKING:", marginX + 12, currentY + 21);
 
         ctx.fillStyle = "#334155";
-        ctx.font = "10px 'Proxima Nova', sans-serif";
+        ctx.font = "10px Inter, sans-serif";
         ctx.fillText(`Check-in: ${tt.check_in}   |   Check-out: ${tt.check_out}   |   Total Working Hours: ${tt.working_hours} (Effective: ${tt.effective_hours})`, marginX + 130, currentY + 21);
 
         currentY += 44;
@@ -656,7 +656,7 @@ export function DailyReportModal({
         ctx.strokeRect(marginX, currentY, tableWidth, 48);
 
         ctx.fillStyle = "#64748b";
-        ctx.font = "italic 11px 'Proxima Nova', sans-serif";
+        ctx.font = "italic 11px Inter, sans-serif";
         ctx.textAlign = "center";
         ctx.fillText("• No tasks recorded for this date •", marginX + tableWidth / 2, currentY + 28);
         ctx.textAlign = "left";
@@ -677,11 +677,11 @@ export function DailyReportModal({
         ctx.strokeRect(marginX, currentY, tableWidth, 32);
 
         ctx.fillStyle = "#0f172a";
-        ctx.font = "bold 11px 'Proxima Nova', sans-serif";
+        ctx.font = "bold 11px Inter, sans-serif";
         ctx.fillText(`👤 ${m.name}   (${m.designation || "Member"})`, marginX + 12, currentY + 20);
 
         ctx.fillStyle = "#475569";
-        ctx.font = "bold 10px 'Proxima Nova', sans-serif";
+        ctx.font = "bold 10px Inter, sans-serif";
         const mSummary = `Tasks: ${m.total_tasks}   |   ✅ ${m.completed_count}   |   🔄 ${m.in_progress_count}   |   ⚠️ ${m.overdue_count}`;
         ctx.textAlign = "right";
         ctx.fillText(mSummary, width - marginX - 12, currentY + 20);
@@ -698,7 +698,7 @@ export function DailyReportModal({
           ctx.strokeRect(marginX, currentY, tableWidth, 24);
 
           ctx.fillStyle = "#64748b";
-          ctx.font = "10px 'Proxima Nova', sans-serif";
+          ctx.font = "10px Inter, sans-serif";
           ctx.fillText(`⏱️ Working Time: ${tt.working_hours}  (In: ${tt.check_in} | Out: ${tt.check_out})`, marginX + 12, currentY + 16);
           currentY += 24;
         }
@@ -715,7 +715,7 @@ export function DailyReportModal({
           ctx.strokeRect(marginX, currentY, tableWidth, 40);
 
           ctx.fillStyle = "#94a3b8";
-          ctx.font = "italic 11px 'Proxima Nova', sans-serif";
+          ctx.font = "italic 11px Inter, sans-serif";
           ctx.textAlign = "center";
           ctx.fillText("No tasks assigned for this date", marginX + tableWidth / 2, currentY + 24);
           ctx.textAlign = "left";
@@ -741,7 +741,7 @@ export function DailyReportModal({
     ctx.stroke();
 
     ctx.fillStyle = "#94a3b8";
-    ctx.font = "10px 'Proxima Nova', sans-serif";
+    ctx.font = "10px Inter, sans-serif";
     ctx.fillText("Generated from Inter Smart Workplace Portal", marginX, currentY + 20);
 
     const timeStampStr = format(new Date(), "dd MMM yyyy, hh:mm a");

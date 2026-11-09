@@ -467,7 +467,7 @@ export function TAReceiptVoucherModal({
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200">
       <div
         style={{
-          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         }}
         className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 my-8 overflow-hidden"
       >
@@ -524,7 +524,7 @@ export function TAReceiptVoucherModal({
             ref={voucherRef}
             className="p-6 sm:p-8 rounded-2xl bg-white text-slate-900 border border-slate-200/90 shadow-sm space-y-6"
             style={{
-              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
               backgroundColor: "#ffffff",
               color: "#0f172a",
             }}

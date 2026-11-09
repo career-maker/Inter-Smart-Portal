@@ -178,7 +178,7 @@ export function AdminChatAuditView() {
   return (
     <div
       style={{
-        fontFamily: '"Google Sans", "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: '"Google Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className="space-y-4"
     >

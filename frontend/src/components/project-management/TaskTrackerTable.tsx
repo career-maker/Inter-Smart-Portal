@@ -369,7 +369,7 @@ export function TaskTrackerTable({
       <th
         onClick={() => handleSort(field)}
         style={{
-          fontFamily: '"Proxima Nova", sans-serif',
+          fontFamily: 'Inter, sans-serif',
           fontStyle: "normal",
           fontWeight: 600,
           fontSize: "12px",
@@ -436,7 +436,7 @@ export function TaskTrackerTable({
               {canEdit && (
                 <th
                   style={{
-                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontStyle: "normal",
                     fontWeight: 600,
                     fontSize: "12px",
@@ -472,7 +472,7 @@ export function TaskTrackerTable({
                           <Link
                             href={`/project-management/projects/${task.project.id}`}
                             style={{
-                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontFamily: 'Inter, sans-serif',
                               fontSize: "12px",
                               lineHeight: "16px",
                               fontWeight: 400,
@@ -497,7 +497,7 @@ export function TaskTrackerTable({
                       ) : (
                         <div
                           style={{
-                            fontFamily: '"Proxima Nova", sans-serif',
+                            fontFamily: 'Inter, sans-serif',
                             fontSize: "12px",
                             lineHeight: "16px",
                             fontWeight: 400,
@@ -532,7 +532,7 @@ export function TaskTrackerTable({
                     <Link
                       href={`/project-management/tasks/${task.id}`}
                       style={{
-                        fontFamily: '"Proxima Nova", sans-serif',
+                        fontFamily: 'Inter, sans-serif',
                         fontSize: "12px",
                         lineHeight: "16px",
                         fontWeight: 400,
@@ -546,7 +546,7 @@ export function TaskTrackerTable({
                   ) : (
                     <span
                       style={{
-                        fontFamily: '"Proxima Nova", sans-serif',
+                        fontFamily: 'Inter, sans-serif',
                         fontSize: "12px",
                         lineHeight: "16px",
                         fontWeight: 400,
@@ -720,7 +720,7 @@ export function TaskTrackerTable({
                     <Link
                       href={`/project-management/tasks/${task.id}`}
                       style={{
-                        fontFamily: '"Proxima Nova", sans-serif',
+                        fontFamily: 'Inter, sans-serif',
                         fontSize: "11px",
                         lineHeight: "16px",
                         fontWeight: 400,

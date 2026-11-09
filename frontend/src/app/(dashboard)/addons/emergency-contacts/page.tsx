@@ -597,7 +597,7 @@ export default function EmergencyContactsManagementPage() {
     <div
       style={{
         fontFamily:
-          '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className="space-y-6"
     >

@@ -126,7 +126,7 @@ export function EmergencyContactsCard({
     <div
       style={{
         fontFamily:
-          '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className={`bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-xs transition-all hover:shadow-md flex flex-col justify-between ${className}`}
     >
@@ -135,7 +135,7 @@ export function EmergencyContactsCard({
         <div className="flex items-center justify-between gap-2">
           <h2
             style={{
-              fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+              fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
               fontSize: "calc(14px * var(--portal-heading-multiplier, 1))",
               lineHeight: "20px",
               fontWeight: 600,

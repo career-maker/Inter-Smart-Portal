@@ -155,7 +155,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
         <div className="flex items-center justify-between z-10 relative mb-1">
           <h3
             style={{
-              fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+              fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
               fontSize: "calc(14px * var(--portal-heading-multiplier, 1))",
               lineHeight: "20px",
               fontWeight: 600,
@@ -171,7 +171,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
             <NextLink
               href={calendarHref}
               style={{
-                fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+                fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
                 backgroundColor: "var(--portal-primary-color, #0F766E)",
                 color: "#ffffff",
               }}
@@ -218,7 +218,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                 <div className="flex-1 text-center min-w-0 px-2 space-y-1">
                   <h4
                     style={{
-                      fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+                      fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
                       color: "var(--portal-primary-color, #56348f)",
                     }}
                     className="text-[20px] sm:text-[22px] font-semibold tracking-tight truncate max-w-full leading-tight dark:text-purple-300"
@@ -228,7 +228,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                   </h4>
                   <p
                     style={{
-                      fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+                      fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
                       color: "var(--portal-primary-color, #56348f)",
                     }}
                     className="text-[13px] sm:text-[14px] font-medium opacity-85 dark:text-purple-300/85"

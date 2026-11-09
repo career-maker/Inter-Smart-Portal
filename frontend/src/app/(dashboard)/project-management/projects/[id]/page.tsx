@@ -280,7 +280,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           {canCreateTask && (<button
             type="button"
             onClick={() => setIsCreateTaskModalOpen(true)}
-            style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
             className="whitespace-nowrap inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer shrink-0"
           >
             <Plus className="w-4 h-4 !text-white shrink-0" />
@@ -292,7 +292,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(true)}
-                style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+                style={{ fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
                 className="whitespace-nowrap inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[13px] leading-[20px] font-normal border border-slate-200 dark:border-slate-700 transition-colors shrink-0 cursor-pointer"
               >
                 <Edit3 className="w-4 h-4 text-[#56348f] dark:text-purple-400 shrink-0" />
@@ -535,7 +535,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                   type="button"
                   onClick={handleSaveCoordinator}
                   disabled={savingCoordinator}
-                  style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+                  style={{ fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
                   className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[13px] leading-[20px] font-normal border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {savingCoordinator ? (

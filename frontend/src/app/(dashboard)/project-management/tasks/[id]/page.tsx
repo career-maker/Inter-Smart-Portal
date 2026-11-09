@@ -223,7 +223,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
               <button
                 type="button"
                 onClick={() => setIsExecutionModalOpen(true)}
-                style={{ backgroundColor: "#56348f", color: "#ffffff", fontFamily: '"Proxima Nova", sans-serif' }}
+                style={{ backgroundColor: "#56348f", color: "#ffffff", fontFamily: 'Inter, sans-serif' }}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors cursor-pointer"
               >
                 <Edit3 className="w-4 h-4 !text-white" />

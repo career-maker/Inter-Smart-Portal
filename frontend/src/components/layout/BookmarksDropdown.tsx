@@ -120,7 +120,7 @@ export function BookmarksDropdown() {
   if (!isHydrated) return null;
 
   return (
-    <div ref={dropdownRef} className="relative" style={{ fontFamily: '"Proxima Nova", sans-serif' }}>
+    <div ref={dropdownRef} className="relative" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* ── Bookmark Header Trigger Button ── */}
       <button
         type="button"

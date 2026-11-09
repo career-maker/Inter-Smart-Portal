@@ -168,7 +168,7 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
     <Portal>
       <div
         style={{
-          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         }}
         className="fixed inset-0 z-[99999] overflow-hidden"
         data-side-popup="true"

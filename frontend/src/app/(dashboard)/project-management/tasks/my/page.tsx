@@ -173,7 +173,7 @@ export default function MyTasksPage() {
               style={{
                 backgroundColor: "#56348f",
                 color: "rgb(255, 255, 255)",
-                fontFamily: '"Proxima Nova", sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: "12px",
                 fontWeight: 600,
               }}
@@ -187,7 +187,7 @@ export default function MyTasksPage() {
 
           <button
             onClick={() => setIsDailyReportOpen(true)}
-            style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            style={{ fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
             title="Open My Daily Report"
           >
@@ -220,7 +220,7 @@ export default function MyTasksPage() {
                 style={{
                   backgroundColor: isSelected ? "#56348f" : undefined,
                   color: isSelected ? "rgb(255, 255, 255)" : undefined,
-                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: "13px",
                   lineHeight: "20px",
                   fontWeight: 400,

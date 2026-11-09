@@ -821,7 +821,7 @@ export default function HubstaffAnalyticsPage() {
           ) : (
             <div
               style={{
-                fontFamily: '"Proxima Nova", sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: "28px",
                 lineHeight: "40px",
                 fontWeight: 600,
@@ -846,7 +846,7 @@ export default function HubstaffAnalyticsPage() {
           ) : (
             <div
               style={{
-                fontFamily: '"Proxima Nova", sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: "28px",
                 lineHeight: "40px",
                 fontWeight: 600,
@@ -880,7 +880,7 @@ export default function HubstaffAnalyticsPage() {
           ) : (
             <div
               style={{
-                fontFamily: '"Proxima Nova", sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: "28px",
                 lineHeight: "40px",
                 fontWeight: 600,
@@ -905,7 +905,7 @@ export default function HubstaffAnalyticsPage() {
           ) : (
             <div
               style={{
-                fontFamily: '"Proxima Nova", sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: "28px",
                 lineHeight: "40px",
                 fontWeight: 600,
@@ -930,7 +930,7 @@ export default function HubstaffAnalyticsPage() {
           ) : (
             <div
               style={{
-                fontFamily: '"Proxima Nova", sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: "28px",
                 lineHeight: "40px",
                 fontWeight: 600,
@@ -1127,7 +1127,7 @@ export default function HubstaffAnalyticsPage() {
                               <div className="min-w-0">
                                 <h3
                                   style={{
-                                    fontFamily: '"Proxima Nova", sans-serif',
+                                    fontFamily: 'Inter, sans-serif',
                                     fontSize: "13px",
                                     lineHeight: "20px",
                                     fontWeight: 400,
@@ -1331,7 +1331,7 @@ export default function HubstaffAnalyticsPage() {
                               <FolderKanban className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
                               <span
                                 style={{
-                                  fontFamily: '"Proxima Nova", sans-serif',
+                                  fontFamily: 'Inter, sans-serif',
                                   fontSize: "13px",
                                   lineHeight: "20px",
                                   fontWeight: 400,

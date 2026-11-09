@@ -40,7 +40,7 @@ export function PMDepartmentSwitcher({
           style={{
             backgroundColor: selectedTeamId === null ? "#56348f" : undefined,
             color: selectedTeamId === null ? "rgb(255, 255, 255)" : undefined,
-            fontFamily: '"Proxima Nova", sans-serif',
+            fontFamily: 'Inter, sans-serif',
             fontSize: "13px",
             lineHeight: "20px",
             fontWeight: 400,
@@ -54,7 +54,7 @@ export function PMDepartmentSwitcher({
           <Layers className={`w-4 h-4 ${selectedTeamId === null ? "!text-white" : "text-[#56348f] dark:text-purple-400"}`} />
           <span
             style={{
-              fontFamily: '"Proxima Nova", sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: "13px",
               lineHeight: "20px",
               fontWeight: 400,
@@ -77,7 +77,7 @@ export function PMDepartmentSwitcher({
               style={{
                 backgroundColor: isSelected ? "#56348f" : undefined,
                 color: isSelected ? "rgb(255, 255, 255)" : undefined,
-                fontFamily: '"Proxima Nova", sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: "13px",
                 lineHeight: "20px",
                 fontWeight: 400,
@@ -91,7 +91,7 @@ export function PMDepartmentSwitcher({
               <Users className={`w-4 h-4 ${isSelected ? "!text-white" : "text-[#56348f] dark:text-purple-400"}`} />
               <span
                 style={{
-                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: "13px",
                   lineHeight: "20px",
                   fontWeight: 400,

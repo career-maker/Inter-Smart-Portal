@@ -170,7 +170,7 @@ export function PMAllTasksTable({
           </div>
           <h2
             style={{
-              fontFamily: '"Proxima Nova", sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: "13px",
               lineHeight: "20px",
               fontWeight: 500,
@@ -284,7 +284,7 @@ export function PMAllTasksTable({
                     <td className="py-3.5 px-4">
                       <div
                         style={{
-                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontFamily: 'Inter, sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 400,

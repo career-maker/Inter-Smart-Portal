@@ -476,7 +476,7 @@ export default function AttendanceManagementPage() {
               <div>
                 <h3
                   style={{
-                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: "14px",
                     lineHeight: "20px",
                     fontWeight: 600,
@@ -536,7 +536,7 @@ export default function AttendanceManagementPage() {
                 <div>
                   <h3
                     style={{
-                      fontFamily: '"Proxima Nova", sans-serif',
+                      fontFamily: 'Inter, sans-serif',
                       fontSize: "14px",
                       lineHeight: "20px",
                       fontWeight: 600,

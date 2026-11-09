@@ -266,7 +266,7 @@ export function SyncHubstaffUsersModal({ isOpen, onClose }: SyncHubstaffUsersMod
         <div
           className="fixed inset-y-0 right-0 max-w-3xl sm:max-w-4xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
           data-side-popup="true"
-          style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+          style={{ fontFamily: 'Inter, sans-serif' }}
         >
           {/* Modal Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 shrink-0">

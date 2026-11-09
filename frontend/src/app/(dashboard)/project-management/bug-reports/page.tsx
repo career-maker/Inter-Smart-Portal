@@ -346,7 +346,7 @@ export default function BugReportsPage() {
                           type="button"
                           onClick={() => setEditingTask(task)}
                           style={{
-                            fontFamily: '"Proxima Nova", sans-serif',
+                            fontFamily: 'Inter, sans-serif',
                             fontSize: "12px",
                           }}
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 text-xs font-normal border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"

@@ -623,7 +623,7 @@ export default function DashboardPage() {
                       <div>
                         <h2
                           style={{
-                            fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                             fontWeight: 600,
                             fontSize: '14px',
                             lineHeight: '20px',
@@ -939,7 +939,7 @@ export default function DashboardPage() {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h2 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                      <h2 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                         <Clock className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                         Pending Approvals
                       </h2>
@@ -1009,7 +1009,7 @@ export default function DashboardPage() {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                      <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                         <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                         Latest Updates
                       </h3>
@@ -1060,7 +1060,7 @@ export default function DashboardPage() {
                   <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
                     <div>
                       <div className="mb-3">
-                        <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                        <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                           <PartyPopper className="w-4 h-4 text-pink-500" />
                           Work Anniversaries
                         </h3>
@@ -1126,7 +1126,7 @@ export default function DashboardPage() {
                 <div className="flex items-end justify-between">
                   <p
                     style={{
-                      fontFamily: '"Proxima Nova", sans-serif',
+                      fontFamily: 'Inter, sans-serif',
                       fontSize: "28px",
                       lineHeight: "40px",
                       fontWeight: 600,
@@ -1149,7 +1149,7 @@ export default function DashboardPage() {
           <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <Layers className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                   Recent Audit Logs
                 </h3>
@@ -1265,7 +1265,7 @@ export default function DashboardPage() {
                     </div>
                   )}
                   <h3
-                    style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "14px", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }}
+                    style={{ fontFamily: 'Inter, sans-serif', fontSize: "14px", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }}
                     className="dark:text-white leading-tight box-title"
                   >
                     View The Hall
@@ -1738,7 +1738,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         {/* Employee Status Pie Chart */}
         <div className="bg-white dark:bg-slate-800 rounded-md p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm">
-          <h2 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white mb-2 sm:mb-3 flex items-center gap-2 box-title">
+          <h2 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white mb-2 sm:mb-3 flex items-center gap-2 box-title">
             <Users className="w-5 h-5 text-blue-400" />
             Employee Status Distribution
           </h2>
@@ -1806,7 +1806,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
         {/* Leave Requests Status Bar Chart */}
         <div className="bg-white dark:bg-slate-800 rounded-md p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm">
-          <h2 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white mb-2 sm:mb-3 flex items-center gap-2 box-title">
+          <h2 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white mb-2 sm:mb-3 flex items-center gap-2 box-title">
             <Palmtree className="w-5 h-5 text-orange-400" />
             Leave Requests Today
           </h2>
@@ -1851,7 +1851,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card wave-card p-6">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                   Company Announcements
                 </h3>
@@ -1931,7 +1931,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <Users className="w-4 h-4 text-emerald-400" />
                   Manage Employees
                 </h3>
@@ -1955,7 +1955,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-blue-500/40 transition-all duration-300">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <Clock className="w-4 h-4 text-blue-400" />
                   Attendance Management
                 </h3>
@@ -2006,7 +2006,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card wave-card p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <Activity className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                   Recent Activity
                 </h3>
@@ -2066,7 +2066,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
            <div className="premium-card wave-card p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <CalendarDays className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   Company Leave Overview
                 </h3>
@@ -2201,7 +2201,7 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
           <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{title}</p>
           <h3
             style={{
-              fontFamily: '"Proxima Nova", sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: "28px",
               lineHeight: "40px",
               fontWeight: 600,
@@ -2325,7 +2325,7 @@ function RotatingCard({
       <div className="flex items-center justify-between mb-3 shrink-0">
         <div>
           <h3
-            style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }}
+            style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }}
             className="dark:text-white flex items-center gap-2 box-title"
           >
             <Icon className={`w-4 h-4 ${iconColorClass || (headerClass ? headerClass.replace('text-', 'text-') : 'text-[#56348f] dark:text-purple-400')}`} />
@@ -2583,7 +2583,7 @@ function MenuCard({ href, icon: Icon, title, subtitle, className = "" }: any) {
         <div className="w-10 h-10 rounded-md bg-slate-100 dark:bg-slate-700/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center mb-4">
           <Icon className="w-5 h-5" />
         </div>
-        <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white box-title">{title}</h3>
+        <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white box-title">{title}</h3>
         <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
       </div>
     </Link>

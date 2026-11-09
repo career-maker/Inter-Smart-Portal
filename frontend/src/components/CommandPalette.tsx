@@ -426,7 +426,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             ref={containerRef}
             data-command-palette="true"
             style={{
-              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             }}
             className="portal-command-palette fixed inset-x-3 top-3 z-[100] sm:absolute sm:inset-auto sm:top-0 sm:left-0 sm:w-full bg-white text-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden animate-in fade-in zoom-in-98 duration-100 max-h-[85vh] flex flex-col"
           >

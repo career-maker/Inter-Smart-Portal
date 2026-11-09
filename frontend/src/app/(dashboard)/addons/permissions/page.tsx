@@ -230,7 +230,7 @@ export default function PermissionsManagementPage() {
     <div
       style={{
         fontFamily:
-          '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className="space-y-6 pb-16"
     >
@@ -281,7 +281,7 @@ export default function PermissionsManagementPage() {
             style={{
               backgroundColor: "#56348f",
               color: "rgb(255, 255, 255)",
-              fontFamily: '"Proxima Nova", sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: "12px",
               fontWeight: 600,
             }}
@@ -626,7 +626,7 @@ export default function PermissionsManagementPage() {
           style={{
             backgroundColor: "#56348f",
             color: "rgb(255, 255, 255)",
-            fontFamily: '"Proxima Nova", sans-serif',
+            fontFamily: 'Inter, sans-serif',
             fontSize: "13px",
             fontWeight: 600,
           }}

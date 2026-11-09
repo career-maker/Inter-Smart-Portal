@@ -820,7 +820,7 @@ export default function LeavePolicyManagementPage() {
               style={{
                 backgroundColor: "#56348f",
                 color: "rgb(255, 255, 255)",
-                fontFamily: '"Proxima Nova", sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: "13px",
                 fontWeight: 600,
               }}
@@ -1043,7 +1043,7 @@ export default function LeavePolicyManagementPage() {
                                 style={{
                                   backgroundColor: "#56348f",
                                   color: "rgb(255, 255, 255)",
-                                  fontFamily: '"Proxima Nova", sans-serif',
+                                  fontFamily: 'Inter, sans-serif',
                                   fontSize: "11px",
                                   fontWeight: 600,
                                 }}
@@ -1284,7 +1284,7 @@ export default function LeavePolicyManagementPage() {
                 style={{
                   backgroundColor: "#56348f",
                   color: "rgb(255, 255, 255)",
-                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: "13px",
                   fontWeight: 600,
                 }}
@@ -1370,7 +1370,7 @@ export default function LeavePolicyManagementPage() {
             <div
               className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
               data-side-popup="true"
-              style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
               <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 p-6 pb-4 shrink-0">
                 <div>
@@ -1468,7 +1468,7 @@ export default function LeavePolicyManagementPage() {
                   style={{
                     backgroundColor: "#56348f",
                     color: "rgb(255, 255, 255)",
-                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: "12px",
                     fontWeight: 600,
                   }}
@@ -1500,7 +1500,7 @@ export default function LeavePolicyManagementPage() {
             <div
               className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
               data-side-popup="true"
-              style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
               <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 p-6 pb-4 shrink-0">
                 <div>
@@ -1595,7 +1595,7 @@ export default function LeavePolicyManagementPage() {
                   style={{
                     backgroundColor: "#56348f",
                     color: "rgb(255, 255, 255)",
-                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: "12px",
                     fontWeight: 600,
                   }}

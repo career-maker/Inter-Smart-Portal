@@ -703,7 +703,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             id="light-theme-sidebar"
             style={{
               backgroundColor: "var(--portal-sidebar-bg, #0f172a)",
-              fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)'
+              fontFamily: 'var(--portal-font-family, Inter, sans-serif)'
             }}
             className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-white/10 select-none shadow-xl overflow-hidden"
           >
@@ -865,7 +865,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 top: `${flyoutState.top}px`,
                 backgroundColor: "var(--portal-sidebar-bg, #0f172a)",
                 borderColor: "rgba(255, 255, 255, 0.12)",
-                fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+                fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
                 maxHeight: "calc(100vh - 20px)",
               }}
               className="fixed left-[84px] w-64 rounded-r-xl rounded-bl-xl shadow-2xl border border-white/10 z-[999] py-1.5 animate-in fade-in zoom-in-95 duration-150 flex flex-col overflow-hidden"
@@ -1113,7 +1113,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             style={{
               backgroundColor: !isDark ? "var(--portal-header-bg, #56348f)" : undefined,
               color: !isDark ? "var(--portal-header-text, #ffffff)" : undefined,
-              fontFamily: 'var(--portal-font-family, "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)'
+              fontFamily: 'var(--portal-font-family, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)'
             }}
             className={`${
               !isDark ? "" : "bg-slate-900/95 border-b border-white/10 text-slate-200"
@@ -1261,7 +1261,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             id="sub-header-tabs-bar"
             style={{
               backgroundColor: !isDark ? "var(--portal-sub-header-bg, #ffffff)" : undefined,
-              fontFamily: 'var(--portal-font-family, "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)'
+              fontFamily: 'var(--portal-font-family, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)'
             }}
             className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 overflow-hidden w-full transition-colors"
           >
@@ -1299,7 +1299,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     prefetch={true}
                     data-subtab={active ? "active" : "inactive"}
                     style={{
-                      fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+                      fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
                       fontSize: "14px",
                       lineHeight: "16px",
                       fontWeight: active ? 600 : 500,
@@ -1380,7 +1380,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             id="mobile-nav-drawer"
             style={{
               backgroundColor: "#0e2638",
-              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}
             className="relative w-4/5 max-w-xs border-r border-[#1a3a52] flex flex-col h-full z-10 text-white shadow-2xl overflow-hidden"
           >

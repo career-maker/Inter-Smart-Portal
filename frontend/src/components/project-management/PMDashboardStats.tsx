@@ -119,7 +119,7 @@ export function PMDashboardStats({
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span
                   style={{
-                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: "28px",
                     lineHeight: "40px",
                     fontWeight: 600,

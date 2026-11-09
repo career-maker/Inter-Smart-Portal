@@ -470,7 +470,7 @@ export default function EmailManagementPage() {
   return (
     <div
       style={{
-        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className="space-y-6 pb-12"
     >
@@ -1299,7 +1299,7 @@ export default function EmailManagementPage() {
         <Portal>
           <div
             style={{
-              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             }}
             className="fixed inset-0 z-[99999] overflow-hidden font-sans"
             data-side-popup="true"

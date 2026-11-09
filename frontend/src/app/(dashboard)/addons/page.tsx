@@ -294,7 +294,7 @@ export default function PmAddonsPage() {
                         style={{
                           backgroundColor: "var(--portal-primary-color, #0F766E)",
                           color: "rgb(255, 255, 255)",
-                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontFamily: 'Inter, sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 600,
@@ -324,7 +324,7 @@ export default function PmAddonsPage() {
                         style={{
                           backgroundColor: "var(--portal-primary-color, #56348f)",
                           color: "rgb(255, 255, 255)",
-                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontFamily: 'Inter, sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 600,
@@ -354,7 +354,7 @@ export default function PmAddonsPage() {
                         style={{
                           backgroundColor: "var(--portal-primary-color, #56348f)",
                           color: "rgb(255, 255, 255)",
-                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontFamily: 'Inter, sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 600,
@@ -384,7 +384,7 @@ export default function PmAddonsPage() {
                         style={{
                           backgroundColor: "var(--portal-primary-color, #56348f)",
                           color: "rgb(255, 255, 255)",
-                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontFamily: 'Inter, sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 600,
@@ -426,7 +426,7 @@ export default function PmAddonsPage() {
                               style={{
                                 backgroundColor: isAssigned ? "var(--portal-primary-color, #0F766E)" : undefined,
                                 color: isAssigned ? "rgb(255, 255, 255)" : undefined,
-                                fontFamily: '"Proxima Nova", sans-serif',
+                                fontFamily: 'Inter, sans-serif',
                                 fontSize: "12px",
                                 fontWeight: 400,
                               }}
@@ -468,7 +468,7 @@ export default function PmAddonsPage() {
                         type="button"
                         onClick={() => handleSaveTeams(addon.id)}
                         disabled={isSaving}
-                        style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+                        style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color,#0F766E)] hover:bg-[var(--portal-hover-color,#138A80)] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
                       >
                         {isSaving ? (

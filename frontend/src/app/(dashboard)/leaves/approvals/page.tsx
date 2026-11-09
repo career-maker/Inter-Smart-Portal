@@ -1278,7 +1278,7 @@ export default function ApprovalsPage() {
             <div
               className="fixed inset-y-0 right-0 max-w-2xl sm:max-w-3xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
               data-side-popup="true"
-              style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
               <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
                 <div>

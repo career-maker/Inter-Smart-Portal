@@ -350,7 +350,7 @@ export function AttendanceWidget({
     <>
       <div
         style={{
-          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         }}
         className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 rounded-md p-5 sm:p-6 shadow-sm relative overflow-hidden"
       >
@@ -358,7 +358,7 @@ export function AttendanceWidget({
           <div>
             <h2
               style={{
-                fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+                fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
                 fontSize: "calc(14px * var(--portal-heading-multiplier, 1))",
                 lineHeight: "20px",
                 fontWeight: 600,

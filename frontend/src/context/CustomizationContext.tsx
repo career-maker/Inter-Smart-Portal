@@ -59,12 +59,21 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     const root = document.documentElement;
 
     // 1. Font Family & Google Font Link injection
-    const fontName = conf.font_family || "Proxima Nova";
-    const fontValue = fontName === "Proxima Nova"
-      ? '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      : `"${fontName}", "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    const fontName = conf.font_family || "Inter";
+    const fontValue = fontName === "Inter"
+      ? 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      : `"${fontName}", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
 
     root.style.setProperty("--portal-font-family", fontValue);
+
+    // Inter is the base family and also the fallback for hardcoded styles: always load it.
+    if (!document.getElementById("google-font-inter")) {
+      const link = document.createElement("link");
+      link.id = "google-font-inter";
+      link.rel = "stylesheet";
+      link.href = GOOGLE_FONTS_MAP.Inter;
+      document.head.appendChild(link);
+    }
 
     if (GOOGLE_FONTS_MAP[fontName]) {
       const linkId = `google-font-${fontName.toLowerCase().replace(/\s+/g, "-")}`;

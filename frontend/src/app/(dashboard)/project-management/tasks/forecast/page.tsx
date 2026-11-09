@@ -330,7 +330,7 @@ export default function ForecastTasksPage() {
                 setSelectedAssigneeForModal(undefined);
                 setIsCreateModalOpen(true);
               }}
-              style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+              style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4 !text-white" />
