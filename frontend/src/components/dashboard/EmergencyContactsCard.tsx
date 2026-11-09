@@ -221,7 +221,7 @@ export function EmergencyContactsCard({
       {!loading && contacts.length > 0 && (
         <div
           ref={boxRef}
-          className="group/marquee flex-1 h-[220px] sm:h-[240px] overflow-hidden"
+          className="group/marquee shrink-0 grow-0 h-[220px] sm:h-[240px] overflow-hidden"
         >
           <style>{`@keyframes ec-marquee{from{transform:translateY(0)}to{transform:translateY(-50%)}}
 @media (prefers-reduced-motion:reduce){.ec-marquee{animation:none!important}}`}</style>
