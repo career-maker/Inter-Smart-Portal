@@ -36,6 +36,7 @@ class CustomizationController extends Controller
                 'light_bg_color',
                 'card_bg_color',
                 'border_color',
+                'ui_theme',
             ];
 
             $extra = is_array($settings->extra_colors) ? $settings->extra_colors : [];
@@ -92,6 +93,7 @@ class CustomizationController extends Controller
             'light_bg_color'            => 'nullable|string|max:50',
             'card_bg_color'             => 'nullable|string|max:50',
             'border_color'              => 'nullable|string|max:50',
+            'ui_theme'                  => 'nullable|string|in:classic,glass,neumorphism,brutalism,clay,minimal',
             'card_elevation'            => 'nullable|string|in:flat,subtle,floating,glassmorphic',
             'button_style'              => 'nullable|string|in:rounded,pill,sharp',
             'density'                   => 'nullable|string|in:compact,comfortable,spacious',
@@ -136,6 +138,7 @@ class CustomizationController extends Controller
                 'border_color',
                 'sub_header_bg',
                 'sub_header_active_color',
+                'ui_theme',
             ];
 
             foreach ($dynamicFields as $field) {
@@ -307,6 +310,7 @@ class CustomizationController extends Controller
                 'light_bg_color',
                 'card_bg_color',
                 'border_color',
+                'ui_theme',
             ];
 
             $extra = [];

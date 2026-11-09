@@ -1,0 +1,243 @@
+/*
+ * Selectable UI themes. The Super Admin picks one in Add-ons > Customization (stored as ui_theme).
+ * "classic" is the original look and has no rules here. Every other theme only sets the --t-* variables below;
+ * the shared block at the bottom applies them to cards, tiles, inputs, tables, popups, sidebar and buttons.
+ */
+
+/* ── Variables per theme ─────────────────────────────────────────────── */
+html[data-ui-theme="glass"] {
+  --t-page-color: #E9F1F6;
+  --t-page-image:
+    radial-gradient(900px 500px at 8% -5%, rgba(120, 200, 210, 0.35), transparent 60%),
+    radial-gradient(800px 520px at 100% 0%, rgba(150, 190, 235, 0.32), transparent 60%),
+    radial-gradient(700px 500px at 60% 100%, rgba(130, 225, 200, 0.28), transparent 60%);
+  --t-card-bg: rgba(255, 255, 255, 0.58);
+  --t-card-border: 1px solid rgba(255, 255, 255, 0.75);
+  --t-card-radius: 18px;
+  --t-card-shadow: 0 8px 28px -8px rgba(18, 52, 77, 0.16), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  --t-card-blur: blur(18px) saturate(160%);
+  --t-tile-bg: rgba(255, 255, 255, 0.5);
+  --t-tile-border: 1px solid rgba(255, 255, 255, 0.75);
+  --t-tile-radius: 14px;
+  --t-tile-shadow: 0 2px 8px -3px rgba(18, 52, 77, 0.12);
+  --t-input-bg: rgba(255, 255, 255, 0.7);
+  --t-input-border: 1px solid rgba(15, 60, 80, 0.08);
+  --t-input-radius: 12px;
+  --t-input-shadow: none;
+  --t-popup-bg: rgba(255, 255, 255, 0.82);
+  --t-popup-border: 1px solid rgba(255, 255, 255, 0.75);
+  --t-popup-shadow: 0 24px 60px -16px rgba(18, 52, 77, 0.35);
+  --t-popup-blur: blur(24px) saturate(170%);
+  --t-thead-bg: rgba(255, 255, 255, 0.45);
+  --t-row-hover: rgba(255, 255, 255, 0.55);
+  --t-row-line: rgba(15, 60, 80, 0.08);
+  --t-sidebar: #0E1B2C;
+  --t-btn-image: linear-gradient(180deg, #14A58E, #00806E);
+  --t-btn-shadow: 0 6px 16px -6px rgba(0, 128, 110, 0.55), 0 1px 0 rgba(255, 255, 255, 0.35) inset;
+}
+
+html[data-ui-theme="neumorphism"] {
+  --t-page-color: #E3E8F0;
+  --t-page-image: none;
+  --t-card-bg: #E3E8F0;
+  --t-card-border: 1px solid transparent;
+  --t-card-radius: 22px;
+  --t-card-shadow: 9px 9px 18px #C3CAD6, -9px -9px 18px #FFFFFF;
+  --t-card-blur: none;
+  --t-tile-bg: #E3E8F0;
+  --t-tile-border: 1px solid transparent;
+  --t-tile-radius: 16px;
+  --t-tile-shadow: inset 4px 4px 8px #C3CAD6, inset -4px -4px 8px #FFFFFF;
+  --t-input-bg: #E3E8F0;
+  --t-input-border: 1px solid transparent;
+  --t-input-radius: 14px;
+  --t-input-shadow: inset 3px 3px 6px #C3CAD6, inset -3px -3px 6px #FFFFFF;
+  --t-popup-bg: #E3E8F0;
+  --t-popup-border: 1px solid transparent;
+  --t-popup-shadow: 14px 14px 30px #B7BFCC, -10px -10px 24px #FFFFFF;
+  --t-popup-blur: none;
+  --t-thead-bg: transparent;
+  --t-row-hover: rgba(255, 255, 255, 0.45);
+  --t-row-line: rgba(163, 174, 192, 0.35);
+  --t-sidebar: #2B3445;
+  --t-btn-image: none;
+  --t-btn-shadow: 5px 5px 10px #C3CAD6, -5px -5px 10px #FFFFFF;
+}
+
+html[data-ui-theme="brutalism"] {
+  --t-page-color: #FFF4D6;
+  --t-page-image: none;
+  --t-card-bg: #FFFFFF;
+  --t-card-border: 3px solid #111111;
+  --t-card-radius: 0px;
+  --t-card-shadow: 6px 6px 0 #111111;
+  --t-card-blur: none;
+  --t-tile-bg: #FFFFFF;
+  --t-tile-border: 2px solid #111111;
+  --t-tile-radius: 0px;
+  --t-tile-shadow: 3px 3px 0 #111111;
+  --t-input-bg: #FFFFFF;
+  --t-input-border: 2px solid #111111;
+  --t-input-radius: 0px;
+  --t-input-shadow: 2px 2px 0 #111111;
+  --t-popup-bg: #FFFFFF;
+  --t-popup-border: 3px solid #111111;
+  --t-popup-shadow: 8px 8px 0 #111111;
+  --t-popup-blur: none;
+  --t-thead-bg: #FFE66D;
+  --t-row-hover: #FFF4D6;
+  --t-row-line: #111111;
+  --t-sidebar: #111111;
+  --t-btn-image: none;
+  --t-btn-shadow: 4px 4px 0 #111111;
+}
+
+html[data-ui-theme="clay"] {
+  --t-page-color: #F1EAFB;
+  --t-page-image:
+    radial-gradient(700px 420px at 0% 0%, rgba(255, 196, 214, 0.55), transparent 60%),
+    radial-gradient(700px 420px at 100% 10%, rgba(190, 215, 255, 0.55), transparent 60%);
+  --t-card-bg: #FFFFFF;
+  --t-card-border: 1px solid transparent;
+  --t-card-radius: 28px;
+  --t-card-shadow: 10px 10px 22px rgba(120, 100, 160, 0.18), inset -5px -5px 10px rgba(120, 100, 160, 0.08), inset 5px 5px 10px rgba(255, 255, 255, 0.95);
+  --t-card-blur: none;
+  --t-tile-bg: #FBF8FF;
+  --t-tile-border: 1px solid transparent;
+  --t-tile-radius: 20px;
+  --t-tile-shadow: 5px 5px 12px rgba(120, 100, 160, 0.16), inset -3px -3px 6px rgba(120, 100, 160, 0.06), inset 3px 3px 6px rgba(255, 255, 255, 0.95);
+  --t-input-bg: #FBF8FF;
+  --t-input-border: 1px solid transparent;
+  --t-input-radius: 18px;
+  --t-input-shadow: inset 3px 3px 7px rgba(120, 100, 160, 0.16), inset -3px -3px 7px rgba(255, 255, 255, 0.95);
+  --t-popup-bg: #FFFFFF;
+  --t-popup-border: 1px solid transparent;
+  --t-popup-shadow: 18px 18px 40px rgba(120, 100, 160, 0.3);
+  --t-popup-blur: none;
+  --t-thead-bg: #F4EEFC;
+  --t-row-hover: #F7F2FE;
+  --t-row-line: rgba(120, 100, 160, 0.14);
+  --t-sidebar: #2E2447;
+  --t-btn-image: linear-gradient(180deg, #2DB8A3, #00806E);
+  --t-btn-shadow: 6px 6px 14px rgba(0, 128, 110, 0.35), inset -3px -3px 6px rgba(0, 0, 0, 0.12), inset 3px 3px 6px rgba(255, 255, 255, 0.35);
+}
+
+html[data-ui-theme="minimal"] {
+  --t-page-color: #F6F7F9;
+  --t-page-image: none;
+  --t-card-bg: #FFFFFF;
+  --t-card-border: 1px solid #E5E7EB;
+  --t-card-radius: 10px;
+  --t-card-shadow: none;
+  --t-card-blur: none;
+  --t-tile-bg: #F9FAFB;
+  --t-tile-border: 1px solid #EEF0F3;
+  --t-tile-radius: 8px;
+  --t-tile-shadow: none;
+  --t-input-bg: #FFFFFF;
+  --t-input-border: 1px solid #D9DDE3;
+  --t-input-radius: 8px;
+  --t-input-shadow: none;
+  --t-popup-bg: #FFFFFF;
+  --t-popup-border: 1px solid #E5E7EB;
+  --t-popup-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.25);
+  --t-popup-blur: none;
+  --t-thead-bg: #F9FAFB;
+  --t-row-hover: #F9FAFB;
+  --t-row-line: #EEF0F3;
+  --t-sidebar: #111827;
+  --t-btn-image: none;
+  --t-btn-shadow: none;
+}
+
+/* ── Always on: tinted attendance tiles and per-person birthday hovers (all themes) ── */
+.stat-tile { transition: transform .2s ease, box-shadow .2s ease; }
+.stat-tile:hover { transform: translateY(-2px); }
+main .stat-tile.stat-in    { background-color: rgba(16, 185, 129, 0.16) !important; border-color: rgba(16, 185, 129, 0.35) !important; }
+main .stat-tile.stat-out   { background-color: rgba(244, 63, 94, 0.14) !important;  border-color: rgba(244, 63, 94, 0.32) !important; }
+main .stat-tile.stat-break { background-color: rgba(245, 158, 11, 0.17) !important; border-color: rgba(245, 158, 11, 0.38) !important; }
+main .stat-tile.stat-work  { background-color: rgba(6, 182, 212, 0.16) !important;  border-color: rgba(6, 182, 212, 0.35) !important; }
+
+.bday-card { transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, background-color .25s ease; }
+main .bday-card.bday-card-0:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 24px -8px rgba(245, 158, 11, .45); background-color: rgba(254, 243, 199, .85) !important; }
+main .bday-card.bday-card-1:hover { transform: translateX(6px); box-shadow: 0 10px 22px -8px rgba(16, 185, 129, .45); background-color: rgba(209, 250, 229, .85) !important; }
+main .bday-card.bday-card-2:hover { transform: rotate(-1.2deg) scale(1.03); box-shadow: 0 12px 24px -8px rgba(99, 102, 241, .45); background-color: rgba(224, 231, 255, .85) !important; }
+
+/* ── Shared block: applies the variables above for every non-classic theme ── */
+@layer base {
+  html[data-ui-theme]:not([data-ui-theme="classic"]) body {
+    background-color: var(--t-page-color) !important;
+    background-image: var(--t-page-image) !important;
+    background-attachment: fixed !important;
+  }
+}
+html[data-ui-theme]:not([data-ui-theme="classic"]) .min-h-screen.bg-slate-50 { background: transparent !important; }
+
+/* Cards */
+html[data-ui-theme]:not([data-ui-theme="classic"]) :is(.premium-card, .wave-card, .glass-card, [data-card], [data-slot="card"]),
+html[data-ui-theme]:not([data-ui-theme="classic"]) main :is(.bg-white.border, .bg-white.rounded-md, .bg-white.rounded-lg, .bg-white.rounded-xl, .bg-white.rounded-2xl):where(:not(button, input, select, textarea, td, th, tr, span, svg, .rounded-full)) {
+  background: var(--t-card-bg) !important;
+  -webkit-backdrop-filter: var(--t-card-blur);
+  backdrop-filter: var(--t-card-blur);
+  border: var(--t-card-border) !important;
+  border-radius: var(--t-card-radius) !important;
+  box-shadow: var(--t-card-shadow) !important;
+}
+
+/* Inner tiles (stat boxes, list rows) */
+html[data-ui-theme]:not([data-ui-theme="classic"]) main .bg-slate-50.border:where(:not(button, input, select, textarea, td, tr, .stat-tile, .bday-card)) {
+  background-color: var(--t-tile-bg) !important;
+  border: var(--t-tile-border) !important;
+  border-radius: var(--t-tile-radius) !important;
+  box-shadow: var(--t-tile-shadow);
+}
+html[data-ui-theme]:not([data-ui-theme="classic"]) main :is(.stat-tile, .bday-card) {
+  border-radius: var(--t-tile-radius) !important;
+  box-shadow: var(--t-tile-shadow);
+}
+
+/* Tables */
+html[data-ui-theme]:not([data-ui-theme="classic"]) main table { background: transparent !important; }
+html[data-ui-theme]:not([data-ui-theme="classic"]) main thead,
+html[data-ui-theme]:not([data-ui-theme="classic"]) main thead tr,
+html[data-ui-theme]:not([data-ui-theme="classic"]) main thead th { background: var(--t-thead-bg) !important; }
+html[data-ui-theme]:not([data-ui-theme="classic"]) main tbody tr:hover { background: var(--t-row-hover) !important; }
+html[data-ui-theme]:not([data-ui-theme="classic"]) main tbody tr,
+html[data-ui-theme]:not([data-ui-theme="classic"]) main tbody td { border-color: var(--t-row-line) !important; }
+
+/* Inputs */
+html[data-ui-theme]:not([data-ui-theme="classic"]) main :is(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+  background: var(--t-input-bg) !important;
+  border: var(--t-input-border) !important;
+  border-radius: var(--t-input-radius) !important;
+  box-shadow: var(--t-input-shadow);
+}
+
+/* Dialogs, menus, popovers, search palette */
+html[data-ui-theme]:not([data-ui-theme="classic"]) :is([role="dialog"], [role="menu"], .portal-command-palette),
+html[data-ui-theme]:not([data-ui-theme="classic"]) [data-radix-popper-content-wrapper] > * {
+  background: var(--t-popup-bg) !important;
+  -webkit-backdrop-filter: var(--t-popup-blur);
+  backdrop-filter: var(--t-popup-blur);
+  border: var(--t-popup-border) !important;
+  box-shadow: var(--t-popup-shadow) !important;
+}
+
+/* Sub-header tab bar and sidebar */
+html[data-ui-theme]:not([data-ui-theme="classic"]) #sub-header-tabs-bar {
+  background: var(--t-card-bg) !important;
+  -webkit-backdrop-filter: var(--t-card-blur);
+  backdrop-filter: var(--t-card-blur);
+  border-bottom: var(--t-card-border) !important;
+}
+html[data-ui-theme]:not([data-ui-theme="classic"]) aside.bg-slate-900 { background: var(--t-sidebar) !important; }
+
+/* Primary buttons */
+html[data-ui-theme]:not([data-ui-theme="classic"]) :is(.bg-primary, button[class*="bg-primary"]) {
+  background-image: var(--t-btn-image) !important;
+  box-shadow: var(--t-btn-shadow);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  html[data-ui-theme="glass"] { --t-card-bg: rgba(255, 255, 255, 0.95); --t-popup-bg: #fff; --t-card-blur: none; --t-popup-blur: none; }
+}

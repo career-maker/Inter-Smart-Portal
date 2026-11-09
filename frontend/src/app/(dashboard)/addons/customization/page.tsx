@@ -616,6 +616,15 @@ const RADIUS_OPTIONS = [
   { id: "16px", label: "16px Smooth", desc: "Soft & rounded app feel" },
 ];
 
+const THEME_OPTIONS: { id: NonNullable<CustomizationSettings["ui_theme"]>; label: string; desc: string; bg: string; card: React.CSSProperties }[] = [
+  { id: "classic", label: "Classic", desc: "Original flat portal look (default)", bg: "#F5F7FC", card: { background: "#fff", border: "1px solid #e2e8f0", borderRadius: "6px" } },
+  { id: "glass", label: "Glassmorphism", desc: "Frosted translucent cards, soft aurora", bg: "linear-gradient(135deg,#bfe3e8,#c9d8f5)", card: { background: "rgba(255,255,255,.6)", border: "1px solid rgba(255,255,255,.8)", borderRadius: "14px", boxShadow: "0 6px 16px -6px rgba(18,52,77,.25)" } },
+  { id: "neumorphism", label: "Neumorphism", desc: "Soft extruded shapes, same-colour surface", bg: "#E3E8F0", card: { background: "#E3E8F0", borderRadius: "16px", boxShadow: "6px 6px 12px #c3cad6,-6px -6px 12px #fff" } },
+  { id: "brutalism", label: "Brutalism", desc: "Thick black borders, hard offset shadows", bg: "#FFF4D6", card: { background: "#fff", border: "3px solid #111", borderRadius: "0", boxShadow: "5px 5px 0 #111" } },
+  { id: "clay", label: "Claymorphism", desc: "Puffy rounded pastel clay surfaces", bg: "linear-gradient(135deg,#ffd9e4,#d8e6ff)", card: { background: "#fff", borderRadius: "22px", boxShadow: "7px 7px 14px rgba(120,100,160,.25),inset -3px -3px 6px rgba(120,100,160,.1),inset 3px 3px 6px #fff" } },
+  { id: "minimal", label: "Minimal", desc: "Clean hairline borders, no shadows", bg: "#F6F7F9", card: { background: "#fff", border: "1px solid #e5e7eb", borderRadius: "10px" } },
+];
+
 const ELEVATION_OPTIONS = [
   { id: "flat", label: "Flat Minimal", desc: "Crisp border, no shadow" },
   { id: "subtle", label: "Subtle Soft", desc: "Modern soft elevation (Default)" },
@@ -2353,6 +2362,37 @@ export default function CustomizationPage() {
                       </div>
                       <div className="text-xs">{opt.label}</div>
                       <div className="text-[9px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* UI Theme */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Portal Theme (applies to every page for all users)
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {THEME_OPTIONS.map((opt) => {
+                  const isSelected = (form.ui_theme || "classic") === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => handleFieldChange("ui_theme", opt.id)}
+                      aria-pressed={isSelected}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                        isSelected
+                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
+                          : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <div style={{ background: opt.bg }} className="h-14 rounded-lg mb-2 p-2 flex items-end">
+                        <div style={opt.card} className="w-full h-7" />
+                      </div>
+                      <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">{opt.label}</div>
+                      <div className="text-[9.5px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
                     </button>
                   );
                 })}

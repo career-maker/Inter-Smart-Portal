@@ -1,5 +1,7 @@
 import api from "./api";
 
+export type UiTheme = "classic" | "glass" | "neumorphism" | "brutalism" | "clay" | "minimal";
+
 export interface CustomizationSettings {
   id?: number;
   font_family: string;
@@ -9,6 +11,7 @@ export interface CustomizationSettings {
   header_subtitle?: string;
   show_header_subtitle?: boolean;
   sidebar_active_color?: string;
+  ui_theme?: UiTheme;
   card_elevation?: "flat" | "subtle" | "floating" | "glassmorphic";
   button_style?: "rounded" | "pill" | "sharp";
   density?: "compact" | "comfortable" | "spacious";
@@ -57,6 +60,7 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   light_bg_color: "#F5F7FC",
   card_bg_color: "#FDFBFE",
   border_color: "#E4E7F0",
+  ui_theme: "classic",
   card_elevation: "subtle",
   button_style: "rounded",
   density: "comfortable",
@@ -121,6 +125,7 @@ export function normalizeCustomizationSettings(raw?: any): CustomizationSettings
       raw.sidebar_bg_color ||
       extra.sidebar_bg_color ||
       DEFAULT_CUSTOMIZATION_SETTINGS.sidebar_bg_color,
+    ui_theme: (raw.ui_theme || extra.ui_theme || DEFAULT_CUSTOMIZATION_SETTINGS.ui_theme) as UiTheme,
     // Flatten any values stored inside extra_colors (used as database fallback)
     login_bg_video_url:
       raw.login_bg_video_url ||

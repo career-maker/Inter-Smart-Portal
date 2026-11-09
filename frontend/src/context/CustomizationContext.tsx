@@ -155,6 +155,8 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     root.style.setProperty("--portal-sub-header-bg", conf.sub_header_bg || "#ffffff");
     root.style.setProperty("--portal-sub-header-active", conf.sub_header_active_color || primaryColor);
 
+    root.setAttribute("data-ui-theme", conf.ui_theme || "classic");
+
     // 8. Card Elevation & Button Style
     const elevationMap = {
       flat: "none",
