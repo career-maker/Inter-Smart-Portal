@@ -196,15 +196,11 @@ export default function LoginPage() {
           <p className="text-slate-400 text-lg">
             {customizationSettings?.login_subheading || "Manage attendance, leaves, teams, and more — built for the modern workplace."}
           </p>
-          <div className="mt-10 flex gap-6">
-            {["Attendance", "Leave Management", "Team Collaboration"].map(f => (
-              <div key={f} className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300">{f}</div>
-            ))}
-          </div>
+          <p className="mt-10 text-sm text-slate-300">Attendance · Leave Management · Team Collaboration</p>
         </div>
         <div>
-          <p className="text-slate-600 text-sm">© 2026 Inter Smart. All rights reserved.</p>
-          <p className="text-slate-600 text-sm mt-1">Developed By Team QA</p>
+          <p className="text-slate-300 text-sm">© 2026 Inter Smart. All rights reserved.</p>
+          <p className="text-slate-300 text-sm mt-1">Developed By Team QA</p>
         </div>
       </div>
 
@@ -335,8 +331,8 @@ export default function LoginPage() {
             </form>
           </div>
           <div className="mt-8 text-center lg:hidden">
-            <p className="text-slate-600 text-sm">© 2026 Inter Smart. All rights reserved.</p>
-            <p className="text-slate-600 text-sm mt-1">Developed By Team QA</p>
+            <p className="text-slate-300 text-sm">© 2026 Inter Smart. All rights reserved.</p>
+            <p className="text-slate-300 text-sm mt-1">Developed By Team QA</p>
           </div>
         </div>
       </div>
