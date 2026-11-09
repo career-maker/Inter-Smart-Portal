@@ -39,11 +39,11 @@
 .premium-card:hover { box-shadow: 0 14px 34px -10px rgba(18, 52, 77, 0.22), 0 1px 0 rgba(255, 255, 255, 0.9) inset !important; }
 
 /* Every white bordered panel in the page is a glass card (same radius, blur and shadow as .premium-card) */
-main .bg-white.border:where(:not(button,input,select,textarea,td,th,tr,a,span,svg,.rounded-full)),
-main .bg-white.rounded-md:where(:not(button,input,select,textarea,td,th,tr,a,span,svg)),
-main .bg-white.rounded-lg:where(:not(button,input,select,textarea,td,th,tr,a,span,svg)),
-main .bg-white.rounded-xl:where(:not(button,input,select,textarea,td,th,tr,a,span,svg)),
-main .bg-white.rounded-2xl:where(:not(button,input,select,textarea,td,th,tr,a,span,svg)) {
+main .bg-white.border:where(:not(button,input,select,textarea,td,th,tr,span,svg,.rounded-full)),
+main .bg-white.rounded-md:where(:not(button,input,select,textarea,td,th,tr,span,svg)),
+main .bg-white.rounded-lg:where(:not(button,input,select,textarea,td,th,tr,span,svg)),
+main .bg-white.rounded-xl:where(:not(button,input,select,textarea,td,th,tr,span,svg)),
+main .bg-white.rounded-2xl:where(:not(button,input,select,textarea,td,th,tr,span,svg)) {
   background-color: var(--glass-bg) !important;
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
