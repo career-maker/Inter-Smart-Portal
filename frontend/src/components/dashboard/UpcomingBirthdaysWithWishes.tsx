@@ -8,6 +8,7 @@ import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { format } from "date-fns";
+import { BirthdayWishDrawer, WishTargetPerson } from "@/components/community/BirthdayWishDrawer";
 
 interface UpcomingBirthdaysProps {
   items: any[];
@@ -17,6 +18,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
   const currentUser = useAuthStore((state) => state.user);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedBirthdayId, setSelectedBirthdayId] = useState<number | null>(null);
+  const [wishTarget, setWishTarget] = useState<WishTargetPerson | null>(null);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -77,7 +79,26 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
             return (
               <div
                 key={person.id || idx}
-                className={`bday-card bday-card-${idx % 3} flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800`}
+                role="button"
+                tabIndex={0}
+                aria-label={`Send a birthday wish to ${person.name}`}
+                onClick={() =>
+                  setWishTarget({
+                    id: person.id,
+                    name: person.name,
+                    designation: person.designation,
+                    profile_photo_path: person.profile_photo_path,
+                    type: "birthday",
+                    date: person.date,
+                  })
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    (e.currentTarget as HTMLElement).click();
+                  }
+                }}
+                className={`cursor-pointer bday-card bday-card-${idx % 3} flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <RoyalAvatar
@@ -126,6 +147,8 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
           })}
         </div>
       )}
+
+      <BirthdayWishDrawer person={wishTarget} onClose={() => setWishTarget(null)} />
     </div>
   );
 }
