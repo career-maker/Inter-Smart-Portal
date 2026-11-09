@@ -17,18 +17,18 @@ const buttonVariants = cva(
         outline:
           "border-[var(--portal-primary-color,#00BDA1)] bg-background text-[var(--portal-primary-color,#00BDA1)] hover:bg-[var(--portal-primary-color,#00BDA1)] hover:text-white aria-expanded:bg-[var(--portal-primary-color,#00BDA1)] aria-expanded:text-white",
         secondary:
-          "bg-[var(--portal-secondary,#FE586E)] text-white hover:opacity-90 aria-expanded:opacity-90",
+          "bg-[var(--portal-secondary,#00806E)] text-white hover:opacity-90 aria-expanded:opacity-90",
         tertiary:
           "bg-[var(--portal-tertiary,#0780B7)] text-white hover:opacity-90 aria-expanded:opacity-90",
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
-          "bg-[var(--portal-secondary,#FE586E)] text-white hover:opacity-90 focus-visible:ring-[var(--portal-secondary,#FE586E)]/30",
+          "bg-[var(--portal-secondary,#00806E)] text-white hover:opacity-90 focus-visible:ring-[var(--portal-secondary,#00806E)]/30",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
         default:
-          "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+          "h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",

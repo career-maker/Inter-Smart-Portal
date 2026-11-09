@@ -94,7 +94,7 @@
 
 /* Brand action colours and text tones (new portal look). Primary buttons use --portal-primary-color. */
 :root {
-  --portal-secondary: #FE586E;   /* coral: secondary buttons */
+  --portal-secondary: #00806E;   /* brand: secondary buttons */
   --portal-tertiary: #0780B7;    /* blue: tertiary buttons */
   --portal-accent: #FFCC61;      /* yellow: highlight / warning */
   --portal-muted-text: #85858F;  /* secondary text */
@@ -5192,8 +5192,8 @@ html [role="button"][class~="bg-pink-600"]:not(aside *):not([data-subtab]):not(#
 html button[class~="bg-pink-700"]:not(aside *):not([data-subtab]):not(#global-fixed-header-container *),
 html a[class~="bg-pink-700"]:not(aside *):not([data-subtab]):not(#global-fixed-header-container *),
 html [role="button"][class~="bg-pink-700"]:not(aside *):not([data-subtab]):not(#global-fixed-header-container *) {
-  background-color: var(--portal-secondary, #FE586E) !important;
-  border-color: var(--portal-secondary, #FE586E) !important;
+  background-color: var(--portal-secondary, #00806E) !important;
+  border-color: var(--portal-secondary, #00806E) !important;
   color: #FFFFFF !important;
   border-radius: var(--portal-button-radius, 9px) !important;
   font-weight: 600 !important;
