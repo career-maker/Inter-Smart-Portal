@@ -3968,6 +3968,14 @@ select:focus {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--portal-primary-color, #2563EB) 15%, transparent) !important;
 }
 
+/* Search palette input sits in its own bordered row: no focus ring */
+.portal-command-palette input:focus,
+.portal-command-palette input:focus-visible {
+  border-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* ── Hardcoded hex class overrides ────────────────────────────────────── */
 .bg-\[\#56348f\], .bg-\[\#472a77\], .bg-\[\#462875\], .bg-\[\#3a1c68\] {
   background-color: var(--portal-primary-color, #2563EB) !important;
