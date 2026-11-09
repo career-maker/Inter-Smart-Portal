@@ -111,7 +111,8 @@ html[data-ui-theme="brutalism"] #welcome-hero-banner {
   border-radius: 0 !important;
   box-shadow: 6px 6px 0 #000 !important;
 }
-html[data-ui-theme="brutalism"] #welcome-hero-banner > .absolute { display: none !important; }
+/* hide the photo/ambient layers for the flat blue look, but keep an uploaded banner video playing */
+html[data-ui-theme="brutalism"] #welcome-hero-banner:not(:has(> video)) > .absolute { display: none !important; }
 
 html[data-ui-theme="brutalism"] main :is(.bg-primary, button[class*="bg-primary"]) {
   background: #FFD600 !important;
