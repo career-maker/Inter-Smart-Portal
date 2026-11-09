@@ -689,6 +689,11 @@ Route::middleware('auth:sanctum')->prefix('pm/hubstaff')->group(function () {
 Route::middleware('auth:sanctum')->prefix('direct-chat')->group(function () {
     Route::get('conversations', [\App\Http\Controllers\Api\DirectChatController::class, 'index']);
     Route::post('conversations/direct', [\App\Http\Controllers\Api\DirectChatController::class, 'startOrGetDirectConversation']);
+    Route::post('conversations/group', [\App\Http\Controllers\Api\DirectChatController::class, 'createGroup']);
+    Route::put('conversations/{conversation}', [\App\Http\Controllers\Api\DirectChatController::class, 'updateGroup']);
+    Route::post('conversations/{conversation}/members', [\App\Http\Controllers\Api\DirectChatController::class, 'addMembers']);
+    Route::delete('conversations/{conversation}/members/{member}', [\App\Http\Controllers\Api\DirectChatController::class, 'removeMember']);
+    Route::put('conversations/{conversation}/members/{member}/role', [\App\Http\Controllers\Api\DirectChatController::class, 'setMemberRole']);
     Route::get('users/search', [\App\Http\Controllers\Api\DirectChatController::class, 'searchUsers']);
     Route::get('conversations/{conversation}/messages', [\App\Http\Controllers\Api\DirectChatController::class, 'getMessages']);
     Route::post('conversations/{conversation}/messages', [\App\Http\Controllers\Api\DirectChatController::class, 'sendMessage']);

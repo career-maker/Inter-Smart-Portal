@@ -104,6 +104,42 @@ class DirectChatController extends Controller
         ];
     }
 
+    /** A participant with the user fields plus their group role. */
+    private function formatParticipant($cp, $activeUserIds = null): ?array
+    {
+        $u = $this->formatUser($cp->user, $activeUserIds);
+        if (!$u) return null;
+        $u['group_role'] = $cp->role ?? 'member';
+
+        return $u;
+    }
+
+    /** Stores a centred "system" line in a group (created, added, removed, left...). */
+    private function systemMessage(Conversation $conversation, int $actorId, string $text): ChatMessage
+    {
+        $msg = ChatMessage::create([
+            'conversation_id' => $conversation->id,
+            'sender_id' => $actorId,
+            'message' => $text,
+            'message_type' => 'system',
+        ]);
+        $conversation->update(['last_message_at' => Carbon::now()]);
+
+        return $msg;
+    }
+
+    private function fullName($user): string
+    {
+        return trim("{$user->first_name} {$user->last_name}");
+    }
+
+    private function isGroupAdmin(Conversation $conversation, $user): bool
+    {
+        $row = $conversation->participants()->where('user_id', $user->id)->first();
+
+        return $row && $row->role === 'admin';
+    }
+
     /**
      * Format an attachment object with a full accessible URL.
      */
@@ -186,7 +222,8 @@ class DirectChatController extends Controller
                 ->map(fn($cp) => $this->formatUser($cp->user, $activeUserIds))
                 ->values();
 
-            $otherUser = $otherParticipants->first();
+            $isGroup = $conv->type === 'group';
+            $otherUser = $isGroup ? null : $otherParticipants->first();
 
             $unreadCount = $unreadByConv[$conv->id] ?? 0;
 
@@ -197,7 +234,9 @@ class DirectChatController extends Controller
                 'type' => $conv->type,
                 'title' => $conv->title ?: ($otherUser ? $otherUser['name'] : 'Conversation'),
                 'other_user' => $otherUser,
-                'participants' => $conv->participants->map(fn($cp) => $this->formatUser($cp->user))->values(),
+                'my_role' => $p->role ?? 'member',
+                'created_by' => $conv->created_by,
+                'participants' => $conv->participants->map(fn($cp) => $this->formatParticipant($cp, $isGroup ? $activeUserIds : null))->filter()->values(),
                 'latest_message' => $latestMsg,
                 'unread_count' => $unreadCount,
                 'last_message_at' => $conv->last_message_at ? $conv->last_message_at->toISOString() : $conv->created_at?->toISOString(),
@@ -428,14 +467,24 @@ class DirectChatController extends Controller
             ->with('user.team')
             ->first();
 
+        $isGroup = $conversation->type === 'group';
+        // In a group a message counts as read once every other member has read it
         $otherLastReadAt = $otherParticipant ? $otherParticipant->last_read_at : null;
+        if ($isGroup) {
+            $reads = $conversation->participants()->where('user_id', '!=', $user->id)->pluck('last_read_at');
+            $otherLastReadAt = $reads->isEmpty() || $reads->contains(null) ? null : $reads->min();
+        }
 
         return response()->json([
             'status' => 'success',
             'conversation' => [
                 'id' => $conversation->id,
                 'type' => $conversation->type,
-                'other_user' => $otherParticipant ? $this->formatUser($otherParticipant->user, $activeUserIds) : null,
+                'title' => $conversation->title,
+                'other_user' => (!$isGroup && $otherParticipant) ? $this->formatUser($otherParticipant->user, $activeUserIds) : null,
+                'participants' => $isGroup
+                    ? $conversation->participants()->with('user.team')->get()->map(fn($cp) => $this->formatParticipant($cp, $activeUserIds))->filter()->values()
+                    : [],
             ],
             'data' => $messages->map(fn($m) => $this->formatMessage($m, $otherLastReadAt))->values(),
         ]);
@@ -458,7 +507,8 @@ class DirectChatController extends Controller
 
         $request->validate([
             'message' => 'nullable|string',
-            'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp,heic,pdf,doc,docx,xls,xlsx,csv,txt,zip,ppt,pptx,mp4,mov|max:5120', // 5MB limit
+            'message_type' => 'nullable|string|in:sticker',
+            'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp,heic,pdf,doc,docx,xls,xlsx,csv,txt,zip,ppt,pptx,mp4,mov,weba,webm,ogg,oga,opus,mp3,mpga,m4a,mp4a,wav,aac|max:5120', // 5MB limit
         ], [
             'attachments.*.max' => 'Attachment exceeds the maximum allowed size of 5 MB.',
         ]);
@@ -471,11 +521,17 @@ class DirectChatController extends Controller
         }
 
         $messageType = 'text';
-        if ($hasFiles && $messageText === '') {
+        if ($request->input('message_type') === 'sticker') {
+            // Stickers are a fixed catalogue on the frontend; the message holds the sticker id only
+            if (!preg_match('/^st_[a-z0-9_]{1,40}$/', $messageText)) {
+                return response()->json(['message' => 'Invalid sticker.'], 422);
+            }
+            $messageType = 'sticker';
+        } elseif ($hasFiles && $messageText === '') {
             $files = $request->file('attachments');
             $firstFile = is_array($files) ? ($files[0] ?? null) : $files;
             $mime = $firstFile ? $firstFile->getMimeType() : '';
-            $messageType = str_starts_with($mime, 'image/') ? 'image' : 'file';
+            $messageType = str_starts_with($mime, 'image/') ? 'image' : (str_starts_with($mime, 'audio/') ? 'audio' : 'file');
         }
 
         $chatMessage = DB::transaction(function () use ($request, $conversation, $user, $messageText, $messageType, $hasFiles) {
@@ -529,6 +585,127 @@ class DirectChatController extends Controller
             'status' => 'success',
             'data' => $this->formatMessage($chatMessage),
         ], 201);
+    }
+
+    /**
+     * Create a group. The creator becomes its admin.
+     */
+    public function createGroup(Request $request)
+    {
+        $user = $request->user();
+        $data = $request->validate([
+            'title' => 'required|string|max:80',
+            'member_ids' => 'required|array|min:1|max:255',
+            'member_ids.*' => 'integer|exists:users,id',
+        ]);
+
+        $memberIds = collect($data['member_ids'])->map(fn($i) => (int)$i)->reject(fn($i) => $i === $user->id)->unique()->values();
+        if ($memberIds->isEmpty()) {
+            return response()->json(['message' => 'Pick at least one other member.'], 422);
+        }
+
+        $conversation = DB::transaction(function () use ($user, $data, $memberIds) {
+            $conv = Conversation::create([
+                'type' => 'group',
+                'title' => trim($data['title']),
+                'created_by' => $user->id,
+                'last_message_at' => Carbon::now(),
+            ]);
+            ConversationParticipant::create(['conversation_id' => $conv->id, 'user_id' => $user->id, 'role' => 'admin', 'last_read_at' => Carbon::now()]);
+            foreach ($memberIds as $id) {
+                ConversationParticipant::create(['conversation_id' => $conv->id, 'user_id' => $id, 'role' => 'member']);
+            }
+            $this->systemMessage($conv, $user->id, $this->fullName($user) . ' created the group "' . $conv->title . '"');
+
+            return $conv;
+        });
+
+        return response()->json(['status' => 'success', 'data' => ['id' => $conversation->id]], 201);
+    }
+
+    /** Group admins add members. */
+    public function addMembers(Request $request, Conversation $conversation)
+    {
+        $user = $request->user();
+        if ($conversation->type !== 'group') return response()->json(['message' => 'Not a group.'], 422);
+        if (!$this->isGroupAdmin($conversation, $user)) return response()->json(['message' => 'Only group admins can add members.'], 403);
+
+        $data = $request->validate(['user_ids' => 'required|array|min:1|max:100', 'user_ids.*' => 'integer|exists:users,id']);
+        $existing = $conversation->participants()->pluck('user_id')->all();
+        $newIds = collect($data['user_ids'])->map(fn($i) => (int)$i)->unique()->reject(fn($i) => in_array($i, $existing, true))->values();
+
+        $names = [];
+        foreach ($newIds as $id) {
+            ConversationParticipant::create(['conversation_id' => $conversation->id, 'user_id' => $id, 'role' => 'member']);
+            $u = User::find($id);
+            if ($u) $names[] = $this->fullName($u);
+        }
+        if ($names) {
+            $this->systemMessage($conversation, $user->id, $this->fullName($user) . ' added ' . implode(', ', $names));
+        }
+
+        return response()->json(['status' => 'success', 'added' => count($names)]);
+    }
+
+    /** Admin removes a member, or any member leaves (their own id). The last admin is replaced automatically. */
+    public function removeMember(Request $request, Conversation $conversation, User $member)
+    {
+        $user = $request->user();
+        if ($conversation->type !== 'group') return response()->json(['message' => 'Not a group.'], 422);
+
+        $selfLeave = $member->id === $user->id;
+        if (!$selfLeave && !$this->isGroupAdmin($conversation, $user)) {
+            return response()->json(['message' => 'Only group admins can remove members.'], 403);
+        }
+        $row = $conversation->participants()->where('user_id', $member->id)->first();
+        if (!$row) return response()->json(['message' => 'Not a member.'], 404);
+
+        $wasAdmin = $row->role === 'admin';
+        $row->delete();
+        $this->systemMessage($conversation, $user->id, $selfLeave ? $this->fullName($member) . ' left' : $this->fullName($user) . ' removed ' . $this->fullName($member));
+
+        $remaining = $conversation->participants()->orderBy('id')->get();
+        if ($remaining->isEmpty()) {
+            $conversation->delete();
+        } elseif ($wasAdmin && !$remaining->contains('role', 'admin')) {
+            $remaining->first()->update(['role' => 'admin']);
+        }
+
+        return response()->json(['status' => 'success']);
+    }
+
+    /** Admin promotes a member to admin or demotes an admin. */
+    public function setMemberRole(Request $request, Conversation $conversation, User $member)
+    {
+        $user = $request->user();
+        if ($conversation->type !== 'group') return response()->json(['message' => 'Not a group.'], 422);
+        if (!$this->isGroupAdmin($conversation, $user)) return response()->json(['message' => 'Only group admins can change roles.'], 403);
+
+        $data = $request->validate(['role' => 'required|string|in:admin,member']);
+        $row = $conversation->participants()->where('user_id', $member->id)->first();
+        if (!$row) return response()->json(['message' => 'Not a member.'], 404);
+
+        if ($data['role'] === 'member' && $row->role === 'admin' && $conversation->participants()->where('role', 'admin')->count() <= 1) {
+            return response()->json(['message' => 'A group needs at least one admin.'], 422);
+        }
+        $row->update(['role' => $data['role']]);
+        $this->systemMessage($conversation, $user->id, $this->fullName($user) . ($data['role'] === 'admin' ? ' made ' . $this->fullName($member) . ' an admin' : ' removed ' . $this->fullName($member) . ' as admin'));
+
+        return response()->json(['status' => 'success']);
+    }
+
+    /** Admin renames the group. */
+    public function updateGroup(Request $request, Conversation $conversation)
+    {
+        $user = $request->user();
+        if ($conversation->type !== 'group') return response()->json(['message' => 'Not a group.'], 422);
+        if (!$this->isGroupAdmin($conversation, $user)) return response()->json(['message' => 'Only group admins can rename the group.'], 403);
+
+        $data = $request->validate(['title' => 'required|string|max:80']);
+        $conversation->update(['title' => trim($data['title'])]);
+        $this->systemMessage($conversation, $user->id, $this->fullName($user) . ' renamed the group to "' . $conversation->title . '"');
+
+        return response()->json(['status' => 'success']);
     }
 
     /**

@@ -29,11 +29,17 @@ import {
   ArrowLeft,
   Bell,
   Smile,
-  Volume2
+  Volume2,
+  Users,
+  Sticker as StickerIcon,
+  Info
 } from "lucide-react";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
 
 import { useChatPushNotifications } from "@/hooks/useChatPushNotifications";
+import { StickerPicker, StickerView, stickerLabel } from "./stickers";
+import { VoiceRecorder } from "./VoiceRecorder";
+import { CreateGroupModal, GroupInfoPanel } from "./GroupDialogs";
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -48,6 +54,7 @@ interface ChatUser {
   employee_code?: string;
   profile_photo_path?: string | null;
   role?: string;
+  group_role?: string;
   is_online?: boolean;
 }
 
@@ -90,6 +97,8 @@ interface Conversation {
   is_pinned?: boolean;
   is_muted?: boolean;
   is_optimistic?: boolean;
+  my_role?: string;
+  created_by?: number;
 }
 
 const CHAT_EMOJI_CATEGORIES = [
@@ -344,6 +353,10 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
   // Search & New Chat with Instant Client Pre-caching
   const [searchQuery, setSearchQuery] = useState("");
   const [showNewChatModal, setShowNewChatModal] = useState(false);
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [showGroupInfo, setShowGroupInfo] = useState(false);
+  const [showStickerPicker, setShowStickerPicker] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [allColleagues, setAllColleagues] = useState<ChatUser[]>([]);
   const [loadingColleagues, setLoadingColleagues] = useState(false);
@@ -1182,6 +1195,50 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
     }
   };
 
+  // Stickers and voice notes: sent straight to the server (no optimistic bubble), then appended
+  const sendSpecial = async (opts: { sticker?: string; audio?: File }) => {
+    if (!activeConversationId) return;
+    const convId = activeConversationId;
+    setShowStickerPicker(false);
+    try {
+      let res;
+      const url = `/direct-chat/conversations/${convId}/messages`;
+      if (opts.audio) {
+        if (opts.audio.size > MAX_FILE_SIZE_BYTES) {
+          setErrorMessage("Voice note is larger than 5 MB.");
+          return;
+        }
+        const fd = new FormData();
+        fd.append("attachments[]", opts.audio);
+        res = await api.post(url, fd, { headers: { "Content-Type": "multipart/form-data" } });
+      } else {
+        res = await api.post(url, { message: opts.sticker, message_type: "sticker" });
+      }
+      if (res.data?.status === "success") {
+        const m = res.data.data;
+        knownMessageIdsRef.current.add(m.id);
+        lastActivityTimeRef.current = Date.now();
+        setMessages((prev) => {
+          if (prev.some((x) => x.id === m.id)) return prev;
+          const next = [...prev, { ...m, status: "sent" as const }];
+          messagesCacheRef.current[convId] = next;
+          return next;
+        });
+        setConversations((prev) =>
+          prev.map((c) => (c.id === convId ? { ...c, latest_message: m, last_message_at: m.created_at || new Date().toISOString() } : c))
+        );
+      }
+    } catch (err: any) {
+      setErrorMessage(err.response?.data?.message || "Failed to send. Please try again.");
+    }
+  };
+
+  const handleGroupCreated = async (conversationId: number) => {
+    setShowGroupModal(false);
+    await fetchConversations();
+    setActiveConversationId(conversationId);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -1284,6 +1341,15 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
               title={isFullscreen ? "Exit full screen" : "Full screen"}
             >
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+
+            <button
+              onClick={() => setShowGroupModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-[#56348f] text-[#56348f] dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 rounded-full text-xs font-bold transition-all cursor-pointer active:scale-95"
+              title="Create a group"
+            >
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline">New Group</span>
             </button>
 
             <button
@@ -1402,18 +1468,26 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                   }`}
                 >
                     <div className="relative shrink-0">
-                      <RoyalAvatar
-                        src={other?.profile_photo_path}
-                        name={other?.name || "User"}
-                        userId={other?.id}
-                        className="w-12 h-12 rounded-full text-xs shadow-2xs"
-                      />
-                      <span
-                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 ${
-                          other?.is_online ? "bg-emerald-500" : "bg-rose-500"
-                        }`}
-                        title={other?.is_online ? "Online" : "Offline"}
-                      />
+                      {conv.type === "group" ? (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#56348f] to-indigo-500 text-white flex items-center justify-center shadow-2xs">
+                          <Users className="w-6 h-6" />
+                        </div>
+                      ) : (
+                        <>
+                          <RoyalAvatar
+                            src={other?.profile_photo_path}
+                            name={other?.name || "User"}
+                            userId={other?.id}
+                            className="w-12 h-12 rounded-full text-xs shadow-2xs"
+                          />
+                          <span
+                            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 ${
+                              other?.is_online ? "bg-emerald-500" : "bg-rose-500"
+                            }`}
+                            title={other?.is_online ? "Online" : "Offline"}
+                          />
+                        </>
+                      )}
                     </div>
 
                   <div className="flex-1 min-w-0">
@@ -1436,10 +1510,18 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
 
                     <div className="flex items-center justify-between gap-2 mt-0.5">
                       <p className={`text-xs truncate [overflow-wrap:anywhere] ${hasUnread ? "font-bold text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400"}`}>
-                        {latest?.message ? (
-                          latest.message
+                        {latest?.message_type === "sticker" ? (
+                          <span>🏷️ {stickerLabel(latest.message)}</span>
+                        ) : latest?.message ? (
+                          conv.type === "group" && latest.message_type !== "system" && latest.sender
+                            ? `${latest.sender_id === currentUser?.id ? "You" : latest.sender.first_name}: ${latest.message}`
+                            : latest.message
                         ) : latest?.attachments?.length ? (
-                          <span className="text-purple-600 dark:text-purple-400 font-medium">📎 Photo / Attachment</span>
+                          latest.attachments[0]?.file_type?.startsWith("audio/") ? (
+                            <span className="text-purple-600 dark:text-purple-400 font-medium">🎤 Voice note</span>
+                          ) : (
+                            <span className="text-purple-600 dark:text-purple-400 font-medium">📎 Photo / Attachment</span>
+                          )
                         ) : (
                           <span className="italic text-slate-400">Tap to start chatting</span>
                         )}
@@ -1491,18 +1573,31 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                 </button>
 
                 <div className="relative shrink-0">
-                  <RoyalAvatar
-                    src={activeConversation.other_user?.profile_photo_path}
-                    name={activeConversation.other_user?.name || "User"}
-                    userId={activeConversation.other_user?.id}
-                    className="w-10 h-10 rounded-full shadow-2xs"
-                  />
-                  <span
-                    className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-900 ${
-                      activeConversation.other_user?.is_online ? "bg-emerald-500" : "bg-rose-500"
-                    }`}
-                    title={activeConversation.other_user?.is_online ? "Online" : "Offline"}
-                  />
+                  {activeConversation.type === "group" ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowGroupInfo(true)}
+                      className="w-10 h-10 rounded-full bg-gradient-to-br from-[#56348f] to-indigo-500 text-white flex items-center justify-center shadow-2xs cursor-pointer"
+                      aria-label="Group info"
+                    >
+                      <Users className="w-5 h-5" />
+                    </button>
+                  ) : (
+                    <>
+                      <RoyalAvatar
+                        src={activeConversation.other_user?.profile_photo_path}
+                        name={activeConversation.other_user?.name || "User"}
+                        userId={activeConversation.other_user?.id}
+                        className="w-10 h-10 rounded-full shadow-2xs"
+                      />
+                      <span
+                        className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-900 ${
+                          activeConversation.other_user?.is_online ? "bg-emerald-500" : "bg-rose-500"
+                        }`}
+                        title={activeConversation.other_user?.is_online ? "Online" : "Offline"}
+                      />
+                    </>
+                  )}
                 </div>
 
                 <div className="min-w-0">
@@ -1511,6 +1606,12 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                     userId={activeConversation.other_user?.id}
                     className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate block leading-tight"
                   />
+                  {activeConversation.type === "group" ? (
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                      {activeConversation.participants.length} members
+                      {activeConversation.my_role === "admin" ? " • You are an admin" : ""}
+                    </p>
+                  ) : (
                   <div className="flex items-center gap-1.5 text-[11px] truncate mt-0.5">
                     {activeConversation.other_user?.is_online ? (
                       <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
@@ -1532,12 +1633,25 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                       </>
                     )}
                   </div>
+                  )}
                 </div>
               </div>
 
               {/* Header Right Actions */}
               <div className="flex items-center gap-1.5">
+                {activeConversation.type === "group" && (
+                  <button
+                    type="button"
+                    onClick={() => setShowGroupInfo(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer"
+                    title="Group info and members"
+                  >
+                    <Info className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Group info</span>
+                  </button>
+                )}
                 {/* Minimize to Side Chat */}
+                {activeConversation.type !== "group" && (
                 <button
                   type="button"
                   onClick={() => {
@@ -1558,6 +1672,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                   <Minimize2 className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Pop Out</span>
                 </button>
+                )}
               </div>
             </div>
 
@@ -1588,6 +1703,16 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                     msgTime = format(new Date(), "h:mm a");
                   }
 
+                  if (msg.message_type === "system") {
+                    return (
+                      <div key={msg.id} className="flex justify-center">
+                        <span className="px-3 py-1 rounded-full bg-slate-200/80 dark:bg-slate-700/70 text-slate-600 dark:text-slate-300 text-[11px] font-medium text-center max-w-[90%] [overflow-wrap:anywhere]">
+                          {msg.message}
+                        </span>
+                      </div>
+                    );
+                  }
+
                   const isSending = msg.status === "sending";
                   const isError = msg.status === "error";
 
@@ -1603,8 +1728,14 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                             : "bg-white text-[#111b21] dark:bg-[#202c33] dark:text-[#e9edef] rounded-tl-xs"
                         }`}
                       >
+                        {activeConversation.type === "group" && !isMe && msg.sender && (
+                          <p className="text-[11px] font-bold text-[#56348f] dark:text-purple-300 mb-0.5">{msg.sender.name}</p>
+                        )}
+
+                        {msg.message_type === "sticker" && <StickerView id={msg.message} />}
+
                         {/* Message Text */}
-                        {msg.message && (
+                        {msg.message && msg.message_type !== "sticker" && (
                           <p className="text-xs sm:text-[13.5px] leading-relaxed whitespace-pre-wrap">
                             {msg.message}
                           </p>
@@ -1614,6 +1745,19 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                         {msg.attachments && msg.attachments.length > 0 && (
                           <div className={`space-y-1.5 ${msg.message ? "mt-2" : ""}`}>
                             {msg.attachments.map((att, attIdx) => {
+                              const isAudio = att.file_type?.startsWith("audio/") || /\.(webm|ogg|oga|opus|m4a|mp3|wav|aac)$/i.test(att.original_name || "");
+                              if (isAudio) {
+                                return (
+                                  <audio
+                                    key={att.id || attIdx}
+                                    controls
+                                    preload="metadata"
+                                    src={att.file_url}
+                                    className="w-56 sm:w-64 max-w-full h-10"
+                                  />
+                                );
+                              }
+
                               const isImg = att.file_type?.startsWith("image/") || att.original_name?.match(/\.(png|jpe?g|gif|webp|svg)$/i);
 
                               if (isImg) {
@@ -1719,6 +1863,10 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
 
             {/* Fixed Bottom Input Composer (Google Chat Style - Pinned at bottom) */}
             <div className="p-3 sm:p-4 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0 z-10 relative">
+              {showStickerPicker && (
+                <StickerPicker onPick={(id) => sendSpecial({ sticker: id })} onClose={() => setShowStickerPicker(false)} />
+              )}
+
               {/* Emoji Picker Popover Modal */}
               {showEmojiPicker && (
                 <div
@@ -1818,6 +1966,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
               )}
 
               <div className="flex items-end gap-2 bg-slate-100/90 dark:bg-[#202c33] rounded-2xl p-2 px-3 focus-within:bg-white dark:focus-within:bg-[#202c33] transition-all">
+                <div className={isRecording ? "hidden" : "contents"}>
                 {/* Attachment Picker */}
                 <button
                   type="button"
@@ -1850,6 +1999,24 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                   <Smile className="w-5 h-5" />
                 </button>
 
+                {/* Sticker Picker Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowStickerPicker((prev) => !prev);
+                    setShowEmojiPicker(false);
+                  }}
+                  className={`p-1.5 rounded-full transition cursor-pointer mb-0.5 shrink-0 ${
+                    showStickerPicker
+                      ? "text-[#56348f] dark:text-purple-400 bg-purple-100 dark:bg-purple-950/60"
+                      : "text-slate-500 hover:text-[#56348f] dark:hover:text-purple-400 hover:bg-slate-200/70 dark:hover:bg-slate-700"
+                  }`}
+                  title="Send a sticker"
+                  aria-label="Send a sticker"
+                >
+                  <StickerIcon className="w-5 h-5" />
+                </button>
+
                 {/* Message Input Textarea */}
                 <textarea
                   ref={textareaRef}
@@ -1861,17 +2028,25 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                   placeholder="Type a message... (Ctrl+V for screenshot, Enter to send)"
                   className="w-full bg-transparent border-none outline-none resize-none text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 py-1.5 max-h-32 custom-scrollbar leading-relaxed"
                 />
+                </div>
 
-                {/* Send Button */}
-                <button
-                  type="button"
-                  disabled={!inputMessage.trim() && stagedFiles.length === 0}
-                  onClick={() => handleSendMessage()}
-                  className="w-9 h-9 bg-[#56348f] hover:bg-[#432770] disabled:opacity-30 disabled:hover:bg-[#56348f] text-white rounded-full flex items-center justify-center shadow-xs transition-all shrink-0 cursor-pointer active:scale-95 mb-0.5"
-                  title="Send message (Enter)"
-                >
-                  <Send className="w-4 h-4 ml-0.5" />
-                </button>
+                {/* Send Button, or the mic when there is nothing to send */}
+                {inputMessage.trim() || stagedFiles.length > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => handleSendMessage()}
+                    className="w-9 h-9 bg-[#56348f] hover:bg-[#432770] text-white rounded-full flex items-center justify-center shadow-xs transition-all shrink-0 cursor-pointer active:scale-95 mb-0.5"
+                    title="Send message (Enter)"
+                  >
+                    <Send className="w-4 h-4 ml-0.5" />
+                  </button>
+                ) : (
+                  <VoiceRecorder
+                    onRecorded={(file) => sendSpecial({ audio: file })}
+                    onRecordingChange={setIsRecording}
+                    onError={setErrorMessage}
+                  />
+                )}
               </div>
             </div>
           </>
@@ -1908,6 +2083,26 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
           </div>
         )}
       </div>
+
+      {showGroupModal && <CreateGroupModal onClose={() => setShowGroupModal(false)} onCreated={handleGroupCreated} />}
+      {showGroupInfo && activeConversation?.type === "group" && (
+        <GroupInfoPanel
+          conversation={{
+            id: activeConversation.id,
+            title: activeConversation.title,
+            participants: activeConversation.participants as any,
+            my_role: activeConversation.my_role,
+          }}
+          currentUserId={currentUser?.id || 0}
+          onClose={() => setShowGroupInfo(false)}
+          onChanged={() => fetchConversations()}
+          onLeft={() => {
+            setShowGroupInfo(false);
+            setActiveConversationId(null);
+            fetchConversations();
+          }}
+        />
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
           MODAL: NEW CHAT / INSTANT SEARCH COLLEAGUE
