@@ -25,6 +25,7 @@ import {
 import Link from "next/link";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageLoader } from "@/components/ui/PageLoader";
@@ -422,12 +423,12 @@ export default function AttendanceManagementPage() {
   const SortHeader = ({ column, label }: { column: string; label: string }) => (
     <th
       onClick={() => handleSort(column)}
-      className="text-left py-3.5 px-4 font-semibold cursor-pointer hover:text-[#56348f] dark:hover:text-purple-400 transition-colors select-none text-slate-700 dark:text-slate-200"
+      className="text-left py-3.5 px-4 font-semibold cursor-pointer hover:text-[#00806E] dark:hover:text-purple-400 transition-colors select-none text-slate-700 dark:text-slate-200"
     >
       <div className="flex items-center gap-1.5">
         {label}
         {sortColumn === column && (
-          <span className="text-xs text-[#56348f] dark:text-purple-400">
+          <span className="text-xs text-[#00806E] dark:text-purple-400">
             {sortDirection === "asc" ? "▲" : "▼"}
           </span>
         )}
@@ -442,25 +443,16 @@ export default function AttendanceManagementPage() {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Attendance Management
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-            Super Admin: View daily biometric punches, timeline records, and manage employee attendance
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={() => setIsAllEmployeesReportOpen(true)}
-            className="bg-[#56348f] hover:bg-[#462a75] text-white gap-2 font-semibold shadow-sm text-xs sm:text-sm cursor-pointer"
-          >
+      <PageHeader
+        title="Attendance Management"
+        description="View daily biometric punches, timeline records, and manage employee attendance"
+        actions={
+          <Button onClick={() => setIsAllEmployeesReportOpen(true)} className="gap-2 cursor-pointer">
             <FileSpreadsheet className="w-4 h-4" />
             All Employees Report
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       {error && (
         <Card className="border-rose-300 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30">
@@ -492,7 +484,7 @@ export default function AttendanceManagementPage() {
                   }}
                   className="dark:text-white flex items-center gap-2 box-title"
                 >
-                  <CalendarDays className="w-5 h-5 text-[#56348f] dark:text-purple-400" />
+                  <CalendarDays className="w-5 h-5 text-[#00806E] dark:text-purple-400" />
                   View All Employees on a Date
                 </h3>
                 <p
@@ -509,8 +501,8 @@ export default function AttendanceManagementPage() {
 
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5">
-                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Date:
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                    Date
                   </label>
                   <input
                     type="date"
@@ -524,7 +516,7 @@ export default function AttendanceManagementPage() {
                 <Button
                   onClick={() => handleAllEmployeesDateSelection(selectedDate)}
                   disabled={!selectedDate || isLoadingDetails}
-                  className="bg-[#56348f] hover:bg-[#482b7b] text-white font-semibold text-sm px-4 py-2 rounded-lg shadow-sm gap-2"
+                  className="bg-[#00806E] hover:bg-[#006B5C] text-white font-semibold text-sm px-4 py-2 rounded-lg shadow-sm gap-2"
                 >
                   {isLoadingDetails ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -580,7 +572,7 @@ export default function AttendanceManagementPage() {
                   placeholder="Search by name, employee code, designation, or team..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#56348f]/40 dark:focus:ring-purple-400/40 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00806E]/40 dark:focus:ring-purple-400/40 transition-all"
                 />
               </div>
             </div>
@@ -588,7 +580,7 @@ export default function AttendanceManagementPage() {
             {/* Employee Table */}
             {isLoadingEmployees ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
-                <Loader2 className="h-8 w-8 animate-spin text-[#56348f] dark:text-purple-400" />
+                <Loader2 className="h-8 w-8 animate-spin text-[#00806E] dark:text-purple-400" />
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Loading employee directory...
                 </p>
@@ -668,7 +660,7 @@ export default function AttendanceManagementPage() {
                           </span>
                         </td>
                         <td className="py-3.5 px-5 text-right">
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#56348f] dark:text-purple-400 group-hover:translate-x-0.5 transition-transform">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#00806E] dark:text-purple-400 group-hover:translate-x-0.5 transition-transform">
                             View Attendance <ChevronRight className="w-3.5 h-3.5" />
                           </span>
                         </td>
@@ -735,7 +727,7 @@ export default function AttendanceManagementPage() {
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium truncate">
                     Employee Code: <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">{selectedEmployee.employee_code || "N/A"}</span>
                   </p>
-                  <p className="text-xs text-[#56348f] dark:text-purple-400 mt-0.5 font-medium truncate">
+                  <p className="text-xs text-[#00806E] dark:text-purple-400 mt-0.5 font-medium truncate">
                     {selectedEmployee.designation || "Team Member"} {selectedEmployee.team?.name ? `• ${selectedEmployee.team.name}` : ""}
                   </p>
                 </div>
@@ -755,7 +747,7 @@ export default function AttendanceManagementPage() {
                 }}
                 className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#00806E] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
                   <Calendar className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -763,7 +755,7 @@ export default function AttendanceManagementPage() {
                     <p className="font-semibold text-slate-900 dark:text-white text-[15px]">
                       Date Wise
                     </p>
-                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors" />
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#00806E] dark:group-hover:text-purple-300 transition-colors" />
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                     View detailed timeline for a specific date
@@ -778,7 +770,7 @@ export default function AttendanceManagementPage() {
                 }}
                 className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#00806E] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
                   <CalendarRange className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -786,7 +778,7 @@ export default function AttendanceManagementPage() {
                     <p className="font-semibold text-slate-900 dark:text-white text-[15px]">
                       Date Range
                     </p>
-                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors" />
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#00806E] dark:group-hover:text-purple-300 transition-colors" />
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                     View eSSL usage, leaves, WFH, late days &amp; floor time
@@ -826,7 +818,7 @@ export default function AttendanceManagementPage() {
                 }}
                 className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#00806E] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -834,7 +826,7 @@ export default function AttendanceManagementPage() {
                     <p className="font-semibold text-slate-900 dark:text-white text-[15px]">
                       Monthly Report
                     </p>
-                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors" />
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#00806E] dark:group-hover:text-purple-300 transition-colors" />
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                     Generate monthly attendance & leave text report
@@ -930,7 +922,7 @@ export default function AttendanceManagementPage() {
                     }}
                     className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                       employeeViewTab === "range"
-                        ? "bg-[#56348f] text-white shadow-xs font-bold"
+                        ? "bg-[#00806E] text-white shadow-xs font-bold"
                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
@@ -969,7 +961,7 @@ export default function AttendanceManagementPage() {
                 <Button
                   onClick={() => setIsMonthlyReportOpen(true)}
                   variant="outline"
-                  className="border-purple-300 dark:border-purple-700 text-[#56348f] dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs font-semibold gap-1.5 cursor-pointer"
+                  className="border-purple-300 dark:border-purple-700 text-[#00806E] dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs font-semibold gap-1.5 cursor-pointer"
                 >
                   <FileText className="w-3.5 h-3.5" />
                   Monthly Report
@@ -1009,7 +1001,7 @@ export default function AttendanceManagementPage() {
               {/* Daily Details Content */}
               {isLoadingDetails ? (
                 <div className="flex flex-col items-center justify-center py-16 gap-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#56348f] dark:text-purple-400" />
+                  <Loader2 className="h-8 w-8 animate-spin text-[#00806E] dark:text-purple-400" />
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Loading attendance details for {dateWiseSelectedDate}...
                   </p>
@@ -1126,7 +1118,7 @@ export default function AttendanceManagementPage() {
 
           {isLoadingDetails ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-[#56348f] dark:text-purple-400" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#00806E] dark:text-purple-400" />
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                 Loading attendance records...
               </p>
