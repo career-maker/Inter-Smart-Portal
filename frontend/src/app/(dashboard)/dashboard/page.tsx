@@ -1195,7 +1195,7 @@ export default function DashboardPage() {
         MAIN CONTENT SPLIT (Left: Menu, Right: Metrics)
         ========================================
       */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
         {/* LEFT / CENTER: MAIN MENU HUB (8 Cols) */}
         <div className="lg:col-span-8 space-y-6">
@@ -1254,9 +1254,8 @@ export default function DashboardPage() {
             
             <Link 
               href="/hall"
-              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-md p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
+              className="md:col-span-3 lg:col-span-2 group relative rounded-md p-5 sm:p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200/90 dark:border-slate-700/60 hover:border-[#56348f]/40 dark:hover:border-purple-400/40 transition-colors duration-200"
             >
-              <div className="absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out bg-indigo-50 z-0 dark:hidden" />
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="space-y-1">
                   {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
@@ -1272,7 +1271,7 @@ export default function DashboardPage() {
                     View The Hall
                   </h3>
                 </div>
-                <div className="w-10 h-10 rounded-md bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 flex items-center justify-center shadow-sm group-hover:scale-95 transition-transform">
+                <div className="w-10 h-10 rounded-md bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 flex items-center justify-center">
                   <ArrowRight className="w-5 h-5" />
                 </div>
               </div>
@@ -1285,9 +1284,9 @@ export default function DashboardPage() {
           RIGHT: UPCOMING HOLIDAYS (4 Cols)
           ========================================
         */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 flex flex-col">
           {/* Upcoming Holidays */}
-          <UpcomingHolidaysCard holidays={widgets.upcoming_holidays || []} />
+          <UpcomingHolidaysCard className="flex-1" holidays={widgets.upcoming_holidays || []} />
         </div>
 
       </div>
@@ -2613,45 +2612,15 @@ function CelebrationCard({ recognition, firstName }: { recognition: any; firstNa
   );
 }
 
-function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: any) {
-  const iconAccent: Record<string, string> = {
-    emerald: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
-    blue:    'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
-    violet:  'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400',
-    amber:   'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
-    rose:    'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400',
-    cyan:    'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400',
-    indigo:  'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
-    purple:  'bg-purple-100 dark:bg-purple-500/20 text-[#56348f] dark:text-purple-300',
-    slate:   'bg-slate-200/80 dark:bg-slate-700/60 text-slate-700 dark:text-slate-200',
-  };
-
-  const waveBgMap: Record<string, string> = {
-    emerald: 'bg-emerald-50 dark:bg-transparent',
-    blue:    'bg-blue-50 dark:bg-transparent',
-    violet:  'bg-violet-50 dark:bg-transparent',
-    amber:   'bg-amber-50 dark:bg-transparent',
-    rose:    'bg-rose-50 dark:bg-transparent',
-    cyan:    'bg-cyan-50 dark:bg-transparent',
-    indigo:  'bg-indigo-50 dark:bg-transparent',
-    purple:  'bg-purple-50 dark:bg-transparent',
-    slate:   'bg-slate-100 dark:bg-transparent',
-  };
-
-  const accent = iconAccent[color] || iconAccent.blue;
-  const waveBg = waveBgMap[color] || waveBgMap.blue;
-
+function MenuCard({ href, icon: Icon, title, subtitle, className = "" }: any) {
   return (
     <Link href={href} className={`block ${className}`}>
-      <div className="bg-white dark:bg-slate-800 rounded-md p-5 h-full relative overflow-hidden shadow-sm hover:shadow-md dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group">
-        <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
-        <div className="relative z-10">
-          <div className={`w-10 h-10 rounded-md ${accent} flex items-center justify-center mb-4 shadow-sm group-hover:scale-90 transition-transform duration-300`}>
-            <Icon className="w-5 h-5" />
-          </div>
-          <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white leading-tight mb-1 box-title">{title}</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{subtitle}</p>
+      <div className="h-full rounded-md p-5 sm:p-6 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 hover:border-[#56348f]/40 dark:hover:border-purple-400/40 transition-colors duration-200">
+        <div className="w-10 h-10 rounded-md bg-slate-100 dark:bg-slate-700/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center mb-4">
+          <Icon className="w-5 h-5" />
         </div>
+        <h3 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white box-title">{title}</h3>
+        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
       </div>
     </Link>
   );

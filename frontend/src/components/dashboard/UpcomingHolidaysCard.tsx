@@ -127,7 +127,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
 
   return (
     <div
-      className={`premium-card wave-card p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs transition-all ${className}`}
+      className={`premium-card p-5 sm:p-6 flex flex-col relative overflow-hidden ${className}`}
     >
       {/* Celebration Confetti Particles Overlay on Manual Pop */}
       {particles.length > 0 && (
@@ -150,7 +150,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
         </div>
       )}
 
-      <div>
+      <div className="flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between z-10 relative mb-1">
           <h3
@@ -199,7 +199,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
             </NextLink>
           </div>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-1 flex-1 flex flex-col justify-center">
             {/* Featured Celebration Section (Screenshot 1 exact design) */}
             {currentHoliday && (
               <div className="relative py-4 sm:py-5 flex items-center justify-between gap-1 z-10">

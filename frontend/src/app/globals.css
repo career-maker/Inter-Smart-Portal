@@ -3723,6 +3723,11 @@ body {
   font-family: "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
+/* Flat cards: no hover blob fill, no hover lift. Elevation is the border only. */
+.wave-card::before,
+.wave-card:hover::before { display: none !important; }
+.premium-card:hover { transform: none !important; }
+
 .dark .premium-card,
 .dark .wave-card,
 .dark .glass-card {
