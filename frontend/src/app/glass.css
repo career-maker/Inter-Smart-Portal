@@ -1,0 +1,96 @@
+/* Liquid Glass theme. Loaded after globals.css; delete the import in layout.tsx to revert. */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-strong: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-edge: rgba(15, 60, 80, 0.08);
+  --glass-shadow: 0 8px 28px -8px rgba(18, 52, 77, 0.16), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  --glass-blur: blur(18px) saturate(160%);
+  --glass-radius: 18px;
+}
+
+/* Soft aurora behind everything */
+html body {
+  background:
+    radial-gradient(900px 500px at 8% -5%, rgba(120, 200, 210, 0.35), transparent 60%),
+    radial-gradient(800px 520px at 100% 0%, rgba(150, 190, 235, 0.32), transparent 60%),
+    radial-gradient(700px 500px at 60% 100%, rgba(130, 225, 200, 0.28), transparent 60%),
+    #E9F1F6 !important;
+  background-attachment: fixed !important;
+}
+
+/* Cards */
+.premium-card,
+.wave-card,
+.glass-card,
+[data-card],
+[data-slot="card"] {
+  background: var(--glass-bg) !important;
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--glass-radius) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+.premium-card:hover { box-shadow: 0 14px 34px -10px rgba(18, 52, 77, 0.22), 0 1px 0 rgba(255, 255, 255, 0.9) inset !important; }
+
+/* Plain white panels inside the page become frosted too (no blur, to keep scrolling smooth) */
+main .bg-white:not(button):not(input):not(select):not(textarea):not(td):not(th):not(tr):not(a):not(span):not(svg) {
+  background-color: var(--glass-bg) !important;
+  border-color: var(--glass-border) !important;
+}
+main .rounded-xl.bg-white,
+main .rounded-2xl.bg-white,
+main .rounded-lg.bg-white { border-radius: var(--glass-radius) !important; box-shadow: var(--glass-shadow); }
+
+/* Tables inside glass */
+main table { background: transparent !important; }
+main thead,
+main thead tr,
+main thead th { background: rgba(255, 255, 255, 0.45) !important; }
+main tbody tr:hover { background: rgba(255, 255, 255, 0.55) !important; }
+main tbody tr,
+main tbody td { border-color: var(--glass-edge) !important; }
+
+/* Inputs and selects */
+main input:not([type="checkbox"]):not([type="radio"]),
+main select,
+main textarea {
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid var(--glass-edge) !important;
+  border-radius: 12px !important;
+}
+
+/* Dialogs, dropdowns, popovers: stronger frost so text stays readable */
+[role="dialog"],
+[role="menu"],
+[data-radix-popper-content-wrapper] > *,
+.portal-command-palette {
+  background: var(--glass-bg-strong) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 24px 60px -16px rgba(18, 52, 77, 0.35) !important;
+}
+
+/* Sub-header tab bar */
+#sub-header-tabs-bar {
+  background: rgba(255, 255, 255, 0.6) !important;
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+/* Sidebar: deep navy, as in the reference */
+aside.bg-slate-900 { background: #0E1B2C !important; border-color: rgba(255, 255, 255, 0.06) !important; }
+
+/* Primary buttons: teal gradient with soft glow */
+.bg-primary,
+button[class*="bg-primary"] {
+  background-image: linear-gradient(180deg, #14A58E, #00806E) !important;
+  box-shadow: 0 6px 16px -6px rgba(0, 128, 110, 0.55), 0 1px 0 rgba(255, 255, 255, 0.35) inset;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass-bg: rgba(255, 255, 255, 0.95); --glass-bg-strong: #fff; --glass-blur: none; }
+}
