@@ -103,7 +103,25 @@ html[data-ui-theme="brutalism"] #light-theme-sidebar button.active { background-
 html[data-ui-theme="brutalism"] #light-theme-sidebar [data-active="true"] *,
 html[data-ui-theme="brutalism"] #light-theme-sidebar a.active *,
 html[data-ui-theme="brutalism"] #light-theme-sidebar button.active * { color: #000 !important; stroke: #000 !important; }
-html[data-ui-theme="brutalism"] #sub-header-tabs-bar a[data-subtab="active"] { background-color: #FFD600 !important; color: #000 !important; border: 2px solid #000; border-bottom: 0; font-weight: 800; }
+/* Sticky tab bar: ivory strip, black rule, bold black labels, active tab = yellow block with a thick black underline */
+html[data-ui-theme="brutalism"] #sub-header-tabs-bar { background: #FFFEF8 !important; border-bottom: 2px solid #000 !important; box-shadow: none !important; }
+html[data-ui-theme="brutalism"] #sub-header-tabs-bar > div { gap: 2px !important; }
+html[data-ui-theme="brutalism"] #sub-header-tabs-bar a { padding: 0 14px; color: #000 !important; font-weight: 700 !important; border-bottom: 4px solid transparent; }
+html[data-ui-theme="brutalism"] #sub-header-tabs-bar a:hover { background-color: #FFF1A8 !important; opacity: 1; }
+html[data-ui-theme="brutalism"] #sub-header-tabs-bar a[data-subtab="active"] { background-color: #FFD600 !important; color: #000 !important; border-bottom: 4px solid #000; font-weight: 800 !important; }
+html[data-ui-theme="brutalism"] #sub-header-tabs-bar a span.py-2 { padding: 0; }
+
+/* Growing Together card: yellow block, black border and hard shadow, black stat tiles */
+html[data-ui-theme="brutalism"] .gt-card { background: #FFD600 !important; border: 3px solid #000 !important; border-radius: 12px !important; box-shadow: 5px 5px 0 #000 !important; backdrop-filter: none !important; }
+html[data-ui-theme="brutalism"] .gt-card > .absolute { display: none !important; }
+html[data-ui-theme="brutalism"] .gt-badge { background: #000 !important; box-shadow: none !important; }
+html[data-ui-theme="brutalism"] .gt-badge svg { color: #fff !important; }
+html[data-ui-theme="brutalism"] .gt-title { color: #000 !important; }
+html[data-ui-theme="brutalism"] .gt-ring { border: 2px solid #000 !important; }
+html[data-ui-theme="brutalism"] .gt-ring svg { color: #000 !important; }
+html[data-ui-theme="brutalism"] .gt-box { background: #000 !important; border: 2px solid #000 !important; border-radius: 8px !important; box-shadow: none !important; }
+html[data-ui-theme="brutalism"] .gt-num,
+html[data-ui-theme="brutalism"] .gt-lbl { color: #fff !important; }
 
 html[data-ui-theme="brutalism"] #welcome-hero-banner {
   background: #2563FF !important;

@@ -1407,7 +1407,7 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
   ];
 
   return (
-    <div className="w-full lg:w-auto rounded-[22px] p-3.5 sm:p-4.5 transition-all duration-300 backdrop-blur-md relative overflow-hidden
+    <div className="gt-card w-full lg:w-auto rounded-[22px] p-3.5 sm:p-4.5 transition-all duration-300 backdrop-blur-md relative overflow-hidden
       bg-gradient-to-b from-[#0b1220]/97 via-[#070d18]/97 to-[#070d18]/97
       border border-white/10
       shadow-[0_12px_35px_rgba(0,0,0,0.6)]"
@@ -1423,16 +1423,16 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
       <div className="flex items-center justify-between gap-2 sm:gap-4 mb-3 sm:mb-3.5 relative z-10">
         {/* Left: Golden Badge + Title */}
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#d97706] flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
+          <div className="gt-badge w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#d97706] flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
             <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white stroke-[2.2]" />
           </div>
-          <h4 className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-amber-400 leading-tight truncate">
+          <h4 className="gt-title text-xs sm:text-[13px] font-black uppercase tracking-wider text-amber-400 leading-tight truncate">
             GROWING TOGETHER
           </h4>
         </div>
 
         {/* Right: Ring / Gauge Icon */}
-        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-amber-500/40 flex items-center justify-center shrink-0 ml-1">
+        <div className="gt-ring w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-amber-500/40 flex items-center justify-center shrink-0 ml-1">
           <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.75" />
             <line x1="12" y1="2.5" x2="12" y2="5" stroke="currentColor" strokeWidth="2" />
@@ -1447,15 +1447,15 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
         {statBoxes.map((box, idx) => (
           <div
             key={idx}
-            className="rounded-xl py-1.5 sm:py-2.5 px-0.5 sm:px-2 flex flex-col items-center justify-center text-center min-w-0
+            className="gt-box rounded-xl py-1.5 sm:py-2.5 px-0.5 sm:px-2 flex flex-col items-center justify-center text-center min-w-0
               bg-[#060a12]/80
               border border-white/10
               shadow-inner"
           >
-            <span className="text-sm sm:text-lg md:text-xl font-black leading-tight tracking-tight font-sans text-white">
+            <span className="gt-num text-sm sm:text-lg md:text-xl font-black leading-tight tracking-tight font-sans text-white">
               {box.value}
             </span>
-            <span className="text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider mt-1 sm:mt-1.5 leading-none text-slate-400">
+            <span className="gt-lbl text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider mt-1 sm:mt-1.5 leading-none text-slate-400">
               {box.label}
             </span>
           </div>
