@@ -77,7 +77,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
             return (
               <div
                 key={person.id || idx}
-                className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800"
+                className={`bday-card bday-card-${idx % 3} flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <RoyalAvatar

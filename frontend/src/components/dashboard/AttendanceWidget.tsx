@@ -532,7 +532,7 @@ export function AttendanceWidget({
           {/* Metrics Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {/* Punch In */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+            <div className="stat-tile stat-in bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
               <p
                 style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
                 className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
@@ -547,7 +547,7 @@ export function AttendanceWidget({
               </p>
             </div>
             {/* Punch Out */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+            <div className="stat-tile stat-out bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
               <p
                 style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
                 className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
@@ -567,7 +567,7 @@ export function AttendanceWidget({
               </p>
             </div>
             {/* Total Break */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+            <div className="stat-tile stat-break bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
               <p
                 style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
                 className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
@@ -582,7 +582,7 @@ export function AttendanceWidget({
               </p>
             </div>
             {/* Worked Time */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+            <div className="stat-tile stat-work bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
               <p
                 style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
                 className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
