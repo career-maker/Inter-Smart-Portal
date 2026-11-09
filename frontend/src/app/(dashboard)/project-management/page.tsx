@@ -253,21 +253,12 @@ export default function ProjectManagementDashboard() {
       className="space-y-6 sm:space-y-8"
     >
       {/* ── Top Header Section ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 dark:border-slate-800/80 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
-          <div className="flex items-center gap-3.5">
-            <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-[#56348f] dark:text-purple-300">
-              <FolderKanban className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                Project Management
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                Overview of ongoing deliverables, task tracking, and department metrics.
-              </p>
-            </div>
-          </div>
+          <h1 className="text-[22px] leading-7 font-semibold text-slate-900 dark:text-white">Project Management</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Overview of ongoing deliverables, task tracking, and department metrics.
+          </p>
         </div>
 
         {/* Header Action Buttons */}

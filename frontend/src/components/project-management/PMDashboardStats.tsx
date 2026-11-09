@@ -101,25 +101,17 @@ export function PMDashboardStats({
           <div
             key={card.id}
             onClick={() => onFilterChange(card.filter)}
-            className={`relative group cursor-pointer overflow-hidden rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between min-h-[140px] ${
+            className={`relative group cursor-pointer rounded-[10px] p-5 border transition-colors flex flex-col justify-between min-h-[140px] ${
               isActive
-                ? "scale-[1.02] -translate-y-0.5 border-[#56348f] bg-purple-50/70 dark:bg-purple-950/40 shadow-md ring-2 ring-purple-500/30"
-                : "border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:border-purple-300 dark:hover:border-slate-700 hover:-translate-y-0.5 hover:shadow-md shadow-xs"
+                ? "border-[#00806E] bg-[#E8F6F3] dark:bg-teal-950/40"
+                : "border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700"
             }`}
           >
-            {/* Top gradient glow bar */}
-            <div
-              className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${card.topBar} opacity-90`}
-            />
-
             {/* Header: Title & Icon */}
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 {card.title}
               </span>
-              <div className={`p-2 rounded-xl border ${card.accentBg}`}>
-                <Icon className="w-4 h-4" />
-              </div>
             </div>
 
             {/* Middle: Primary Value & Sub badge for Team Lead */}
@@ -135,10 +127,10 @@ export function PMDashboardStats({
                   }}
                   className="dark:!text-white tracking-tight"
                 >
-                  {loading ? "…" : card.primaryValue}
+                  {loading ? <span className="inline-block h-7 w-12 animate-pulse rounded bg-slate-100 dark:bg-slate-800 align-middle" /> : card.primaryValue}
                 </span>
                 {card.subBadge && (
-                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                     {card.subBadge}
                   </span>
                 )}
@@ -149,7 +141,7 @@ export function PMDashboardStats({
             <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
               <span className="truncate">{card.secondaryText}</span>
               {isActive && (
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00806E] shrink-0" />
               )}
             </div>
           </div>

@@ -250,11 +250,13 @@ export function PMAllTasksTable({
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {loading ? (
-              <tr>
-                <td colSpan={6} className="py-12 text-center text-slate-400">
-                  Loading tasks…
-                </td>
-              </tr>
+              [0, 1, 2, 3, 4].map((i) => (
+                <tr key={i}>
+                  <td colSpan={6} className="py-3 px-4">
+                    <div className="h-5 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+                  </td>
+                </tr>
+              ))
             ) : paginatedTasks.length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-12 text-center text-slate-500">
