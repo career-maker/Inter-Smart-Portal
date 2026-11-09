@@ -1,0 +1,10 @@
+{
+  "appId": "in.intersmart.portal.chat",
+  "appName": "Inter Smart Chat",
+  "webDir": "www",
+  "server": {
+    "url": "https://www.workplace.intersmart.in/community",
+    "allowNavigation": ["www.workplace.intersmart.in", "workplace.intersmart.in"]
+  },
+  "android": { "allowMixedContent": false }
+}

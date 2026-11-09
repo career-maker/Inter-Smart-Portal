@@ -1,0 +1,14 @@
+{
+  "name": "intersmart-chat-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android shell for the Inter Smart portal Chat and Community modules",
+  "scripts": {
+    "sync": "cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0"
+  }
+}
