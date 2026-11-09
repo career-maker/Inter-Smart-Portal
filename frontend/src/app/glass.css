@@ -9,15 +9,19 @@
   --glass-radius: 18px;
 }
 
-/* Soft aurora behind everything */
-html body {
-  background:
-    radial-gradient(900px 500px at 8% -5%, rgba(120, 200, 210, 0.35), transparent 60%),
-    radial-gradient(800px 520px at 100% 0%, rgba(150, 190, 235, 0.32), transparent 60%),
-    radial-gradient(700px 500px at 60% 100%, rgba(130, 225, 200, 0.28), transparent 60%),
-    #E9F1F6 !important;
-  background-attachment: fixed !important;
+/* Soft aurora behind everything. Inside @layer base so it can beat the layered !important rules in globals.css */
+@layer base {
+  html body {
+    background-color: #E9F1F6 !important;
+    background-image:
+      radial-gradient(900px 500px at 8% -5%, rgba(120, 200, 210, 0.35), transparent 60%),
+      radial-gradient(800px 520px at 100% 0%, rgba(150, 190, 235, 0.32), transparent 60%),
+      radial-gradient(700px 500px at 60% 100%, rgba(130, 225, 200, 0.28), transparent 60%) !important;
+    background-attachment: fixed !important;
+  }
 }
+/* App wrapper in the dashboard layout was opaque and hid the background */
+.min-h-screen.bg-slate-50 { background: transparent !important; }
 
 /* Cards */
 .premium-card,
