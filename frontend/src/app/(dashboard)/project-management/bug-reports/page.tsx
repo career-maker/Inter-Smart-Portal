@@ -127,7 +127,7 @@ export default function BugReportsPage() {
           disabled={refreshing || loading}
           className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 self-start sm:self-auto cursor-pointer"
         >
-          <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#00806E]" : ""}`} />
           <span>Refresh</span>
         </button>
       </div>
@@ -143,41 +143,41 @@ export default function BugReportsPage() {
       {/* ── Summary KPI Cards ── */}
       {summary && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div className="rounded-[10px] bg-white border border-slate-200 p-5">
+            <span className="text-xs font-medium text-slate-500">
               Total Bugs
             </span>
-            <div className="mt-1 text-2xl font-black text-rose-600 dark:text-rose-400">
+            <div className="mt-1 text-[28px] leading-8 font-semibold tabular-nums text-slate-900">
               {summary.total_bugs}
             </div>
             <span className="text-[11px] text-slate-400">All recorded QA issues</span>
           </div>
 
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div className="rounded-[10px] bg-white border border-slate-200 p-5">
+            <span className="text-xs font-medium text-slate-500">
               HTML Bugs
             </span>
-            <div className="mt-1 text-2xl font-black text-amber-600 dark:text-amber-400">
+            <div className="mt-1 text-[28px] leading-8 font-semibold tabular-nums text-slate-900">
               {summary.html_bugs}
             </div>
             <span className="text-[11px] text-slate-400">UI / Markup defects</span>
           </div>
 
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div className="rounded-[10px] bg-white border border-slate-200 p-5">
+            <span className="text-xs font-medium text-slate-500">
               Functional Bugs
             </span>
-            <div className="mt-1 text-2xl font-black text-purple-600 dark:text-purple-400">
+            <div className="mt-1 text-[28px] leading-8 font-semibold tabular-nums text-slate-900">
               {summary.functional_bugs}
             </div>
             <span className="text-[11px] text-slate-400">Logic & workflow bugs</span>
           </div>
 
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div className="rounded-[10px] bg-white border border-slate-200 p-5">
+            <span className="text-xs font-medium text-slate-500">
               Tasks with Bugs
             </span>
-            <div className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+            <div className="mt-1 text-[28px] leading-8 font-semibold tabular-nums text-slate-900">
               {summary.tasks_with_bugs}
             </div>
             <span className="text-[11px] text-slate-400">
@@ -204,16 +204,11 @@ export default function BugReportsPage() {
           <button
             type="button"
             onClick={() => setHasBugsOnly(!hasBugsOnly)}
-            style={{
-              backgroundColor: hasBugsOnly ? "#56348f" : undefined,
-              color: hasBugsOnly ? "#ffffff" : undefined,
-              fontFamily: '"Proxima Nova", sans-serif',
-              fontSize: "12px",
-            }}
-            className={`px-3 py-2 rounded-xl text-xs font-normal border transition-colors cursor-pointer ${
+            aria-pressed={hasBugsOnly}
+            className={`h-9 px-3 rounded-md text-sm border transition-colors cursor-pointer ${
               hasBugsOnly
-                ? "bg-[#56348f] !text-white border-[#56348f]"
-                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700"
+                ? "bg-[#E8F6F3] text-[#00806E] border-[#00806E]"
+                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
             }`}
           >
             {hasBugsOnly ? "Showing Tasks With Bugs" : "Showing All Tasks"}
@@ -226,13 +221,13 @@ export default function BugReportsPage() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px] text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/75 dark:bg-slate-800/40 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/75 dark:bg-slate-800/40 text-xs font-medium text-slate-500">
                 <th className="py-3 px-4">Task & Project</th>
                 <th className="py-3 px-4">Sprint</th>
                 <th className="py-3 px-4">Assignee</th>
-                <th className="py-3 px-3 text-center">HTML Bugs</th>
-                <th className="py-3 px-3 text-center">Functional Bugs</th>
-                <th className="py-3 px-3 text-center">Total Bugs</th>
+                <th className="py-3 px-3 text-right">HTML Bugs</th>
+                <th className="py-3 px-3 text-right">Functional Bugs</th>
+                <th className="py-3 px-3 text-right">Total Bugs</th>
                 <th className="py-3 px-4">Bug Tracker Link</th>
                 <th className="py-3 px-4 text-center">Status</th>
                 <th className="py-3 px-4 text-right">Actions</th>
@@ -305,23 +300,19 @@ export default function BugReportsPage() {
                       </td>
 
                       {/* HTML Bugs */}
-                      <td className="py-3.5 px-3 text-center font-bold text-amber-600 dark:text-amber-400">
+                      <td className="py-3.5 px-3 text-right tabular-nums text-slate-900">
                         {htmlBugs > 0 ? htmlBugs : <span className="text-slate-300 font-normal">0</span>}
                       </td>
 
                       {/* Functional Bugs */}
-                      <td className="py-3.5 px-3 text-center font-bold text-purple-600 dark:text-purple-400">
+                      <td className="py-3.5 px-3 text-right tabular-nums text-slate-900">
                         {funcBugs > 0 ? funcBugs : <span className="text-slate-300 font-normal">0</span>}
                       </td>
 
                       {/* Total Bugs */}
-                      <td className="py-3.5 px-3 text-center">
+                      <td className="py-3.5 px-3 text-right">
                         <span
-                          className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-black ${
-                            totalBugs > 0
-                              ? "bg-rose-100 text-rose-800 dark:bg-rose-950/70 dark:text-rose-300 border border-rose-300 dark:border-rose-700"
-                              : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                          }`}
+                          className="tabular-nums font-semibold text-slate-900"
                         >
                           {totalBugs}
                         </span>
@@ -334,7 +325,7 @@ export default function BugReportsPage() {
                             href={task.bug_tracker_link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-purple-600 dark:text-purple-400 hover:underline max-w-[150px] truncate"
+                            className="inline-flex items-center gap-1 text-[#00806E] hover:underline max-w-[150px] truncate"
                           >
                             <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                             <span className="truncate">View Ticket</span>

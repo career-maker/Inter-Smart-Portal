@@ -23,6 +23,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function EmployeesPage() {
@@ -84,30 +87,30 @@ export default function EmployeesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Employees</h1>
-          <p className="text-slate-600 dark:text-slate-300 mt-1">Manage your organization's workforce.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <FavoriteButton label="Employees" />
-          {isSuperAdmin && (
-            <>
-              <Button
-                onClick={() => setIsSyncModalOpen(true)}
-                variant="outline"
-                className="border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-semibold gap-2"
-                title="Map and sync Hubstaff users with HR Portal employee profiles"
-              >
-                <Link2 className="h-4 w-4 text-blue-500" /> Sync Users with Hubstaff
-              </Button>
-              <Button href="/employees/create" className="bg-amber-500 hover:bg-amber-600 text-white font-semibold gap-2">
-                <Plus className="h-4 w-4" /> Add Employee
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="Employees"
+        description="Manage your organization's workforce."
+        actions={
+          <>
+            <FavoriteButton label="Employees" />
+            {isSuperAdmin && (
+              <>
+                <Button
+                  onClick={() => setIsSyncModalOpen(true)}
+                  variant="outline"
+                  className="gap-2"
+                  title="Map and sync Hubstaff users with HR Portal employee profiles"
+                >
+                  <Link2 className="h-4 w-4" /> Sync Users with Hubstaff
+                </Button>
+                <Button href="/employees/create" className="gap-2">
+                  <Plus className="h-4 w-4" /> Add Employee
+                </Button>
+              </>
+            )}
+          </>
+        }
+      />
 
       {/* Search Card */}
       <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
@@ -135,21 +138,19 @@ export default function EmployeesPage() {
               <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
             </div>
           ) : employees.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-slate-500 dark:text-slate-400">No employees found.</p>
-            </div>
+            <EmptyState text="No employees found." />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px] text-sm">
                 <thead className="border-b border-slate-200 dark:border-white/10">
                   <tr>
-                    <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Employee</th>
-                    <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">ID</th>
-                    <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Role</th>
-                    <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Team</th>
-                    <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-slate-500 text-xs">Employee</th>
+                    <th className="text-left py-3 px-4 font-medium text-slate-500 text-xs">ID</th>
+                    <th className="text-left py-3 px-4 font-medium text-slate-500 text-xs">Role</th>
+                    <th className="text-left py-3 px-4 font-medium text-slate-500 text-xs">Team</th>
+                    <th className="text-left py-3 px-4 font-medium text-slate-500 text-xs">Status</th>
                     {isSuperAdmin && (
-                      <th className="text-right py-3 px-4 font-semibold text-slate-900 dark:text-white">Actions</th>
+                      <th className="text-right py-3 px-4 font-medium text-slate-500 text-xs">Actions</th>
                     )}
                   </tr>
                 </thead>
@@ -175,7 +176,7 @@ export default function EmployeesPage() {
                             <div className="flex flex-wrap items-center gap-1.5">
                               <span className="text-xs text-slate-500 dark:text-slate-400">{emp.email}</span>
                               {emp.is_emergency_contact && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.2 rounded bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/40" title="Assigned as Emergency Contact on Dashboard">
+                                <span className="inline-flex items-center gap-1 text-xs text-slate-500" title="Assigned as Emergency Contact on Dashboard">
                                   <LifeBuoy className="w-2.5 h-2.5 shrink-0" />
                                   <span>Emergency Contact</span>
                                 </span>
@@ -186,15 +187,11 @@ export default function EmployeesPage() {
                       </td>
                       <td className="py-3 px-4 font-mono text-xs text-slate-600 dark:text-slate-300">{emp.employee_code}</td>
                       <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.designation || 'N/A'}</td>
-                      <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.team?.name || 'Unassigned'}</td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.team?.name ? emp.team.name : <span className="text-slate-400">Unassigned</span>}</td>
                       <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                          emp.status === 'Active'
-                            ? 'bg-emerald-500/20 text-emerald-400'
-                            : 'bg-rose-500/20 text-rose-400'
-                        }`}>
+                        <StatusBadge tone={emp.status === 'Active' ? 'success' : 'danger'}>
                           {emp.status === 'Active' ? 'Active' : 'Disabled'}
-                        </span>
+                        </StatusBadge>
                       </td>
                       {isSuperAdmin && (
                         <td className="py-3 px-4 text-right">
