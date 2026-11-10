@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     paths: ["mobile/**"]
+permissions:
+  contents: write
 jobs:
   apk:
     runs-on: ubuntu-latest
@@ -23,3 +25,13 @@ jobs:
         with:
           name: intersmart-chat-apk
           path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+      # Stable public link used by the portal's App Downloads page; every build replaces it.
+      - name: Publish to release apk-latest
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk intersmart-portal.apk
+          gh release view apk-latest >/dev/null 2>&1 || gh release create apk-latest --title "Android app (latest)" --notes "Always the newest build."
+          gh release upload apk-latest intersmart-portal.apk --clobber
+          gh release edit apk-latest --notes "Built from commit ${GITHUB_SHA::7} on $(date -u +%F)"
