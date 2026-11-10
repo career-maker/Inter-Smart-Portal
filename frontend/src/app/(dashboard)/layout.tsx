@@ -8,7 +8,7 @@ import { useAuthStore } from "@/store/auth";
 import { useThemeStore } from "@/store/theme";
 import {
   LogOut, Menu, X, ChevronRight, Home, ChevronDown,
-  LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
+  LayoutDashboard, CalendarCheck, Briefcase, UserCircle, Download,
   Users, ShieldCheck, PanelLeftClose, PanelLeftOpen, Wallet, TrendingUp, ClipboardList, Layers,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
   Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote, MessageSquare
@@ -48,6 +48,7 @@ type NavGroup = {
   shortLabel?: string;
   icon: React.ElementType;
   roles?: string[];   // if set, only these roles see the group
+  webOnly?: boolean;  // hidden inside the Windows app and the Android shell
   feature?: string;   // if set, hidden unless this module is switched on (GET /features)
   items: NavItem[];
 };
@@ -122,6 +123,14 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/addons/email-management", label: "Email & SMTP Management" },
       { href: "/addons/permissions", label: "Team & Role Permissions" },
     ],
+  },
+  {
+    id: "app-downloads",
+    label: "App Downloads",
+    shortLabel: "Apps",
+    icon: Download,
+    webOnly: true,
+    items: [{ href: "/app-downloads", label: "Windows & Android apps" }],
   },
   {
     id: "ta",
@@ -394,7 +403,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [isAuthenticated, pathname]);
   const [userPermissions, setUserPermissions] = useState<Record<string, boolean>>({});
   const [features, setFeatures] = useState<Record<string, boolean>>({});
-  const navGroups = useMemo(() => NAV_GROUPS.filter((g) => !g.feature || features[g.feature]), [features]);
+  const inApp = typeof window !== "undefined" && (!!(window as any).isDesktopApp || (() => { try { return localStorage.getItem("mobile_app") === "1"; } catch { return false; } })());
+  const navGroups = useMemo(() => NAV_GROUPS.filter((g) => (!g.feature || features[g.feature]) && !(g.webOnly && inApp)), [features, inApp]);
   // A notification counts on the menu item whose link is its longest match (/work/projects/5 -> "My projects", /work/go-live -> "Go-live requests").
   const itemUnread = useMemo(() => {
     const counts: Record<string, number> = {};
