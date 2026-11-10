@@ -170,7 +170,7 @@ export function VoiceRecorder({
         type="button"
         onClick={start}
         disabled={disabled}
-        className="w-9 h-9 bg-[#56348f] hover:bg-[#432770] disabled:opacity-30 text-white rounded-full flex items-center justify-center shadow-xs transition-all shrink-0 cursor-pointer active:scale-95 mb-0.5"
+        className="w-9 h-9 bg-[#00a884] hover:bg-[#008f72] disabled:opacity-30 text-white rounded-full flex items-center justify-center shadow-xs transition-all shrink-0 cursor-pointer active:scale-95 mb-0.5"
         title="Record a voice note"
         aria-label="Record a voice note"
       >
@@ -199,7 +199,7 @@ export function VoiceRecorder({
       <button
         type="button"
         onClick={() => finish(true)}
-        className="w-9 h-9 bg-[#56348f] hover:bg-[#432770] text-white rounded-full flex items-center justify-center shadow-xs shrink-0 cursor-pointer active:scale-95"
+        className="w-9 h-9 bg-[#00a884] hover:bg-[#008f72] text-white rounded-full flex items-center justify-center shadow-xs shrink-0 cursor-pointer active:scale-95"
         title="Send voice note"
         aria-label="Send voice note"
       >

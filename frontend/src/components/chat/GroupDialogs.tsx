@@ -58,7 +58,7 @@ function MemberPicker({
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search colleagues..."
-          className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-[#56348f] text-slate-800 dark:text-slate-100"
+          className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-[#00a884] text-slate-800 dark:text-slate-100"
         />
       </div>
       <div className="max-h-60 overflow-y-auto custom-scrollbar divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -84,7 +84,7 @@ function MemberPicker({
                 </span>
                 <span
                   className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${
-                    on ? "bg-[#56348f] border-[#56348f] text-white" : "border-slate-300 dark:border-slate-600"
+                    on ? "bg-[#00a884] border-[#00a884] text-white" : "border-slate-300 dark:border-slate-600"
                   }`}
                 >
                   {on && <Check className="w-3.5 h-3.5" />}
@@ -158,7 +158,7 @@ export function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; 
             type="button"
             onClick={create}
             disabled={busy || !title.trim() || picked.size === 0}
-            className="px-4 py-2 text-xs font-bold rounded-xl bg-[#56348f] text-white disabled:opacity-40 cursor-pointer"
+            className="px-4 py-2 text-xs font-bold rounded-xl bg-[#00a884] text-white disabled:opacity-40 cursor-pointer"
           >
             {busy ? "Creating..." : `Create group (${picked.size})`}
           </button>
@@ -172,15 +172,15 @@ export function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; 
           onChange={(e) => setTitle(e.target.value)}
           maxLength={80}
           placeholder="e.g. QA team"
-          className="w-full px-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-[#56348f] text-slate-800 dark:text-slate-100"
+          className="w-full px-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-[#00a884] text-slate-800 dark:text-slate-100"
         />
       </div>
       {picked.size > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {[...picked.values()].map((u) => (
-            <span key={u.id} className="inline-flex items-center gap-1 pl-2.5 pr-1 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 text-[11px] font-semibold">
+            <span key={u.id} className="inline-flex items-center gap-1 pl-2.5 pr-1 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-[#00a884] dark:text-emerald-300 text-[11px] font-semibold">
               {u.name}
-              <button type="button" onClick={() => toggle(u)} className="p-0.5 rounded-full hover:bg-purple-200 cursor-pointer" aria-label={`Remove ${u.name}`}>
+              <button type="button" onClick={() => toggle(u)} className="p-0.5 rounded-full hover:bg-emerald-200 cursor-pointer" aria-label={`Remove ${u.name}`}>
                 <X className="w-3 h-3" />
               </button>
             </span>
@@ -255,7 +255,7 @@ export function GroupInfoPanel({
 
           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
             <div className="flex flex-col items-center text-center gap-2">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#56348f] to-indigo-500 text-white flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00a884] to-emerald-500 text-white flex items-center justify-center">
                 <Users className="w-9 h-9" />
               </div>
               {isAdmin ? (
@@ -264,7 +264,7 @@ export function GroupInfoPanel({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     maxLength={80}
-                    className="flex-1 px-3 py-1.5 text-sm font-semibold text-center rounded-xl bg-slate-100 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-[#56348f] text-slate-800 dark:text-slate-100"
+                    className="flex-1 px-3 py-1.5 text-sm font-semibold text-center rounded-xl bg-slate-100 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-[#00a884] text-slate-800 dark:text-slate-100"
                     aria-label="Group name"
                   />
                   {title.trim() && title.trim() !== conversation.title && (
@@ -272,7 +272,7 @@ export function GroupInfoPanel({
                       type="button"
                       disabled={busy}
                       onClick={() => run(() => api.put(base, { title: title.trim() }))}
-                      className="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#56348f] text-white cursor-pointer"
+                      className="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#00a884] text-white cursor-pointer"
                     >
                       Save
                     </button>
@@ -290,7 +290,7 @@ export function GroupInfoPanel({
                   <button
                     type="button"
                     onClick={() => setAdding(true)}
-                    className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-xl border border-[#56348f] text-[#56348f] dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-xl border border-[#00a884] text-[#00a884] dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 cursor-pointer"
                   >
                     <UserPlus className="w-4 h-4" /> Add members
                   </button>
@@ -305,7 +305,7 @@ export function GroupInfoPanel({
                         type="button"
                         disabled={busy || picked.size === 0}
                         onClick={() => run(() => api.post(`${base}/members`, { user_ids: [...picked.keys()] }), () => { setAdding(false); setPicked(new Map()); })}
-                        className="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#56348f] text-white disabled:opacity-40 cursor-pointer"
+                        className="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#00a884] text-white disabled:opacity-40 cursor-pointer"
                       >
                         Add ({picked.size})
                       </button>

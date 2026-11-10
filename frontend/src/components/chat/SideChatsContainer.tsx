@@ -181,7 +181,7 @@ function SideChatWindow({ chat, onMinimize, onClose, currentUser }: any) {
           placeholder="Type a message"
           className="flex-1 bg-white dark:bg-slate-800 border-none rounded-full px-3 py-1.5 text-sm outline-none text-slate-900 dark:text-slate-100"
         />
-        <button type="submit" disabled={!input.trim()} className="bg-[#56348f] text-white p-2 rounded-full cursor-pointer disabled:opacity-50">
+        <button type="submit" disabled={!input.trim()} className="bg-[#00a884] text-white p-2 rounded-full cursor-pointer disabled:opacity-50">
           <Send className="w-3.5 h-3.5 ml-0.5" />
         </button>
       </form>
