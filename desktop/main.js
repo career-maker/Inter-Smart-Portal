@@ -1,5 +1,6 @@
 // Inter Smart desktop shell: loads the LIVE web portal, so screens and database are identical to the browser version.
-const { app, BrowserWindow, Tray, Menu, shell, powerMonitor, nativeImage, session } = require("electron");
+const { app, BrowserWindow, Tray, Menu, shell, powerMonitor, nativeImage, session, dialog } = require("electron");
+const { autoUpdater } = require("electron-updater");
 const path = require("path");
 
 const APP_URL = "https://www.workplace.intersmart.in/login";
@@ -9,6 +10,22 @@ app.setAppUserModelId("in.intersmart.portal.desktop"); // needed for Windows toa
 if (!app.requestSingleInstanceLock()) app.quit();
 
 let win, tray, quitting = false, retryTimer;
+
+// Updates: checked at start and every 4h; downloads quietly, then asks to restart.
+let manualCheck = false;
+function setupUpdater() {
+  autoUpdater.on("update-available", (i) => { if (manualCheck) dialog.showMessageBox(win, { message: `Version ${i.version} found. Downloading in the background…` }); });
+  autoUpdater.on("update-not-available", () => { if (manualCheck) dialog.showMessageBox(win, { message: `You are on the latest version (${app.getVersion()}).` }); manualCheck = false; });
+  autoUpdater.on("error", (e) => { if (manualCheck) dialog.showMessageBox(win, { type: "error", message: "Could not check for updates.", detail: String(e && e.message || e) }); manualCheck = false; });
+  autoUpdater.on("update-downloaded", (i) => {
+    manualCheck = false; win.show();
+    dialog.showMessageBox(win, { type: "info", buttons: ["Restart now", "Later"], defaultId: 0, cancelId: 1, message: `Update ${i.version} is ready.`, detail: "Restart to install it. It also installs when you quit the app." })
+      .then((r) => { if (r.response === 0) { quitting = true; autoUpdater.quitAndInstall(); } });
+  });
+  const check = () => autoUpdater.checkForUpdates().catch(() => {});
+  if (app.isPackaged) { check(); setInterval(check, 4 * 3600 * 1000); }
+}
+function checkNow() { manualCheck = true; autoUpdater.checkForUpdates().catch(() => {}); }
 
 function load() { win.loadURL(APP_URL).catch(() => {}); }
 
@@ -51,13 +68,14 @@ function wireShortcuts() {
 
 app.whenReady().then(() => {
   session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(["notifications", "media", "clipboard-read", "clipboard-sanitized-write", "fullscreen"].includes(perm)));
-  createWindow(); wireShortcuts();
+  createWindow(); wireShortcuts(); setupUpdater();
 
   tray = new Tray(nativeImage.createFromPath(path.join(__dirname, "build/icon.png")).resize({ width: 16, height: 16 }));
   tray.setToolTip("Inter Smart Portal");
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: "Open", click: () => { win.show(); win.focus(); } },
     { label: "Reload", click: () => win.webContents.reload() },
+    { label: `Check for updates (v${app.getVersion()})`, click: checkNow },
     { type: "separator" },
     { label: "Quit", click: () => { quitting = true; app.quit(); } },
   ]));
