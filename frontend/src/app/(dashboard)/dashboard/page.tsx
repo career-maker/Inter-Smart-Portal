@@ -1367,10 +1367,10 @@ Upcoming Celebration
           </div>
         </div>
       </div>
-      <div className="h-20 md:hidden" aria-hidden="true" />
+      <div className="h-32 md:hidden" aria-hidden="true" />
       {/* Sticky floating mobile Apply Leave button */}
       {!isLeaveSummaryVisible && (
-        <div className="fixed bottom-4 left-4 right-24 z-40 md:hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
+        <div className="fixed bottom-11 left-3 right-[4.75rem] z-40 md:hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
           <Link
             href="/leaves/apply"
             className="w-full flex items-center justify-center gap-2 bg-[#00BDA1] hover:bg-[#00A58C] text-white font-semibold py-3.5 px-6 rounded-[9px] shadow-md active:scale-95 transition-all duration-150"

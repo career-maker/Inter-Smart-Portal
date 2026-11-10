@@ -317,7 +317,7 @@ export default function ChatWidget() {
           data-chat-launcher="true"
           onClick={() => setIsOpen(true)}
           aria-label="Toggle Portal AI Assistant"
-          className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 bg-transparent border-0 p-0 hover:scale-110 active:scale-95 transition-all cursor-pointer select-none"
+          className="fixed bottom-11 right-3 md:bottom-6 md:right-6 z-40 flex items-center justify-center w-14 h-14 bg-transparent border-0 p-0 hover:scale-110 active:scale-95 transition-all cursor-pointer select-none"
           title="Portal AI Assistant"
         >
           <div className="relative flex items-center justify-center w-full h-full">
