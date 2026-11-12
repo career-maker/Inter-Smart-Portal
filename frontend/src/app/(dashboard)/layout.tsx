@@ -1135,7 +1135,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="flex items-center gap-1.5 sm:gap-4 shrink-0 min-w-0">
                 <button
                   style={{ backgroundColor: "transparent", border: "none", outline: "none", boxShadow: "none", color: "var(--portal-header-text, #ffffff)" }}
-                  className="portal-header-icon w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center -ml-1 bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent focus:outline-none shrink-0 md:hidden cursor-pointer"
+                  className="portal-header-icon w-10 h-10 flex items-center justify-center -ml-1 bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent focus:outline-none shrink-0 md:hidden cursor-pointer"
                   onClick={() => setMenuOpen((v) => !v)}
                   aria-label="Toggle menu"
                 >
@@ -1180,7 +1180,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   type="button"
                   onClick={() => setSearchModalOpen(true)}
                   style={{ color: "var(--portal-header-text, #ffffff)" }}
-                  className="header-action-btn w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 sm:hidden transition-colors cursor-pointer shrink-0"
+                  className="header-action-btn w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 sm:hidden transition-colors cursor-pointer shrink-0"
                   aria-label="Search"
                 >
                   <Search className="w-5 h-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
@@ -1205,7 +1205,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   type="button"
                   onClick={toggleStickyNotes}
                   style={{ color: "var(--portal-header-text, #ffffff)" }}
-                  className="header-action-btn w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
+                  className="header-action-btn w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
                   title="Sticky Notes (macOS Stickies)"
                   aria-label="Toggle Sticky Notes"
                 >
@@ -1221,7 +1221,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   href={latestConversationId ? `/chat?conversationId=${latestConversationId}` : "/chat"}
                   style={{ color: "var(--portal-header-text, #ffffff)" }}
-                  className="header-action-btn w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
+                  className="header-action-btn w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
                   title={unreadChatCount > 0 ? `${unreadChatCount} new message(s) - Open Direct Chat` : "Direct Chat"}
                   aria-label="Open Direct Chat"
                 >
@@ -1237,7 +1237,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <DropdownMenu>
                   <DropdownMenuTrigger
-                    className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 ml-0.5 focus-visible:outline-2 focus-visible:outline-white"
+                    className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 ml-0.5 focus-visible:outline-2 focus-visible:outline-white"
                     aria-label="Account menu"
                     title={`${user?.first_name} ${user?.last_name}`}
                   >
