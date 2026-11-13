@@ -170,7 +170,7 @@ export default function MyProfilePage() {
             </div>
             <div>
               <Label className="text-muted-foreground">Department / Team</Label>
-              <div className="font-medium text-slate-900 dark:text-white">{profileUser.team?.name || "—"}</div>
+              <div className="font-medium text-slate-900 dark:text-white">{(typeof profileUser.team === "string" ? profileUser.team : profileUser.team?.name) || "—"}</div>
             </div>
             <div>
               <Label className="text-muted-foreground">Role</Label>
