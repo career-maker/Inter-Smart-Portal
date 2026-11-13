@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Phone, Mail, LifeBuoy, ChevronRight, UserPlus } from "lucide-react";
+import { Phone, Mail, LifeBuoy, ChevronRight, UserPlus, Search } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
 import emergencyContactsApi, { EmergencyContact } from "@/services/emergencyContacts";
@@ -44,14 +44,58 @@ export function EmergencyContactsCard({
   const listRef = useRef<HTMLDivElement>(null);
   const [scroll, setScroll] = useState(false);
 
-  // Marquee only when content overflows; list is rendered twice for a seamless loop.
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? contacts.filter((c) =>
+        [c.name, c.role, c.department, c.email, c.phone]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(q))
+      )
+    : contacts;
+  // Auto-scroll only when content overflows and not searching; list rendered twice for a seamless loop.
+  const auto = scroll && !q;
+  const list = auto ? [...filtered, ...filtered] : filtered;
+  const hover = useRef(false);
+  const holdUntil = useRef(0);
+
   useEffect(() => {
     const box = boxRef.current, el = listRef.current;
     if (!box || !el) return;
-    const total = scroll ? el.scrollHeight / 2 : el.scrollHeight;
+    const total = auto ? el.scrollHeight / 2 : el.scrollHeight;
     setScroll(total > box.clientHeight);
-  }, [contacts, scroll]);
-  const list = scroll ? [...contacts, ...contacts] : contacts;
+  }, [filtered, auto]);
+
+  useEffect(() => {
+    if (boxRef.current) boxRef.current.scrollTop = 0;
+  }, [q]);
+
+  // Auto-scroll via scrollTop so the user can still scroll manually (wheel/touch/scrollbar).
+  // Pauses while hovering or for 3s after manual interaction.
+  useEffect(() => {
+    const box = boxRef.current;
+    if (!auto || !box) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0, last = performance.now(), acc: number | null = null;
+    const tick = (now: number) => {
+      const dt = now - last;
+      last = now;
+      if (hover.current || now < holdUntil.current) {
+        acc = null;
+      } else {
+        const half = box.scrollHeight / 2;
+        if (acc === null) acc = box.scrollTop;
+        acc += dt * 0.025; // ~25px/s
+        if (acc >= half) acc -= half;
+        box.scrollTop = acc;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [auto, filtered]);
+
+  const hold = () => { holdUntil.current = performance.now() + 3000; };
 
   useEffect(() => {
     let isMounted = true;
@@ -217,19 +261,45 @@ export function EmergencyContactsCard({
         </div>
       )}
 
-      {/* Assigned Contacts - auto-scrolls upward (marquee), pauses on hover */}
+      {/* Search */}
       {!loading && contacts.length > 0 && (
+        <div className="relative mb-3">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search emergency contacts"
+            aria-label="Search emergency contacts"
+            className="w-full h-9 pl-8 pr-3 text-[13px] rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#56348f]/30"
+          />
+        </div>
+      )}
+
+      {/* Assigned Contacts - auto-scrolls slowly; hover/touch/wheel pauses it and user can scroll manually */}
+      {!loading && contacts.length > 0 && filtered.length === 0 && (
+        <p className="py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+          No contacts match &ldquo;{query.trim()}&rdquo;
+        </p>
+      )}
+      {!loading && filtered.length > 0 && (
         <div
           ref={boxRef}
-          className="ec-wrap group/marquee shrink-0 grow-0 h-[220px] sm:h-[240px] overflow-hidden"
+          tabIndex={0}
+          aria-label="Emergency contacts list"
+          onMouseEnter={() => { hover.current = true; }}
+          onMouseLeave={() => { hover.current = false; }}
+          onWheel={hold}
+          onTouchStart={hold}
+          onTouchMove={hold}
+          onTouchEnd={hold}
+          onFocus={hold}
+          onKeyDown={hold}
+          className="ec-wrap shrink-0 grow-0 h-[220px] sm:h-[240px] overflow-y-auto overscroll-contain"
         >
-          <style>{`@keyframes ec-marquee{from{transform:translateY(0)}to{transform:translateY(-50%)}}
-.ec-wrap:hover .ec-marquee{animation-play-state:paused!important}
-@media (prefers-reduced-motion:reduce){.ec-marquee{animation:none!important}}`}</style>
           <div
             ref={listRef}
-            className="ec-marquee space-y-3 pb-3 divide-y divide-slate-100 dark:divide-slate-700/50 group-hover/marquee:[animation-play-state:paused]"
-            style={scroll ? { animation: `ec-marquee ${contacts.length * 4}s linear infinite` } : undefined}
+            className="space-y-3 pb-3 divide-y divide-slate-100 dark:divide-slate-700/50"
           >
           {list.map((contact, index) => {
             const avatarClass =
