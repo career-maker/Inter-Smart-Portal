@@ -35,8 +35,13 @@ class BugzillaBugController extends Controller
         ])
         ->withCount(['comments', 'attachments']);
 
-        // Team isolation if not super admin and no cross-team permission
-        if (!BugzillaAuthService::isSuperAdmin($user) && !\App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_view')) {
+        // Team isolation if not super admin and no cross-team permission.
+        // Skipped when one specific project is requested: canAccessProject()
+        // already grants every BugSmart user access to every project, and the
+        // project card (counts) shows all projects, so its bug list must too.
+        $singleProject = ($request->filled('portal_project_id') && $request->query('portal_project_id') !== 'all')
+            && BugzillaAuthService::canAccessProject($user, (int) $request->query('portal_project_id'));
+        if (!$singleProject && !BugzillaAuthService::isSuperAdmin($user) && !\App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_view')) {
             $userTeamIds = BugzillaAuthService::resolveUserTeamIds($user);
             $query->whereHas('portalProject', function ($q) use ($userTeamIds) {
                 $q->whereIn('team_id', $userTeamIds);
