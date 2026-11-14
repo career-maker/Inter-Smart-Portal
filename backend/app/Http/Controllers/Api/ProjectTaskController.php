@@ -449,6 +449,46 @@ class ProjectTaskController extends Controller
         return response()->json(['message' => 'Task coordinator updated successfully.', 'data' => $task]);
     }
 
+    /**
+     * Delete every task of one team (soft delete). Super Admin: any team. Team Lead: teams they lead.
+     * dry_run=true only returns the count. legacy_id is cleared so the old-tracker JSON can be imported again.
+     */
+    public function destroyAll(Request $request)
+    {
+        $user = $request->user();
+        $data = $request->validate([
+            'team_id' => 'required|integer|exists:teams,id',
+            'dry_run' => 'sometimes|boolean',
+            'confirm' => 'nullable|string',
+        ]);
+        $teamId = (int) $data['team_id'];
+
+        $isSuperAdmin = $user->hasRole('Super Admin') || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true);
+        $leadsTeam = Team::where('id', $teamId)->where('team_lead_id', $user->id)->exists()
+            || ((int) $user->team_id === $teamId && ($user->hasRole('Team Lead') || strtolower($user->role ?? '') === 'team lead'));
+        if (!$isSuperAdmin && !$leadsTeam) {
+            return response()->json(['message' => 'Only the Super Admin or the Team Lead of this team can delete all tasks.'], 403);
+        }
+
+        $query = ProjectTask::where('team_id', $teamId);
+        $count = (clone $query)->count();
+
+        if ($request->boolean('dry_run')) {
+            return response()->json(['count' => $count, 'team_name' => Team::whereKey($teamId)->value('name')]);
+        }
+        if (($data['confirm'] ?? '') !== 'DELETE') {
+            return response()->json(['message' => 'Type DELETE to confirm.'], 422);
+        }
+
+        \DB::transaction(function () use ($query) {
+            (clone $query)->update(['legacy_id' => null]);
+            $query->delete();
+        });
+        \Log::warning("Bulk task delete: user {$user->id} removed {$count} tasks of team {$teamId}");
+
+        return response()->json(['message' => "{$count} tasks deleted.", 'deleted_count' => $count]);
+    }
+
     public function destroy(Request $request, ProjectTask $task)
     {
         $user = $request->user();
@@ -1269,8 +1309,9 @@ class ProjectTaskController extends Controller
                 continue;
             }
 
-            // Team Lead Scope Verification
-            if ($isTeamLead && !$isSuperAdmin) {
+            // Team Lead Scope Verification. An old-tracker file is the leader's own team history, so its
+            // tasks are filed under the leader's team (below) instead of being blocked by the project's team.
+            if ($isTeamLead && !$isSuperAdmin && !$legacy) {
                 $hasAccess = $matchedProject->team_id === null
                     || in_array($matchedProject->team_id, $ledTeamIds, true)
                     || $matchedProject->project_coordinator_id === $user->id
@@ -1399,7 +1440,7 @@ class ProjectTaskController extends Controller
             try {
                 $taskData = [
                     'project_id' => $matchedProject->id,
-                    'team_id' => $matchedProject->team_id,
+                    'team_id' => ($legacy && $isTeamLead && !$isSuperAdmin && !empty($ledTeamIds)) ? $ledTeamIds[0] : $matchedProject->team_id,
                     'sub_phase_id' => $subPhaseId,
                     'title' => $title,
                     'description' => $description ?: null,

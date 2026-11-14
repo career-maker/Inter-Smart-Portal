@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   FileText,
   Upload,
+  Trash2,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
@@ -32,6 +33,7 @@ import { TeamFilterSelector } from "@/components/project-management/TeamFilterSe
 import { CreateTaskModal } from "@/components/project-management/CreateTaskModal";
 import { DailyReportModal } from "@/components/project-management/DailyReportModal";
 import { ImportTasksModal } from "@/components/project-management/ImportTasksModal";
+import { DeleteAllTasksModal } from "@/components/project-management/DeleteAllTasksModal";
 import { SearchableProjectSelect } from "@/components/project-management/SearchableProjectSelect";
 import { UiverseSelect } from "@/components/ui/UiverseSelect";
 import teamPermissionsApi from "@/services/teamPermissions";
@@ -58,6 +60,7 @@ export default function AllTasksPage() {
 
   const [loading, setLoading] = useState(true);
   const [showEveryone, setShowEveryone] = useState(false);
+  const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +75,9 @@ export default function AllTasksPage() {
   const [priorityFilter, setPriorityFilter] = useState<string>("All");
   const [projectFilter, setProjectFilter] = useState<string>("");
   const [selectedTeamId, setSelectedTeamId] = useState<number | "all">("all");
+  // Team whose tasks "Delete All" removes: the filter's team, else the leader's own team
+  const deleteTeamId: number | null =
+    selectedTeamId !== "all" ? Number(selectedTeamId) : isTeamLead && user?.team_id ? Number(user.team_id) : null;
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grouped" | "flat">("grouped");
 
@@ -460,6 +466,16 @@ export default function AllTasksPage() {
               {canEditTasks && (
                 <DropdownMenuItem onClick={() => setIsImportModalOpen(true)} className="cursor-pointer text-slate-700">
                   <Upload className="mr-2 h-4 w-4" /> Import Tasks
+                </DropdownMenuItem>
+              )}
+              {(isSuperAdmin || isTeamLead) && (
+                <DropdownMenuItem
+                  disabled={!deleteTeamId}
+                  onClick={() => setIsDeleteAllOpen(true)}
+                  className="cursor-pointer text-rose-600"
+                  title={deleteTeamId ? undefined : "Pick a team in the team filter first"}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" /> Delete All Tasks
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -863,6 +879,13 @@ export default function AllTasksPage() {
       <DailyReportModal
         isOpen={isDailyReportOpen}
         onClose={() => setIsDailyReportOpen(false)}
+      />
+
+      <DeleteAllTasksModal
+        isOpen={isDeleteAllOpen}
+        teamId={deleteTeamId}
+        onClose={() => setIsDeleteAllOpen(false)}
+        onDeleted={() => fetchTasks(1, true)}
       />
 
       {/* ── Import Tasks Modal ── */}
