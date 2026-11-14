@@ -87,21 +87,37 @@ export function UiverseSelect({
     return parsedOptions.find((opt) => String(opt.value) === String(value ?? ""));
   }, [parsedOptions, value]);
 
-  // Close when clicked outside
+  // Close when clicked/tapped outside. Capture phase on document, so a parent that calls
+  // stopPropagation on mousedown/pointerdown (cards, modals, drawers) cannot swallow the close.
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    if (!isOpen) return;
+    function handleOutside(e: Event) {
       const t = e.target as Node;
-      if (containerRef.current && !containerRef.current.contains(t) && !(panelRef.current && panelRef.current.contains(t))) {
-        setIsOpen(false);
-        setSearchTerm("");
-      }
+      if (containerRef.current?.contains(t) || panelRef.current?.contains(t)) return;
+      setIsOpen(false);
+      setSearchTerm("");
     }
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+    const evts = ["pointerdown", "mousedown", "touchstart"] as const;
+    evts.forEach((n) => document.addEventListener(n, handleOutside, true));
+    // Also close if the window loses focus (e.g. click into an iframe or another tab).
+    const onBlur = () => { setIsOpen(false); setSearchTerm(""); };
+    window.addEventListener("blur", onBlur);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      evts.forEach((n) => document.removeEventListener(n, handleOutside, true));
+      window.removeEventListener("blur", onBlur);
     };
+  }, [isOpen]);
+
+  // Only one dropdown open at a time: opening this one closes the others.
+  const uid = useRef(Math.random().toString(36).slice(2));
+  useEffect(() => {
+    if (!isOpen) return;
+    window.dispatchEvent(new CustomEvent("uv-select-open", { detail: uid.current }));
+    const onOther = (e: Event) => {
+      if ((e as CustomEvent).detail !== uid.current) { setIsOpen(false); setSearchTerm(""); }
+    };
+    window.addEventListener("uv-select-open", onOther);
+    return () => window.removeEventListener("uv-select-open", onOther);
   }, [isOpen]);
 
   // Close on Escape key
