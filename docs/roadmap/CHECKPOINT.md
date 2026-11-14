@@ -6,6 +6,12 @@ You are continuing the **Internal Software Plan** for the Intersmart Employee Po
 
 **Read order for a new agent:** this file, then `PROGRESS.md` (history and gotchas), then `EXECUTION_PLAN.md` (rules and phase order), then `SOFTWARE_PLAN.md` (have vs build per role). `SERVER.md` has the live server layout.
 
+## 0000-Z. 14 Nov 2026: JSON task import + Old Employees' Tasks (backend LIVE, frontend via Vercel)
+- Task importer has a "JSON (old tracker)" tab. Old tracker file (`team_migration_*.json`: tasks[], subphases[]) is mapped server-side by `ProjectTaskController::mapLegacyRow` (title = sub_phase, end_date = due date, Urgent = Critical). Task id kept in `pm_tasks.legacy_id` (`tt-<id>`), so re-import updates, no duplicates. NOT imported yet: the owner's file `D:\downloads	eam_migration_2026-11-12.json` (645 tasks, 148 projects; project names are "A / B", unmatched ones auto-create a project).
+- People with no portal account (strict match: exact full name or unique first name): `pm_tasks.old_assignee_name`. Tasks page groups these, plus tasks of Resigned/Terminated users, under "Old Employees' Tasks" with the name (derived, nothing is moved; re-activating the user puts tasks back).
+- Employees page (Super Admin): Disable, Mark as Resigned, Mark as Terminated, Reactivate. `POST /employees/{id}/status` accepts the 4 statuses and deletes their tokens when not Active.
+- Verified on live with a rolled-back transaction (2 fake rows). Migration 2026_11_14_100000 applied.
+
 ## 0000. HANDOVER, END OF SESSION 30 Oct 2026 (NEWEST: READ THIS FIRST, then 000 for older detail)
 
 When the owner says "continue": do section 0000-F below. Everything is committed; `main` and live backend are current (last code commit e3f33e69; later commits are docs only). Work branch `wip/phase4-slice2` == main + docs.
