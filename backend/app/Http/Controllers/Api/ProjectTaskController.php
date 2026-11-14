@@ -120,9 +120,16 @@ class ProjectTaskController extends Controller
             } elseif (strtolower($statusVal) === 'rejected' || strtolower($statusVal) === 'cancelled') {
                 $query->whereIn('status', ['Rejected', 'Cancelled']);
             } elseif (strtolower($statusVal) === 'overdue') {
+                // open tasks past due, plus completed tasks that were finished after the due date
                 $query->whereNotNull('due_date')
                       ->where('due_date', '<', now()->toDateString())
-                      ->whereNotIn('status', ['Completed', 'Rejected', 'Cancelled']);
+                      ->where(function ($q) {
+                          $q->whereNotIn('status', ['Completed', 'Rejected', 'Cancelled'])
+                            ->orWhere(function ($c) {
+                                $c->where('status', 'Completed')
+                                  ->whereColumn('actual_completion_date', '>', 'due_date');
+                            });
+                      });
             } else {
                 $query->where('status', $statusVal);
             }
@@ -1179,6 +1186,7 @@ class ProjectTaskController extends Controller
         }
 
         $imported = 0;
+        $already = 0;
         $failed = 0;
         $errors = [];
 
@@ -1414,8 +1422,14 @@ class ProjectTaskController extends Controller
                 }
 
                 // Check for existing task in the same project with the same title to avoid duplicates
+                // Old tracker rows already imported are left alone (portal edits are not overwritten)
+                if ($legacy && $legacyId && ProjectTask::withTrashed()->where('legacy_id', $legacyId)->exists()) {
+                    $already++;
+                    continue;
+                }
+
                 $existingTask = $legacy && $legacyId
-                    ? ProjectTask::where('legacy_id', $legacyId)->first()
+                    ? null
                     : ProjectTask::where('project_id', $matchedProject->id)->where('title', $title)->first();
 
                 if ($existingTask) {
@@ -1454,9 +1468,10 @@ class ProjectTaskController extends Controller
         }
 
         return response()->json([
-            'message' => "Import complete: {$imported} tasks successfully imported" . ($failed > 0 ? " ({$failed} rows skipped)" : "."),
+            'message' => "Import complete: {$imported} new tasks imported" . ($already > 0 ? ", {$already} already imported (left unchanged)" : "") . ($failed > 0 ? " ({$failed} rows skipped)" : "."),
             'imported_count' => $imported,
             'skipped_count' => $failed,
+            'already_imported_count' => $already,
             'errors' => $errors,
         ], 200);
     }

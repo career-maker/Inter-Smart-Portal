@@ -169,8 +169,12 @@ export default function ProjectManagementDashboard() {
   }, [fetchDashboardData]);
 
   // Helper to check if task is overdue
-  const isTaskOverdue = (dueDateStr?: string | null, status?: TaskStatus): boolean => {
-    if (!dueDateStr || status === "Completed" || status === "Rejected") return false;
+  // Completed tasks count too when they were finished after the due date.
+  const isTaskOverdue = (dueDateStr?: string | null, status?: TaskStatus, completedStr?: string | null): boolean => {
+    if (!dueDateStr || status === "Rejected") return false;
+    if (status === "Completed") {
+      return !!completedStr && completedStr.slice(0, 10) > dueDateStr.slice(0, 10);
+    }
     try {
       const d = parseISO(dueDateStr);
       return isPast(d) && !isToday(d);
@@ -222,8 +226,8 @@ export default function ProjectManagementDashboard() {
     myForecastTasks: isTeamLead ? myTasks.filter((t) => t.status === "Forecast").length : undefined,
     completedTasks: relevantTaskList.filter((t) => t.status === "Completed").length,
     myCompletedTasks: isTeamLead ? myTasks.filter((t) => t.status === "Completed").length : undefined,
-    overdueTasks: relevantTaskList.filter((t) => isTaskOverdue(t.due_date, t.status)).length,
-    myOverdueTasks: isTeamLead ? myTasks.filter((t) => isTaskOverdue(t.due_date, t.status)).length : undefined,
+    overdueTasks: relevantTaskList.filter((t) => isTaskOverdue(t.due_date, t.status, t.actual_completion_date)).length,
+    myOverdueTasks: isTeamLead ? myTasks.filter((t) => isTaskOverdue(t.due_date, t.status, t.actual_completion_date)).length : undefined,
   };
 
   // Filter tasks passed to the All Tasks Table based on active KPI filter
@@ -240,7 +244,7 @@ export default function ProjectManagementDashboard() {
       return t.status === "Completed";
     }
     if (activeKpiFilter.toLowerCase() === "overdue") {
-      return isTaskOverdue(t.due_date, t.status);
+      return isTaskOverdue(t.due_date, t.status, t.actual_completion_date);
     }
     return true;
   });

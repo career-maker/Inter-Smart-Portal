@@ -64,6 +64,7 @@ export function ImportTasksModal({
   const [importResult, setImportResult] = useState<{
     imported_count: number;
     skipped_count: number;
+    already_imported_count?: number;
     errors: string[];
     message: string;
   } | null>(null);
@@ -299,6 +300,7 @@ export function ImportTasksModal({
         const totalRows = sourceRows.length;
         let totalImported = 0;
         let totalSkipped = 0;
+        let totalAlready = 0;
         const allErrors: string[] = [];
 
         for (let i = 0; i < totalRows; i += CHUNK_SIZE) {
@@ -321,6 +323,7 @@ export function ImportTasksModal({
             const res = await pmApi.importTasks(payload);
             totalImported += res.imported_count || 0;
             totalSkipped += res.skipped_count || 0;
+            totalAlready += (res as any).already_imported_count || 0;
             if (res.errors && res.errors.length > 0) {
               allErrors.push(...res.errors);
             }
@@ -337,8 +340,9 @@ export function ImportTasksModal({
         const finalResult = {
           imported_count: totalImported,
           skipped_count: totalSkipped,
+          already_imported_count: totalAlready,
           errors: allErrors,
-          message: `Import complete: ${totalImported} tasks successfully imported${totalSkipped > 0 ? ` (${totalSkipped} skipped)` : ""}.`,
+          message: `Import complete: ${totalImported} new tasks imported${totalAlready > 0 ? `, ${totalAlready} already imported (left unchanged)` : ""}${totalSkipped > 0 ? ` (${totalSkipped} skipped)` : ""}.`,
         };
 
         setImportResult(finalResult);
@@ -545,7 +549,8 @@ export function ImportTasksModal({
                         Import Complete!
                       </h3>
                       <p className="text-xs text-emerald-700 dark:text-emerald-300 font-medium">
-                        {importResult.imported_count} tasks were successfully created and added to your workspace.
+                        {importResult.imported_count} new tasks were created.
+                        {!!importResult.already_imported_count && ` ${importResult.already_imported_count} were already imported earlier and left unchanged.`}
                       </p>
                     </div>
                   </div>
