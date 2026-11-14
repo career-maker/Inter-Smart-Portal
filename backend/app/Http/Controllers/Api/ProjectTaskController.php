@@ -161,9 +161,16 @@ class ProjectTaskController extends Controller
             });
         }
 
+        // Completed list: most recently completed first; everything else by due date
+        if (strtolower((string) $request->input('status')) === 'completed') {
+            $query->orderByRaw('actual_completion_date IS NULL')->orderByDesc('actual_completion_date')->orderByDesc('updated_at');
+        } else {
+            $query->orderBy('due_date');
+        }
+
         $perPage = $request->input('per_page', 20);
         if ($perPage === 'all' || (int) $perPage === -1) {
-            $items = $query->orderBy('due_date')->get();
+            $items = $query->get();
             return response()->json([
                 'data' => $items,
                 'total' => $items->count(),
@@ -172,7 +179,7 @@ class ProjectTaskController extends Controller
             ]);
         }
 
-        return response()->json($query->orderBy('due_date')->paginate((int) $perPage));
+        return response()->json($query->paginate((int) $perPage));
     }
 
     public function my(Request $request)
@@ -195,6 +202,10 @@ class ProjectTaskController extends Controller
             ])
             ->withCount(['comments', 'bugs'])
             ->orderBy('due_date');
+
+        if (strtolower((string) $request->input('status')) === 'completed') {
+            $query->reorder()->orderByRaw('actual_completion_date IS NULL')->orderByDesc('actual_completion_date')->orderByDesc('updated_at');
+        }
 
         if ($request->filled('status')) {
             $statusVal = $request->string('status');
