@@ -240,6 +240,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);
 
     Route::get('features', [\App\Http\Controllers\Api\FeatureController::class, 'index']);
+    Route::get('menu-layout', [\App\Http\Controllers\Api\MenuLayoutController::class, 'show']);
+    Route::put('menu-layout', [\App\Http\Controllers\Api\MenuLayoutController::class, 'update']);
 
     // Accounts module (Phase 1): hidden (404) until module.accounts.enabled is switched on.
     Route::prefix('accounts')->middleware(['feature:accounts', 'accounts.access'])->group(function () {
