@@ -383,9 +383,23 @@ class ProjectTaskController extends Controller
             return response()->json(['message' => 'No permitted fields were submitted for update.'], 422);
         }
 
+        // Moving task to another project: caller must be able to see the target;
+        // old sub-phase belongs to the old project so clear it unless re-supplied.
+        if (isset($data['project_id']) && (int) $data['project_id'] !== (int) $task->project_id) {
+            $target = \App\Models\Project::find($data['project_id']);
+            if (!$target || !$this->auth->canViewProject($user, $target)) {
+                return response()->json(['message' => 'Unauthorized to move task to that project.'], 403);
+            }
+            if (!array_key_exists('sub_phase_id', $data)) {
+                $data['sub_phase_id'] = null;
+            }
+        } else {
+            unset($data['project_id']);
+        }
+
         $task = $this->tasks->updateTask($task, $data, $user, $request);
 
-        return response()->json(['message' => 'Task updated successfully.', 'data' => $task->load('catalogTask')]);
+        return response()->json(['message' => 'Task updated successfully.', 'data' => $task->load(['catalogTask', 'project:id,name,team_id,project_coordinator_id'])]);
     }
 
     public function updateStatus(UpdateProjectTaskStatusRequest $request, ProjectTask $task)

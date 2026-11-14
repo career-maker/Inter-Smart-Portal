@@ -63,6 +63,22 @@ export function TaskExecutionModal({
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [title, setTitle] = useState(task.title || "");
+  const [projectId, setProjectId] = useState<number>(task.project_id);
+  const [projects, setProjects] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    setTitle(task.title || "");
+    setProjectId(task.project_id);
+  }, [task, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !canManage) return;
+    pmApi
+      .getProjects({ per_page: "all" })
+      .then((res: any) => setProjects(Array.isArray(res) ? res : res?.data ?? []))
+      .catch(() => setProjects([]));
+  }, [isOpen, canManage]);
 
   // Check addon permissions
   useEffect(() => {
@@ -142,7 +158,14 @@ export function TaskExecutionModal({
     setError(null);
 
     try {
+      if (canManage && !title.trim()) {
+        setError("Task name is required.");
+        setSubmitting(false);
+        return;
+      }
       const payload: UpdateProjectTaskPayload = {
+        ...(canManage && title.trim() !== task.title ? { title: title.trim() } : {}),
+        ...(canManage && projectId !== task.project_id ? { project_id: projectId } : {}),
         status: formData.status,
         actual_start_date: formData.actual_start_date || null,
         actual_completion_date: formData.actual_completion_date || null,
@@ -234,6 +257,42 @@ export function TaskExecutionModal({
           {/* Form Body */}
           <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
             <div className="p-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+          {canManage && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="task-title" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Task Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  id="task-title"
+                  type="text"
+                  maxLength={255}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="task-project" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Project
+                </label>
+                <select
+                  id="task-project"
+                  value={projectId}
+                  onChange={(e) => setProjectId(Number(e.target.value))}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                >
+                  {!projects.some((p) => p.id === task.project_id) && (
+                    <option value={task.project_id}>{task.project?.name ?? `Project #${task.project_id}`}</option>
+                  )}
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+
           {/* Status & Progress % */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

@@ -24,6 +24,7 @@ class UpdateProjectTaskRequest extends FormRequest
     {
         return [
             // Planning fields
+            'project_id' => ['sometimes', 'required', 'integer', 'exists:pm_projects,id'],
             'sub_phase_id' => ['sometimes', 'nullable', 'integer', 'exists:pm_sub_phases,id'],
             'catalog_task_id' => [
                 'sometimes',
