@@ -48,6 +48,17 @@ class HallController extends Controller
             ->get()
             ->keyBy('user_id');
 
+        // Same "present" rule as the dashboard Team Status card: an attendance
+        // row with a check-in, or a raw biometric IN punch if the cron has not
+        // processed attendance yet.
+        $checkedIn = \App\Models\Attendance::where('date', $todayStr)
+            ->whereNotNull('check_in_time')
+            ->pluck('user_id')->flip();
+        $punchedIn = \App\Models\BiometricEvent::whereDate('local_punch_time', $todayStr)
+            ->where('direction', 'in')
+            ->whereNotNull('user_id')
+            ->pluck('user_id')->flip();
+
         $hallData = [];
         $summary = [
             'total' => $employees->count(),
@@ -56,6 +67,7 @@ class HallController extends Controller
             'wfh' => 0,
             'half_day' => 0,
             'holiday' => 0,
+            'absent' => 0,
         ];
 
         foreach ($employees as $emp) {
@@ -77,6 +89,11 @@ class HallController extends Controller
                 }
             }
 
+            // Working day, no leave/WFH, but never checked in = Absent (matches dashboard).
+            if ($status === 'Working' && !$checkedIn->has($emp->id) && !$punchedIn->has($emp->id)) {
+                $status = 'Absent';
+            }
+
             // Update summary
             if ($status === 'Holiday') {
                 $summary['holiday']++;
@@ -84,6 +101,8 @@ class HallController extends Controller
                 $summary['half_day']++;
             } elseif ($status === 'WFH') {
                 $summary['wfh']++;
+            } elseif ($status === 'Absent') {
+                $summary['absent']++;
             } elseif ($status !== 'Working') {
                 $summary['on_leave']++;
             } else {

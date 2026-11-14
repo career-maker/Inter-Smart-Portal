@@ -101,6 +101,8 @@ const Desk = memo(function Desk({ seat, dimmed, selected, showName, onHover, onP
       onClick={() => onPick(emp)}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onPick(emp); } }}
     >
+      {/* full-cell hit area: no gaps between desk, chair and name, so hover never flickers */}
+      <rect x={0} y={0} width={CELL_W} height={CELL_H - 4} fill="transparent" />
       {/* desk */}
       <rect x={8} y={6} width={60} height={28} rx={3} className="fill-white stroke-slate-300 dark:fill-slate-700 dark:stroke-slate-500" strokeWidth={1} />
       <rect x={8} y={9} width={60} height={28} rx={3} className="fill-slate-200/70 dark:fill-slate-900/50" style={{ transform: "translateY(3px)" }} opacity={0.5} />
@@ -339,7 +341,7 @@ export default function HallFloor({ employees, visibleIds, selectedTeam, onSelec
             <div className="font-semibold text-slate-900 dark:text-white">Legend</div>
             <Legend swatch={<span className="h-3 w-3 rounded-full" style={{ background: CHAIR.working }} />} text="Working / Present" />
             <Legend swatch={<span className="h-3 w-3 rounded-full" style={{ background: CHAIR.wfh }} />} text="Work from home" />
-            <Legend swatch={<span className="relative h-3 w-3 rounded-full border-2 border-dashed" style={{ borderColor: CHAIR.leave, background: "#16a34a2e" }}><span className="absolute -right-1 -top-1 h-1.5 w-1.5 rounded-full bg-red-600" /></span>} text="On leave (hollow chair + red mark)" />
+            <Legend swatch={<span className="relative h-3 w-3 rounded-full border-2 border-dashed" style={{ borderColor: CHAIR.leave, background: "#16a34a2e" }}><span className="absolute -right-1 -top-1 h-1.5 w-1.5 rounded-full bg-red-600" /></span>} text="On leave / absent (hollow chair + red mark)" />
             <Legend swatch={<span className="h-3 w-3 rounded-full bg-orange-500" />} text="Half day (orange mark)" />
             {holidayName && <Legend swatch={<span className="h-3 w-3 rounded-full" style={{ background: CHAIR.holiday }} />} text="Holiday" />}
           </div>

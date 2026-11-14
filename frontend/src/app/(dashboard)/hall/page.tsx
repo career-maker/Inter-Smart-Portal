@@ -62,7 +62,7 @@ export default function HallPage() {
 
   const getStatusColor = (status: string) => {
     if (status === "Working") return "bg-green-100 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30";
-    if (status.includes("Leave")) return "bg-red-100 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30";
+    if (status.includes("Leave") || status === "Absent") return "bg-red-100 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30";
     if (status.includes("WFH")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30";
     if (status === "Holiday") return "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30";
     return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-500/30";
@@ -74,7 +74,7 @@ export default function HallPage() {
     for (const emp of data?.employees ?? []) {
       const okSearch = emp.first_name.toLowerCase().includes(q) || emp.last_name.toLowerCase().includes(q) || emp.employee_code.toLowerCase().includes(q);
       const okTeam = teamFilter === "all" || emp.team === teamFilter;
-      const okStatus = statusFilter === "all" || (statusFilter === "Leave" && emp.status.includes("Leave")) || (statusFilter === "WFH" && emp.status.includes("WFH")) || emp.status === statusFilter;
+      const okStatus = statusFilter === "all" || (statusFilter === "Leave" && (emp.status.includes("Leave") || emp.status === "Absent")) || (statusFilter === "WFH" && emp.status.includes("WFH")) || emp.status === statusFilter;
       if (okSearch && okTeam && okStatus) ids.add(emp.id);
     }
     return ids;
@@ -104,7 +104,7 @@ export default function HallPage() {
     
     const matchesTeam = teamFilter === "all" || emp.team === teamFilter;
     const matchesStatus = statusFilter === "all" || 
-      (statusFilter === "Leave" && emp.status.includes("Leave")) ||
+      (statusFilter === "Leave" && (emp.status.includes("Leave") || emp.status === "Absent")) ||
       (statusFilter === "WFH" && emp.status.includes("WFH")) ||
       emp.status === statusFilter;
 
@@ -124,7 +124,7 @@ export default function HallPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Employees</span>
@@ -147,6 +147,14 @@ export default function HallPage() {
             <Palmtree className="h-5 w-5 text-red-500" />
           </div>
           <span className="text-3xl font-bold mt-2 text-red-600 dark:text-red-400">{data.summary.on_leave}</span>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-rose-400 dark:border-b-rose-400 shadow-sm flex flex-col justify-between">
+          <div className="flex justify-between items-start">
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Absent</span>
+            <Users className="h-5 w-5 text-rose-400" />
+          </div>
+          <span className="text-3xl font-bold mt-2 text-rose-500 dark:text-rose-400">{data.summary.absent ?? 0}</span>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-blue-500 dark:border-b-blue-500 shadow-sm flex flex-col justify-between">
@@ -201,7 +209,7 @@ export default function HallPage() {
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="Working">Working</SelectItem>
-              <SelectItem value="Leave">On Leave</SelectItem>
+              <SelectItem value="Leave">On Leave / Absent</SelectItem>
               <SelectItem value="WFH">WFH</SelectItem>
             </SelectContent>
           </Select>
