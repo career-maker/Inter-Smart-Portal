@@ -92,7 +92,7 @@ const Desk = memo(function Desk({ seat, dimmed, selected, showName, onHover, onP
       transform={`translate(${x},${y})`}
       opacity={dimmed ? 0.18 : 1}
       className="cursor-pointer outline-none"
-      role="button"
+      role="link"
       tabIndex={dimmed ? -1 : 0}
       aria-label={`${emp.first_name} ${emp.last_name}, ${emp.status}`}
       onPointerEnter={(e) => onHover(emp, e)}
@@ -294,7 +294,7 @@ export default function HallFloor({ employees, visibleIds, selectedTeam, onSelec
                     <g
                       className="cursor-pointer"
                       onClick={() => onSelectTeam(active ? null : z.name)}
-                      role="button"
+                      role="link"
                       tabIndex={0}
                       aria-label={`${active ? "Deselect" : "Select"} team ${z.name}`}
                       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelectTeam(active ? null : z.name); } }}
