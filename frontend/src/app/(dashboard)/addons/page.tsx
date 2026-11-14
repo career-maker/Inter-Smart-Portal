@@ -22,6 +22,7 @@ import {
   HardDrive,
   LifeBuoy,
   Palette,
+  ListOrdered,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
@@ -62,6 +63,19 @@ export default function PmAddonsPage() {
           name: "Customization",
           description: "Customize portal font family, header background and text colors, typography scales, and dynamic page titles.",
           icon: "Palette",
+          is_active: true,
+          teams: [],
+        } as any);
+      }
+
+      // Always listed, like Customization: not stored per team
+      if (!finalAddons.some((a: any) => a.key === "menu_layout")) {
+        finalAddons.push({
+          id: -998,
+          key: "menu_layout",
+          name: "Side Menu Arrangement",
+          description: "Set the order of the side menu and hide entries for Team Lead and Employee roles.",
+          icon: "Menu",
           is_active: true,
           teams: [],
         } as any);
@@ -235,6 +249,8 @@ export default function PmAddonsPage() {
                         <LifeBuoy className="w-6 h-6" />
                       ) : addon.key === "customization" ? (
                         <Palette className="w-6 h-6" />
+                      ) : addon.key === "menu_layout" ? (
+                        <ListOrdered className="w-6 h-6" />
                       ) : (
                         <Puzzle className="w-6 h-6" />
                       )}
@@ -359,6 +375,22 @@ export default function PmAddonsPage() {
                       >
                         <Settings2 className="w-4 h-4 !text-white" />
                         <span className="!text-white">Configure Email Management</span>
+                      </Link>
+                    </div>
+                  </div>
+                ) : addon.key === "menu_layout" ? (
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Reorder the side menu and switch entries off for Team Leads and Employees. Display only; page access is unchanged.
+                    </p>
+                    <div className="flex items-center justify-end pt-2">
+                      <Link
+                        href="/addons/menu-layout"
+                        style={{ backgroundColor: "var(--portal-primary-color, #56348f)", color: "rgb(255, 255, 255)", fontSize: "13px", lineHeight: "20px", fontWeight: 600 }}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl hover:opacity-90 !text-white shadow-sm transition-colors cursor-pointer"
+                      >
+                        <Settings2 className="w-4 h-4 !text-white" />
+                        <span className="!text-white">Arrange Menu</span>
                       </Link>
                     </div>
                   </div>
