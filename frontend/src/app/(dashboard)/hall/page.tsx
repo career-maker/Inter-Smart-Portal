@@ -1,7 +1,8 @@
 "use client";
 
 import { PageLoader } from "@/components/ui/PageLoader";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
   Users, Building2, Palmtree, Home, Loader2, Search, Filter
@@ -15,6 +16,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
+const HallFloor = dynamic(() => import("@/components/hall/HallFloor"), {
+  ssr: false,
+  loading: () => <div className="h-[520px] rounded-xl bg-slate-100 dark:bg-slate-900 animate-pulse" />,
+});
+
 export default function HallPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
@@ -24,6 +30,14 @@ export default function HallPage() {
   const [search, setSearch] = useState("");
   const [teamFilter, setTeamFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [view, setView] = useState<"hall" | "list">("hall");
+  const [loadError, setLoadError] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState(new Date());
+
+  // Small screens start on the list; the floor plan needs room.
+  useEffect(() => {
+    if (window.innerWidth < 768) setView("list");
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -34,8 +48,10 @@ export default function HallPage() {
     try {
       const res = await api.get("/hall");
       setData(res.data);
+      setUpdatedAt(new Date());
     } catch (e: any) {
       console.error(e);
+      setLoadError(true);
       if (e.response?.status === 403) {
         router.push("/dashboard");
       }
@@ -51,6 +67,22 @@ export default function HallPage() {
     if (status === "Holiday") return "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30";
     return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-500/30";
   };
+
+  const visibleIds = useMemo(() => {
+    const ids = new Set<number>();
+    const q = search.toLowerCase();
+    for (const emp of data?.employees ?? []) {
+      const okSearch = emp.first_name.toLowerCase().includes(q) || emp.last_name.toLowerCase().includes(q) || emp.employee_code.toLowerCase().includes(q);
+      const okTeam = teamFilter === "all" || emp.team === teamFilter;
+      const okStatus = statusFilter === "all" || (statusFilter === "Leave" && emp.status.includes("Leave")) || (statusFilter === "WFH" && emp.status.includes("WFH")) || emp.status === statusFilter;
+      if (okSearch && okTeam && okStatus) ids.add(emp.id);
+    }
+    return ids;
+  }, [data, search, teamFilter, statusFilter]);
+
+  if (loadError && !data) {
+    return <div className="py-20 text-center text-sm text-muted-foreground">Could not load the hall. Please refresh.</div>;
+  }
 
   if (isLoading || !data) {
     return (
@@ -176,7 +208,28 @@ export default function HallPage() {
         </div>
       </div>
 
+      <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-800 p-0.5 text-sm" role="tablist" aria-label="Hall view">
+        {([["hall", "Hall View"], ["list", "Employee List View"]] as const).map(([v, label]) => (
+          <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => setView(v)}
+            className={`px-3.5 py-1.5 rounded-md font-medium cursor-pointer ${view === v ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900" : "text-slate-600 dark:text-slate-300"}`}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {view === "hall" && (
+        <HallFloor
+          employees={data.employees}
+          visibleIds={visibleIds}
+          selectedTeam={teamFilter === "all" ? null : teamFilter}
+          onSelectTeam={(t) => setTeamFilter(t ?? "all")}
+          updatedAt={updatedAt}
+          holidayName={data.is_holiday ? data.holiday_name : null}
+        />
+      )}
+
       {/* Employee Grid */}
+      {view === "list" && (
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-md shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px] text-sm text-left">
@@ -239,6 +292,7 @@ export default function HallPage() {
           </table>
         </div>
       </div>
+      )}
     </div>
   );
 }
