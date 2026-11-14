@@ -53,6 +53,10 @@ export function ImportTasksModal({
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [downloadingTemplate, setDownloadingTemplate] = useState(false);
   const [parsedRows, setParsedRows] = useState<ParsedTaskRow[]>([]);
+  // "csv" = spreadsheet; "json" = export from the old team tracker
+  const [format, setFormat] = useState<"csv" | "json">("csv");
+  const [legacyRows, setLegacyRows] = useState<any[]>([]);
+  const [legacySubNames, setLegacySubNames] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [progressText, setProgressText] = useState<string>("");
@@ -148,6 +152,35 @@ export function ImportTasksModal({
     }
   };
 
+  const parseJsonText = (text: string) => {
+    const data = JSON.parse(text.replace(/^\uFEFF/, ""));
+    const list: any[] = Array.isArray(data) ? data : data?.tasks;
+    if (!Array.isArray(list) || list.length === 0 || typeof list[0] !== "object") {
+      throw new Error('No task list found. Expected {"tasks": [...]}.');
+    }
+    setLegacyRows(list);
+    setLegacySubNames(
+      (Array.isArray(data?.subphases) ? data.subphases : []).map((x: any) => String(x?.name || "")).filter(Boolean)
+    );
+    setParsedRows(
+      list.map((t: any) => {
+        const sub = String(t.sub_phase || "").trim();
+        const comments = String(t.comments || "").trim();
+        const names = [t.assigned_to, t.assigned_to2]
+          .filter((n: any) => n && String(n).trim() && String(n).toLowerCase() !== "unassigned")
+          .join(", ");
+        return {
+          title: sub || comments.split("\n")[0] || String(t.current_updates || "").split("\n")[0] || "Task (old tracker)",
+          project_name: t.project_name || "",
+          sub_phase: "",
+          priority: String(t.priority || "Medium"),
+          status: t.status || "Yet to Start",
+          assignees: names,
+        } as ParsedTaskRow;
+      })
+    );
+  };
+
   // Helper to accurately parse a CSV line taking quotes and commas into account
   const parseCsvLine = (line: string): string[] => {
     const values: string[] = [];
@@ -176,12 +209,19 @@ export function ImportTasksModal({
 
   const processSelectedFile = (file: File) => {
     const lowerName = file.name.toLowerCase();
-    if (!lowerName.endsWith(".csv") && !lowerName.endsWith(".txt")) {
-      setError("Please select a valid CSV (.csv) file. If editing in Excel, choose 'Save As' -> 'CSV (Comma delimited) (*.csv)'.");
+    const isJson = lowerName.endsWith(".json");
+    if (format === "json" ? !isJson : !lowerName.endsWith(".csv") && !lowerName.endsWith(".txt")) {
+      setError(
+        format === "json"
+          ? "Please select the .json file exported from the old team tracker."
+          : "Please select a valid CSV (.csv) file. If editing in Excel, choose 'Save As' -> 'CSV (Comma delimited) (*.csv)'."
+      );
       return;
     }
 
     setError(null);
+    setLegacyRows([]);
+    setParsedRows([]);
     setSelectedFile(file);
     setImportResult(null);
     setProgressPercent(0);
@@ -191,7 +231,16 @@ export function ImportTasksModal({
     reader.onload = (event) => {
       const content = event.target?.result as string;
       if (content) {
-        parseCsvText(content);
+        if (isJson) {
+          try {
+            parseJsonText(content);
+          } catch (e: any) {
+            setSelectedFile(null);
+            setError(`Could not read this JSON file: ${e?.message || "invalid JSON"}`);
+          }
+        } else {
+          parseCsvText(content);
+        }
       }
     };
     reader.onerror = () => {
@@ -232,7 +281,7 @@ export function ImportTasksModal({
   const handleImportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile && parsedRows.length === 0) {
-      setError("Please select or drop a CSV file to upload.");
+      setError(`Please select or drop a ${format === "json" ? "JSON" : "CSV"} file to upload.`);
       return;
     }
 
@@ -246,13 +295,14 @@ export function ImportTasksModal({
       // If we have parsed rows from client, chunk into batches of 50 for guaranteed fast processing
       if (parsedRows.length > 0) {
         const CHUNK_SIZE = 50;
-        const totalRows = parsedRows.length;
+        const sourceRows: any[] = legacyRows.length > 0 ? legacyRows : parsedRows;
+        const totalRows = sourceRows.length;
         let totalImported = 0;
         let totalSkipped = 0;
         const allErrors: string[] = [];
 
         for (let i = 0; i < totalRows; i += CHUNK_SIZE) {
-          const chunk = parsedRows.slice(i, i + CHUNK_SIZE);
+          const chunk = sourceRows.slice(i, i + CHUNK_SIZE);
           const currentBatchEnd = Math.min(i + CHUNK_SIZE, totalRows);
           setProgressText(`Importing batch (${currentBatchEnd} of ${totalRows} tasks)...`);
           setProgressPercent(Math.round(((i + 1) / totalRows) * 90));
@@ -261,6 +311,10 @@ export function ImportTasksModal({
             const payload: any = {
               tasks: chunk,
             };
+            if (legacyRows.length > 0) {
+              payload.source = "legacy_tracker";
+              payload.subphase_names = legacySubNames;
+            }
             if (selectedProjectId) {
               payload.project_id = Number(selectedProjectId);
             }
@@ -323,6 +377,8 @@ export function ImportTasksModal({
   const handleReset = () => {
     setSelectedFile(null);
     setParsedRows([]);
+    setLegacyRows([]);
+    setLegacySubNames([]);
     setImportResult(null);
     setProgressPercent(0);
     setProgressText("");
@@ -363,7 +419,7 @@ export function ImportTasksModal({
               </div>
               <div>
                 <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                  Import Tasks via CSV
+                  Import Tasks
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Bulk create tasks, phases, deadlines, and member assignments from a spreadsheet.
@@ -383,8 +439,49 @@ export function ImportTasksModal({
           {/* Form & Body */}
           <form onSubmit={handleImportSubmit} className="flex flex-col flex-1 overflow-hidden">
             <div className="p-6 overflow-y-auto space-y-5 flex-1 custom-scrollbar">
-              {/* Instructions & Template Download Banner */}
               {!importResult && (
+                <div className="inline-flex rounded-xl border border-slate-200 dark:border-slate-700 p-1 bg-slate-50 dark:bg-slate-800/60" role="tablist" aria-label="Import format">
+                  {([["csv", "Spreadsheet (CSV)"], ["json", "JSON (old tracker)"]] as const).map(([val, label]) => (
+                    <button
+                      key={val}
+                      type="button"
+                      role="tab"
+                      aria-selected={format === val}
+                      disabled={uploading}
+                      onClick={() => {
+                        if (format !== val) {
+                          setFormat(val);
+                          handleReset();
+                        }
+                      }}
+                      className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                        format === val
+                          ? "bg-[#56348f] text-white shadow-xs"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {!importResult && format === "json" && (
+                <div className="p-4 rounded-xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                  <div className="flex items-center gap-1.5 font-bold text-[#56348f] dark:text-purple-300">
+                    <FileSpreadsheet className="w-4 h-4 shrink-0" />
+                    <span>Old team tracker JSON</span>
+                  </div>
+                  <p>
+                    Upload the migration file exported from the old tracker. People who have no account in this portal are
+                    kept by name and their tasks appear under <b>Old Employees&apos; Tasks</b>. Importing the same file again
+                    updates the tasks, it does not duplicate them.
+                  </p>
+                </div>
+              )}
+
+              {/* Instructions & Template Download Banner */}
+              {!importResult && format === "csv" && (
                 <div className="p-4 rounded-xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
                   <div className="space-y-1">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-[#56348f] dark:text-purple-300">
@@ -502,7 +599,7 @@ export function ImportTasksModal({
               {!importResult && (
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Select or Drop CSV File <span className="text-rose-500">*</span>
+                    Select or Drop {format === "json" ? "JSON" : "CSV"} File <span className="text-rose-500">*</span>
                   </label>
 
                   <div
@@ -521,7 +618,7 @@ export function ImportTasksModal({
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".csv,text/csv,text/plain"
+                      accept={format === "json" ? ".json,application/json" : ".csv,text/csv,text/plain"}
                       onChange={handleFileChange}
                       className="hidden"
                     />
@@ -549,10 +646,10 @@ export function ImportTasksModal({
                     ) : (
                       <div className="space-y-1">
                         <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                          Click to browse or drag and drop your CSV file here
+                          Click to browse or drag and drop your {format === "json" ? "JSON" : "CSV"} file here
                         </p>
                         <p className="text-[11px] text-slate-400">
-                          Supports .csv format (saved from Excel or Google Sheets)
+                          {format === "json" ? "Supports .json exported from the old team tracker" : "Supports .csv format (saved from Excel or Google Sheets)"}
                         </p>
                       </div>
                     )}

@@ -593,10 +593,17 @@ class EmployeeController extends Controller
     {
         $this->guardAccountChange($request, $employee, null, true);
         $request->validate([
-            'status' => 'required|in:Active,Disabled'
+            'status' => 'required|in:Active,Disabled,Resigned,Terminated'
         ]);
+        abort_if($request->user()->id === $employee->id && $request->status !== 'Active', 422, 'You cannot change your own account status.');
 
         $employee->update(['status' => $request->status]);
+
+        // Anyone not Active is signed out everywhere. Their tasks are not touched: the task list
+        // shows tasks of Resigned/Terminated people under "Old Employees' Tasks" with their name.
+        if ($request->status !== 'Active') {
+            $employee->tokens()->delete();
+        }
 
         return response()->json([
             'message' => 'Status updated successfully.',

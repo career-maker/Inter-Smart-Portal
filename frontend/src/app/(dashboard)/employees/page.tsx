@@ -3,7 +3,7 @@
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle, ChevronLeft, ChevronRight, Loader2, LifeBuoy } from "lucide-react";
+import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle, UserMinus, UserX, ChevronLeft, ChevronRight, Loader2, LifeBuoy } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
@@ -63,8 +63,15 @@ export default function EmployeesPage() {
     }
   };
 
-  const handleToggleStatus = async (id: number, currentStatus: string) => {
-    const newStatus = currentStatus === "Active" ? "Disabled" : "Active";
+  const handleSetStatus = async (id: number, newStatus: "Active" | "Disabled" | "Resigned" | "Terminated", name: string) => {
+    if (newStatus === "Resigned" || newStatus === "Terminated") {
+      const ok = confirm(
+        `Mark ${name} as ${newStatus}?
+
+They are signed out and cannot log in. Their tasks move to "Old Employees' Tasks" under their name.`
+      );
+      if (!ok) return;
+    }
     try {
       await api.post(`/employees/${id}/status`, { status: newStatus });
       fetchEmployees();
@@ -190,7 +197,7 @@ export default function EmployeesPage() {
                       <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.team?.name ? emp.team.name : <span className="text-slate-400">Unassigned</span>}</td>
                       <td className="py-3 px-4">
                         <StatusBadge tone={emp.status === 'Active' ? 'success' : 'danger'}>
-                          {emp.status === 'Active' ? 'Active' : 'Disabled'}
+                          {emp.status || 'Active'}
                         </StatusBadge>
                       </td>
                       {isSuperAdmin && (
@@ -206,13 +213,23 @@ export default function EmployeesPage() {
                                 <DropdownMenuItem onClick={() => router.push(`/employees/${emp.id}`)} className="text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10">
                                   <FileEdit className="mr-2 h-4 w-4" /> Edit Profile
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleToggleStatus(emp.id, emp.status)} className="text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10">
-                                  {emp.status === 'Active' ? (
-                                    <><Ban className="mr-2 h-4 w-4" /> Disable Account</>
-                                  ) : (
-                                    <><CheckCircle className="mr-2 h-4 w-4" /> Enable Account</>
-                                  )}
-                                </DropdownMenuItem>
+                                {emp.status === 'Active' ? (
+                                  <>
+                                    <DropdownMenuItem onClick={() => handleSetStatus(emp.id, 'Disabled', `${emp.first_name} ${emp.last_name}`)} className="text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10">
+                                      <Ban className="mr-2 h-4 w-4" /> Disable Account
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleSetStatus(emp.id, 'Resigned', `${emp.first_name} ${emp.last_name}`)} className="text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10">
+                                      <UserMinus className="mr-2 h-4 w-4" /> Mark as Resigned
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleSetStatus(emp.id, 'Terminated', `${emp.first_name} ${emp.last_name}`)} className="text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10">
+                                      <UserX className="mr-2 h-4 w-4" /> Mark as Terminated
+                                    </DropdownMenuItem>
+                                  </>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => handleSetStatus(emp.id, 'Active', `${emp.first_name} ${emp.last_name}`)} className="text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10">
+                                    <CheckCircle className="mr-2 h-4 w-4" /> {emp.status === 'Disabled' ? 'Enable Account' : 'Reactivate Employee'}
+                                  </DropdownMenuItem>
+                                )}
                               </DropdownMenuGroup>
                               <DropdownMenuSeparator className="bg-white/10" />
                               <DropdownMenuItem onClick={() => handleDelete(emp.id)} className="text-rose-400 cursor-pointer hover:text-rose-300 hover:bg-rose-500/10">

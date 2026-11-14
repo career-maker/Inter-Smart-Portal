@@ -276,7 +276,15 @@ export default function AllTasksPage() {
   }, [rawList, selectedTeamId]);
 
   // Group tasks by team member for Team Leads
-  const { employeeGroups, unassignedTasks } = useMemo(() => {
+  const { employeeGroups, unassignedTasks, oldEmployeeGroups } = useMemo(() => {
+    // Resigned / Terminated people, and names from the old tracker that have no account here
+    const oldMap = new Map<string, { name: string; code?: string; designation?: string; status: string; tasks: ProjectTask[] }>();
+    const addOld = (key: string, name: string, status: string, task: ProjectTask, code?: string, designation?: string) => {
+      const e = oldMap.get(key) || { name, code, designation, status, tasks: [] };
+      if (!e.tasks.some((t) => t.id === task.id)) e.tasks.push(task);
+      oldMap.set(key, e);
+    };
+
     const memberMap = new Map<number, {
       member: { id: number; first_name: string; last_name: string; name: string; employee_code?: string; designation?: string; team_id?: number | null };
       tasks: ProjectTask[];
@@ -310,13 +318,23 @@ export default function AllTasksPage() {
     // 2. Distribute tasks to assignees
     tasksList.forEach((task) => {
       if (!task.assignees || !Array.isArray(task.assignees) || task.assignees.length === 0) {
-        unassigned.push(task);
+        if (task.old_assignee_name) {
+          addOld(`n:${task.old_assignee_name.trim().toLowerCase()}`, task.old_assignee_name.trim(), "Not in portal", task);
+        } else {
+          unassigned.push(task);
+        }
         return;
       }
 
       task.assignees.forEach((assignee: any) => {
         const aId = assignee.id || assignee.user_id;
         if (!aId) return;
+
+        if (assignee.status === "Resigned" || assignee.status === "Terminated") {
+          const nm = `${assignee.first_name || ""} ${assignee.last_name || ""}`.trim() || `User #${aId}`;
+          addOld(`u:${aId}`, nm, assignee.status, task, assignee.employee_code, assignee.designation);
+          return;
+        }
 
         if (selectedTeamId !== "all" && assignee.team_id && assignee.team_id !== selectedTeamId && task.team_id !== selectedTeamId && task.project?.team_id !== selectedTeamId) {
           return;
@@ -355,6 +373,7 @@ export default function AllTasksPage() {
     return {
       employeeGroups: filteredEmployeeGroups,
       unassignedTasks: unassigned,
+      oldEmployeeGroups: Array.from(oldMap.values()).sort((a, b) => a.name.localeCompare(b.name)),
     };
   }, [tasksList, teamMembers, selectedTeamId]);
 
@@ -721,6 +740,48 @@ export default function AllTasksPage() {
               </div>
             );
           })}
+
+          {/* Old Employees' Tasks: resigned / terminated staff and old-tracker names with no account */}
+          {oldEmployeeGroups.length > 0 && (
+            <div className="space-y-4" data-testid="old-employee-tasks">
+              <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
+                <span>Old Employees&apos; Tasks</span>
+                <span className="text-xs font-semibold text-slate-500">
+                  ({oldEmployeeGroups.reduce((n, g) => n + g.tasks.length, 0)} tasks, {oldEmployeeGroups.length} people)
+                </span>
+              </div>
+              {oldEmployeeGroups.map((g) => (
+                <div
+                  key={g.name + g.status}
+                  className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden"
+                >
+                  <div className="flex items-center justify-between px-5 py-3.5 bg-slate-100/80 dark:bg-slate-800/60 border-b border-slate-200/90 dark:border-slate-800">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-sm text-slate-900 dark:text-white">{g.name}</span>
+                      {g.code && (
+                        <span className="text-[11px] font-medium text-slate-500 bg-slate-200/60 dark:bg-slate-700/60 px-1.5 py-0.5 rounded">{g.code}</span>
+                      )}
+                      {g.designation && <span className="text-[11px] text-slate-500">• {g.designation}</span>}
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+                        {g.status}
+                      </span>
+                    </div>
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      {g.tasks.length} {g.tasks.length === 1 ? "Task" : "Tasks"}
+                    </span>
+                  </div>
+                  <TaskTrackerTable
+                    tasks={g.tasks}
+                    canEdit={canEditTasks}
+                    onStatusChange={handleQuickStatusChange}
+                    onPriorityChange={handleQuickPriorityChange}
+                    onDateChange={handleQuickDateChange}
+                    updatingTaskId={updatingTaskId}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Unassigned Deliverables Block (if any exist) */}
           {unassignedTasks.length > 0 && (

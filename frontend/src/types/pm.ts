@@ -143,6 +143,10 @@ export interface ProjectTaskAssigneeSummary {
   id: number;
   first_name: string;
   last_name: string;
+  employee_code?: string | null;
+  designation?: string | null;
+  /** Active | Disabled | Resigned | Terminated */
+  status?: string | null;
   pivot?: {
     task_id: number;
     user_id: number;
@@ -213,6 +217,8 @@ export interface ProjectTask {
   catalogTask?: ProjectTaskCatalog | null;
   coordinator?: ProjectCoordinatorSummary | null;
   assignees?: ProjectTaskAssigneeSummary[];
+  /** Name from the old team tracker when that person has no account here. */
+  old_assignee_name?: string | null;
 }
 
 export interface ProjectTaskAssignee {

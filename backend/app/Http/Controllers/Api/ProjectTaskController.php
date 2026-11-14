@@ -56,7 +56,7 @@ class ProjectTaskController extends Controller
             'coordinator:id,first_name,last_name',
             'subPhase:id,name',
             'catalogTask:id,name,category',
-            'assignees:id,first_name,last_name,team_id',
+            'assignees:id,first_name,last_name,team_id,employee_code,designation,status',
             'team:id,name',
             'comments' => fn ($q) => $q->latest()->limit(1),
         ])->withCount(['comments', 'bugs']);
@@ -979,7 +979,54 @@ class ProjectTaskController extends Controller
     }
 
     /**
-     * Bulk import tasks from CSV file or JSON array.
+     * Turn one old-tracker task into the row shape importCSV already understands.
+     * Returns [row, legacyId, assigneeNames, extra].
+     */
+    private function mapLegacyRow(array $t, array $subPhaseNames): array
+    {
+        $s = fn ($k) => trim((string) ($t[$k] ?? ''));
+        $first = fn ($v) => mb_substr(trim(strtok($v, "\n")), 0, 150);
+        $sub = $s('sub_phase');
+        $comments = $s('comments');
+        $title = $sub !== '' ? $sub : ($comments !== '' ? $first($comments) : ($s('current_updates') !== '' ? $first($s('current_updates')) : 'Task (old tracker)'));
+
+        $priority = ['urgent' => 'Critical', 'critical' => 'Critical', 'high' => 'High', 'low' => 'Low'][strtolower($s('priority'))] ?? 'Medium';
+
+        $names = [];
+        foreach (array_merge([$t['assigned_to'] ?? null, $t['assigned_to2'] ?? null], (array) ($t['additional_assignees'] ?? [])) as $n) {
+            if (is_array($n)) $n = $n['name'] ?? $n['full_name'] ?? '';
+            $n = trim((string) $n);
+            if ($n !== '' && strtolower($n) !== 'unassigned') $names[] = $n;
+        }
+
+        $remarks = trim($s('current_updates') . ($s('notes') !== '' ? "\n" . $s('notes') : ''));
+        $extra = [
+            'html_bugs' => (int) ($t['html_bugs'] ?? 0),
+            'functional_bugs' => (int) ($t['functional_bugs'] ?? 0),
+        ];
+        if ($s('deviation_reason') !== '') $extra['deviation_reason'] = $s('deviation_reason');
+        if ($s('actual_completion_date') !== '') $extra['actual_completion_date'] = $this->parseTaskDate($s('actual_completion_date'));
+
+        $row = [
+            'title' => $title,
+            'project_name' => $s('project_name'),
+            'sub_phase' => ($sub !== '' && in_array(mb_strtolower($sub), $subPhaseNames, true)) ? $sub : '',
+            'priority' => $priority,
+            'status' => $s('status') ?: 'Yet to Start',
+            'start_date' => $s('start_date'),
+            'due_date' => $s('end_date'),
+            'allotted_days' => $t['days_allotted'] ?? '',
+            'time_taken' => $t['days_taken'] ?? '',
+            'description' => $sub !== '' ? $comments : '',
+            'remarks' => $remarks,
+        ];
+
+        $id = $s('id');
+        return [$row, $id !== '' ? 'tt-' . $id : null, $names, $extra];
+    }
+
+    /**
+     * Bulk import tasks from CSV file, JSON array, or an old-tracker JSON export.
      */
     public function importCSV(Request $request)
     {
@@ -1001,6 +1048,9 @@ class ProjectTaskController extends Controller
 
         $defaultProjectId = $request->input('project_id');
         $rawRows = [];
+        // JSON exported from the old team tracker (rows carry assigned_to, sub_phase, end_date ...).
+        $legacy = $request->input('source') === 'legacy_tracker';
+        $legacySubPhases = [];
 
         if ($request->hasFile('file')) {
             $request->validate([
@@ -1009,9 +1059,22 @@ class ProjectTaskController extends Controller
 
             $file = $request->file('file');
             $ext = strtolower($file->getClientOriginalExtension());
-            if (!in_array($ext, ['csv', 'txt', 'tsv'], true)) {
-                return response()->json(['message' => 'Please upload a valid CSV (.csv) file.'], 422);
+            if ($ext === 'json') {
+                $decoded = json_decode(ltrim((string) file_get_contents($file->getRealPath()), "\xEF\xBB\xBF"), true);
+                $list = is_array($decoded) ? ($decoded['tasks'] ?? $decoded) : null;
+                if (!is_array($list) || empty($list) || !is_array(reset($list))) {
+                    return response()->json(['message' => 'The JSON file has no task list. Expected {"tasks": [...]}.'], 422);
+                }
+                $legacy = true;
+                $rawRows = array_values($list);
+                $legacySubPhases = collect($decoded['subphases'] ?? [])->pluck('name')->filter()->map(fn ($n) => mb_strtolower(trim($n)))->all();
+            } elseif (!in_array($ext, ['csv', 'txt', 'tsv'], true)) {
+                return response()->json(['message' => 'Please upload a CSV (.csv) or JSON (.json) file.'], 422);
             }
+        }
+
+        if ($request->hasFile('file') && !$legacy) {
+            $file = $request->file('file');
 
             $handle = fopen($file->getRealPath(), 'r');
             if (!$handle) {
@@ -1042,8 +1105,11 @@ class ProjectTaskController extends Controller
                 $rawRows[] = array_combine($normalizedHeaders, array_slice($row, 0, count($normalizedHeaders)));
             }
             fclose($handle);
+        } elseif ($legacy && !empty($rawRows)) {
+            // already decoded above
         } elseif ($request->has('tasks') && is_array($request->input('tasks'))) {
             $rawRows = $request->input('tasks');
+            $legacySubPhases = array_map(fn ($n) => mb_strtolower(trim((string) $n)), (array) $request->input('subphase_names', []));
         } else {
             return response()->json(['message' => 'Please provide a valid CSV file or task data payload.'], 422);
         }
@@ -1089,6 +1155,15 @@ class ProjectTaskController extends Controller
             }
         }
 
+        // Strict name lookup for old-tracker names: exact full name, or a first name that is unique.
+        $norm = fn ($n) => preg_replace('/\s+/', ' ', mb_strtolower(trim((string) $n)));
+        $legacyFull = [];
+        $legacyFirst = [];
+        foreach ($allUsers as $u) {
+            $legacyFull[$norm("{$u->first_name} {$u->last_name}")][] = $u;
+            $legacyFirst[$norm($u->first_name)][] = $u;
+        }
+
         $allSubPhases = ProjectSubPhase::all();
 
         // Team Lead authorization scope
@@ -1109,6 +1184,13 @@ class ProjectTaskController extends Controller
 
         foreach ($rawRows as $idx => $row) {
             $rowNum = $idx + 2; // 1-based row index accounting for header
+
+            $legacyId = null;
+            $legacyNames = [];
+            $legacyExtra = [];
+            if ($legacy) {
+                [$row, $legacyId, $legacyNames, $legacyExtra] = $this->mapLegacyRow((array) $row, $legacySubPhases);
+            }
 
             // 1. Resolve Task Title
             $title = trim($row['title'] ?? $row['task_title'] ?? $row['name'] ?? '');
@@ -1135,6 +1217,17 @@ class ProjectTaskController extends Controller
                         $cName = strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $p->name)));
                         return $cName === $pClean || (strlen($pClean) > 3 && str_contains($cName, $pClean)) || (strlen($cName) > 3 && str_contains($pClean, $cName));
                     });
+                }
+            }
+
+            // Old tracker writes "Client / Project": try each half before creating a new project
+            if (!$matchedProject && $legacy && str_contains($projectName, '/')) {
+                foreach (array_reverse(array_map('trim', explode('/', $projectName))) as $part) {
+                    $pc = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $part));
+                    if ($pc !== '' && $projectByName->has($pc)) {
+                        $matchedProject = $projectByName->get($pc);
+                        break;
+                    }
                 }
             }
 
@@ -1270,6 +1363,30 @@ class ProjectTaskController extends Controller
                 }
             }
 
+            $oldAssigneeName = null;
+            if ($legacy) {
+                $assigneeIds = [];
+                $unmatched = [];
+                foreach ($legacyNames as $nm) {
+                    $k = $norm($nm);
+                    $hit = null;
+                    if (isset($legacyFull[$k]) && count($legacyFull[$k]) === 1) {
+                        $hit = $legacyFull[$k][0];
+                    } elseif (isset($legacyFirst[$k]) && count($legacyFirst[$k]) === 1) {
+                        $hit = $legacyFirst[$k][0];
+                    }
+                    if ($hit) {
+                        if (!in_array($hit->id, $assigneeIds, true)) $assigneeIds[] = $hit->id;
+                    } else {
+                        $unmatched[] = $nm;
+                    }
+                }
+                // Nobody here: keep the old tracker name so the task shows under Old Employees' Tasks.
+                if (empty($assigneeIds) && !empty($unmatched)) {
+                    $oldAssigneeName = implode(', ', array_unique($unmatched));
+                }
+            }
+
             // 7. Direct Fast Task Creation
             try {
                 $taskData = [
@@ -1289,13 +1406,17 @@ class ProjectTaskController extends Controller
                 ];
 
                 if ($status === 'Completed') {
-                    $taskData['actual_completion_date'] = $dueDate ?: now()->toDateString();
+                    $taskData['actual_completion_date'] = $legacyExtra['actual_completion_date'] ?? ($dueDate ?: now()->toDateString());
+                }
+                if ($legacy) {
+                    $taskData += ['legacy_id' => $legacyId, 'old_assignee_name' => $oldAssigneeName]
+                        + array_intersect_key($legacyExtra, array_flip(['html_bugs', 'functional_bugs', 'deviation_reason']));
                 }
 
                 // Check for existing task in the same project with the same title to avoid duplicates
-                $existingTask = ProjectTask::where('project_id', $matchedProject->id)
-                    ->where('title', $title)
-                    ->first();
+                $existingTask = $legacy && $legacyId
+                    ? ProjectTask::where('legacy_id', $legacyId)->first()
+                    : ProjectTask::where('project_id', $matchedProject->id)->where('title', $title)->first();
 
                 if ($existingTask) {
                     $existingTask->update([
@@ -1310,7 +1431,7 @@ class ProjectTaskController extends Controller
                         'time_taken' => $timeTaken > 0 ? $timeTaken : $existingTask->time_taken,
                         'current_updates' => $remarks ?: $existingTask->current_updates,
                         'updated_by' => $user->id,
-                    ]);
+                    ] + ($legacy ? ['old_assignee_name' => $oldAssigneeName] : []));
                     $task = $existingTask;
                 } else {
                     $task = ProjectTask::create($taskData);

@@ -55,6 +55,7 @@ class ProjectTask extends Model
         'allotted_days', 'time_taken', 'days_taken', 'deviation',
         'activity_percentage', 'team_id', 'created_by', 'updated_by',
         'html_bugs', 'functional_bugs', 'total_bugs', 'bug_tracker_link',
+        'old_assignee_name', 'legacy_id',
     ];
 
     protected $casts = [

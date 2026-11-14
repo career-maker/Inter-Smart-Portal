@@ -415,7 +415,7 @@ export const pmApi = {
    * Bulk import tasks from CSV file or structured JSON rows.
    */
   importTasks: async (
-    payload: FormData | { tasks: any[]; project_id?: number }
+    payload: FormData | { tasks: any[]; project_id?: number; source?: string; subphase_names?: string[] }
   ): Promise<{
     message: string;
     imported_count: number;

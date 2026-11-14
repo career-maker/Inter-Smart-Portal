@@ -288,7 +288,7 @@ export function TaskTrackerTable({
             const first = t.assignees[0];
             return `${first.first_name || ""} ${first.last_name || ""}`.trim().toLowerCase();
           }
-          return "";
+          return (t.old_assignee_name || "").toLowerCase();
         case "pc": {
           const coord = t.coordinator || t.project?.coordinator;
           if (coord) {
@@ -586,6 +586,8 @@ export function TaskTrackerTable({
                           );
                         })}
                       </div>
+                    ) : task.old_assignee_name ? (
+                      <span className="text-[11px] text-slate-700 dark:text-slate-300 truncate" title="Not in this portal (old tracker)">{task.old_assignee_name}</span>
                     ) : (
                       <span className="text-[11px] text-slate-400 italic">Unassigned</span>
                     )}
