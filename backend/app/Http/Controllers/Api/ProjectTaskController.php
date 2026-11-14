@@ -470,7 +470,12 @@ class ProjectTaskController extends Controller
             return response()->json(['message' => 'Only the Super Admin or the Team Lead of this team can delete all tasks.'], 403);
         }
 
-        $query = ProjectTask::where('team_id', $teamId);
+        // Same rule the tracker uses to show a team's tasks, so everything on screen is removed
+        $query = ProjectTask::where(function ($q) use ($teamId) {
+            $q->where('team_id', $teamId)
+              ->orWhereHas('assignees', fn ($a) => $a->where('users.team_id', $teamId))
+              ->orWhereHas('project', fn ($p) => $p->where('team_id', $teamId));
+        });
         $count = (clone $query)->count();
 
         if ($request->boolean('dry_run')) {
@@ -481,8 +486,11 @@ class ProjectTaskController extends Controller
         }
 
         \DB::transaction(function () use ($query) {
-            (clone $query)->update(['legacy_id' => null]);
-            $query->delete();
+            $ids = (clone $query)->pluck('id');
+            foreach ($ids->chunk(500) as $chunk) {
+                ProjectTask::whereIn('id', $chunk)->update(['legacy_id' => null]);
+                ProjectTask::whereIn('id', $chunk)->delete();
+            }
         });
         \Log::warning("Bulk task delete: user {$user->id} removed {$count} tasks of team {$teamId}");
 
@@ -1464,9 +1472,13 @@ class ProjectTaskController extends Controller
 
                 // Check for existing task in the same project with the same title to avoid duplicates
                 // Old tracker rows already imported are left alone (portal edits are not overwritten)
-                if ($legacy && $legacyId && ProjectTask::withTrashed()->where('legacy_id', $legacyId)->exists()) {
-                    $already++;
-                    continue;
+                if ($legacy && $legacyId) {
+                    if (ProjectTask::where('legacy_id', $legacyId)->exists()) {
+                        $already++;
+                        continue;
+                    }
+                    // a deleted copy must not block re-importing it
+                    ProjectTask::onlyTrashed()->where('legacy_id', $legacyId)->update(['legacy_id' => null]);
                 }
 
                 $existingTask = $legacy && $legacyId
