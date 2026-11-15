@@ -205,6 +205,7 @@ function TableDateCell({
       <input
         ref={inputRef}
         type="date"
+        aria-label={`${String(field).replace(/_/g, " ")} for task ${taskId}`}
         value={toDateInputValue(value)}
         disabled={disabled}
         onChange={(e) => {

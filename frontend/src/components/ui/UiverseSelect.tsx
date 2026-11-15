@@ -162,6 +162,15 @@ export function UiverseSelect({
     >
       {/* Selected Box Trigger (From Uiverse.io by 3bdel3ziz-T) */}
       <div
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-disabled={disabled}
+        tabIndex={disabled ? -1 : 0}
+        onKeyDown={(e) => {
+          if (disabled) return;
+          if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") { e.preventDefault(); setIsOpen(true); }
+        }}
         onClick={() => !disabled && setIsOpen((prev) => !prev)}
         style={{
           fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
@@ -218,7 +227,7 @@ export function UiverseSelect({
           )}
 
           {/* Options List */}
-          <div className="max-h-60 overflow-y-auto py-0.5 space-y-0.5">
+          <div role="listbox" className="max-h-60 overflow-y-auto py-0.5 space-y-0.5">
             {filteredOptions.length === 0 ? (
               <div className="px-3 py-2 text-xs text-slate-400 text-center">No options found</div>
             ) : (
@@ -227,6 +236,8 @@ export function UiverseSelect({
                 return (
                   <div
                     key={String(opt.value)}
+                    role="option"
+                    aria-selected={isSelected}
                     onClick={() => {
                       onChange(opt.value);
                       setIsOpen(false);

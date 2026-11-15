@@ -75,7 +75,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('teams/{team}/members', [\App\Http\Controllers\Api\TeamController::class, 'syncMembers']);
 
         // Admin/HR Leave Configuration
-        Route::apiResource('leave-types', \App\Http\Controllers\Api\LeaveTypeController::class)->except(['index', 'show']);
+        Route::apiResource('leave-types', \App\Http\Controllers\Api\LeaveTypeController::class)->except(['index', 'show'])
+            ->middleware('role:Super Admin|Admin|HR');
 
         // Reports
         Route::prefix('reports')->group(function () {
@@ -160,8 +161,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Leave Policy Management (Add-ons module)
     Route::prefix('leave-policy')->group(function () {
         Route::get('settings', [\App\Http\Controllers\Api\LeavePolicyController::class, 'getSettings']);
-        Route::get('employees', [\App\Http\Controllers\Api\LeavePolicyController::class, 'getEmployees']);
-        Route::get('ledger', [\App\Http\Controllers\Api\LeavePolicyController::class, 'getLedger']);
+        Route::get('employees', [\App\Http\Controllers\Api\LeavePolicyController::class, 'getEmployees'])->middleware('role:Super Admin|Admin|HR');
+        Route::get('ledger', [\App\Http\Controllers\Api\LeavePolicyController::class, 'getLedger'])->middleware('role:Super Admin|Admin|HR');
 
         Route::middleware(['role:Super Admin'])->group(function () {
             Route::post('settings', [\App\Http\Controllers\Api\LeavePolicyController::class, 'updateSettings']);
@@ -534,7 +535,7 @@ use App\Http\Middleware\VerifyBiometricAgent;
 
 // Biometric Agent Integration
 Route::post('/v1/biometric/ingest', [BiometricIngestionController::class, 'ingest'])
-    ->middleware(VerifyBiometricAgent::class);
+    ->middleware(['throttle:120,1', VerifyBiometricAgent::class]);
 
 // System Scheduler Trigger
 Route::post('system/scheduler/run', [\App\Http\Controllers\Api\MaintenanceController::class, 'runScheduler'])->middleware('throttle:5,1');

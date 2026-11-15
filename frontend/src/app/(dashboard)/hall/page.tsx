@@ -182,6 +182,7 @@ export default function HallPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
+              aria-label="Search employee or code"
               placeholder="Search employee or code..."
               className="pl-9 bg-white dark:bg-slate-800 dark:text-white dark:border-slate-700/60"
               value={search}
@@ -191,7 +192,7 @@ export default function HallPage() {
         </div>
         <div className="w-full sm:w-[200px]">
           <Select value={teamFilter} onValueChange={(v) => setTeamFilter(v as string)}>
-            <SelectTrigger className="bg-white dark:bg-slate-800 dark:text-white dark:border-slate-700/60">
+            <SelectTrigger aria-label="Filter by team" className="bg-white dark:bg-slate-800 dark:text-white dark:border-slate-700/60">
               <Filter className="w-4 h-4 mr-2" />
               <SelectValue placeholder="Team" />
             </SelectTrigger>
@@ -203,7 +204,7 @@ export default function HallPage() {
         </div>
         <div className="w-full sm:w-[200px]">
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as string)}>
-            <SelectTrigger className="bg-white dark:bg-slate-800 dark:text-white dark:border-slate-700/60">
+            <SelectTrigger aria-label="Filter by status" className="bg-white dark:bg-slate-800 dark:text-white dark:border-slate-700/60">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>

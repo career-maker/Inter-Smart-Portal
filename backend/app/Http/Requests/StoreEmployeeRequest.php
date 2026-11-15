@@ -58,7 +58,7 @@ class StoreEmployeeRequest extends FormRequest
             'current_address'            => ['nullable', 'string'],
             'team_id'                    => ['nullable', 'exists:teams,id'],
             'role'                       => ['nullable', 'string', 'exists:roles,name'],
-            'password'                   => ['nullable', 'string', 'min:6'],
+            'password'                   => ['nullable', 'string', 'min:10'],
             'is_emergency_contact'       => ['sometimes', 'nullable', 'boolean'],
         ];
     }

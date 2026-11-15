@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\ScopesToActorTeams;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Http\Requests\StoreEmployeeRequest;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
+    use ScopesToActorTeams;
+
     /**
      * Team Leads and HR reach these routes too, so stop them from touching Super Admin accounts or handing out
      * the Super Admin / HR roles. $adminOrHr = true also shuts out Team Leads (delete, password reset, enable/disable).
@@ -65,7 +68,7 @@ class EmployeeController extends Controller
 
         // Enforce that target file resides inside storage/app/public/profile-photos
         $photosDir = realpath(storage_path('app/public/profile-photos')) ?: $baseDir;
-        if (!$fullPath || !str_starts_with($fullPath, $photosDir) || !is_file($fullPath)) {
+        if (!$fullPath || !str_starts_with($fullPath, $photosDir . DIRECTORY_SEPARATOR) || !is_file($fullPath)) {
             abort(404);
         }
 
@@ -106,7 +109,7 @@ class EmployeeController extends Controller
         $normalizedPath = ltrim(str_replace(['../', '..\\'], '', $path), '/\\');
         $fullPath = realpath($baseDir . DIRECTORY_SEPARATOR . $normalizedPath);
 
-        if (!$fullPath || !str_starts_with($fullPath, $baseDir) || !is_file($fullPath)) {
+        if (!$fullPath || !str_starts_with($fullPath, $baseDir . DIRECTORY_SEPARATOR) || !is_file($fullPath)) {
             abort(404);
         }
 
@@ -268,7 +271,7 @@ class EmployeeController extends Controller
                 $data['last_name'] = $data['first_name']; // Use first name as fallback
             }
 
-            $data['password'] = Hash::make($data['password'] ?? 'Password@123');
+            $data['password'] = Hash::make($data['password'] ?? \Illuminate\Support\Str::password(14));
 
             $role = $data['role'] ?? 'Employee';
             unset($data['role']);
@@ -350,8 +353,10 @@ class EmployeeController extends Controller
         }
     }
 
-    public function show(User $employee)
+    public function show(Request $request, User $employee)
     {
+        abort_unless($this->actorMaySeeUser($request->user(), $employee), 403, 'You can only view employees in your own team.');
+
         return new EmployeeResource($employee->load(['team', 'roles']));
     }
 
@@ -505,9 +510,10 @@ class EmployeeController extends Controller
 
     public function updatePassword(Request $request, User $employee)
     {
-        $this->guardAccountChange($request, $employee, null, true);
+        // Only an admin can set another person's password; there is no self-service reset by design.
+        abort_unless($request->user()->hasAnyRole(['Super Admin', 'Admin']), 403, 'Only an admin can reset a password.');
         $request->validate([
-            'password' => 'required|string|min:6|confirmed'
+            'password' => 'required|string|min:10|confirmed'
         ]);
 
         $employee->update([
@@ -630,7 +636,7 @@ class EmployeeController extends Controller
             'alternate_contact_number' => '9876543211',
             'permanent_address' => '123 Main St, City',
             'current_address' => '456 Work St, City',
-            'password' => 'Password@123',
+            'password' => '',
             'role' => 'Employee'
         ];
 
@@ -744,7 +750,7 @@ class EmployeeController extends Controller
                         'alternate_contact_number' => trim($employee['alternate_contact_number'] ?? '') ?: null,
                         'permanent_address' => trim($employee['permanent_address'] ?? '') ?: null,
                         'current_address' => trim($employee['current_address'] ?? '') ?: null,
-                        'password' => Hash::make(trim($employee['password'] ?? 'Password@123')),
+                        'password' => Hash::make(trim($employee['password'] ?? '') ?: \Illuminate\Support\Str::password(14)),
                         'status' => 'Active'
                     ];
 

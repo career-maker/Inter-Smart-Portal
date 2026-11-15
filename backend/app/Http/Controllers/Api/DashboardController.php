@@ -566,46 +566,35 @@ class DashboardController extends Controller
                                 ];
                             });
 
-                        // Fetch team members - simplified query to avoid JOIN issues
+                        // Fetch team members. Status lookups are done once for the whole team (audit M-07: it used to run ~4 queries per member).
+                        $teamUserIds = User::where('team_id', $teamId)->where('status', 'Active')->pluck('id');
+                        $checkedInIds = \App\Models\Attendance::whereIn('user_id', $teamUserIds)
+                            ->where('date', $todayStr)->whereNotNull('check_in_time')->pluck('user_id')->flip();
+                        $punchedInIds = \App\Models\BiometricEvent::whereIn('user_id', $teamUserIds)
+                            ->whereDate('local_punch_time', $todayStr)->where('direction', 'in')->pluck('user_id')->flip();
+                        $onLeaveIds = collect();
+                        $onWfhIds = collect();
+                        foreach (LeaveRequest::whereIn('user_id', $teamUserIds)->where('status', 'Approved')
+                            ->where('start_date', '<=', $todayStr)->where('end_date', '>=', $todayStr)
+                            ->with('leaveType:id,name')->get() as $lr) {
+                            $typeName = $lr->leaveType?->name;
+                            if ($typeName === null) {
+                                continue;
+                            }
+                            if (stripos($typeName, 'Work From Home') !== false || stripos($typeName, 'WFH') !== false) {
+                                $onWfhIds->put($lr->user_id, true);
+                            } else {
+                                $onLeaveIds->put($lr->user_id, true);
+                            }
+                        }
+
                         $teamMembers = User::where('team_id', $teamId)
                             ->where('status', 'Active')
                             ->get(['id', 'first_name', 'last_name'])
-                            ->map(function($member) use ($todayStr) {
-                                // Check attendance for today
-                                $hasCheckIn = \App\Models\Attendance::where('user_id', $member->id)
-                                    ->where('date', $todayStr)
-                                    ->whereNotNull('check_in_time')
-                                    ->exists();
-                                
-                                // Fallback to raw biometric events if cron hasn't processed Attendance yet
-                                if (!$hasCheckIn) {
-                                    $hasCheckIn = \App\Models\BiometricEvent::where('user_id', $member->id)
-                                        ->whereDate('local_punch_time', $todayStr)
-                                        ->where('direction', 'in')
-                                        ->exists();
-                                }
-
-                                // Check if on leave today
-                                $isOnLeave = LeaveRequest::where('user_id', $member->id)
-                                    ->where('status', 'Approved')
-                                    ->where('start_date', '<=', $todayStr)
-                                    ->where('end_date', '>=', $todayStr)
-                                    ->whereHas('leaveType', function($q) {
-                                        $q->where('name', 'not like', '%Work From Home%')
-                                          ->where('name', 'not like', '%WFH%');
-                                    })
-                                    ->exists();
-
-                                // Check if WFH today
-                                $isWfh = LeaveRequest::where('user_id', $member->id)
-                                    ->where('status', 'Approved')
-                                    ->where('start_date', '<=', $todayStr)
-                                    ->where('end_date', '>=', $todayStr)
-                                    ->whereHas('leaveType', function($q) {
-                                        $q->where('name', 'like', '%Work From Home%')
-                                          ->orWhere('name', 'like', '%WFH%');
-                                    })
-                                    ->exists();
+                            ->map(function($member) use ($checkedInIds, $punchedInIds, $onLeaveIds, $onWfhIds) {
+                                $hasCheckIn = $checkedInIds->has($member->id) || $punchedInIds->has($member->id);
+                                $isOnLeave = $onLeaveIds->has($member->id);
+                                $isWfh = $onWfhIds->has($member->id);
 
                                 $status = 'Not Checked In';
                                 if ($isOnLeave) {

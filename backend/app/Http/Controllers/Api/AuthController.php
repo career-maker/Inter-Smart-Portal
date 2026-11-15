@@ -47,6 +47,10 @@ class AuthController extends Controller
         
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Keep each person's newest 5 sessions; older tokens would otherwise pile up forever (audit M-02).
+        $keep = $user->tokens()->orderByDesc('id')->limit(5)->pluck('id');
+        $user->tokens()->whereNotIn('id', $keep)->delete();
+
         return response()->json([
             'message' => 'Logged in successfully',
             'token' => $token,

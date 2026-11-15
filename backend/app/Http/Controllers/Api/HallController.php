@@ -19,6 +19,15 @@ class HallController extends Controller
     public function index(Request $request)
     {
         $today = Carbon::today('Asia/Kolkata');
+
+        // Same answer for every viewer, so build it once per 30 seconds instead of once per request (audit H-05: this page is the heaviest one).
+        $payload = \Illuminate\Support\Facades\Cache::remember('hall:payload:' . $today->toDateString(), 30, fn () => $this->buildPayload($today));
+
+        return response()->json($payload);
+    }
+
+    private function buildPayload(Carbon $today): array
+    {
         $todayStr = $today->toDateString();
 
         // Check if today is a holiday (company holiday or weekend not marked as working day)
@@ -120,12 +129,12 @@ class HallController extends Controller
             ];
         }
 
-        return response()->json([
+        return [
             'summary' => $summary,
             'employees' => $hallData,
             'date' => $todayStr,
             'is_holiday' => $isHolidayToday ? true : false,
             'holiday_name' => $holidayName,
-        ]);
+        ];
     }
 }

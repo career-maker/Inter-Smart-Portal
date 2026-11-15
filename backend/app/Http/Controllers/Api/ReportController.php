@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\ScopesToActorTeams;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +20,11 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
+    use ScopesToActorTeams;
+
+    /** Personal fields only HR/Admin may export (H-03). */
+    private const PERSONAL_FIELDS = ['gender', 'dob', 'age', 'marital_status', 'blood_group', 'personal_email', 'alternate_contact_number', 'current_address', 'permanent_address'];
+
     public function __construct(
         private readonly BiometricTimelineService $timeline
     ) {}
@@ -27,6 +33,7 @@ class ReportController extends Controller
         try {
             // Load all active users for employee report (don't filter by joining_date)
             $query = User::with(['team.teamLead', 'roles', 'leaveBalance'])->where('status', 'Active');
+            $this->scopeUsersToActor($query, $request->user());
 
             if ($request->filled('user_id') && $request->user_id !== 'all') {
                 $userId = intval($request->user_id);
@@ -156,6 +163,10 @@ class ReportController extends Controller
             ];
         });
 
+            if (! $this->seesWholeCompany($request->user())) {
+                $employees = $employees->map(fn ($row) => \Illuminate\Support\Arr::except($row, self::PERSONAL_FIELDS));
+            }
+
             return response()->json(['status' => 'success', 'data' => $employees]);
         } catch (\Exception $e) {
             \Log::error('Error generating employee report', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
@@ -167,6 +178,9 @@ class ReportController extends Controller
     {
         $query = LeaveRequest::with(['user.team', 'leaveType', 'approver'])
             ->orderBy('created_at', 'desc');
+        if (! $this->seesWholeCompany($request->user())) {
+            $query->whereHas('user', fn ($u) => $this->scopeUsersToActor($u, $request->user()));
+        }
 
         if ($request->filled('user_id') && $request->user_id !== 'all') {
             $query->where('user_id', $request->user_id);
@@ -214,6 +228,7 @@ class ReportController extends Controller
         try {
             $query = User::with(['team', 'leaveBalance'])
                 ->where('status', 'Active');
+            $this->scopeUsersToActor($query, $request->user());
 
             if ($request->filled('user_id') && $request->user_id !== 'all') {
                 $userId = intval($request->user_id);
@@ -296,8 +311,10 @@ class ReportController extends Controller
 
     public function allEmployeesForFilter(Request $request): JsonResponse
     {
-        $employees = User::select('id', 'first_name', 'last_name', 'employee_code')
-            ->where('status', 'Active')
+        $employeesQuery = User::select('id', 'first_name', 'last_name', 'employee_code')
+            ->where('status', 'Active');
+        $this->scopeUsersToActor($employeesQuery, $request->user());
+        $employees = $employeesQuery
             ->orderBy('first_name')
             ->get()
             ->map(fn($e) => ['id' => $e->id, 'name' => "{$e->first_name} {$e->last_name}", 'code' => $e->employee_code]);
@@ -333,6 +350,7 @@ class ReportController extends Controller
             $query = User::where('status', 'Active')
                 ->with(['team', 'leaveBalance'])
                 ->orderBy('first_name');
+            $this->scopeUsersToActor($query, $request->user());
 
             if ($request->filled('user_id')) {
                 $query->where('id', $request->input('user_id'));
