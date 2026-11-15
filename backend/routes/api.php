@@ -229,12 +229,15 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('document-requests', [\App\Http\Controllers\Api\DocumentRequestController::class, 'store']);
 
     // HR/Admin: Upload fulfilled document
-    Route::post('document-requests/{documentRequest}/upload', [\App\Http\Controllers\Api\DocumentRequestController::class, 'upload']);
+    Route::post('document-requests/{documentRequest}/upload', [\App\Http\Controllers\Api\DocumentRequestController::class, 'upload'])
+        ->middleware('role:Super Admin|Admin|HR');
 
     // HR Policies (all can read, admin/HR can write)
     Route::get('hr-policies', [\App\Http\Controllers\Api\HrPolicyController::class, 'index']);
-    Route::post('hr-policies', [\App\Http\Controllers\Api\HrPolicyController::class, 'store']);
-    Route::delete('hr-policies/{hrPolicy}', [\App\Http\Controllers\Api\HrPolicyController::class, 'destroy']);
+    Route::middleware('role:Super Admin|Admin|HR')->group(function () {
+        Route::post('hr-policies', [\App\Http\Controllers\Api\HrPolicyController::class, 'store']);
+        Route::delete('hr-policies/{hrPolicy}', [\App\Http\Controllers\Api\HrPolicyController::class, 'destroy']);
+    });
 
     // Dashboard Data
     Route::get('dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);

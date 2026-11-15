@@ -5,6 +5,14 @@
 
     RewriteEngine On
 
+    # Never serve the project checkout (logs, docs, schema, composer files, agent installers) or stray scripts.
+    # The API itself is reached through the index.php symlink in this folder, so nothing legitimate lives under /Inter-Smart-Portal/.
+    # The one exception is the server-only opcache helper, which refuses every address except the server itself.
+    RewriteRule ^Inter-Smart-Portal/backend/public/oc-reset\.php$ - [L]
+    RewriteRule ^Inter-Smart-Portal(/|$) - [F,L]
+    RewriteRule ^(migrate|oc-reset)\.php$ - [F,L]
+    RewriteRule (^|/)\.(?!well-known(/|$)) - [F,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
