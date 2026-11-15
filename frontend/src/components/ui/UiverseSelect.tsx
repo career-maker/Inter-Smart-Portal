@@ -62,9 +62,16 @@ export function UiverseSelect({
   useLayoutEffect(() => {
     if (!isOpen) return;
     place();
+    // Page/ancestor scroll closes the panel (like a native select) so it never floats away from its trigger;
+    // scrolling inside the option list itself is fine.
+    const onScroll = (e: Event) => {
+      if (panelRef.current?.contains(e.target as Node)) return;
+      setIsOpen(false);
+      setSearchTerm("");
+    };
     window.addEventListener("resize", place);
-    window.addEventListener("scroll", place, true);
-    return () => { window.removeEventListener("resize", place); window.removeEventListener("scroll", place, true); };
+    window.addEventListener("scroll", onScroll, true);
+    return () => { window.removeEventListener("resize", place); window.removeEventListener("scroll", onScroll, true); };
   }, [isOpen, place]);
 
   // Parse options either from options prop or from <option> children

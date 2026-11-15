@@ -127,6 +127,25 @@ export function CommunityFeed() {
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState<any[]>([]);
   const [isEmployeeDropdownOpen, setIsEmployeeDropdownOpen] = useState(false);
+  const employeeSearchRef = useRef<HTMLDivElement>(null);
+
+  // Close the praise employee search list on any outside click/tap, Escape, or page scroll.
+  useEffect(() => {
+    if (!isEmployeeDropdownOpen) return;
+    const close = () => setIsEmployeeDropdownOpen(false);
+    const outside = (e: Event) => {
+      if (!employeeSearchRef.current?.contains(e.target as Node)) close();
+    };
+    const key = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
+    document.addEventListener("mousedown", outside, true);
+    document.addEventListener("touchstart", outside, true);
+    document.addEventListener("keydown", key);
+    return () => {
+      document.removeEventListener("mousedown", outside, true);
+      document.removeEventListener("touchstart", outside, true);
+      document.removeEventListener("keydown", key);
+    };
+  }, [isEmployeeDropdownOpen]);
   const [praiseDescription, setPraiseDescription] = useState("");
   const [selectedBadge, setSelectedBadge] = useState<any>(PRAISE_BADGES[0]);
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
@@ -712,7 +731,7 @@ export function CommunityFeed() {
         {activeType === "praise" ? (
           <div className="space-y-4">
             {/* 1. Multiple Employees Selection & Search */}
-            <div className="relative">
+            <div className="relative" ref={employeeSearchRef}>
               <div className="flex flex-wrap items-center gap-2 p-2.5 border-b-2 border-[#56348f] bg-slate-50/50 dark:bg-slate-900/40 rounded-t-md">
                 {/* Selected Employee Pills */}
                 {selectedEmployees.map((emp) => (
