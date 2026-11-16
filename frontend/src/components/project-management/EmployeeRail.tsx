@@ -21,7 +21,7 @@ function Face({ item, on }: { item: RailItem; on: boolean }) {
       ) : (
         <span style={{ ["--h" as any]: hue(item.key) }} className={`grid h-10 w-10 place-items-center rounded-full bg-[hsl(var(--h)_55%_42%)] text-sm font-bold text-white ${ring}`}>{item.name[0]?.toUpperCase()}</span>
       )}
-      {item.overdue > 0 && <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-rose-600 ring-2 ring-white dark:ring-slate-950" aria-hidden />}
+      {item.overdue > 0 && <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-rose-600 ring-2 ring-white dark:ring-slate-950" aria-hidden />}
     </span>
   );
 }
