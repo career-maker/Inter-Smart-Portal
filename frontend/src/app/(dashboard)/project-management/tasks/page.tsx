@@ -499,19 +499,6 @@ export default function AllTasksPage() {
             </div>
           )}
 
-          {viewMode !== "board" && (
-            <button
-              type="button"
-              onClick={() => setAllCols((v) => !v)}
-              aria-pressed={allCols}
-              className="inline-flex items-center gap-1.5 px-3 py-2 max-sm:min-h-11 rounded-xl text-xs font-semibold border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
-              title="Show every column (start, achieved, comments, dev, sprint) — the table then scrolls sideways"
-            >
-              <Columns3 className="w-3.5 h-3.5" />
-              {allCols ? "Essential columns" : "All columns"}
-            </button>
-          )}
-
           {canEditTasks && viewMode !== "flat" && (
             <button
               type="button"
@@ -758,7 +745,7 @@ export default function AllTasksPage() {
         </div>
       ) : viewMode === "board" && canEditTasks ? (
         <div className="space-y-3 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-4 lg:space-y-0">
-        <EmployeeRail items={railItems} value={sel} onChange={setSelEmp} />
+        <EmployeeRail items={railItems} value={sel} onChange={setSelEmp} arrange={arrange} onMove={(key, dir) => moveEmployee(shownKeys, key, dir)} />
         <TaskBoard
           tasks={sel === "all" ? tasksList : (railItems.find((i) => i.key === sel) ? [...shownGroups.filter((g) => pick(`u${g.member.id}`)).flatMap((g) => g.tasks), ...(pick("unassigned") ? unassignedTasks : []), ...oldEmployeeGroups.filter((g) => pick(`old:${g.name}`)).flatMap((g) => g.tasks)] : tasksList)}
           arrange={arrange}
@@ -780,7 +767,7 @@ export default function AllTasksPage() {
            GROUPED BY EMPLOYEE TABLES VIEW (For Team Leads & Admins)
            ══════════════════════════════════════════════════════════════════ */
         <div className="space-y-3 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-4 lg:space-y-0">
-        <EmployeeRail items={railItems} value={sel} onChange={setSelEmp} />
+        <EmployeeRail items={railItems} value={sel} onChange={setSelEmp} arrange={arrange} onMove={(key, dir) => moveEmployee(shownKeys, key, dir)} />
         <div className="space-y-6 min-w-0">
           <PriorityLegend />
           {(() => {

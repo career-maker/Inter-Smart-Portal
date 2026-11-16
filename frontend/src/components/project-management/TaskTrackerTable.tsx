@@ -264,6 +264,8 @@ export function TaskTrackerTable({
 }: TaskTrackerTableProps) {
   const [activeCommentPopover, setActiveCommentPopover] = useState<number | null>(null);
   const [tablePage, setTablePage] = useState<number>(1);
+  const [open, setOpen] = useState<Set<number>>(new Set());
+  const toggleOpen = (id: number) => setOpen((o) => { const n = new Set(o); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -431,6 +433,7 @@ export function TaskTrackerTable({
         <table className="w-full text-left border-collapse task-tracker-table">
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 whitespace-nowrap task-table-header">
+              {slim && <th className="w-8" aria-label="Details" />}
               {renderSortHeader("project", "PROJECT", "left", "px-3")}
               {renderSortHeader("priority", "PTY", "center", "w-[108px] min-w-[108px]")}
               {renderSortHeader("task", "SUB PHASE / TASK", "left", "px-3")}
@@ -470,10 +473,17 @@ export function TaskTrackerTable({
               const achievedDateStr = task.actual_completion_date || (task.status === "Completed" ? task.updated_at : null);
 
               return (
+                <React.Fragment key={task.id}>
                 <tr
-                  key={task.id}
                   className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors group"
                 >
+                  {slim && (
+                    <td className="pl-2 w-8">
+                      <button type="button" onClick={() => toggleOpen(task.id)} aria-expanded={open.has(task.id)} aria-label={`${open.has(task.id) ? "Hide" : "Show"} more fields for ${task.title}`} className="grid h-7 w-7 place-items-center rounded-md text-slate-500 hover:bg-slate-200/70 dark:hover:bg-slate-700 cursor-pointer">
+                        <ChevronRight className={`h-4 w-4 transition-transform ${open.has(task.id) ? "rotate-90" : ""}`} />
+                      </button>
+                    </td>
+                  )}
                   {/* 1. PROJECT NAME */}
                   <td className="py-2 px-3 border-r border-slate-200/70 dark:border-slate-800/70 max-w-[140px]">
                     {task.project ? (
@@ -761,6 +771,29 @@ export function TaskTrackerTable({
                   </td>
                 )}
               </tr>
+              {slim && open.has(task.id) && (
+                <tr className="bg-slate-50/70 dark:bg-slate-800/30">
+                  <td />
+                  <td colSpan={12} className="px-3 py-3">
+                    <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs sm:grid-cols-3 xl:grid-cols-6">
+                      {([
+                        ["Coordinator", pcName],
+                        ["Start", formatDateDisplay(task.start_date)],
+                        ["Achieved", formatDateDisplay(achievedDateStr)],
+                        ["Deviation", task.deviation ? `${Number(task.deviation) > 0 ? "+" : ""}${task.deviation}d` : "—"],
+                        ["Sprint", task.sprint || "—"],
+                        ["Updates", task.current_updates || task.description || "—"],
+                      ] as const).map(([k, v]) => (
+                        <div key={k} className="min-w-0">
+                          <dt className="text-slate-500">{k}</dt>
+                          <dd className="mt-0.5 font-medium text-slate-800 dark:text-slate-100 break-words line-clamp-3">{v}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </td>
+                </tr>
+              )}
+              </React.Fragment>
             );
           })}
         </tbody>

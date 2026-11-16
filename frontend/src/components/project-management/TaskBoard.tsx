@@ -257,7 +257,7 @@ export function TaskBoard({
   onMove: (t: ProjectTask, s: TaskStatus) => void; onPriority: (t: ProjectTask, p: TaskPriority) => void;
   onUpdated: (t: ProjectTask) => void; updatingTaskId: number | null;
 }) {
-  const [by, setBy] = useState<"status" | "person">("status");
+  const by = "status" as "status" | "person"; // grouping by person is the employee rail's job
   const [dense, setDense] = useState(false);
   const [more, setMore] = useState<Record<string, boolean>>({});
   useEffect(() => {
@@ -449,20 +449,7 @@ export function TaskBoard({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        {groups ? (
-          <div className="inline-flex rounded-xl bg-stone-100 dark:bg-slate-800 p-1" role="group" aria-label="Group board by">
-            {([["status", "By status", Rows3], ["person", "By employee", Users]] as const).map(([v, label, Icon]) => (
-              <button
-                key={v}
-                onClick={() => setBy(v)}
-                aria-pressed={by === v}
-                className={`inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold ${by === v ? "bg-white dark:bg-slate-900 text-[#00806E] shadow-sm" : "text-slate-600 dark:text-slate-300"}`}
-              >
-                <Icon className="h-3.5 w-3.5" />{label}
-              </button>
-            ))}
-          </div>
-        ) : <span />}
+        <span />
         <button type="button" onClick={toggleDense} aria-pressed={dense} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-stone-100 dark:bg-slate-800">
           <Rows3 className="h-3.5 w-3.5" />
           {dense ? "Comfortable cards" : "Compact cards"}
