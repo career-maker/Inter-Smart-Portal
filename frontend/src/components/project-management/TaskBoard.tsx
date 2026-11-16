@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, ChevronDown, Users, Rows3, ExternalLink, Loader2, Pencil, X } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, RotateCcw, Users, Rows3, ExternalLink, Loader2, Pencil, X } from "lucide-react";
 import { Portal } from "@/components/ui/portal";
 import { ProjectTask, TaskPriority, TaskStatus, TASK_STATUSES } from "@/types/pm";
 import { PRIORITY_COLORS, STATUS_COLORS, TaskPrioritySelect, TaskStatusSelect } from "@/components/project-management/priorityPalette";
@@ -188,16 +188,52 @@ function TaskDrawer({
 /* ───────────────────────── Board ───────────────────────── */
 
 type Drag = { task: ProjectTask; x: number; y: number; dx: number; dy: number; w: number; over: string };
+/** Small move-earlier / move-later pair used while arranging. `row` = left/right arrows, otherwise up/down. */
+export function ArrangeArrows({ onMove, canBack = true, canFwd = true, row = false, label, className = "" }: { onMove: (dir: -1 | 1) => void; canBack?: boolean; canFwd?: boolean; row?: boolean; label: string; className?: string }) {
+  const b = "grid h-9 w-9 place-items-center rounded-lg bg-white/90 dark:bg-white/10 text-slate-700 dark:text-slate-200 shadow-sm hover:bg-white disabled:opacity-30";
+  return (
+    <span className={`inline-flex gap-1 ${className}`} onClick={(e) => e.stopPropagation()}>
+      <button type="button" disabled={!canBack} onClick={() => onMove(-1)} aria-label={`Move ${label} ${row ? "left" : "up"}`} className={b}>{row ? <ChevronLeft className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}</button>
+      <button type="button" disabled={!canFwd} onClick={() => onMove(1)} aria-label={`Move ${label} ${row ? "right" : "down"}`} className={b}>{row ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}</button>
+    </span>
+  );
+}
+
+const COL_KEY = "pm_board_columns";
+function loadOrder(): string[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem(COL_KEY) || "[]");
+    if (Array.isArray(saved)) {
+      const known = saved.filter((x) => TASK_STATUSES.includes(x));
+      return [...known, ...TASK_STATUSES.filter((x) => !known.includes(x))];
+    }
+  } catch { /* storage unavailable */ }
+  return [...TASK_STATUSES];
+}
+
 export type BoardGroup = { key: string; name: string; sub?: string; tasks: ProjectTask[] };
 
 export function TaskBoard({
-  tasks, groups, canEdit, onMove, onPriority, onUpdated, updatingTaskId,
+  tasks, groups, canEdit, arrange = false, onMoveGroup, onMove, onPriority, onUpdated, updatingTaskId,
 }: {
-  tasks: ProjectTask[]; groups?: BoardGroup[]; canEdit: boolean;
+  tasks: ProjectTask[]; groups?: BoardGroup[]; canEdit: boolean; arrange?: boolean; onMoveGroup?: (key: string, dir: -1 | 1) => void;
   onMove: (t: ProjectTask, s: TaskStatus) => void; onPriority: (t: ProjectTask, p: TaskPriority) => void;
   onUpdated: (t: ProjectTask) => void; updatingTaskId: number | null;
 }) {
   const [by, setBy] = useState<"status" | "person">("status");
+  const [order, setOrder] = useState<string[]>([...TASK_STATUSES]);
+  useEffect(() => setOrder(loadOrder()), []);
+  const saveOrder = (o: string[]) => {
+    setOrder(o);
+    try { localStorage.setItem(COL_KEY, JSON.stringify(o)); } catch { /* storage unavailable */ }
+  };
+  const moveLane = (s: string, dir: -1 | 1) => {
+    const i = order.indexOf(s), j = i + dir;
+    if (j < 0 || j >= order.length) return;
+    const o = [...order];
+    [o[i], o[j]] = [o[j], o[i]];
+    saveOrder(o);
+  };
   const [drag, setDrag] = useState<Drag | null>(null);
   const [openId, setOpenId] = useState<number | null>(null);
   const [editing, setEditing] = useState(false);
@@ -291,7 +327,7 @@ export function TaskBoard({
   /** One set of status lanes. Desktop: one row where folded lanes shrink to a slim rail, so nothing scrolls sideways. Phone/tablet: a stack of folding sections. */
   const renderLanes = (list: ProjectTask[], gid: string) => {
     const buckets = new Map<string, ProjectTask[]>();
-    TASK_STATUSES.forEach((s) => buckets.set(s, []));
+    order.forEach((s) => buckets.set(s, []));
     list.forEach((t) => (buckets.get(t.status) ?? buckets.set(t.status, []).get(t.status)!).push(t));
     return (
       <div className="flex flex-col gap-2 lg:flex-row lg:items-stretch">
@@ -306,9 +342,15 @@ export function TaskBoard({
               key={key}
               data-lane={key}
               aria-label={`${s}, ${items.length} tasks`}
-              className={`rounded-2xl bg-stone-100 dark:bg-slate-900/70 transition-all duration-200 ${folded ? "lg:w-12 lg:shrink-0" : "lg:flex-1 lg:min-w-[210px]"}`}
+              className={`rounded-2xl bg-stone-100 dark:bg-slate-900/70 transition-all duration-200 ${folded ? (arrange ? "lg:w-[5.25rem]" : "lg:w-12") + " lg:shrink-0" : "lg:flex-1 lg:min-w-[210px]"}`}
               style={hot ? { backgroundColor: `color-mix(in srgb, ${color} 18%, transparent)`, boxShadow: `inset 0 0 0 2px ${color}` } : undefined}
             >
+              {arrange && (
+                <div className={`flex ${folded ? "lg:justify-center" : "justify-end"} px-2 pt-2`}>
+                  <ArrangeArrows label={s} row={false} className="lg:hidden" canBack={order.indexOf(s) > 0} canFwd={order.indexOf(s) < order.length - 1} onMove={(d) => moveLane(s, d)} />
+                  <ArrangeArrows label={s} row className="max-lg:hidden" canBack={order.indexOf(s) > 0} canFwd={order.indexOf(s) < order.length - 1} onMove={(d) => moveLane(s, d)} />
+                </div>
+              )}
               <button
                 type="button"
                 onClick={() => setFold((f) => ({ ...f, [key]: !folded }))}
@@ -368,6 +410,11 @@ export function TaskBoard({
             ))}
           </div>
         ) : <span />}
+        {arrange && by === "status" && (
+          <button type="button" onClick={() => saveOrder([...TASK_STATUSES])} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800">
+            <RotateCcw className="h-3.5 w-3.5" /> Reset column order
+          </button>
+        )}
         <p className="text-xs text-slate-500 dark:text-slate-400">
           {canEdit ? "Drag a card to change its status (touch: press and hold). " : ""}Tap a status name to fold it.
         </p>
@@ -375,12 +422,16 @@ export function TaskBoard({
 
       {showPeople ? (
         <div className="space-y-4">
-          {groups!.map((g) => {
+          {groups!.map((g, gi) => {
             const gkey = `p:${g.key}`;
             const closed = fold[gkey] ?? false;
             return (
               <div key={g.key} className="rounded-3xl bg-white/70 dark:bg-slate-900/50 p-2 sm:p-3 shadow-sm">
-                <button onClick={() => setFold((f) => ({ ...f, [gkey]: !closed }))} aria-expanded={!closed} className="flex w-full items-center gap-3 px-2 py-1.5 min-h-12 text-left">
+                <div className="flex items-center gap-1">
+                {arrange && onMoveGroup && g.key.startsWith("u") && (
+                  <ArrangeArrows label={g.name} canBack={gi > 0} canFwd={gi < groups!.length - 1} onMove={(d) => onMoveGroup(g.key, d)} />
+                )}
+                <button onClick={() => setFold((f) => ({ ...f, [gkey]: !closed }))} aria-expanded={!closed} className="flex flex-1 items-center gap-3 px-2 py-1.5 min-h-12 text-left">
                   <span style={{ ["--h" as any]: hueOf(g.key.length * 31 + g.name.charCodeAt(0)) }} className="grid h-9 w-9 place-items-center rounded-full bg-[hsl(var(--h)_55%_42%)] text-sm font-bold text-white">{g.name[0]?.toUpperCase()}</span>
                   <span className="flex-1 min-w-0">
                     <span className="block truncate text-sm font-bold text-slate-900 dark:text-white">{g.name}</span>
@@ -389,6 +440,7 @@ export function TaskBoard({
                   <span className="text-xs font-semibold text-slate-500">{g.tasks.length} {g.tasks.length === 1 ? "task" : "tasks"}</span>
                   <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform ${closed ? "-rotate-90" : ""}`} />
                 </button>
+                </div>
                 {!closed && <div className="mt-2">{renderLanes(g.tasks, g.key)}</div>}
               </div>
             );

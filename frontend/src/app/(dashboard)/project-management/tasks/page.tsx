@@ -16,6 +16,7 @@ import {
   Upload,
   Trash2,
   Columns3,
+  ArrowUpDown,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
@@ -29,7 +30,7 @@ import {
   PaginatedResponse,
   TaskFilterParams,
 } from "@/types/pm";
-import { TaskBoard } from "@/components/project-management/TaskBoard";
+import { TaskBoard, ArrangeArrows } from "@/components/project-management/TaskBoard";
 import { TaskTrackerTable } from "@/components/project-management/TaskTrackerTable";
 import { TeamFilterSelector } from "@/components/project-management/TeamFilterSelector";
 import { CreateTaskModal } from "@/components/project-management/CreateTaskModal";
@@ -81,6 +82,20 @@ export default function AllTasksPage() {
   const deleteTeamId: number | null =
     selectedTeamId !== "all" ? Number(selectedTeamId) : isTeamLead && user?.team_id ? Number(user.team_id) : null;
   const [currentPage, setCurrentPage] = useState(1);
+  // Employee order is the user's own, kept in this browser. `arrange` shows the move arrows.
+  const [arrange, setArrange] = useState(false);
+  const [empOrder, setEmpOrder] = useState<string[]>([]);
+  useEffect(() => {
+    try { setEmpOrder(JSON.parse(localStorage.getItem("pm_employee_order") || "[]")); } catch { /* storage unavailable */ }
+  }, []);
+  const moveEmployee = (keys: string[], key: string, dir: -1 | 1) => {
+    const i = keys.indexOf(key), j = i + dir;
+    if (i < 0 || j < 0 || j >= keys.length) return;
+    const next = [...keys];
+    [next[i], next[j]] = [next[j], next[i]];
+    setEmpOrder(next);
+    try { localStorage.setItem("pm_employee_order", JSON.stringify(next)); } catch { /* storage unavailable */ }
+  };
   const [viewMode, setViewMode] = useState<"grouped" | "flat" | "board">("grouped");
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -385,6 +400,13 @@ export default function AllTasksPage() {
     };
   }, [tasksList, teamMembers, selectedTeamId]);
 
+  const sortedGroups = useMemo(() => {
+    const rank = (id: number) => { const i = empOrder.indexOf(`u${id}`); return i < 0 ? Number.MAX_SAFE_INTEGER : i; };
+    return [...employeeGroups].sort((a, b) => rank(a.member.id) - rank(b.member.id));
+  }, [employeeGroups, empOrder]);
+  const shownGroups = sortedGroups.filter((g) => showEveryone || g.tasks.length > 0);
+  const shownKeys = shownGroups.map((g) => `u${g.member.id}`);
+
   return (
     <div className="space-y-6">
       {/* ── Top Header Bar ── */}
@@ -455,6 +477,18 @@ export default function AllTasksPage() {
                 <span>Board</span>
               </button>
             </div>
+          )}
+
+          {canEditTasks && viewMode !== "flat" && (
+            <button
+              type="button"
+              onClick={() => setArrange((v) => !v)}
+              aria-pressed={arrange}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 max-sm:min-h-11 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${arrange ? "bg-[#00806E] text-white border-transparent" : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"}`}
+            >
+              <ArrowUpDown className="w-3.5 h-3.5" />
+              {arrange ? "Done arranging" : "Arrange order"}
+            </button>
           )}
 
 
@@ -692,8 +726,10 @@ export default function AllTasksPage() {
       ) : viewMode === "board" && canEditTasks ? (
         <TaskBoard
           tasks={tasksList}
+          arrange={arrange}
+          onMoveGroup={(key, dir) => moveEmployee(sortedGroups.filter((g) => g.tasks.length > 0).map((g) => `u${g.member.id}`), key, dir)}
           groups={[
-            ...employeeGroups.filter((g) => g.tasks.length > 0).map((g) => ({ key: `u${g.member.id}`, name: g.member.name, sub: [g.member.employee_code, g.member.designation].filter(Boolean).join(" · "), tasks: g.tasks })),
+            ...sortedGroups.filter((g) => g.tasks.length > 0).map((g) => ({ key: `u${g.member.id}`, name: g.member.name, sub: [g.member.employee_code, g.member.designation].filter(Boolean).join(" · "), tasks: g.tasks })),
             ...(unassignedTasks.length ? [{ key: "unassigned", name: "Unassigned", tasks: unassignedTasks }] : []),
             ...oldEmployeeGroups.map((g) => ({ key: `old:${g.name}`, name: g.name, sub: g.status, tasks: g.tasks })),
           ]}
@@ -721,7 +757,7 @@ export default function AllTasksPage() {
               </button>
             ) : null;
           })()}
-          {employeeGroups.filter((g) => showEveryone || g.tasks.length > 0).map((group) => {
+          {shownGroups.map((group, gi) => {
             const initial = group.member.first_name?.[0] || group.member.name?.[0] || "U";
 
             return (
@@ -755,6 +791,9 @@ export default function AllTasksPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
+                    {arrange && (
+                      <ArrangeArrows label={group.member.name} canBack={gi > 0} canFwd={gi < shownGroups.length - 1} onMove={(d) => moveEmployee(shownKeys, `u${group.member.id}`, d)} />
+                    )}
                     <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                       {group.tasks.length} {group.tasks.length === 1 ? "Task" : "Tasks"}
                     </span>
