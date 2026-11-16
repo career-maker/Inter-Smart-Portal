@@ -10,18 +10,18 @@ const hue = (s: string) => HUES[[...s].reduce((a, c) => a + c.charCodeAt(0), 0) 
 
 function Face({ item, on }: { item: RailItem; on: boolean }) {
   const src = photoSrc(item.photo);
-  const ring = on ? "ring-2 ring-[#00806E] ring-offset-2 ring-offset-white dark:ring-offset-slate-950" : "";
   return (
     <span className="relative shrink-0">
       {item.key === "all" ? (
-        <span className={`grid h-10 w-10 place-items-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-100 ${ring}`}><Users className="h-4 w-4" /></span>
+        <span className={`grid h-10 w-10 place-items-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-100`}><Users className="h-4 w-4" /></span>
       ) : src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt="" referrerPolicy="no-referrer" loading="lazy" className={`h-10 w-10 rounded-full object-cover bg-slate-200 ${ring}`} />
+        <img src={src} alt="" referrerPolicy="no-referrer" loading="lazy" className={`h-10 w-10 rounded-full object-cover bg-slate-200`} />
       ) : (
-        <span style={{ ["--h" as any]: hue(item.key) }} className={`grid h-10 w-10 place-items-center rounded-full bg-[hsl(var(--h)_55%_42%)] text-sm font-bold text-white ${ring}`}>{item.name[0]?.toUpperCase()}</span>
+        <span style={{ ["--h" as any]: hue(item.key) }} className={`grid h-10 w-10 place-items-center rounded-full bg-[hsl(var(--h)_55%_42%)] text-sm font-bold text-white`}>{item.name[0]?.toUpperCase()}</span>
       )}
-      {item.overdue > 0 && <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-rose-600 ring-2 ring-white dark:ring-slate-950" aria-hidden />}
+      {on && <span aria-hidden className="pointer-events-none absolute inset-0 rotate-[225deg] rounded-full border-[3px] border-transparent border-r-[#00806E] border-t-[#00806E]" />}
+      {item.overdue > 0 && <span aria-hidden title="Overdue tasks" className="pointer-events-none absolute inset-0 rotate-45 rounded-full border-[3px] border-transparent border-r-rose-600 border-t-rose-600" />}
     </span>
   );
 }
