@@ -9,6 +9,7 @@ export type NavItem = {
   label: string;
   roles?: string[];
   external?: boolean;
+  feature?: string;   // if set, the link is hidden unless GET /features is true for it
 };
 
 export type NavGroup = {
@@ -172,7 +173,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/work/inbox", label: "My inbox" },
       { href: "/work", label: "My projects" },
       { href: "/work/team", label: "My team" },
-      { href: "/work/go-live", label: "Go-live requests" },
+      { href: "/work/go-live", label: "Go-live requests", feature: "work_go_live" },
       { href: "/work/qa", label: "QA queue" },
     ],
   },

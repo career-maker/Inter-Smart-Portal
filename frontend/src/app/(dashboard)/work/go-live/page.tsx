@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Server } from "lucide-react";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -14,9 +15,12 @@ const errMsg = (e: any) => (e?.response?.data?.errors ? Object.values(e.response
 /** System admin team: allocate a server for each requested project, then mark it live with its address. */
 export default function GoLivePage() {
   const [rows, setRows] = useState<any[] | null>(null);
+  const router = useRouter();
   const [unavailable, setUnavailable] = useState(false);
   const load = useCallback(() => { api.get("/work/go-live").then((r) => setRows(r.data.data)).catch((e) => { if ([403, 404].includes(e?.response?.status)) setUnavailable(true); }); }, []);
   useEffect(() => { load(); }, [load]);
+  // Not allowed: the menu link is already hidden, so a direct visit goes back to the dashboard instead of showing a dead page.
+  useEffect(() => { if (unavailable) router.replace("/dashboard"); }, [unavailable, router]);
 
   if (unavailable) return (
     <div className="space-y-6">

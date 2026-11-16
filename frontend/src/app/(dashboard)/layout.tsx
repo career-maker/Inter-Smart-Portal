@@ -168,7 +168,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isAuthenticated) api.get("/menu-layout").then((r) => setMenuLayouts(r.data?.layouts || {})).catch(() => {});
   }, [isAuthenticated]);
   const navGroups = useMemo(
-    () => applyMenuLayout(NAV_GROUPS.filter((g) => (!g.feature || features[g.feature]) && !(g.webOnly && inApp)), menuLayouts[user?.role || ""]),
+    () => applyMenuLayout(
+      NAV_GROUPS.filter((g) => (!g.feature || features[g.feature]) && !(g.webOnly && inApp))
+        .map((g) => ({ ...g, items: g.items.filter((i) => !i.feature || features[i.feature]) })),
+      menuLayouts[user?.role || ""]
+    ),
     [features, inApp, menuLayouts, user?.role]
   );
   // A notification counts on the menu item whose link is its longest match (/work/projects/5 -> "My projects", /work/go-live -> "Go-live requests").

@@ -25,6 +25,8 @@ class FeatureController extends Controller
             'hr_performance' => Feature::enabled('hr_performance') && $request->user() && (Access::hr($request->user()) || $request->user()->hasRole('Super Admin')),
             'meetings' => Feature::enabled('meetings') && $request->user() !== null,
             'workflow' => Feature::enabled('workflow') && ($request->user() ? WorkAccess::hasAnyWork($request->user()) : false),
+            // Menu link for the system administrators' go-live queue; the API enforces the same rule (GoLiveController::isSystemAdmin).
+            'work_go_live' => Feature::enabled('workflow') && $request->user() && (Access::systemAdmin($request->user()) || $request->user()->hasRole('Super Admin')),
         ]);
     }
 }
