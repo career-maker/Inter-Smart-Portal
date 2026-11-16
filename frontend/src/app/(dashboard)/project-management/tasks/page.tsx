@@ -418,7 +418,7 @@ export default function AllTasksPage() {
 
   const overdueOf = (list: ProjectTask[]) => list.filter((t) => getTaskOverdueInfo(t.due_date, t.status, t.actual_completion_date).isOverdue).length;
   const railItems: RailItem[] = [
-    ...shownGroups.map((g) => ({ key: `u${g.member.id}`, name: g.member.name, sub: g.member.designation || g.member.employee_code, count: g.tasks.length, overdue: overdueOf(g.tasks) })),
+    ...shownGroups.map((g) => ({ key: `u${g.member.id}`, name: g.member.name, sub: g.member.designation || g.member.employee_code, count: g.tasks.length, overdue: overdueOf(g.tasks), photo: g.tasks.flatMap((t) => t.assignees || []).find((a: any) => a.id === g.member.id)?.profile_photo_path })),
     ...(unassignedTasks.length ? [{ key: "unassigned", name: "Unassigned", count: unassignedTasks.length, overdue: overdueOf(unassignedTasks) }] : []),
     ...oldEmployeeGroups.map((g) => ({ key: `old:${g.name}`, name: g.name, sub: g.status, count: g.tasks.length, overdue: overdueOf(g.tasks) })),
   ];
@@ -744,7 +744,7 @@ export default function AllTasksPage() {
           )}
         </div>
       ) : viewMode === "board" && canEditTasks ? (
-        <div className="space-y-3 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-4 lg:space-y-0">
+        <div className="space-y-3 lg:grid lg:grid-cols-[44px_minmax(0,1fr)] lg:gap-5 lg:space-y-0">
         <EmployeeRail items={railItems} value={sel} onChange={setSelEmp} arrange={arrange} onMove={(key, dir) => moveEmployee(shownKeys, key, dir)} />
         <TaskBoard
           tasks={sel === "all" ? tasksList : (railItems.find((i) => i.key === sel) ? [...shownGroups.filter((g) => pick(`u${g.member.id}`)).flatMap((g) => g.tasks), ...(pick("unassigned") ? unassignedTasks : []), ...oldEmployeeGroups.filter((g) => pick(`old:${g.name}`)).flatMap((g) => g.tasks)] : tasksList)}
@@ -766,7 +766,7 @@ export default function AllTasksPage() {
         /* ══════════════════════════════════════════════════════════════════
            GROUPED BY EMPLOYEE TABLES VIEW (For Team Leads & Admins)
            ══════════════════════════════════════════════════════════════════ */
-        <div className="space-y-3 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-4 lg:space-y-0">
+        <div className="space-y-3 lg:grid lg:grid-cols-[44px_minmax(0,1fr)] lg:gap-5 lg:space-y-0">
         <EmployeeRail items={railItems} value={sel} onChange={setSelEmp} arrange={arrange} onMove={(key, dir) => moveEmployee(shownKeys, key, dir)} />
         <div className="space-y-6 min-w-0">
           <PriorityLegend />

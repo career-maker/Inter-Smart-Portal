@@ -28,7 +28,7 @@ const isOverdue = (t: ProjectTask) => {
 const initials = (a: { first_name?: string; last_name?: string }) => `${a.first_name?.[0] ?? ""}${a.last_name?.[0] ?? ""}`.toUpperCase() || "?";
 
 /** Profile photos are stored as a full link (Drive etc.) or a storage path served by the API. */
-function photoSrc(path?: string | null) {
+export function photoSrc(path?: string | null) {
   if (!path) return null;
   if (/^https?:\/\//i.test(path)) return path;
   return `${(process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")}/photos/${path.replaceAll("\\", "/")}`;
