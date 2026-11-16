@@ -15,6 +15,7 @@ import {
   FileText,
   Upload,
   Trash2,
+  Columns3,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
@@ -28,6 +29,7 @@ import {
   PaginatedResponse,
   TaskFilterParams,
 } from "@/types/pm";
+import { TaskBoard } from "@/components/project-management/TaskBoard";
 import { TaskTrackerTable } from "@/components/project-management/TaskTrackerTable";
 import { TeamFilterSelector } from "@/components/project-management/TeamFilterSelector";
 import { CreateTaskModal } from "@/components/project-management/CreateTaskModal";
@@ -79,7 +81,7 @@ export default function AllTasksPage() {
   const deleteTeamId: number | null =
     selectedTeamId !== "all" ? Number(selectedTeamId) : isTeamLead && user?.team_id ? Number(user.team_id) : null;
   const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState<"grouped" | "flat">("grouped");
+  const [viewMode, setViewMode] = useState<"grouped" | "flat" | "board">("grouped");
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -163,7 +165,7 @@ export default function AllTasksPage() {
     setSelectedAssigneeForModal(undefined);
   };
 
-  const handleQuickStatusChange = async (taskId: number, newStatus: TaskStatus) => {
+  const handleQuickStatusChange = async (taskId: number, newStatus: TaskStatus, keepInList = false) => {
     setUpdatingTaskId(taskId);
 
     const todayStr = new Date().toISOString().split("T")[0];
@@ -178,7 +180,7 @@ export default function AllTasksPage() {
     setTasksData((prev) => {
       if (!prev) return prev;
 
-      if (isExitingActive || isExitingCompleted || isExitingRejected) {
+      if (!keepInList && (isExitingActive || isExitingCompleted || isExitingRejected)) {
         // Immediately remove task from current filtered table
         return {
           ...prev,
@@ -440,6 +442,18 @@ export default function AllTasksPage() {
                 <Layers className="w-3.5 h-3.5" />
                 <span>All Tasks</span>
               </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("board")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 max-sm:min-h-11 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  viewMode === "board"
+                    ? "bg-white dark:bg-slate-900 text-[#00806E] dark:text-purple-300 shadow-sm"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                <Columns3 className="w-3.5 h-3.5" />
+                <span>Board</span>
+              </button>
             </div>
           )}
 
@@ -675,6 +689,15 @@ export default function AllTasksPage() {
             </button>
           )}
         </div>
+      ) : viewMode === "board" && canEditTasks ? (
+        <TaskBoard
+          tasks={tasksList}
+          canEdit={canEditTasks}
+          updatingTaskId={updatingTaskId}
+          onMove={(t, st) => handleQuickStatusChange(t.id, st, true)}
+          onPriority={(t, p) => handleQuickPriorityChange(t.id, p)}
+          onUpdated={(u) => setTasksData((prev) => (prev ? { ...prev, data: prev.data.map((x) => (x.id === u.id ? { ...x, ...u } : x)) } : prev))}
+        />
       ) : viewMode === "grouped" && canEditTasks ? (
         /* ══════════════════════════════════════════════════════════════════
            GROUPED BY EMPLOYEE TABLES VIEW (For Team Leads & Admins)
