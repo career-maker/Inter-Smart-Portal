@@ -5344,3 +5344,18 @@ div:has(> table):not([class*="overflow"]) { max-width: 100%; overflow-x: auto; }
 table td, table th { overflow-wrap: break-word; }
 /* grid/flex children may shrink below their content width */
 main :is(.grid, .flex) > * { min-width: 0; }
+
+/* Phones: data tables become one card per row (class added by components/layout/MobileTables.tsx) */
+@media (max-width: 639px) {
+  table.m-cards { display: block; width: 100% !important; min-width: 0 !important; table-layout: auto !important; }
+  table.m-cards > colgroup { display: none; }
+  table.m-cards > thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  table.m-cards > tbody { display: block; }
+  table.m-cards > tbody > tr { display: block; box-sizing: border-box; width: 100%; margin: 0 0 10px; padding: 6px 12px; border: 1px solid rgba(148, 163, 184, 0.4); border-radius: 12px; }
+  table.m-cards > tbody > tr > td { display: block; width: auto !important; max-width: 100%; padding: 6px 0 !important; border: 0 !important; text-align: left !important; white-space: normal !important; overflow-wrap: anywhere; }
+  table.m-cards > tbody > tr > td + td { border-top: 1px dashed rgba(148, 163, 184, 0.3) !important; }
+  table.m-cards > tbody > tr > td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .6; }
+  table.m-cards > tbody > tr > td[colspan] { display: block; }
+  table.m-cards > tbody > tr > td button, table.m-cards > tbody > tr > td a { max-width: 100%; }
+  div:has(> table.m-cards) { overflow-x: visible !important; }
+}

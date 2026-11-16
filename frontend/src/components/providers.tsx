@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toast";
 import { TopAwardeeProvider } from "@/context/TopAwardeeContext";
 import { CustomizationProvider } from "@/context/CustomizationContext";
 import { PageTitleManager } from "@/components/layout/PageTitleManager";
+import { MobileTables } from "@/components/layout/MobileTables";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -27,6 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <QueryClientProvider client={queryClient}>
           <TopAwardeeProvider>
             <PageTitleManager />
+            <MobileTables />
             {children}
             <Toaster />
           </TopAwardeeProvider>
