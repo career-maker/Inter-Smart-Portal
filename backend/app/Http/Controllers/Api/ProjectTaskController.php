@@ -56,7 +56,7 @@ class ProjectTaskController extends Controller
             'coordinator:id,first_name,last_name',
             'subPhase:id,name',
             'catalogTask:id,name,category',
-            'assignees:id,first_name,last_name,team_id,employee_code,designation,status',
+            'assignees:id,first_name,last_name,team_id,employee_code,designation,status,profile_photo_path',
             'team:id,name',
             'comments' => fn ($q) => $q->latest()->limit(1),
         ])->withCount(['comments', 'bugs']);
@@ -196,7 +196,7 @@ class ProjectTaskController extends Controller
                 'coordinator:id,first_name,last_name',
                 'subPhase:id,name',
                 'catalogTask:id,name,category',
-                'assignees:id,first_name,last_name',
+                'assignees:id,first_name,last_name,profile_photo_path',
                 'team:id,name',
                 'comments' => fn ($q) => $q->latest()->limit(1),
             ])
@@ -350,7 +350,7 @@ class ProjectTaskController extends Controller
             'subPhase:id,name',
             'catalogTask:id,name,category',
             'coordinator:id,first_name,last_name',
-            'assignees:id,first_name,last_name',
+            'assignees:id,first_name,last_name,profile_photo_path',
         ]);
 
         return response()->json(['data' => $task]);

@@ -147,6 +147,7 @@ export interface ProjectTaskAssigneeSummary {
   designation?: string | null;
   /** Active | Disabled | Resigned | Terminated */
   status?: string | null;
+  profile_photo_path?: string | null;
   pivot?: {
     task_id: number;
     user_id: number;

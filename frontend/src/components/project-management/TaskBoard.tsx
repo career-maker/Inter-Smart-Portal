@@ -27,6 +27,13 @@ const isOverdue = (t: ProjectTask) => {
 };
 const initials = (a: { first_name?: string; last_name?: string }) => `${a.first_name?.[0] ?? ""}${a.last_name?.[0] ?? ""}`.toUpperCase() || "?";
 
+/** Profile photos are stored as a full link (Drive etc.) or a storage path served by the API. */
+function photoSrc(path?: string | null) {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${(process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")}/photos/${path.replaceAll("\\", "/")}`;
+}
+
 function Avatars({ task, size = 24 }: { task: ProjectTask; size?: number }) {
   const list = task.assignees || [];
   if (!list.length) {
@@ -34,16 +41,18 @@ function Avatars({ task, size = 24 }: { task: ProjectTask; size?: number }) {
   }
   return (
     <span className="flex items-center -space-x-1.5">
-      {list.slice(0, 3).map((a) => (
-        <span
-          key={a.id}
-          title={`${a.first_name} ${a.last_name}`}
-          style={{ ["--h" as any]: hueOf(a.id + 5), width: size, height: size, fontSize: size * 0.42 }}
-          className="grid place-items-center rounded-full border-2 border-white dark:border-slate-900 font-bold text-white bg-[hsl(var(--h)_55%_42%)]"
-        >
-          {initials(a)}
-        </span>
-      ))}
+      {list.slice(0, 3).map((a) => {
+        const src = photoSrc(a.profile_photo_path);
+        const box = { width: size, height: size, fontSize: size * 0.42 };
+        return src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={a.id} src={src} alt={`${a.first_name} ${a.last_name}`} title={`${a.first_name} ${a.last_name}`} style={box} className="rounded-full border-2 border-white dark:border-slate-900 object-cover bg-slate-200" referrerPolicy="no-referrer" loading="lazy" />
+        ) : (
+          <span key={a.id} title={`${a.first_name} ${a.last_name}`} style={{ ["--h" as any]: hueOf(a.id + 5), ...box }} className="grid place-items-center rounded-full border-2 border-white dark:border-slate-900 font-bold text-white bg-[hsl(var(--h)_55%_42%)]">
+            {initials(a)}
+          </span>
+        );
+      })}
       {list.length > 3 && (
         <span style={{ width: size, height: size, fontSize: size * 0.4 }} className="grid place-items-center rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 font-bold text-slate-700 dark:text-slate-200">
           +{list.length - 3}
