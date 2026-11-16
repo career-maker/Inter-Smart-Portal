@@ -51,7 +51,7 @@ export function EmployeeRail({
         </select>
       </div>
 
-      <nav aria-label="Employees" className="max-lg:hidden lg:sticky lg:top-24 lg:self-start py-1">
+      <nav aria-label="Employees" className="max-lg:hidden lg:sticky lg:top-24 lg:z-30 lg:self-start py-1">
         <ul className="flex flex-col gap-2">
           {[all, ...items].map((i, idx) => {
             const on = value === i.key;
