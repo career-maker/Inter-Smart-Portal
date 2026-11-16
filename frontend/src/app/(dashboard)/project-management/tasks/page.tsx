@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { AnimatePresence } from "framer-motion";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import {
@@ -30,7 +31,11 @@ import {
   PaginatedResponse,
   TaskFilterParams,
 } from "@/types/pm";
-import { TaskBoard, ArrangeArrows } from "@/components/project-management/TaskBoard";
+import { TaskBoard, TaskDrawer, ArrangeArrows } from "@/components/project-management/TaskBoard";
+import { EmployeeRail, RailItem } from "@/components/project-management/EmployeeRail";
+import { EditTaskModal } from "@/components/project-management/EditTaskModal";
+import { PriorityLegend } from "@/components/project-management/priorityPalette";
+import { getTaskOverdueInfo } from "@/utils/taskOverdue";
 import { TaskTrackerTable } from "@/components/project-management/TaskTrackerTable";
 import { TeamFilterSelector } from "@/components/project-management/TeamFilterSelector";
 import { CreateTaskModal } from "@/components/project-management/CreateTaskModal";
@@ -84,6 +89,10 @@ export default function AllTasksPage() {
   const [currentPage, setCurrentPage] = useState(1);
   // Employee order is the user's own, kept in this browser. `arrange` shows the move arrows.
   const [arrange, setArrange] = useState(false);
+  const [allCols, setAllCols] = useState(false);
+  const [selEmp, setSelEmp] = useState<string | null>(null);
+  const [openTaskId, setOpenTaskId] = useState<number | null>(null);
+  const [editingOpen, setEditingOpen] = useState(false);
   const [empOrder, setEmpOrder] = useState<string[]>([]);
   useEffect(() => {
     try { setEmpOrder(JSON.parse(localStorage.getItem("pm_employee_order") || "[]")); } catch { /* storage unavailable */ }
@@ -407,6 +416,17 @@ export default function AllTasksPage() {
   const shownGroups = sortedGroups.filter((g) => showEveryone || g.tasks.length > 0);
   const shownKeys = shownGroups.map((g) => `u${g.member.id}`);
 
+  const overdueOf = (list: ProjectTask[]) => list.filter((t) => getTaskOverdueInfo(t.due_date, t.status, t.actual_completion_date).isOverdue).length;
+  const railItems: RailItem[] = [
+    ...shownGroups.map((g) => ({ key: `u${g.member.id}`, name: g.member.name, sub: g.member.designation || g.member.employee_code, count: g.tasks.length, overdue: overdueOf(g.tasks) })),
+    ...(unassignedTasks.length ? [{ key: "unassigned", name: "Unassigned", count: unassignedTasks.length, overdue: overdueOf(unassignedTasks) }] : []),
+    ...oldEmployeeGroups.map((g) => ({ key: `old:${g.name}`, name: g.name, sub: g.status, count: g.tasks.length, overdue: overdueOf(g.tasks) })),
+  ];
+  // First person by default, so the page opens on one neat table instead of every table stacked.
+  const sel = selEmp && (selEmp === "all" || railItems.some((i) => i.key === selEmp)) ? selEmp : railItems[0]?.key ?? "all";
+  const pick = (key: string) => sel === "all" || sel === key;
+  const openTask = tasksList.find((t) => t.id === openTaskId) || null;
+
   return (
     <div className="space-y-6">
       {/* ── Top Header Bar ── */}
@@ -477,6 +497,19 @@ export default function AllTasksPage() {
                 <span>Board</span>
               </button>
             </div>
+          )}
+
+          {viewMode !== "board" && (
+            <button
+              type="button"
+              onClick={() => setAllCols((v) => !v)}
+              aria-pressed={allCols}
+              className="inline-flex items-center gap-1.5 px-3 py-2 max-sm:min-h-11 rounded-xl text-xs font-semibold border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+              title="Show every column (start, achieved, comments, dev, sprint) — the table then scrolls sideways"
+            >
+              <Columns3 className="w-3.5 h-3.5" />
+              {allCols ? "Essential columns" : "All columns"}
+            </button>
           )}
 
           {canEditTasks && viewMode !== "flat" && (
@@ -724,14 +757,16 @@ export default function AllTasksPage() {
           )}
         </div>
       ) : viewMode === "board" && canEditTasks ? (
+        <div className="space-y-3 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-4 lg:space-y-0">
+        <EmployeeRail items={railItems} value={sel} onChange={setSelEmp} />
         <TaskBoard
-          tasks={tasksList}
+          tasks={sel === "all" ? tasksList : (railItems.find((i) => i.key === sel) ? [...shownGroups.filter((g) => pick(`u${g.member.id}`)).flatMap((g) => g.tasks), ...(pick("unassigned") ? unassignedTasks : []), ...oldEmployeeGroups.filter((g) => pick(`old:${g.name}`)).flatMap((g) => g.tasks)] : tasksList)}
           arrange={arrange}
           onMoveGroup={(key, dir) => moveEmployee(sortedGroups.filter((g) => g.tasks.length > 0).map((g) => `u${g.member.id}`), key, dir)}
           groups={[
-            ...sortedGroups.filter((g) => g.tasks.length > 0).map((g) => ({ key: `u${g.member.id}`, name: g.member.name, sub: [g.member.employee_code, g.member.designation].filter(Boolean).join(" · "), tasks: g.tasks })),
-            ...(unassignedTasks.length ? [{ key: "unassigned", name: "Unassigned", tasks: unassignedTasks }] : []),
-            ...oldEmployeeGroups.map((g) => ({ key: `old:${g.name}`, name: g.name, sub: g.status, tasks: g.tasks })),
+            ...sortedGroups.filter((g) => g.tasks.length > 0 && pick(`u${g.member.id}`)).map((g) => ({ key: `u${g.member.id}`, name: g.member.name, sub: [g.member.employee_code, g.member.designation].filter(Boolean).join(" · "), tasks: g.tasks })),
+            ...(unassignedTasks.length && pick("unassigned") ? [{ key: "unassigned", name: "Unassigned", tasks: unassignedTasks }] : []),
+            ...oldEmployeeGroups.filter((g) => pick(`old:${g.name}`)).map((g) => ({ key: `old:${g.name}`, name: g.name, sub: g.status, tasks: g.tasks })),
           ]}
           canEdit={canEditTasks}
           updatingTaskId={updatingTaskId}
@@ -739,11 +774,15 @@ export default function AllTasksPage() {
           onPriority={(t, p) => handleQuickPriorityChange(t.id, p)}
           onUpdated={(u) => setTasksData((prev) => (prev ? { ...prev, data: prev.data.map((x) => (x.id === u.id ? { ...x, ...u } : x)) } : prev))}
         />
+        </div>
       ) : viewMode === "grouped" && canEditTasks ? (
         /* ══════════════════════════════════════════════════════════════════
            GROUPED BY EMPLOYEE TABLES VIEW (For Team Leads & Admins)
            ══════════════════════════════════════════════════════════════════ */
-        <div className="space-y-6">
+        <div className="space-y-3 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-4 lg:space-y-0">
+        <EmployeeRail items={railItems} value={sel} onChange={setSelEmp} />
+        <div className="space-y-6 min-w-0">
+          <PriorityLegend />
           {(() => {
             const idle = employeeGroups.filter((g) => g.tasks.length === 0).length;
             return idle > 0 ? (
@@ -757,7 +796,7 @@ export default function AllTasksPage() {
               </button>
             ) : null;
           })()}
-          {shownGroups.map((group, gi) => {
+          {shownGroups.filter((g) => pick(`u${g.member.id}`)).map((group, gi) => {
             const initial = group.member.first_name?.[0] || group.member.name?.[0] || "U";
 
             return (
@@ -814,6 +853,9 @@ export default function AllTasksPage() {
 
                 {/* 12-Column Table for this employee */}
                 <TaskTrackerTable
+                  slim={!allCols}
+                  hideLegend
+                  onOpenTask={(t) => setOpenTaskId(t.id)}
                   tasks={group.tasks}
                   canEdit={canEditTasks}
                   onStatusChange={handleQuickStatusChange}
@@ -827,7 +869,7 @@ export default function AllTasksPage() {
           })}
 
           {/* Old Employees' Tasks: resigned / terminated staff and old-tracker names with no account */}
-          {oldEmployeeGroups.length > 0 && (
+          {oldEmployeeGroups.some((g) => pick(`old:${g.name}`)) && (
             <div className="space-y-4" data-testid="old-employee-tasks">
               <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
                 <span>Old Employees&apos; Tasks</span>
@@ -835,7 +877,7 @@ export default function AllTasksPage() {
                   ({oldEmployeeGroups.reduce((n, g) => n + g.tasks.length, 0)} tasks, {oldEmployeeGroups.length} people)
                 </span>
               </div>
-              {oldEmployeeGroups.map((g) => (
+              {oldEmployeeGroups.filter((g) => pick(`old:${g.name}`)).map((g) => (
                 <div
                   key={g.name + g.status}
                   className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden"
@@ -856,6 +898,9 @@ export default function AllTasksPage() {
                     </span>
                   </div>
                   <TaskTrackerTable
+                  slim={!allCols}
+                  hideLegend
+                  onOpenTask={(t) => setOpenTaskId(t.id)}
                     tasks={g.tasks}
                     canEdit={canEditTasks}
                     onStatusChange={handleQuickStatusChange}
@@ -869,7 +914,7 @@ export default function AllTasksPage() {
           )}
 
           {/* Unassigned Deliverables Block (if any exist) */}
-          {unassignedTasks.length > 0 && (
+          {unassignedTasks.length > 0 && pick("unassigned") && (
             <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
               <div className="flex items-center justify-between px-5 py-3.5 bg-amber-50/60 dark:bg-amber-950/30 border-b border-slate-200/90 dark:border-slate-800">
                 <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-sm">
@@ -878,6 +923,9 @@ export default function AllTasksPage() {
                 </div>
               </div>
               <TaskTrackerTable
+                  slim={!allCols}
+                  hideLegend
+                  onOpenTask={(t) => setOpenTaskId(t.id)}
                 tasks={unassignedTasks}
                 canEdit={canEditTasks}
                 onStatusChange={handleQuickStatusChange}
@@ -888,12 +936,17 @@ export default function AllTasksPage() {
             </div>
           )}
         </div>
+        </div>
       ) : (
         /* ══════════════════════════════════════════════════════════════════
            UNIFIED ALL TASKS TABLE VIEW (Flat List)
            ══════════════════════════════════════════════════════════════════ */
         <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+          <div className="p-2"><PriorityLegend /></div>
           <TaskTrackerTable
+                  slim={!allCols}
+                  hideLegend
+                  onOpenTask={(t) => setOpenTaskId(t.id)}
             tasks={tasksList}
             canEdit={canEditTasks}
             onStatusChange={handleQuickStatusChange}
@@ -931,6 +984,28 @@ export default function AllTasksPage() {
             </div>
           )}
         </div>
+      )}
+
+      <AnimatePresence>
+        {openTask && (
+          <TaskDrawer
+            key={openTask.id}
+            task={openTask}
+            canEdit={canEditTasks}
+            onClose={() => setOpenTaskId(null)}
+            onMove={(t, st) => handleQuickStatusChange(t.id, st, true)}
+            onPriority={(t, p) => handleQuickPriorityChange(t.id, p)}
+            onEdit={() => setEditingOpen(true)}
+          />
+        )}
+      </AnimatePresence>
+      {openTask && editingOpen && (
+        <EditTaskModal
+          isOpen
+          task={openTask}
+          onClose={() => setEditingOpen(false)}
+          onSuccess={(u) => setTasksData((prev) => (prev ? { ...prev, data: prev.data.map((x) => (x.id === u.id ? { ...x, ...u } : x)) } : prev))}
+        />
       )}
 
       {/* ── Create Task Modal ── */}

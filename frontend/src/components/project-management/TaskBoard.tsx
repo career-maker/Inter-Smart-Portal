@@ -34,14 +34,14 @@ function photoSrc(path?: string | null) {
   return `${(process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")}/photos/${path.replaceAll("\\", "/")}`;
 }
 
-function Avatars({ task, size = 24 }: { task: ProjectTask; size?: number }) {
+function Avatars({ task, size = 24, max = 3 }: { task: ProjectTask; size?: number; max?: number }) {
   const list = task.assignees || [];
   if (!list.length) {
     return <span className="text-[11px] italic text-slate-500 dark:text-slate-400">{task.old_assignee_name || "Unassigned"}</span>;
   }
   return (
     <span className="flex items-center -space-x-1.5">
-      {list.slice(0, 3).map((a) => {
+      {list.slice(0, max).map((a) => {
         const src = photoSrc(a.profile_photo_path);
         const box = { width: size, height: size, fontSize: size * 0.42 };
         return src ? (
@@ -53,17 +53,28 @@ function Avatars({ task, size = 24 }: { task: ProjectTask; size?: number }) {
           </span>
         );
       })}
-      {list.length > 3 && (
+      {list.length > max && (
         <span style={{ width: size, height: size, fontSize: size * 0.4 }} className="grid place-items-center rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 font-bold text-slate-700 dark:text-slate-200">
-          +{list.length - 3}
+          +{list.length - max}
         </span>
       )}
     </span>
   );
 }
 
-function CardBody({ task, busy }: { task: ProjectTask; busy?: boolean }) {
+function CardBody({ task, busy, dense }: { task: ProjectTask; busy?: boolean; dense?: boolean }) {
   const over = isOverdue(task);
+  if (dense) {
+    const pc = PRIORITY_COLORS[task.priority] || "#A1A1AA";
+    return (
+      <div className="flex items-center gap-2">
+        {busy ? <Loader2 className="h-3 w-3 shrink-0 animate-spin text-slate-500" /> : <span title={`Priority: ${task.priority}`} aria-label={`Priority: ${task.priority}`} className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: pc }} />}
+        <h4 className="flex-1 min-w-0 text-[12.5px] font-semibold leading-snug text-slate-900 dark:text-slate-50 line-clamp-2">{task.title}</h4>
+        {over && <span className="shrink-0 rounded bg-rose-600 px-1 text-[10px] font-bold text-white">{shortDay(task.due_date)}</span>}
+        <Avatars task={task} size={20} max={1} />
+      </div>
+    );
+  }
   return (
     <>
       <div className="flex items-start gap-2">
@@ -98,7 +109,7 @@ function CardBody({ task, busy }: { task: ProjectTask; busy?: boolean }) {
 
 /* ───────────────────────── Side panel ───────────────────────── */
 
-function TaskDrawer({
+export function TaskDrawer({
   task, canEdit, onClose, onMove, onPriority, onEdit,
 }: {
   task: ProjectTask; canEdit: boolean; onClose: () => void;
@@ -164,6 +175,23 @@ function TaskDrawer({
               <div className="flex justify-between text-xs text-slate-500 mb-1.5"><span>Progress</span><span className="font-semibold text-slate-700 dark:text-slate-200">{pct}%</span></div>
               <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-[hsl(var(--h)_62%_46%)]" style={{ width: `${pct}%` }} /></div>
             </div>
+            {(() => {
+              const pc = task.coordinator || task.project?.coordinator;
+              const achieved = task.actual_completion_date || (task.status === "Completed" ? task.updated_at : null);
+              return (
+                <>
+                  {pc && <div className={row}><span className="text-slate-500">Coordinator</span><span className="font-medium">{`${pc.first_name || ""} ${pc.last_name || ""}`.trim()}</span></div>}
+                  {achieved && <div className={row}><span className="text-slate-500">Achieved</span><span className="font-medium">{shortDay(achieved)}</span></div>}
+                  {task.deviation ? <div className={row}><span className="text-slate-500">Deviation</span><span className={`font-semibold ${Number(task.deviation) > 0 ? "text-rose-600" : "text-emerald-600"}`}>{Number(task.deviation) > 0 ? "+" : ""}{task.deviation}d</span></div> : null}
+                  {task.sprint && (
+                    <div className={row}>
+                      <span className="text-slate-500">Sprint</span>
+                      {task.sprint_link ? <a href={task.sprint_link} target="_blank" rel="noopener noreferrer" className="font-medium text-[#00806E] hover:underline">{task.sprint}</a> : <span className="font-medium">{task.sprint}</span>}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
             {task.description && (
               <div className="py-2">
                 <p className="text-xs text-slate-500 mb-1">Description</p>
@@ -230,6 +258,17 @@ export function TaskBoard({
   onUpdated: (t: ProjectTask) => void; updatingTaskId: number | null;
 }) {
   const [by, setBy] = useState<"status" | "person">("status");
+  const [dense, setDense] = useState(false);
+  const [more, setMore] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    try { setDense(localStorage.getItem("pm_board_dense") === "1"); } catch { /* storage unavailable */ }
+  }, []);
+  const toggleDense = () => {
+    setDense((d) => {
+      try { localStorage.setItem("pm_board_dense", d ? "0" : "1"); } catch { /* storage unavailable */ }
+      return !d;
+    });
+  };
   const [order, setOrder] = useState<string[]>([...TASK_STATUSES]);
   useEffect(() => setOrder(loadOrder()), []);
   const saveOrder = (o: string[]) => {
@@ -334,12 +373,12 @@ export function TaskBoard({
   };
 
   /** One set of status lanes. Desktop: one row where folded lanes shrink to a slim rail, so nothing scrolls sideways. Phone/tablet: a stack of folding sections. */
-  const renderLanes = (list: ProjectTask[], gid: string) => {
+  const renderLanes = (list: ProjectTask[], gid: string, tall = true) => {
     const buckets = new Map<string, ProjectTask[]>();
     order.forEach((s) => buckets.set(s, []));
     list.forEach((t) => (buckets.get(t.status) ?? buckets.set(t.status, []).get(t.status)!).push(t));
     return (
-      <div className="flex flex-col gap-2 lg:flex-row lg:items-stretch">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-stretch" style={{ ["--lane-h" as any]: tall ? "max(20rem, calc(100dvh - 19rem))" : "26rem" }}>
         {Array.from(buckets.keys()).map((s) => {
           const items = buckets.get(s)!;
           const key = `${gid}|${s}`;
@@ -372,8 +411,8 @@ export function TaskBoard({
                 <ChevronDown className={`h-4 w-4 shrink-0 text-slate-500 transition-transform ${folded ? "-rotate-90 lg:hidden" : ""}`} />
               </button>
               {!folded && (
-                <div className="space-y-2.5 px-2.5 pb-3">
-                  {items.map((t) => (
+                <div className={`px-2.5 pb-3 lg:max-h-[var(--lane-h)] lg:overflow-y-auto lg:overscroll-contain ${dense ? "space-y-1.5" : "space-y-2.5"}`}>
+                  {items.map((t, ti) => (
                     <article
                       key={t.id}
                       tabIndex={0}
@@ -384,11 +423,16 @@ export function TaskBoard({
                       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), setOpenId(t.id))}
                       onContextMenu={(e) => { if (gesture.current?.touch) e.preventDefault(); }}
                       style={{ ["--h" as any]: hueOf(t.id), WebkitTouchCallout: "none" }}
-                      className={`relative select-none rounded-2xl px-3.5 py-3 shadow-[0_1px_2px_rgba(30,20,10,0.08)] outline-none transition-[transform,box-shadow,opacity] duration-150 focus-visible:ring-2 focus-visible:ring-[#00806E] hover:-translate-y-0.5 hover:shadow-md ${cardTone} ${canEdit ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} ${drag?.task.id === t.id ? "opacity-30" : ""}`}
+                      className={`${ti >= 6 && !more[key] ? "max-lg:hidden " : ""}relative select-none rounded-2xl ${dense ? "px-3 py-2" : "px-3.5 py-3"} shadow-[0_1px_2px_rgba(30,20,10,0.08)] outline-none transition-[transform,box-shadow,opacity] duration-150 focus-visible:ring-2 focus-visible:ring-[#00806E] hover:-translate-y-0.5 hover:shadow-md ${cardTone} ${canEdit ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} ${drag?.task.id === t.id ? "opacity-30" : ""}`}
                     >
-                      <CardBody task={t} busy={updatingTaskId === t.id} />
+                      <CardBody task={t} busy={updatingTaskId === t.id} dense={dense} />
                     </article>
                   ))}
+                  {items.length > 6 && !more[key] && (
+                    <button type="button" onClick={() => setMore((m) => ({ ...m, [key]: true }))} className="lg:hidden w-full min-h-11 rounded-xl text-xs font-semibold text-[#00806E] hover:bg-white/60">
+                      Show {items.length - 6} more
+                    </button>
+                  )}
                   {items.length === 0 && (
                     <p className="grid h-16 place-items-center rounded-xl text-xs text-stone-500 dark:text-slate-500">{canEdit ? "Drop a task here" : "Nothing here"}</p>
                   )}
@@ -419,6 +463,10 @@ export function TaskBoard({
             ))}
           </div>
         ) : <span />}
+        <button type="button" onClick={toggleDense} aria-pressed={dense} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-stone-100 dark:bg-slate-800">
+          <Rows3 className="h-3.5 w-3.5" />
+          {dense ? "Comfortable cards" : "Compact cards"}
+        </button>
         {arrange && by === "status" && (
           <button type="button" onClick={() => saveOrder([...TASK_STATUSES])} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800">
             <RotateCcw className="h-3.5 w-3.5" /> Reset column order
@@ -450,7 +498,7 @@ export function TaskBoard({
                   <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform ${closed ? "-rotate-90" : ""}`} />
                 </button>
                 </div>
-                {!closed && <div className="mt-2">{renderLanes(g.tasks, g.key)}</div>}
+                {!closed && <div className="mt-2">{renderLanes(g.tasks, g.key, groups!.length === 1)}</div>}
               </div>
             );
           })}

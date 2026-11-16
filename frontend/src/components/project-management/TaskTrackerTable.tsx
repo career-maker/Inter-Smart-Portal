@@ -118,6 +118,12 @@ interface TaskTrackerTableProps {
   pageSize?: number;
   /** Start/End dates stay read-only (assignees may only edit execution fields). */
   planningLocked?: boolean;
+  /** Essential columns only (no PC, Start, Achieved, Comments, Dev, Sprint): fits the width without side scrolling. */
+  slim?: boolean;
+  /** Skip the priority colour key (the page shows it once). */
+  hideLegend?: boolean;
+  /** Open the task in the side panel instead of the full page. */
+  onOpenTask?: (task: ProjectTask) => void;
 }
 
 function formatDateDisplay(dateStr?: string | null): string {
@@ -252,6 +258,9 @@ export function TaskTrackerTable({
   emptyMessage = "No tasks found in this section.",
   pageSize = 20,
   planningLocked = false,
+  slim = false,
+  hideLegend = false,
+  onOpenTask,
 }: TaskTrackerTableProps) {
   const [activeCommentPopover, setActiveCommentPopover] = useState<number | null>(null);
   const [tablePage, setTablePage] = useState<number>(1);
@@ -417,7 +426,7 @@ export function TaskTrackerTable({
 
   return (
     <div className="w-full flex flex-col gap-2">
-      <PriorityLegend />
+      {!hideLegend && <PriorityLegend />}
       <div className="w-full overflow-x-auto table-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <table className="w-full text-left border-collapse task-tracker-table">
           <thead>
@@ -426,14 +435,14 @@ export function TaskTrackerTable({
               {renderSortHeader("priority", "PTY", "center", "w-[108px] min-w-[108px]")}
               {renderSortHeader("task", "SUB PHASE / TASK", "left", "px-3")}
               {showAssigneesCol && renderSortHeader("assignees", "ASSIGNEES", "left", "px-3")}
-              {renderSortHeader("pc", "PC", "left")}
+              {!slim && renderSortHeader("pc", "PC", "left")}
               {renderSortHeader("status", "STATUS", "left")}
-              {renderSortHeader("start_date", "START", "left")}
+              {!slim && renderSortHeader("start_date", "START", "left")}
               {renderSortHeader("due_date", "END", "left")}
-              {renderSortHeader("achieved", "ACHIEVED", "left")}
-              {renderSortHeader("comments", "COMMENTS", "left")}
-              {renderSortHeader("dev", "DEV", "center")}
-              {renderSortHeader("sprint", "SPRINT", "left")}
+              {!slim && renderSortHeader("achieved", "ACHIEVED", "left")}
+              {!slim && renderSortHeader("comments", "COMMENTS", "left")}
+              {!slim && renderSortHeader("dev", "DEV", "center")}
+              {!slim && renderSortHeader("sprint", "SPRINT", "left")}
               {canEdit && (
                 <th
                   style={{
@@ -529,7 +538,17 @@ export function TaskTrackerTable({
 
                 {/* 3. SUB PHASE / TASK */}
                 <td className="py-2 px-3 border-r border-slate-200/70 dark:border-slate-800/70 max-w-[170px]">
-                  {canEdit ? (
+                  {onOpenTask ? (
+                    <button
+                      type="button"
+                      onClick={() => onOpenTask(task)}
+                      style={{ fontFamily: 'Inter, sans-serif', fontSize: "12px", lineHeight: "16px", fontWeight: 500, color: "rgb(15, 24, 36)" }}
+                      className="hover:text-purple-600 dark:!text-slate-100 dark:hover:!text-purple-400 transition-colors block max-w-full truncate text-left cursor-pointer"
+                      title={`${task.title} — open details`}
+                    >
+                      {task.title}
+                    </button>
+                  ) : canEdit ? (
                     <Link
                       href={`/project-management/tasks/${task.id}`}
                       style={{
@@ -595,11 +614,13 @@ export function TaskTrackerTable({
                   </td>
                 )}
 
+                {!slim && (<>
                 {/* 4. PC (Project Coordinator) */}
                 <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-400 text-[11px] max-w-[80px] truncate" title={pcName}>
                   {pcName}
                 </td>
 
+                </>)}
                 {/* 5. STATUS (with delay days badge ! 2d if overdue) */}
                 <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap">
                   <div className="flex items-center gap-1">
@@ -628,6 +649,7 @@ export function TaskTrackerTable({
                   </div>
                 </td>
 
+                {!slim && (<>
                 {/* 6. START DATE */}
                 <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-[11px]">
                   <TableDateCell
@@ -639,6 +661,7 @@ export function TaskTrackerTable({
                   />
                 </td>
 
+                </>)}
                 {/* 7. END DATE (Highlighted red if overdue past 6:30 PM) */}
                 <td
                   className={`py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-[11px] ${
@@ -657,6 +680,7 @@ export function TaskTrackerTable({
                   />
                 </td>
 
+                {!slim && (<>
                 {/* 8. ACHIEVED DATE */}
                 <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-[11px]">
                   <TableDateCell
@@ -717,6 +741,7 @@ export function TaskTrackerTable({
                   )}
                 </td>
 
+                </>)}
                 {/* 12. ACTIONS */}
                 {canEdit && (
                   <td className="py-2 px-3 text-right whitespace-nowrap">
