@@ -692,6 +692,11 @@ export default function AllTasksPage() {
       ) : viewMode === "board" && canEditTasks ? (
         <TaskBoard
           tasks={tasksList}
+          groups={[
+            ...employeeGroups.filter((g) => g.tasks.length > 0).map((g) => ({ key: `u${g.member.id}`, name: g.member.name, sub: [g.member.employee_code, g.member.designation].filter(Boolean).join(" · "), tasks: g.tasks })),
+            ...(unassignedTasks.length ? [{ key: "unassigned", name: "Unassigned", tasks: unassignedTasks }] : []),
+            ...oldEmployeeGroups.map((g) => ({ key: `old:${g.name}`, name: g.name, sub: g.status, tasks: g.tasks })),
+          ]}
           canEdit={canEditTasks}
           updatingTaskId={updatingTaskId}
           onMove={(t, st) => handleQuickStatusChange(t.id, st, true)}

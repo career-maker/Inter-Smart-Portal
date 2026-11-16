@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, ExternalLink, Loader2, Pencil, X } from "lucide-react";
+import { CalendarDays, ChevronDown, Users, Rows3, ExternalLink, Loader2, Pencil, X } from "lucide-react";
 import { Portal } from "@/components/ui/portal";
 import { ProjectTask, TaskPriority, TaskStatus, TASK_STATUSES } from "@/types/pm";
 import { PRIORITY_COLORS, STATUS_COLORS, TaskPrioritySelect, TaskStatusSelect } from "@/components/project-management/priorityPalette";
@@ -14,8 +14,7 @@ const HUES = [162, 8, 36, 204, 262, 332, 92, 188, 22, 292, 348, 48];
 const hueOf = (id: number) => HUES[Math.abs(id * 7 + 3) % HUES.length];
 const DONE: string[] = ["Completed", "Rejected", "Cancelled"];
 
-const cardTone =
-  "bg-[hsl(var(--h)_62%_95%)] border-[hsl(var(--h)_45%_84%)] dark:bg-[hsl(var(--h)_28%_17%)] dark:border-[hsl(var(--h)_30%_28%)]";
+const cardTone = "bg-[hsl(var(--h)_70%_93%)] dark:bg-[hsl(var(--h)_26%_19%)]";
 
 const parseDay = (v?: string | null) => (v ? new Date(`${String(v).slice(0, 10)}T00:00:00`) : null);
 const shortDay = (v?: string | null) => parseDay(v)?.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) ?? "—";
@@ -58,7 +57,6 @@ function CardBody({ task, busy }: { task: ProjectTask; busy?: boolean }) {
   const over = isOverdue(task);
   return (
     <>
-      <span aria-hidden className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-[hsl(var(--h)_62%_46%)]" />
       <div className="flex items-start gap-2">
         <h4 className="flex-1 text-[13.5px] font-semibold leading-snug text-slate-900 dark:text-slate-50 line-clamp-3">{task.title}</h4>
         {busy ? (
@@ -122,7 +120,7 @@ function TaskDrawer({
           className="absolute right-0 top-0 bottom-0 w-full md:w-[460px] max-md:top-auto max-md:h-[90dvh] max-md:rounded-t-3xl bg-white dark:bg-slate-900 shadow-2xl flex flex-col overflow-hidden"
           style={{ transformOrigin: "bottom" }}
         >
-          <div className="relative px-5 pt-5 pb-4 bg-[hsl(var(--h)_62%_93%)] dark:bg-[hsl(var(--h)_28%_18%)] border-b border-[hsl(var(--h)_45%_82%)] dark:border-[hsl(var(--h)_30%_28%)]">
+          <div className="relative px-5 pt-5 pb-4 bg-[hsl(var(--h)_70%_92%)] dark:bg-[hsl(var(--h)_26%_20%)]">
             <span aria-hidden className="md:hidden absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-slate-400/60" />
             <div className="flex items-start gap-3">
               <div className="flex-1 min-w-0">
@@ -190,33 +188,29 @@ function TaskDrawer({
 /* ───────────────────────── Board ───────────────────────── */
 
 type Drag = { task: ProjectTask; x: number; y: number; dx: number; dy: number; w: number; over: string };
+export type BoardGroup = { key: string; name: string; sub?: string; tasks: ProjectTask[] };
 
 export function TaskBoard({
-  tasks, canEdit, onMove, onPriority, onUpdated, updatingTaskId,
+  tasks, groups, canEdit, onMove, onPriority, onUpdated, updatingTaskId,
 }: {
-  tasks: ProjectTask[]; canEdit: boolean;
+  tasks: ProjectTask[]; groups?: BoardGroup[]; canEdit: boolean;
   onMove: (t: ProjectTask, s: TaskStatus) => void; onPriority: (t: ProjectTask, p: TaskPriority) => void;
   onUpdated: (t: ProjectTask) => void; updatingTaskId: number | null;
 }) {
+  const [by, setBy] = useState<"status" | "person">("status");
   const [drag, setDrag] = useState<Drag | null>(null);
   const [openId, setOpenId] = useState<number | null>(null);
   const [editing, setEditing] = useState(false);
-  const [lane, setLane] = useState(0);
-  const scroller = useRef<HTMLDivElement>(null);
-  const gesture = useRef<{ t: ProjectTask; sx: number; sy: number; touch: boolean; active: boolean; timer?: number; card: HTMLElement } | null>(null);
-  const edge = useRef({ x: 0, y: 0 });
+  // Only lanes the user toggled are stored; every other lane is open when it has tasks, folded when empty.
+  const [fold, setFold] = useState<Record<string, boolean>>({});
+  const gesture = useRef<{ t: ProjectTask; sx: number; sy: number; touch: boolean; active: boolean; timer?: number } | null>(null);
+  const edgeY = useRef(0);
   const justDragged = useRef(false);
   const latest = useRef({ onMove });
   latest.current.onMove = onMove;
 
-  const byStatus = useMemo(() => {
-    const m = new Map<string, ProjectTask[]>();
-    TASK_STATUSES.forEach((s) => m.set(s, []));
-    tasks.forEach((t) => (m.get(t.status) ?? m.set(t.status, []).get(t.status)!).push(t));
-    return m;
-  }, [tasks]);
-  const open = tasks.find((t) => t.id === openId) || null;
-
+  const allTasks = useMemo(() => (groups ? groups.flatMap((g) => g.tasks) : tasks), [groups, tasks]);
+  const open = allTasks.find((t) => t.id === openId) || null;
   const stopTouchScroll = useCallback((e: TouchEvent) => e.cancelable && e.preventDefault(), []);
 
   const finish = useCallback(() => {
@@ -224,29 +218,32 @@ export function TaskBoard({
     if (g?.timer) window.clearTimeout(g.timer);
     window.removeEventListener("touchmove", stopTouchScroll);
     document.body.style.userSelect = "";
-    edge.current = { x: 0, y: 0 };
+    edgeY.current = 0;
     gesture.current = null;
     setDrag(null);
   }, [stopTouchScroll]);
 
-  // Edge auto-scroll while a card is held near the sides / top / bottom of the screen.
   useEffect(() => {
     if (!drag) return;
     let raf = 0;
     const tick = () => {
-      if (edge.current.x && scroller.current) scroller.current.scrollLeft += edge.current.x;
-      if (edge.current.y) window.scrollBy(0, edge.current.y);
+      if (edgeY.current) window.scrollBy(0, edgeY.current);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [!!drag]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const laneAt = (x: number, y: number) => {
+    const el = document.elementFromPoint(x, y)?.closest("[data-lane]") as HTMLElement | null;
+    return el?.dataset.lane?.split("|")[1] || "";
+  };
+
   const onPointerDown = (e: React.PointerEvent<HTMLElement>, t: ProjectTask) => {
     if (!canEdit || (e.pointerType === "mouse" && e.button !== 0)) return;
     const touch = e.pointerType !== "mouse";
     const card = e.currentTarget;
-    const g = { t, sx: e.clientX, sy: e.clientY, touch, active: false, card } as NonNullable<typeof gesture.current>;
+    const g = { t, sx: e.clientX, sy: e.clientY, touch, active: false } as NonNullable<typeof gesture.current>;
     gesture.current = g;
 
     const activate = (x: number, y: number) => {
@@ -264,24 +261,18 @@ export function TaskBoard({
     const move = (ev: PointerEvent) => {
       if (!g.active) {
         const dist = Math.hypot(ev.clientX - g.sx, ev.clientY - g.sy);
-        if (touch && dist > 9) return cleanup(); // finger is scrolling, not dragging
+        if (touch && dist > 9) return cleanup();
         if (!touch && dist > 5) activate(ev.clientX, ev.clientY);
         return;
       }
-      const el = document.elementFromPoint(ev.clientX, ev.clientY)?.closest("[data-lane]") as HTMLElement | null;
-      const sc = scroller.current?.getBoundingClientRect();
-      edge.current = {
-        x: sc ? (ev.clientX < sc.left + 56 ? -14 : ev.clientX > sc.right - 56 ? 14 : 0) : 0,
-        y: ev.clientY < 90 ? -12 : ev.clientY > window.innerHeight - 90 ? 12 : 0,
-      };
-      setDrag((d) => (d ? { ...d, x: ev.clientX, y: ev.clientY, over: el?.dataset.lane || "" } : d));
+      edgeY.current = ev.clientY < 90 ? -12 : ev.clientY > window.innerHeight - 90 ? 12 : 0;
+      setDrag((d) => (d ? { ...d, x: ev.clientX, y: ev.clientY, over: laneAt(ev.clientX, ev.clientY) } : d));
     };
     const up = (ev: PointerEvent) => {
       if (g.active) {
         justDragged.current = true;
         setTimeout(() => (justDragged.current = false), 0);
-        const el = document.elementFromPoint(ev.clientX, ev.clientY)?.closest("[data-lane]") as HTMLElement | null;
-        const to = el?.dataset.lane;
+        const to = laneAt(ev.clientX, ev.clientY);
         if (to && to !== g.t.status) latest.current.onMove(g.t, to as TaskStatus);
       }
       cleanup();
@@ -297,97 +288,121 @@ export function TaskBoard({
     window.addEventListener("pointercancel", cleanup);
   };
 
-  const jump = (i: number) => {
-    const el = scroller.current?.querySelectorAll<HTMLElement>("[data-lane]")[i];
-    el?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
-  };
-  const onScroll = () => {
-    const sc = scroller.current;
-    if (!sc) return;
-    const lanes = Array.from(sc.querySelectorAll<HTMLElement>("[data-lane]"));
-    const left = sc.getBoundingClientRect().left;
-    let best = 0, bd = Infinity;
-    lanes.forEach((l, i) => { const d = Math.abs(l.getBoundingClientRect().left - left); if (d < bd) { bd = d; best = i; } });
-    setLane(best);
-  };
-
-  return (
-    <div className="space-y-3">
-      {/* Phone / tablet: jump strip */}
-      <div className="lg:hidden -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 scrollbar-none" role="tablist" aria-label="Jump to status">
-        {TASK_STATUSES.map((s, i) => (
-          <button
-            key={s}
-            role="tab"
-            aria-selected={lane === i}
-            onClick={() => jump(i)}
-            className={`inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border px-3 text-xs font-semibold transition-colors ${
-              lane === i ? "text-white border-transparent" : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"
-            }`}
-            style={lane === i ? { backgroundColor: STATUS_COLORS[s] } : undefined}
-          >
-            {s}
-            <span className={`rounded-full px-1.5 text-[11px] ${lane === i ? "bg-white/25" : "bg-slate-100 dark:bg-slate-800"}`}>{byStatus.get(s)?.length ?? 0}</span>
-          </button>
-        ))}
-      </div>
-
-      <div
-        ref={scroller}
-        onScroll={onScroll}
-        className={`-mx-4 sm:-mx-1 flex gap-3 overflow-x-auto px-4 sm:px-1 pb-4 items-start ${drag ? "" : "snap-x snap-mandatory lg:snap-none"}`}
-      >
-        {TASK_STATUSES.map((s) => {
-          const list = byStatus.get(s) || [];
+  /** One set of status lanes. Desktop: one row where folded lanes shrink to a slim rail, so nothing scrolls sideways. Phone/tablet: a stack of folding sections. */
+  const renderLanes = (list: ProjectTask[], gid: string) => {
+    const buckets = new Map<string, ProjectTask[]>();
+    TASK_STATUSES.forEach((s) => buckets.set(s, []));
+    list.forEach((t) => (buckets.get(t.status) ?? buckets.set(t.status, []).get(t.status)!).push(t));
+    return (
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-stretch">
+        {Array.from(buckets.keys()).map((s) => {
+          const items = buckets.get(s)!;
+          const key = `${gid}|${s}`;
+          const folded = fold[key] ?? items.length === 0;
           const color = STATUS_COLORS[s] || "#A1A1AA";
-          const over = drag?.over === s && drag.task.status !== s;
+          const hot = drag?.over === s && drag.task.status !== s;
           return (
             <section
-              key={s}
-              data-lane={s}
-              aria-label={`${s}, ${list.length} tasks`}
-              className="snap-start shrink-0 w-[84vw] sm:w-[calc(50%-0.375rem)] md:w-[calc(33.333%-0.5rem)] lg:w-[288px] rounded-2xl bg-stone-100/90 dark:bg-slate-900/70 border border-stone-200 dark:border-slate-800 transition-[background-color,outline-color] duration-150"
-              style={{ borderTop: `4px solid ${color}`, outline: over ? `2px dashed ${color}` : "2px dashed transparent", outlineOffset: -2, backgroundColor: over ? `color-mix(in srgb, ${color} 12%, transparent)` : undefined }}
+              key={key}
+              data-lane={key}
+              aria-label={`${s}, ${items.length} tasks`}
+              className={`rounded-2xl bg-stone-100 dark:bg-slate-900/70 transition-all duration-200 ${folded ? "lg:w-12 lg:shrink-0" : "lg:flex-1 lg:min-w-[210px]"}`}
+              style={hot ? { backgroundColor: `color-mix(in srgb, ${color} 18%, transparent)`, boxShadow: `inset 0 0 0 2px ${color}` } : undefined}
             >
-              <header className="flex items-center justify-between px-3.5 pt-3 pb-2">
-                <h3 className="text-[13px] font-bold text-slate-800 dark:text-slate-100">{s}</h3>
-                <span className="min-w-6 rounded-full px-2 py-0.5 text-center text-[11px] font-bold text-white" style={{ backgroundColor: color }}>{list.length}</span>
-              </header>
-              <div className="space-y-2.5 px-2.5 pb-3 min-h-24">
-                {list.map((t, i) => (
-                  <article
-                    key={t.id}
-                    tabIndex={0}
-                    role="button"
-                    aria-label={`${t.title}. Open details`}
-                    onPointerDown={(e) => onPointerDown(e, t)}
-                    onClick={() => !justDragged.current && setOpenId(t.id)}
-                    onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), setOpenId(t.id))}
-                    onContextMenu={(e) => { if (gesture.current?.touch) e.preventDefault(); }}
-                    style={{ ["--h" as any]: hueOf(t.id), WebkitTouchCallout: "none" }}
-                    className={`relative select-none rounded-xl border pl-4 pr-3 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)] outline-none transition-[transform,box-shadow,opacity] duration-150 focus-visible:ring-2 focus-visible:ring-[#00806E] hover:-translate-y-0.5 hover:shadow-md ${cardTone} ${canEdit ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} ${drag?.task.id === t.id ? "opacity-30" : ""}`}
-                  >
-                    <CardBody task={t} busy={updatingTaskId === t.id} />
-                  </article>
-                ))}
-                {list.length === 0 && (
-                  <div className="grid h-20 place-items-center rounded-xl border-2 border-dashed border-stone-300 dark:border-slate-700 text-xs text-stone-500 dark:text-slate-500">
-                    {canEdit ? "Drop a task here" : "Nothing here"}
-                  </div>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => setFold((f) => ({ ...f, [key]: !folded }))}
+                aria-expanded={!folded}
+                className={`flex w-full items-center gap-2.5 px-3.5 min-h-12 text-left ${folded ? "lg:h-full lg:min-h-[9rem] lg:flex-col lg:justify-start lg:px-0 lg:pt-3.5" : ""}`}
+              >
+                <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+                <span className={`flex-1 text-[13px] font-bold text-slate-800 dark:text-slate-100 ${folded ? "lg:flex-none lg:[writing-mode:vertical-rl] lg:rotate-180 lg:order-3" : ""}`}>{s}</span>
+                <span className={`rounded-full bg-white/80 dark:bg-white/10 px-2 text-xs font-bold tabular-nums text-slate-600 dark:text-slate-300 ${folded ? "lg:order-2" : ""}`}>{items.length}</span>
+                <ChevronDown className={`h-4 w-4 shrink-0 text-slate-500 transition-transform ${folded ? "-rotate-90 lg:hidden" : ""}`} />
+              </button>
+              {!folded && (
+                <div className="space-y-2.5 px-2.5 pb-3">
+                  {items.map((t) => (
+                    <article
+                      key={t.id}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`${t.title}. Open details`}
+                      onPointerDown={(e) => onPointerDown(e, t)}
+                      onClick={() => !justDragged.current && setOpenId(t.id)}
+                      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), setOpenId(t.id))}
+                      onContextMenu={(e) => { if (gesture.current?.touch) e.preventDefault(); }}
+                      style={{ ["--h" as any]: hueOf(t.id), WebkitTouchCallout: "none" }}
+                      className={`relative select-none rounded-2xl px-3.5 py-3 shadow-[0_1px_2px_rgba(30,20,10,0.08)] outline-none transition-[transform,box-shadow,opacity] duration-150 focus-visible:ring-2 focus-visible:ring-[#00806E] hover:-translate-y-0.5 hover:shadow-md ${cardTone} ${canEdit ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} ${drag?.task.id === t.id ? "opacity-30" : ""}`}
+                    >
+                      <CardBody task={t} busy={updatingTaskId === t.id} />
+                    </article>
+                  ))}
+                  {items.length === 0 && (
+                    <p className="grid h-16 place-items-center rounded-xl text-xs text-stone-500 dark:text-slate-500">{canEdit ? "Drop a task here" : "Nothing here"}</p>
+                  )}
+                </div>
+              )}
             </section>
           );
         })}
       </div>
+    );
+  };
 
-      {canEdit && <p className="text-xs text-slate-500 dark:text-slate-400 lg:hidden">Tip: press and hold a card, then drag it to another status.</p>}
+  const showPeople = by === "person" && groups;
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {groups ? (
+          <div className="inline-flex rounded-xl bg-stone-100 dark:bg-slate-800 p-1" role="group" aria-label="Group board by">
+            {([["status", "By status", Rows3], ["person", "By employee", Users]] as const).map(([v, label, Icon]) => (
+              <button
+                key={v}
+                onClick={() => setBy(v)}
+                aria-pressed={by === v}
+                className={`inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold ${by === v ? "bg-white dark:bg-slate-900 text-[#00806E] shadow-sm" : "text-slate-600 dark:text-slate-300"}`}
+              >
+                <Icon className="h-3.5 w-3.5" />{label}
+              </button>
+            ))}
+          </div>
+        ) : <span />}
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {canEdit ? "Drag a card to change its status (touch: press and hold). " : ""}Tap a status name to fold it.
+        </p>
+      </div>
+
+      {showPeople ? (
+        <div className="space-y-4">
+          {groups!.map((g) => {
+            const gkey = `p:${g.key}`;
+            const closed = fold[gkey] ?? false;
+            return (
+              <div key={g.key} className="rounded-3xl bg-white/70 dark:bg-slate-900/50 p-2 sm:p-3 shadow-sm">
+                <button onClick={() => setFold((f) => ({ ...f, [gkey]: !closed }))} aria-expanded={!closed} className="flex w-full items-center gap-3 px-2 py-1.5 min-h-12 text-left">
+                  <span style={{ ["--h" as any]: hueOf(g.key.length * 31 + g.name.charCodeAt(0)) }} className="grid h-9 w-9 place-items-center rounded-full bg-[hsl(var(--h)_55%_42%)] text-sm font-bold text-white">{g.name[0]?.toUpperCase()}</span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block truncate text-sm font-bold text-slate-900 dark:text-white">{g.name}</span>
+                    {g.sub && <span className="block truncate text-xs text-slate-500">{g.sub}</span>}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-500">{g.tasks.length} {g.tasks.length === 1 ? "task" : "tasks"}</span>
+                  <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform ${closed ? "-rotate-90" : ""}`} />
+                </button>
+                {!closed && <div className="mt-2">{renderLanes(g.tasks, g.key)}</div>}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        renderLanes(allTasks, "all")
+      )}
 
       {drag && (
         <Portal>
           <div
             aria-hidden
-            className={`pointer-events-none fixed z-[100000] rounded-xl border pl-4 pr-3 py-3 shadow-2xl ${cardTone}`}
+            className={`pointer-events-none fixed z-[100000] rounded-2xl px-3.5 py-3 shadow-2xl ${cardTone}`}
             style={{ ["--h" as any]: hueOf(drag.task.id), left: drag.x - drag.dx, top: drag.y - drag.dy, width: drag.w, transform: "rotate(2.5deg) scale(1.03)" }}
           >
             <CardBody task={drag.task} />
@@ -397,20 +412,10 @@ export function TaskBoard({
 
       <AnimatePresence>
         {open && (
-          <TaskDrawer
-            key={open.id}
-            task={open}
-            canEdit={canEdit}
-            onClose={() => setOpenId(null)}
-            onMove={onMove}
-            onPriority={onPriority}
-            onEdit={() => setEditing(true)}
-          />
+          <TaskDrawer key={open.id} task={open} canEdit={canEdit} onClose={() => setOpenId(null)} onMove={onMove} onPriority={onPriority} onEdit={() => setEditing(true)} />
         )}
       </AnimatePresence>
-      {open && editing && (
-        <EditTaskModal isOpen task={open} onClose={() => setEditing(false)} onSuccess={(t) => { onUpdated(t); }} />
-      )}
+      {open && editing && <EditTaskModal isOpen task={open} onClose={() => setEditing(false)} onSuccess={(t) => onUpdated(t)} />}
     </div>
   );
 }
