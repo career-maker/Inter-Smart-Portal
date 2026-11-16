@@ -440,7 +440,7 @@ export function TaskTrackerTable({
               {showAssigneesCol && renderSortHeader("assignees", "ASSIGNEES", "left", "px-3")}
               {!slim && renderSortHeader("pc", "PC", "left")}
               {renderSortHeader("status", "STATUS", "left")}
-              {!slim && renderSortHeader("start_date", "START", "left")}
+              {renderSortHeader("start_date", "START", "left")}
               {renderSortHeader("due_date", "END", "left")}
               {!slim && renderSortHeader("achieved", "ACHIEVED", "left")}
               {!slim && renderSortHeader("comments", "COMMENTS", "left")}
@@ -632,11 +632,11 @@ export function TaskTrackerTable({
 
                 </>)}
                 {/* 5. STATUS (with delay days badge ! 2d if overdue) */}
-                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap">
+                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap w-[1%]">
                   <div className="flex items-center gap-1">
                     {canEdit && onStatusChange ? (
                       <div className="inline-flex items-center">
-                        <TaskStatusSelect value={task.status} disabled={updatingTaskId === task.id} onChange={(v) => onStatusChange(task.id, v as TaskStatus)} statuses={TASK_STATUSES} />
+                        <TaskStatusSelect value={task.status} disabled={updatingTaskId === task.id} onChange={(v) => onStatusChange(task.id, v as TaskStatus)} statuses={TASK_STATUSES} className={slim ? "!w-[142px] !min-w-0" : ""} />
                       </div>
                     ) : (
                       <TaskStatusBadge status={task.status} />
@@ -659,7 +659,6 @@ export function TaskTrackerTable({
                   </div>
                 </td>
 
-                {!slim && (<>
                 {/* 6. START DATE */}
                 <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-[11px]">
                   <TableDateCell
@@ -671,7 +670,6 @@ export function TaskTrackerTable({
                   />
                 </td>
 
-                </>)}
                 {/* 7. END DATE (Highlighted red if overdue past 6:30 PM) */}
                 <td
                   className={`py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-[11px] ${

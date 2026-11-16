@@ -58,7 +58,7 @@ export function EmployeeRail({
             const canMove = arrange && onMove && i.key.startsWith("u");
             return (
               <li key={i.key} className="relative h-10 w-10">
-                <div className="group/pill absolute left-0 top-0 z-10 flex h-10 max-w-10 items-center overflow-hidden rounded-full bg-white/0 transition-[max-width,background-color,box-shadow] duration-200 hover:z-30 hover:max-w-[320px] hover:bg-white hover:shadow-lg focus-within:z-30 focus-within:max-w-[320px] focus-within:bg-white focus-within:shadow-lg dark:hover:bg-slate-800 dark:focus-within:bg-slate-800">
+                <div className="group/pill absolute left-0 top-0 z-10 flex h-10 w-max max-w-10 items-center overflow-hidden rounded-full bg-white/0 transition-[max-width,background-color,box-shadow] duration-200 hover:z-30 hover:max-w-[320px] hover:bg-white hover:shadow-lg focus-within:z-30 focus-within:max-w-[320px] focus-within:bg-white focus-within:shadow-lg dark:hover:bg-slate-800 dark:focus-within:bg-slate-800">
                   <button
                     type="button"
                     onClick={() => onChange(i.key)}
