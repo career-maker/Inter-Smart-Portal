@@ -735,11 +735,12 @@ export default function AllTasksPage() {
                         setSelectedAssigneeForModal(group.member.id);
                         setIsCreateModalOpen(true);
                       }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 max-sm:min-h-11 rounded-lg bg-[#00806E] hover:bg-[#006B5C] text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 max-sm:px-0 max-sm:w-11 max-sm:min-h-11 rounded-lg bg-[#00806E] hover:bg-[#006B5C] text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
                       title={`Assign task to ${group.member.name}`}
+                      aria-label={`New task for ${group.member.name}`}
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>New Task</span>
+                      <span className="max-sm:hidden">New Task</span>
                     </button>
                   </div>
                 </div>
