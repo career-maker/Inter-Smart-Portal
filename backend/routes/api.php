@@ -83,7 +83,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
             Route::get('employees', [\App\Http\Controllers\Api\ReportController::class, 'employees']);
             Route::get('leaves', [\App\Http\Controllers\Api\ReportController::class, 'leaves']);
             Route::get('leave-balances', [\App\Http\Controllers\Api\ReportController::class, 'leaveBalances']);
-            Route::get('attendance-summary', [\App\Http\Controllers\Api\ReportController::class, 'attendanceSummary']);
             Route::get('employee-list', [\App\Http\Controllers\Api\ReportController::class, 'allEmployeesForFilter']);
         });
     });
@@ -194,6 +193,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('wfh-requests/{wfhRequest}/status', [\App\Http\Controllers\Api\WfhRequestController::class, 'updateStatus']);
 
     // Attendance Routes
+    // Open to every signed-in user; ReportController::attendanceSummary limits Employees to their own row
+    // and Team Leads to their teams (attendance history for all roles, 25 Nov 2026).
+    Route::get('reports/attendance-summary', [\App\Http\Controllers\Api\ReportController::class, 'attendanceSummary']);
     Route::prefix('attendance')->group(function () {
         Route::get('status',  [\App\Http\Controllers\Api\AttendanceController::class, 'status']);
         Route::get('details', [\App\Http\Controllers\Api\AttendanceController::class, 'details']);

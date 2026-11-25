@@ -1,282 +1,252 @@
 "use client";
 
-import { PageLoader } from "@/components/ui/PageLoader";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Clock, Play, Square, Coffee, CheckCircle, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { format, startOfMonth, endOfMonth } from "date-fns";
+import { Clock, Loader2 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
+import { BiometricPunchTimeline } from "@/components/attendance/BiometricPunchTimeline";
+import { DailySummaryCard, EmployeeDateRangeView } from "@/components/attendance";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// Attendance history for the signed-in user. Same views as the Super Admin's per-employee
+// view in /attendance/management (specific date, date range), plus a month picker.
+// Team Leads can also pick a team member; the backend scopes both endpoints.
 
-export default function AttendancePage() {
-  const router = useRouter();
+type Person = { id: number; first_name: string; last_name: string; employee_code: string };
+type Tab = "date" | "month" | "range";
+
+const today = () => format(new Date(), "yyyy-MM-dd");
+
+export default function MyAttendancePage() {
   const { user } = useAuthStore();
+  const isTeamLead = user?.role === "Team Lead";
 
-  // Restrict to Super Admin only
-  useEffect(() => {
-    if (user && user.role !== "Super Admin") {
-      router.push("/dashboard");
-    }
-  }, [user, router]);
+  const [people, setPeople] = useState<Person[]>([]);
+  const [personId, setPersonId] = useState<number | null>(null);
+  const [tab, setTab] = useState<Tab>("date");
 
-  const [statusData, setStatusData] = useState<any>(null);
-  const [history, setHistory] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
-
-  // Real-time clock
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  const [filterMonth, setFilterMonth] = useState(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  });
-
-  const [filterDay, setFilterDay] = useState<string>(''); // Empty = show all days in month
+  const [date, setDate] = useState(today);
+  const [daily, setDaily] = useState<any | null>(null);
+  const [month, setMonth] = useState(() => format(new Date(), "yyyy-MM"));
+  const [rangeStart, setRangeStart] = useState(() => format(startOfMonth(new Date()), "yyyy-MM-dd"));
+  const [rangeEnd, setRangeEnd] = useState(() => format(endOfMonth(new Date()), "yyyy-MM-dd"));
+  const [rangeData, setRangeData] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Only the latest request may update the page (fast person/tab switches).
+  const requestSeq = useRef(0);
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    if (!user) return;
+    setPersonId(user.id);
+    const self: Person = {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      employee_code: user.employee_id || "",
+    };
+    setPeople([self]);
+    if (!isTeamLead) return;
+    api
+      .get("/reports/employee-list")
+      .then((res) => {
+        const list: Person[] = (res.data?.data || []).map((e: any) => {
+          const [first, ...rest] = String(e.name || "").split(" ");
+          return { id: e.id, first_name: first, last_name: rest.join(" "), employee_code: e.code || "" };
+        });
+        setPeople([self, ...list.filter((p) => p.id !== user.id)]);
+      })
+      .catch(() => {});
+  }, [user?.id, isTeamLead]);
 
-  useEffect(() => {
-    fetchData();
-  }, [filterMonth]);
+  const person = people.find((p) => p.id === personId) || null;
 
-  const fetchData = async () => {
-    setIsLoading(true);
+  const loadDay = async (d: string) => {
+    if (!personId || !d) return;
+    const seq = ++requestSeq.current;
+    setLoading(true);
+    setError(null);
     try {
-      const [statusRes, historyRes] = await Promise.all([
-        api.get("/attendance/status"),
-        api.get(`/attendance?month=${filterMonth}`)
-      ]);
-      setStatusData(statusRes.data);
-      setHistory(historyRes.data.data || []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAction = async (endpoint: string) => {
-    setActionLoading(true);
-    try {
-      await api.post(`/attendance/${endpoint}`);
-      fetchData(); // Refresh state and history
+      const res = await api.get(`/attendance/details`, { params: { date: d, user_id: personId } });
+      if (seq !== requestSeq.current) return;
+      setDaily(res.data?.data === null ? null : res.data);
     } catch (e: any) {
-      alert(e.response?.data?.message || "An error occurred");
+      if (seq !== requestSeq.current) return;
+      setDaily(null);
+      setError(e.response?.data?.message || "Failed to load attendance details");
     } finally {
-      setActionLoading(false);
+      if (seq === requestSeq.current) setLoading(false);
     }
   };
 
-  const formatTime = (dateString: string | null) => {
-    if (!dateString) return "--:--";
-    return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const loadRange = async (start: string, end: string) => {
+    if (!personId || !start || !end) return;
+    const seq = ++requestSeq.current;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.get(`/reports/attendance-summary`, {
+        params: { start_date: start, end_date: end, user_id: personId },
+      });
+      if (seq !== requestSeq.current) return;
+      setRangeData(res.data?.data?.[0] || null);
+    } catch (e: any) {
+      if (seq !== requestSeq.current) return;
+      setRangeData(null);
+      setError(e.response?.data?.message || "Failed to load attendance history");
+    } finally {
+      if (seq === requestSeq.current) setLoading(false);
+    }
   };
 
-  const formatMinutesToHours = (minutes: number) => {
-    if (!minutes) return "0h 0m";
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return `${h}h ${m}m`;
+  const monthBounds = (m: string) => {
+    const d = new Date(`${m}-01T00:00:00`);
+    return [format(startOfMonth(d), "yyyy-MM-dd"), format(endOfMonth(d), "yyyy-MM-dd")] as const;
   };
 
-  const getFilteredHistory = () => {
-    if (!filterDay) return history;
-    return history.filter(record => record.date === filterDay);
-  };
+  // Reload whenever the person, tab or period changes.
+  useEffect(() => {
+    if (!personId) return;
+    if (tab === "date") loadDay(date);
+    else if (tab === "month" && month) loadRange(...monthBounds(month));
+    else if (tab === "range") loadRange(rangeStart, rangeEnd);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [personId, tab, date, month, rangeStart, rangeEnd]);
+
+  const tabClass = (t: Tab) =>
+    `px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+      tab === t
+        ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-bold"
+        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+    }`;
+
+  const inputClass =
+    "bg-transparent border-0 text-slate-900 dark:text-white text-sm font-medium focus:outline-none cursor-pointer";
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Attendance</h1>
-          <p className="text-slate-600 dark:text-slate-300">Track your daily working hours and breaks.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <Clock aria-hidden="true" /> Attendance
+          </h1>
+          <p className="text-slate-600 dark:text-slate-300">
+            {isTeamLead ? "Attendance history for you and your team." : "Your attendance history."}
+          </p>
         </div>
         <FavoriteButton label="Attendance" />
       </div>
 
-      {/* Time Clock Widget - Compact */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white lg:col-span-1">
-          <CardHeader className="bg-primary/10 pb-3 border-b border-slate-200 dark:border-white/10 text-center rounded-t-xl">
-            <CardTitle className="text-lg">Time Clock</CardTitle>
-            <div className="text-3xl font-light tracking-tight mt-2 text-slate-900 dark:text-white">
-              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </div>
-            <div className="text-xs text-slate-600 dark:text-slate-300 mt-1">
-              {currentTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            {isLoading ? (
-              <div className="flex items-center justify-center gap-2 py-3 text-sm"><span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />Loading...</div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium">Status:</span>
-                  <Badge variant={statusData?.status === 'Checked In' ? 'default' : statusData?.status === 'On Break' ? 'secondary' : 'outline'} className="text-xs">
-                    {statusData?.status}
-                  </Badge>
-                </div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-4 sm:p-5 flex flex-wrap items-center gap-3">
+        {isTeamLead && people.length > 1 && (
+          <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+            Employee
+            <select
+              value={personId ?? ""}
+              onChange={(e) => setPersonId(Number(e.target.value))}
+              className="px-3 py-1.5 border rounded-lg text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white max-w-[16rem]"
+            >
+              {people.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.id === user?.id ? `Me (${p.first_name} ${p.last_name})` : `${p.first_name} ${p.last_name}`}
+                  {p.employee_code ? ` - ${p.employee_code}` : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
-                {/* Attendance is managed by biometric device - manual entries disabled */}
-                <div className="text-center p-3 bg-blue-500/10 rounded border border-blue-500/30">
-                  <p className="text-xs text-blue-300">
-                    <span className="font-semibold">Biometric Entry</span> — Attendance is automatically recorded via biometric device.
-                  </p>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div
+          role="tablist"
+          aria-label="Attendance period"
+          className="inline-flex p-1 bg-slate-100 dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold"
+        >
+          <button role="tab" aria-selected={tab === "date"} onClick={() => setTab("date")} className={tabClass("date")}>
+            Date
+          </button>
+          <button role="tab" aria-selected={tab === "month"} onClick={() => setTab("month")} className={tabClass("month")}>
+            Month
+          </button>
+          <button role="tab" aria-selected={tab === "range"} onClick={() => setTab("range")} className={tabClass("range")}>
+            Custom Range
+          </button>
+        </div>
 
-        {/* Quick Stats - Optional */}
-        {history.length > 0 && getFilteredHistory().length > 0 && getFilteredHistory()[0] && (
-          <>
-            <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
-              <CardContent className="pt-6">
-                <div className="space-y-2">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{filterDay ? 'Check-in' : "Today's Check-in"}</p>
-                  <p className="text-2xl font-bold text-emerald-400">{formatTime(getFilteredHistory()[0]?.check_in_time)}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
-              <CardContent className="pt-6">
-                <div className="space-y-2">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{filterDay ? 'Check-out' : "Today's Check-out"}</p>
-                  <p className="text-2xl font-bold text-rose-400">{formatTime(getFilteredHistory()[0]?.last_out || getFilteredHistory()[0]?.check_out_time)}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
-              <CardContent className="pt-6">
-                <div className="space-y-2">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Hours Worked</p>
-                  <p className="text-2xl font-bold text-blue-400">
-                    {formatMinutesToHours(getFilteredHistory()[0]?.total_working_minutes || 0)}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </>
+        {tab === "date" && (
+          <label className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Date:
+            <input type="date" value={date} max={today()} onChange={(e) => setDate(e.target.value)} className={inputClass} />
+          </label>
+        )}
+        {tab === "month" && (
+          <label className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Month:
+            <input
+              type="month"
+              value={month}
+              max={format(new Date(), "yyyy-MM")}
+              onChange={(e) => setMonth(e.target.value)}
+              className={inputClass}
+            />
+          </label>
         )}
       </div>
 
-      {/* Primary Day-wise Table */}
-      <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-slate-200 dark:border-white/5 pb-4 mb-4">
-          <div>
-            <CardTitle className="text-2xl">Attendance Records</CardTitle>
-            <CardDescription className="text-slate-500 dark:text-slate-400">Day-wise breakdown of your attendance history</CardDescription>
+      {error && (
+        <div role="alert" className="rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/40 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
+          {error}
+        </div>
+      )}
+
+      {person && tab !== "date" && (
+        <EmployeeDateRangeView
+          employee={person}
+          startDate={tab === "month" ? monthBounds(month)[0] : rangeStart}
+          endDate={tab === "month" ? monthBounds(month)[1] : rangeEnd}
+          data={rangeData}
+          isLoading={loading}
+          onRangeChange={(start, end) => {
+            // The view's presets and date inputs switch to a custom range.
+            setRangeStart(start);
+            setRangeEnd(end);
+            setTab("range");
+          }}
+        />
+      )}
+
+      {tab === "date" &&
+        (loading ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60">
+            <Loader2 className="h-8 w-8 animate-spin text-[var(--portal-primary-color)]" aria-hidden="true" />
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Loading attendance for {date}...</p>
           </div>
-          <div className="flex gap-3">
-            <div>
-              <label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Month</label>
-              <input
-                type="month"
-                value={filterMonth}
-                onChange={(e) => {
-                  setFilterMonth(e.target.value);
-                  setFilterDay(''); // Reset day filter when month changes
-                }}
-                className="px-3 py-2 border rounded-md text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary [color-scheme:dark]"
-              />
+        ) : daily ? (
+          <div className="space-y-6">
+            <DailySummaryCard
+              attendance={daily}
+              totalBreaks={daily.completed_breaks?.length || 0}
+              isCurrentlyWorking={daily.is_currently_working}
+            />
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-6">
+              <div className="pb-4 border-b border-slate-200 dark:border-slate-700/60 mb-5">
+                <h3 className="font-semibold text-base text-slate-900 dark:text-white">Biometric Punch Timeline</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  All biometric punch events in chronological order
+                </p>
+              </div>
+              <BiometricPunchTimeline punches={daily.raw_punches || []} isCurrentlyWorking={daily.is_currently_working} />
             </div>
-            <div>
-              <label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Day (Optional)</label>
-              <input
-                type="date"
-                value={filterDay}
-                onChange={(e) => setFilterDay(e.target.value)}
-                min={filterMonth ? `${filterMonth}-01` : undefined}
-                max={filterMonth ? `${filterMonth}-31` : undefined}
-                className="px-3 py-2 border rounded-md text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary [color-scheme:dark]"
-              />
-            </div>
-            {filterDay && (
-              <button
-                onClick={() => setFilterDay('')}
-                className="px-3 py-2 text-xs bg-slate-700/50 hover:bg-slate-700 rounded-md border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors self-end"
-              >
-                Clear Day
-              </button>
-            )}
           </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="py-4 text-center text-slate-500 dark:text-slate-400">Loading...</div>
-          ) : history.length === 0 ? (
-            <div className="py-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded bg-slate-100/50 dark:bg-slate-900/50">No attendance records found for this month.</div>
-          ) : getFilteredHistory().length === 0 ? (
-            <div className="py-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded bg-slate-100/50 dark:bg-slate-900/50">No attendance records found for the selected day.</div>
-          ) : (
-            <div className="overflow-x-auto rounded-md border border-slate-200 dark:border-white/10">
-              <table className="w-full min-w-[1000px] text-sm text-left">
-                <thead className="sticky top-0 text-xs text-slate-600 dark:text-slate-300 uppercase bg-slate-100/80 dark:bg-slate-900/90 border-b border-slate-200 dark:border-white/10 backdrop-blur-sm">
-                  <tr>
-                    <th className="px-4 py-4 font-semibold">Date</th>
-                    <th className="px-4 py-4 font-semibold">Day</th>
-                    <th className="px-4 py-4 font-semibold">Clock In</th>
-                    <th className="px-4 py-4 font-semibold">Clock Out</th>
-                    <th className="px-4 py-4 font-semibold">Break Time</th>
-                    <th className="px-4 py-4 text-right font-semibold">Effective Hours</th>
-                    <th className="px-4 py-4 font-semibold">Status</th>
-                    <th className="px-4 py-4 text-center font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="text-slate-200">
-                  {getFilteredHistory().map((record, idx) => {
-                    let totalBreakMins = record.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
-                    const openBreak = record.breaks?.find((b: any) => !b.break_end);
-                    if (openBreak && openBreak.break_start) {
-                      const breakStart = new Date(openBreak.break_start).getTime();
-                      const now = new Date().getTime();
-                      const ongoingMins = Math.max(0, (now - breakStart) / 1000 / 60);
-                      totalBreakMins += Math.round(ongoingMins);
-                    }
-                    const recordDate = new Date(record.date);
-                    const dayName = recordDate.toLocaleDateString([], { weekday: 'short' });
-                    return (
-                      <tr key={record.id} className={`border-b border-slate-200 dark:border-white/5 transition-colors ${idx % 2 === 0 ? "bg-slate-50/50 dark:bg-slate-800/20" : ""} hover:bg-slate-100 dark:hover:bg-white/10`}>
-                        <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">{recordDate.toLocaleDateString()}</td>
-                        <td className="px-4 py-4 text-slate-600 dark:text-slate-300 text-xs font-medium">{dayName}</td>
-                        <td className="px-4 py-4 text-emerald-400 font-semibold">{formatTime(record.check_in_time)}</td>
-                        <td className="px-4 py-4 text-rose-400 font-semibold">{formatTime(record.last_out || record.check_out_time)}</td>
-                        <td className="px-4 py-4 text-slate-600 dark:text-slate-300">{formatMinutesToHours(totalBreakMins)}</td>
-                        <td className="px-4 py-4 text-right font-bold text-blue-400">
-                          {record.total_working_minutes !== null ? formatMinutesToHours(record.total_working_minutes) : '--'}
-                        </td>
-                        <td className="px-4 py-4">
-                          <Badge variant="outline" className="text-xs">
-                            {record.status || 'Present'}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-4 text-center">
-                          <Link href={`/attendance/details/${record.date}${record.user?.id ? `?user_id=${record.user.id}` : ''}`}>
-                            <Button variant="outline" size="sm" className="text-xs h-8 text-amber-400 border-amber-400/50 hover:bg-amber-400/10 bg-transparent">
-                              View <ChevronRight className="ml-1 h-3 w-3" />
-                            </Button>
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+        ) : (
+          !error && (
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-12 text-center">
+              <Clock className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" aria-hidden="true" />
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No attendance data found for {date}</p>
+              <p className="text-xs text-slate-400 mt-1">No punch on this date, or it is a holiday/weekend.</p>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          )
+        ))}
     </div>
   );
 }

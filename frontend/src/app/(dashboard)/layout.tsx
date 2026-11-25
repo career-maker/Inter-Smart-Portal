@@ -454,6 +454,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { label: "Community", href: "/community" },
         { label: "Chat", href: "/chat" },
         { label: "Tasks", href: "/project-management/tasks" },
+        { label: "Attendance", href: "/attendance" },
         { label: "Hubstaff", href: "/project-management/hubstaff" },
       ];
     }
@@ -463,6 +464,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       { label: "Community", href: "/community" },
       { label: "Chat", href: "/chat" },
       { label: "Tasks", href: canViewAllTasks ? "/project-management/tasks" : "/project-management/tasks/my" },
+      { label: "Attendance", href: "/attendance" },
       ...(userPermissions.hubstaff_team_view ? [{ label: "Hubstaff", href: "/project-management/hubstaff" }] : []),
     ];
   };

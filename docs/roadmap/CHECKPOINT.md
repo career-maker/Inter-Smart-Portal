@@ -6,6 +6,13 @@ You are continuing the **Internal Software Plan** for the Intersmart Employee Po
 
 **Read order for a new agent:** this file, then `PROGRESS.md` (history and gotchas), then `EXECUTION_PLAN.md` (rules and phase order), then `SOFTWARE_PLAN.md` (have vs build per role). `SERVER.md` has the live server layout.
 
+## 0000-ZA. 25 Nov 2026: Attendance history for every employee (committed locally, NOT pushed/deployed)
+- `/attendance` rewritten: Date (daily summary + biometric punch timeline from `/attendance/details`), Month and Custom Range (`EmployeeDateRangeView` from `/reports/attendance-summary`), the same views as the Super Admin per-employee view in `/attendance/management`. Team Leads get a person picker (`/reports/employee-list`: self + teams they lead or belong to).
+- "Attendance" tab added to the top sub-tab bar for Team Lead and Employee (`(dashboard)/layout.tsx` getSubTabs). The `/m` Android shell only has Feed/Chat and was not changed.
+- Backend: `GET /reports/attendance-summary` moved out of the `role:Super Admin|Team Lead|HR` group to all signed-in users; plain Employees are limited to their own row; non-admins limited to a 366-day range (host load). `AttendanceController::details` Team Lead check now uses `ScopesToActorTeams::actorMaySeeUser` (same rule as the report).
+- Test `tests/Feature/AttendanceHistoryScopeTest.php` written but NOT run: no local MySQL on this PC (never run RefreshDatabase tests against the live DB).
+- To ship: push `main` (Vercel deploys frontend), then `git pull origin main` in `~/public_html/api/Inter-Smart-Portal` (no migration).
+
 ## 0000-Z. 14 Nov 2026: JSON task import + Old Employees' Tasks (backend LIVE, frontend via Vercel)
 - Task importer has a "JSON (old tracker)" tab. Old tracker file (`team_migration_*.json`: tasks[], subphases[]) is mapped server-side by `ProjectTaskController::mapLegacyRow` (title = sub_phase, end_date = due date, Urgent = Critical). Task id kept in `pm_tasks.legacy_id` (`tt-<id>`), so re-import updates, no duplicates. NOT imported yet: the owner's file `D:\downloads	eam_migration_2026-11-12.json` (645 tasks, 148 projects; project names are "A / B", unmatched ones auto-create a project).
 - People with no portal account (strict match: exact full name or unique first name): `pm_tasks.old_assignee_name`. Tasks page groups these, plus tasks of Resigned/Terminated users, under "Old Employees' Tasks" with the name (derived, nothing is moved; re-activating the user puts tasks back).

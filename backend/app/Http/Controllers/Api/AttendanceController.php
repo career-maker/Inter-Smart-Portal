@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\ScopesToActorTeams;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceBreak;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
+    use ScopesToActorTeams;
+
     public function __construct(
         private readonly BiometricTimelineService $timeline
     ) {}
@@ -465,14 +468,9 @@ class AttendanceController extends Controller
             }
 
             if ($authUser->hasRole('Team Lead')) {
-                // Only allow if target is a member of a team led by this user
-                $isTeamMember = Team::where('team_lead_id', $authUser->id)
-                    ->with('members')
-                    ->get()
-                    ->flatMap(fn($team) => $team->members->pluck('id'))
-                    ->contains($targetId);
-
-                if (!$isTeamMember) {
+                // Same rule as the attendance summary report: teams the lead leads or belongs to.
+                $target = User::find($targetId);
+                if (!$target || !$this->actorMaySeeUser($authUser, $target)) {
                     abort(403, 'Team Leads may only view attendance of their own team members.');
                 }
             }

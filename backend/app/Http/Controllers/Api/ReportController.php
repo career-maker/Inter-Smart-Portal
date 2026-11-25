@@ -344,13 +344,23 @@ class ReportController extends Controller
             $start = Carbon::parse($startDate)->startOfDay();
             $end = Carbon::parse($endDate)->endOfDay();
 
+            // Now open to every employee: keep their requests small on the shared host.
+            if (!$this->seesWholeCompany($request->user()) && ($end->lt($start) || $start->diffInDays($end) > 366)) {
+                return response()->json(['message' => 'Choose a range of at most one year.'], 422);
+            }
+
             \Log::info('Attendance summary requested', ['start' => $startDate, 'end' => $endDate]);
 
             // Get active employees, optionally filtered by user_id
             $query = User::where('status', 'Active')
                 ->with(['team', 'leaveBalance'])
                 ->orderBy('first_name');
-            $this->scopeUsersToActor($query, $request->user());
+            $actor = $request->user();
+            $this->scopeUsersToActor($query, $actor);
+            // Plain employees may only see their own attendance row.
+            if (!$this->seesWholeCompany($actor) && !$actor->hasRole('Team Lead')) {
+                $query->where('id', $actor->id);
+            }
 
             if ($request->filled('user_id')) {
                 $query->where('id', $request->input('user_id'));
