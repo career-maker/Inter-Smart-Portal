@@ -71,10 +71,11 @@ export function BiometricPunchTimeline({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      {/* Chips wrap instead of shrinking: shrinking made the time overlap the dot. */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-3 pb-2">
         {punches.map((punch, idx) => (
-          <div key={punch.event_id} className="flex items-center gap-2 whitespace-nowrap">
-            <div className={`flex items-center gap-1.5 px-3 py-2 rounded-lg ${getPunchColor(punch.type)}`}>
+          <div key={punch.event_id} className="flex shrink-0 items-center gap-2 whitespace-nowrap">
+            <div className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg ${getPunchColor(punch.type)}`}>
               {getPunchIcon(punch.type)}
               <span className="text-xs font-bold">{getTypeLabel(punch.type)}</span>
               <span className="text-xs font-semibold">{formatTime(punch.time)}</span>
