@@ -279,6 +279,8 @@ export default function AttendanceManagementPage() {
                       : "Present"
                     : dayData.status === "A"
                     ? "Absent"
+                    : dayData.status === "U"
+                    ? "Upcoming"
                     : dayData.status === "W"
                     ? "WFH"
                     : "Leave",

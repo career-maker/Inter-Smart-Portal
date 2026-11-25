@@ -581,6 +581,7 @@ class ReportController extends Controller
 
                 $dayStats = ['absent' => 0, 'wfh' => 0, 'half_day' => 0, 'late' => 0, 'present' => 0, 'present_count' => 0, 'late_count' => 0, 'holidays' => 0];
                 $esslDaysCount = 0;
+                $todayStr = Carbon::today('Asia/Kolkata')->toDateString();
 
                 foreach ($dateList as $dInfo) {
                     $dateStr = $dInfo['date'];
@@ -636,6 +637,11 @@ class ReportController extends Controller
                     // If biometric check-in is found but dayStatus says Absent or OFF, override to Present
                     if ($checkInTime && in_array($dayStatus['status'], ['A', 'OFF'])) {
                         $dayStatus['status'] = 'P';
+                    }
+
+                    // A day that has not happened yet is not an absence: 'U' = upcoming (not counted).
+                    if ($dayStatus['status'] === 'A' && $dateStr > $todayStr) {
+                        $dayStatus['status'] = 'U';
                     }
 
                     // Accurate check-in/check-out timestamps (biometric timeline first, fallback to stored attendance)

@@ -317,6 +317,7 @@ export function EmployeeDateRangeView({
                     const isLeave = day.status === "L" || day.status === "H";
                     const isOff = day.status === "OFF";
                     const isAbsent = day.status === "A";
+                    const isUpcoming = day.status === "U";
 
                     // Fallback check: if employee checked in after 09:40 AM on a weekday and wasn't marked is_late
                     const isLate = day.is_late || (() => {
@@ -335,7 +336,7 @@ export function EmployeeDateRangeView({
                       <tr
                         key={day.date || idx}
                         className={`hover:bg-purple-50/30 dark:hover:bg-purple-950/20 transition-colors ${
-                          isOff ? "opacity-60 bg-slate-50/40 dark:bg-slate-900/30" : ""
+                          isOff || isUpcoming ? "opacity-60 bg-slate-50/40 dark:bg-slate-900/30" : ""
                         }`}
                       >
                         {/* Date */}
@@ -365,6 +366,10 @@ export function EmployeeDateRangeView({
                           ) : isOff ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
                               Weekend / Holiday
+                            </span>
+                          ) : isUpcoming ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                              Upcoming
                             </span>
                           ) : (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50">
