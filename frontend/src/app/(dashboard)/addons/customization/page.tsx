@@ -616,7 +616,8 @@ const RADIUS_OPTIONS = [
 ];
 
 const THEME_OPTIONS: { id: NonNullable<CustomizationSettings["ui_theme"]>; label: string; desc: string; bg: string; card: React.CSSProperties }[] = [
-  { id: "classic", label: "Classic", desc: "Original flat portal look (default)", bg: "#F5F7FC", card: { background: "#fff", border: "1px solid #e2e8f0", borderRadius: "6px" } },
+  { id: "recent", label: "Recent", desc: "White sidebar, black text, pill tabs (default)", bg: "#FFFFFF", card: { background: "#fff", border: "1px solid #ECECEC", borderRadius: "8px" } },
+  { id: "classic", label: "Classic", desc: "Original flat portal look", bg: "#F5F7FC", card: { background: "#fff", border: "1px solid #e2e8f0", borderRadius: "6px" } },
   { id: "glass", label: "Glassmorphism", desc: "Frosted translucent cards, soft aurora", bg: "linear-gradient(135deg,#bfe3e8,#c9d8f5)", card: { background: "rgba(255,255,255,.6)", border: "1px solid rgba(255,255,255,.8)", borderRadius: "14px", boxShadow: "0 6px 16px -6px rgba(18,52,77,.25)" } },
   { id: "neumorphism", label: "Neumorphism", desc: "Soft extruded shapes, same-colour surface", bg: "#E3E8F0", card: { background: "#E3E8F0", borderRadius: "16px", boxShadow: "6px 6px 12px #c3cad6,-6px -6px 12px #fff" } },
   { id: "brutalism", label: "Brutalism", desc: "Thick black borders, hard offset shadows", bg: "#FFF4D6", card: { background: "#fff", border: "3px solid #111", borderRadius: "0", boxShadow: "5px 5px 0 #111" } },
@@ -2367,7 +2368,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {THEME_OPTIONS.map((opt) => {
-                  const isSelected = (form.ui_theme || "classic") === opt.id;
+                  const isSelected = (form.ui_theme || "recent") === opt.id;
                   return (
                     <button
                       key={opt.id}

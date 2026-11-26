@@ -7,9 +7,10 @@ import { Cake, Megaphone } from "lucide-react";
 interface RecognitionTickerProps {
   isDark?: boolean;
   isSidebarCollapsed?: boolean;
+  isRecent?: boolean;
 }
 
-export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }: RecognitionTickerProps) {
+export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, isRecent = false }: RecognitionTickerProps) {
   const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
@@ -79,7 +80,9 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
 
   const durationSeconds = Math.max(16, Math.min(38, 14 + totalChars * 0.06));
 
-  const leftOffsetClass = !isDark
+  const leftOffsetClass = isRecent
+    ? "left-0 md:left-[240px]"
+    : !isDark
     ? "left-0 md:left-[84px]"
     : isSidebarCollapsed
     ? "left-0 md:left-20"

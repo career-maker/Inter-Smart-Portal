@@ -1,6 +1,6 @@
 import api from "./api";
 
-export type UiTheme = "classic" | "glass" | "neumorphism" | "brutalism" | "clay" | "minimal";
+export type UiTheme = "recent" | "classic" | "glass" | "neumorphism" | "brutalism" | "clay" | "minimal";
 
 export interface CustomizationSettings {
   id?: number;
@@ -60,7 +60,7 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   light_bg_color: "#F5F7FC",
   card_bg_color: "#FDFBFE",
   border_color: "#E4E7F0",
-  ui_theme: "classic",
+  ui_theme: "recent",
   card_elevation: "subtle",
   button_style: "rounded",
   density: "comfortable",

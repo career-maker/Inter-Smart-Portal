@@ -110,6 +110,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { toggleStickyNotes, notesCount } = useStickyNotesStore();
   const { unreadChatCount, latestConversationId } = useChatPushNotifications();
   const isDark = useThemeStore((state) => state.isDark);
+  // "Recent" theme swaps the icon rail for a wide text sidebar (recent.design style)
+  const isRecent = !isDark && (customizationSettings?.ui_theme || "recent") === "recent";
   const router = useRouter();
   const pathname = usePathname();
   const [currentTab, setCurrentTab] = useState<string | null>(null);
@@ -479,7 +481,125 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           SIDEBAR - LIGHT THEME (KEKA EXACT STYLE: NAVY #0e2638, SOFT BLUE LABELS #8ea7bc,
           ACTIVE SOLID RECTANGLE #071724 WITH WHITE TEXT, CLEAN PORTAL SUBMENU, NO OUTLINES)
       ───────────────────────────────────────────────────────────────────────────── */}
-      {!isDark && (
+      {isRecent && (
+        <aside
+          id="recent-sidebar"
+          aria-label="Sidebar"
+          className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[240px] bg-white select-none"
+        >
+          <div className="flex items-center h-16 px-5 shrink-0">
+            <Link href="/dashboard" aria-label="Home" className="flex items-center min-w-0">
+              <img
+                src={customizationSettings?.logo_url || "/logo.png"}
+                alt="Logo"
+                className="h-8 w-auto max-w-[150px] object-contain object-left brightness-0"
+              />
+            </Link>
+          </div>
+
+          <nav
+            aria-label="Primary navigation"
+            className="flex-1 overflow-y-auto overflow-x-hidden px-5 pt-4 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            <section className="flex flex-col items-start gap-1">
+              {STANDALONE.map(({ href, label }) => {
+                const active = pathname === href;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    prefetch={true}
+                    aria-current={active ? "page" : undefined}
+                    data-active={active ? "true" : "false"}
+                    className="recent-nav-link"
+                  >
+                    {label}
+                    {active && <span aria-hidden="true" className="recent-nav-dot" />}
+                  </Link>
+                );
+              })}
+            </section>
+
+            {navGroups.map((group) => {
+              if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
+              const visibleItems = group.items.filter((item) => isItemVisible(item, userRole, userPermissions));
+              const hasExactMatch = visibleItems.some((i) => pathname === i.href);
+              const headingId = `recent-nav-${group.id}`;
+              return (
+                <section key={group.id} aria-labelledby={headingId} className="flex flex-col items-start gap-1 mt-5">
+                  <h2 id={headingId} className="recent-nav-heading">{group.label}</h2>
+                  {visibleItems.map((item) => {
+                    const active = hasExactMatch
+                      ? pathname === item.href
+                      : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                    const count =
+                      item.href === "/leaves/approvals"
+                        ? pendingLeavesCount
+                        : item.href === "/leaves/approvals?tab=wfh"
+                        ? pendingWfhCount
+                        : unreadFor(item.href);
+                    const content = (
+                      <>
+                        <span className="truncate">{item.label}</span>
+                        {count > 0 && <span className="recent-nav-count">{count}</span>}
+                        {active && <span aria-hidden="true" className="recent-nav-dot" />}
+                      </>
+                    );
+                    if ((item as any).external) {
+                      return (
+                        <a
+                          key={`${item.href}__${item.label}`}
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="recent-nav-link"
+                        >
+                          {content}
+                        </a>
+                      );
+                    }
+                    return (
+                      <Link
+                        key={`${item.href}__${item.label}`}
+                        href={item.href}
+                        prefetch={true}
+                        aria-current={active ? "page" : undefined}
+                        data-active={active ? "true" : "false"}
+                        className="recent-nav-link"
+                      >
+                        {content}
+                      </Link>
+                    );
+                  })}
+                </section>
+              );
+            })}
+          </nav>
+
+          <div className="px-5 py-4 shrink-0 border-t border-[#ECECEC]">
+            <Link
+              href="/profile"
+              className="flex items-center gap-2.5 min-w-0 rounded-lg focus-visible:outline-2 focus-visible:outline-[#0B0B0B]"
+              title={`${user?.first_name} ${user?.last_name} (${user?.role})`}
+            >
+              <RoyalAvatar
+                src={user?.profile_photo_path}
+                name={`${user?.first_name} ${user?.last_name}`}
+                userId={user?.id}
+                className="w-7 h-7 rounded-full shrink-0"
+              />
+              <span className="min-w-0 flex flex-col leading-[1.4]">
+                <span className="text-[13px] font-medium text-[#0B0B0B] truncate">
+                  {user?.first_name} {user?.last_name}
+                </span>
+                <span className="text-[12px] text-black/50 truncate">{user?.role}</span>
+              </span>
+            </Link>
+          </div>
+        </aside>
+      )}
+
+      {!isDark && !isRecent && (
         <>
           <aside
             id="light-theme-sidebar"
@@ -878,13 +998,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main Wrapper */}
       <div className={`flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ease-in-out ${
-        !isDark ? 'md:pl-[84px]' : isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
+        isRecent ? 'md:pl-[240px]' : !isDark ? 'md:pl-[84px]' : isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
       }`}>
         {/* ── FIXED TOP HEADER & SUB-TABS BAR (ALWAYS PINNED AT TOP ON SCROLL) ── */}
         <div
           id="global-fixed-header-container"
           className={`fixed top-0 right-0 z-50 transition-all duration-300 ease-in-out shadow-md ${
-            !isDark ? 'left-0 md:left-[84px]' : isSidebarCollapsed ? 'left-0 md:left-20' : 'left-0 md:left-64'
+            isRecent ? 'left-0 md:left-[240px]' : !isDark ? 'left-0 md:left-[84px]' : isSidebarCollapsed ? 'left-0 md:left-20' : 'left-0 md:left-64'
           }`}
         >
 
@@ -1119,7 +1239,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
 
         {/* ── FLASH MARQUEE (PINNED AT BOTTOM IN HEADER PURPLE WITH WHITE TEXT) ── */}
-        <RecognitionTicker isDark={isDark} isSidebarCollapsed={isSidebarCollapsed} />
+        <RecognitionTicker isDark={isDark} isSidebarCollapsed={isSidebarCollapsed} isRecent={isRecent} />
         <DoubleClickGuard />
         <StaleTabGuard />
       </div>

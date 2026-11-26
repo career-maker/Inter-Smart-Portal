@@ -209,6 +209,175 @@ html[data-ui-theme="minimal"] {
   --t-btn-shadow: none;
 }
 
+/*
+ * "Recent" theme (default): modelled on recent.design. White surfaces, near-black #0B0B0B text,
+ * grey secondary text, Inter 13px, black active dot in the sidebar, pill-shaped tabs.
+ * The wide text sidebar itself is rendered in (dashboard)/layout.tsx when this theme is active.
+ * Customization colours are set inline on <html>, so the overrides need !important.
+ */
+html[data-ui-theme="recent"] {
+  --r-ink: #0B0B0B;
+  --r-muted: rgba(0, 0, 0, 0.486);
+  --r-faint: rgba(0, 0, 0, 0.267);
+  --r-chip: rgba(0, 0, 0, 0.063);
+  --r-chip-hover: rgba(0, 0, 0, 0.09);
+  --r-line: #ECECEC;
+  --r-accent: #F900A3;
+  --r-raised: 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 1px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.08);
+
+  --portal-font-family: "Inter", ui-sans-serif, system-ui, sans-serif !important;
+  --portal-header-bg: #FFFFFF !important;
+  --portal-header-text: #0B0B0B !important;
+  --portal-sidebar-bg: #FFFFFF !important;
+  --portal-sidebar-active: #0B0B0B !important;
+  --portal-primary-color: #0B0B0B !important;
+  --portal-sub-header-bg: #FFFFFF !important;
+  --portal-sub-header-active: #0B0B0B !important;
+  --primary: #0B0B0B !important;
+  --ring: #0B0B0B !important;
+  --foreground: #0B0B0B !important;
+  --background: #FFFFFF !important;
+  --border: #ECECEC !important;
+
+  --t-page-color: #FFFFFF;
+  --t-page-image: none;
+  --t-card-bg: #FFFFFF;
+  --t-card-border: 1px solid #ECECEC;
+  --t-card-radius: 8px;
+  --t-card-shadow: none;
+  --t-card-blur: none;
+  --t-tile-bg: #F7F7F7;
+  --t-tile-border: 1px solid #F0F0F0;
+  --t-tile-radius: 8px;
+  --t-tile-shadow: none;
+  --t-input-bg: #FFFFFF;
+  --t-input-border: 1px solid rgba(0, 0, 0, 0.1);
+  --t-input-radius: 8px;
+  --t-input-shadow: none;
+  --t-popup-bg: #FFFFFF;
+  --t-popup-border: 1px solid #ECECEC;
+  --t-popup-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 12px 32px -12px rgba(0, 0, 0, 0.25);
+  --t-popup-blur: none;
+  --t-thead-bg: #F7F7F7;
+  --t-row-hover: #F7F7F7;
+  --t-row-line: #F0F0F0;
+  --t-sidebar: #FFFFFF;
+  --t-btn-image: none;
+  --t-btn-shadow: none;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html[data-ui-theme="recent"] body {
+  font-family: var(--portal-font-family) !important;
+  color: var(--r-ink);
+  line-height: 1.4;
+}
+html[data-ui-theme="recent"] main :is(h1, h2, h3, .box-title) { color: var(--r-ink); font-weight: 500 !important; letter-spacing: 0; }
+
+/* Sidebar (markup in layout.tsx, #recent-sidebar) */
+#recent-sidebar { font-family: var(--portal-font-family); font-size: 13px; line-height: 1.4; color: var(--r-ink); }
+#recent-sidebar .recent-nav-heading { margin: 0 0 2px; font-size: 13px; font-weight: 400; line-height: 1.4; color: var(--r-faint); }
+#recent-sidebar .recent-nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 24px;
+  margin-block: -2px;
+  padding: 2px 14px 2px 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--r-muted);
+  text-decoration: none;
+  transition: color .12s cubic-bezier(.2, 0, 0, 1);
+}
+#recent-sidebar .recent-nav-link:hover,
+#recent-sidebar .recent-nav-link[data-active="true"] { color: var(--r-ink); }
+#recent-sidebar .recent-nav-link:focus-visible { outline: 2px solid var(--r-ink); outline-offset: 2px; border-radius: 4px; }
+#recent-sidebar .recent-nav-dot { position: absolute; top: 0; bottom: 0; right: 0; width: 8px; height: 8px; margin-block: auto; border-radius: 9999px; background: var(--r-ink); }
+#recent-sidebar .recent-nav-count { margin-inline-start: 8px; font-size: 12px; line-height: 1.4; color: var(--r-accent); }
+
+/* Top header: white, black text and icons */
+html[data-ui-theme="recent"] #global-fixed-header-container { box-shadow: none !important; }
+html[data-ui-theme="recent"] #portal-top-header { border-bottom: 0 !important; box-shadow: none !important; }
+html[data-ui-theme="recent"] #portal-top-header img.invert { filter: brightness(0) !important; }
+html[data-ui-theme="recent"] #portal-top-header :is(.header-action-btn, button.rounded-full):hover { background-color: var(--r-chip-hover) !important; }
+html[data-ui-theme="recent"] #portal-top-header .portal-search-input-btn {
+  border: 0 !important;
+  box-shadow: var(--r-raised) !important;
+  font-size: 13px;
+}
+html[data-ui-theme="recent"] #portal-top-header .portal-search-input-btn svg { color: var(--r-muted) !important; }
+html[data-ui-theme="recent"] #portal-top-header [class*="bg-white/20"] { background: var(--r-ink) !important; color: #fff !important; border-color: var(--r-ink) !important; }
+
+/* Sub-header tabs: pill chips (grey idle, black active) */
+html[data-ui-theme="recent"] #sub-header-tabs-bar > div { gap: 8px !important; }
+html[data-ui-theme="recent"] #sub-header-tabs-bar a {
+  height: 28px !important;
+  padding: 0 12px !important;
+  border-radius: 9999px !important;
+  background: var(--r-chip) !important;
+  color: var(--r-muted) !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  font-weight: 400 !important;
+  opacity: 1 !important;
+  transition: background-color .12s cubic-bezier(.2, 0, 0, 1);
+}
+html[data-ui-theme="recent"] #sub-header-tabs-bar a:hover { background: var(--r-chip-hover) !important; color: var(--r-ink) !important; }
+html[data-ui-theme="recent"] #sub-header-tabs-bar a:active { transform: scale(.97); }
+html[data-ui-theme="recent"] #sub-header-tabs-bar a[data-subtab="active"] { background: var(--r-ink) !important; color: #FFFFFF !important; }
+html[data-ui-theme="recent"] #sub-header-tabs-bar a span.py-2 { padding: 0; }
+html[data-ui-theme="recent"] #sub-header-tabs-bar a > span.absolute { display: none; }
+html[data-ui-theme="recent"] #sub-header-tabs-bar a:focus-visible { outline: 2px solid var(--r-ink) !important; outline-offset: 2px; }
+
+/* In-page tabs (shadcn/Radix tabs): same pill chips */
+html[data-ui-theme="recent"] main [role="tablist"] { gap: 8px; background: transparent !important; box-shadow: none !important; border: 0 !important; padding: 0 !important; }
+html[data-ui-theme="recent"] main [role="tab"] {
+  border-radius: 9999px !important;
+  border: 0 !important;
+  background: var(--r-chip) !important;
+  color: var(--r-muted) !important;
+  box-shadow: none !important;
+  font-size: 13px;
+  font-weight: 400;
+}
+html[data-ui-theme="recent"] main [role="tab"]:hover { background: var(--r-chip-hover) !important; color: var(--r-ink) !important; }
+html[data-ui-theme="recent"] main [role="tab"]:is([data-state="active"], [aria-selected="true"]) { background: var(--r-ink) !important; color: #FFFFFF !important; }
+
+/* Buttons: black pill primary, raised white secondary */
+html[data-ui-theme="recent"] main :is(button, a)[class*="bg-primary"] { border-radius: 9999px !important; background-color: var(--r-ink) !important; color: #fff !important; }
+html[data-ui-theme="recent"] main button:is([data-variant="outline"], [data-slot="button"][class*="border-input"]) { border: 0 !important; box-shadow: var(--r-raised) !important; border-radius: 9999px !important; background: #fff !important; }
+
+/* Mobile drawer (phones and the Android app): white list, no icons */
+html[data-ui-theme="recent"] #mobile-nav-drawer { background: #FFFFFF !important; color: var(--r-ink) !important; border-color: var(--r-line) !important; font-family: var(--portal-font-family) !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:first-child,
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:last-child { background: #FFFFFF !important; border-color: var(--r-line) !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:first-child img.invert { filter: brightness(0) !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:first-child button { color: var(--r-muted) !important; background: transparent !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:nth-child(2) :is(a, button) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding-block: 4px !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  color: var(--r-muted) !important;
+}
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:nth-child(2) :is(a, button) * { color: inherit !important; font-weight: inherit !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:nth-child(2) :is(a, button):hover,
+html[data-ui-theme="recent"] #mobile-nav-drawer .drawer-subitem-active { color: var(--r-ink) !important; background: transparent !important; border: 0 !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:nth-child(2) svg { display: none; }
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:nth-child(2) .bg-amber-400 { background: transparent !important; color: var(--r-accent) !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer div:has(> .drawer-category-title) { text-transform: none; letter-spacing: 0; font-size: 13px; padding-inline: 12px; }
+html[data-ui-theme="recent"] #mobile-nav-drawer .drawer-category-title { color: var(--r-faint) !important; font-weight: 400 !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer .border-l { border-left: 0 !important; margin-left: 0 !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:last-child .text-sm { color: var(--r-ink) !important; font-weight: 500 !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:last-child .text-xs { color: var(--r-muted) !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer > div:last-child button { background: var(--r-ink) !important; border: 0 !important; border-radius: 9999px !important; box-shadow: none !important; }
+
 /* ── Always on: tinted attendance tiles and per-person birthday hovers (all themes) ── */
 .stat-tile { transition: transform .2s ease, box-shadow .2s ease; }
 .stat-tile:hover { transform: translateY(-2px); }

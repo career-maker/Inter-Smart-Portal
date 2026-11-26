@@ -93,7 +93,7 @@ class CustomizationController extends Controller
             'light_bg_color'            => 'nullable|string|max:50',
             'card_bg_color'             => 'nullable|string|max:50',
             'border_color'              => 'nullable|string|max:50',
-            'ui_theme'                  => 'nullable|string|in:classic,glass,neumorphism,brutalism,clay,minimal',
+            'ui_theme'                  => 'nullable|string|in:recent,classic,glass,neumorphism,brutalism,clay,minimal',
             'card_elevation'            => 'nullable|string|in:flat,subtle,floating,glassmorphic',
             'button_style'              => 'nullable|string|in:rounded,pill,sharp',
             'density'                   => 'nullable|string|in:compact,comfortable,spacious',
