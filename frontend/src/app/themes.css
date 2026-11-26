@@ -317,7 +317,9 @@ html[data-ui-theme="recent"] #sub-header-tabs-bar a {
   height: 28px !important;
   padding: 0 12px !important;
   border-radius: 9999px !important;
-  background: var(--r-chip) !important;
+  border: 0 !important;
+  /* background-image, not background-color: the link's layered Tailwind !bg-transparent wins any colour override */
+  background-image: linear-gradient(var(--r-chip), var(--r-chip)) !important;
   color: var(--r-muted) !important;
   font-size: 13px !important;
   line-height: 1.4 !important;
@@ -325,9 +327,13 @@ html[data-ui-theme="recent"] #sub-header-tabs-bar a {
   opacity: 1 !important;
   transition: background-color .12s cubic-bezier(.2, 0, 0, 1);
 }
-html[data-ui-theme="recent"] #sub-header-tabs-bar a:hover { background: var(--r-chip-hover) !important; color: var(--r-ink) !important; }
+html[data-ui-theme="recent"] #sub-header-tabs-bar a:hover { background-image: linear-gradient(var(--r-chip-hover), var(--r-chip-hover)) !important; color: var(--r-ink) !important; }
 html[data-ui-theme="recent"] #sub-header-tabs-bar a:active { transform: scale(.97); }
-html[data-ui-theme="recent"] #sub-header-tabs-bar a[data-subtab="active"] { background: var(--r-ink) !important; color: #FFFFFF !important; }
+html[data-ui-theme="recent"] #sub-header-tabs-bar a[data-subtab="active"] { background-image: linear-gradient(var(--r-ink), var(--r-ink)) !important; color: #FFFFFF !important; }
+/* One logo only: the sidebar shows it on desktop, the header keeps it on phones (sidebar hidden there) */
+@media (min-width: 768px) {
+  html[data-ui-theme="recent"] #portal-top-header a[href="/dashboard"]:has(> img) { display: none !important; }
+}
 html[data-ui-theme="recent"] #sub-header-tabs-bar a span.py-2 { padding: 0; }
 html[data-ui-theme="recent"] #sub-header-tabs-bar a > span.absolute { display: none; }
 html[data-ui-theme="recent"] #sub-header-tabs-bar a:focus-visible { outline: 2px solid var(--r-ink) !important; outline-offset: 2px; }
