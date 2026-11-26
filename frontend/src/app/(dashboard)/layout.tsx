@@ -126,7 +126,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  
+  // Recent theme sidebar: collapsed rail (remembered per browser) and which dropdown groups are open
+  const [recentCollapsed, setRecentCollapsed] = useState(false);
+  const [recentOpenGroups, setRecentOpenGroups] = useState<string[]>([]);
+  useEffect(() => {
+    try { setRecentCollapsed(localStorage.getItem("recent_sidebar_collapsed") === "1"); } catch {}
+  }, []);
+  const toggleRecentCollapsed = (next: boolean) => {
+    setRecentCollapsed(next);
+    try { localStorage.setItem("recent_sidebar_collapsed", next ? "1" : "0"); } catch {}
+  };
+  const toggleRecentGroup = (id: string) =>
+    setRecentOpenGroups((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
+
   // Search Modal & Flyout State
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [flyoutState, setFlyoutState] = useState<{ groupId: string; top: number } | null>(null);
@@ -485,98 +497,181 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <aside
           id="recent-sidebar"
           aria-label="Sidebar"
-          className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[240px] bg-white select-none"
+          data-collapsed={recentCollapsed ? "true" : "false"}
+          className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-50 bg-white select-none transition-[width] duration-200 ease-out ${
+            recentCollapsed ? "w-[64px]" : "w-[240px]"
+          }`}
         >
-          <div className="flex items-center h-16 px-5 shrink-0">
-            <Link href="/dashboard" aria-label="Home" className="flex items-center min-w-0">
-              <img
-                src={customizationSettings?.logo_url || "/logo.png"}
-                alt="Logo"
-                className="h-8 w-auto max-w-[150px] object-contain object-left brightness-0"
-              />
-            </Link>
+          <div className={`flex items-center h-16 shrink-0 ${recentCollapsed ? "justify-center px-0" : "justify-between pl-5 pr-3"}`}>
+            {!recentCollapsed && (
+              <Link href="/dashboard" aria-label="Home" className="flex items-center min-w-0">
+                <img
+                  src={customizationSettings?.logo_url || "/logo.png"}
+                  alt="Logo"
+                  className="h-8 w-auto max-w-[150px] object-contain object-left brightness-0"
+                />
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => toggleRecentCollapsed(!recentCollapsed)}
+              aria-label={recentCollapsed ? "Expand side menu" : "Collapse side menu"}
+              aria-expanded={!recentCollapsed}
+              title={recentCollapsed ? "Expand menu" : "Collapse menu"}
+              className="recent-icon-btn"
+            >
+              {recentCollapsed ? <PanelLeftOpen className="w-[18px] h-[18px]" /> : <PanelLeftClose className="w-[18px] h-[18px]" />}
+            </button>
           </div>
 
-          <nav
-            aria-label="Primary navigation"
-            className="flex-1 overflow-y-auto overflow-x-hidden px-5 pt-4 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            <section className="flex flex-col items-start gap-1">
-              {STANDALONE.map(({ href, label }) => {
+          {recentCollapsed ? (
+            <nav
+              aria-label="Primary navigation"
+              className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col items-center gap-1 pt-2 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {STANDALONE.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href;
                 return (
                   <Link
                     key={href}
                     href={href}
                     prefetch={true}
+                    aria-label={label}
+                    title={label}
                     aria-current={active ? "page" : undefined}
                     data-active={active ? "true" : "false"}
-                    className="recent-nav-link"
+                    className="recent-icon-btn"
                   >
-                    {label}
-                    {active && <span aria-hidden="true" className="recent-nav-dot" />}
+                    <Icon className="w-[18px] h-[18px]" />
                   </Link>
                 );
               })}
-            </section>
+              {navGroups.map((group) => {
+                if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
+                const GroupIcon = group.icon;
+                const groupActive = pathBelongsToGroup(group, pathname, currentTab);
+                return (
+                  <button
+                    key={group.id}
+                    type="button"
+                    aria-label={group.label}
+                    title={group.label}
+                    data-active={groupActive ? "true" : "false"}
+                    onClick={() => {
+                      toggleRecentCollapsed(false);
+                      setRecentOpenGroups((prev) => (prev.includes(group.id) ? prev : [...prev, group.id]));
+                    }}
+                    className="recent-icon-btn"
+                  >
+                    <GroupIcon className="w-[18px] h-[18px]" />
+                  </button>
+                );
+              })}
+            </nav>
+          ) : (
+            <nav
+              aria-label="Primary navigation"
+              className="flex-1 overflow-y-auto overflow-x-hidden px-5 pt-4 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              <section className="flex flex-col items-start gap-1 mb-3">
+                {STANDALONE.map(({ href, label }) => {
+                  const active = pathname === href;
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      prefetch={true}
+                      aria-current={active ? "page" : undefined}
+                      data-active={active ? "true" : "false"}
+                      className="recent-nav-link"
+                    >
+                      {label}
+                      {active && <span aria-hidden="true" className="recent-nav-dot" />}
+                    </Link>
+                  );
+                })}
+              </section>
 
-            {navGroups.map((group) => {
-              if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
-              const visibleItems = group.items.filter((item) => isItemVisible(item, userRole, userPermissions));
-              const hasExactMatch = visibleItems.some((i) => pathname === i.href);
-              const headingId = `recent-nav-${group.id}`;
-              return (
-                <section key={group.id} aria-labelledby={headingId} className="flex flex-col items-start gap-1 mt-5">
-                  <h2 id={headingId} className="recent-nav-heading">{group.label}</h2>
-                  {visibleItems.map((item) => {
-                    const active = hasExactMatch
-                      ? pathname === item.href
-                      : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
-                    const count =
-                      item.href === "/leaves/approvals"
-                        ? pendingLeavesCount
-                        : item.href === "/leaves/approvals?tab=wfh"
-                        ? pendingWfhCount
-                        : unreadFor(item.href);
-                    const content = (
-                      <>
-                        <span className="truncate">{item.label}</span>
-                        {count > 0 && <span className="recent-nav-count">{count}</span>}
-                        {active && <span aria-hidden="true" className="recent-nav-dot" />}
-                      </>
-                    );
-                    if ((item as any).external) {
-                      return (
-                        <a
-                          key={`${item.href}__${item.label}`}
-                          href={item.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="recent-nav-link"
-                        >
-                          {content}
-                        </a>
-                      );
-                    }
-                    return (
-                      <Link
-                        key={`${item.href}__${item.label}`}
-                        href={item.href}
-                        prefetch={true}
-                        aria-current={active ? "page" : undefined}
-                        data-active={active ? "true" : "false"}
-                        className="recent-nav-link"
-                      >
-                        {content}
-                      </Link>
-                    );
-                  })}
-                </section>
-              );
-            })}
-          </nav>
+              {navGroups.map((group) => {
+                if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
+                const visibleItems = group.items.filter((item) => isItemVisible(item, userRole, userPermissions));
+                const hasExactMatch = visibleItems.some((i) => pathname === i.href);
+                const groupActive = pathBelongsToGroup(group, pathname, currentTab);
+                const isOpen = recentOpenGroups.includes(group.id);
+                const listId = `recent-nav-${group.id}`;
+                const countFor = (href: string) =>
+                  href === "/leaves/approvals"
+                    ? pendingLeavesCount
+                    : href === "/leaves/approvals?tab=wfh"
+                    ? pendingWfhCount
+                    : unreadFor(href);
+                const groupCount = visibleItems.reduce((sum, item) => sum + countFor(item.href), 0);
+                return (
+                  <section key={group.id} className="flex flex-col items-stretch">
+                    <button
+                      type="button"
+                      onClick={() => toggleRecentGroup(group.id)}
+                      aria-expanded={isOpen}
+                      aria-controls={listId}
+                      data-active={groupActive ? "true" : "false"}
+                      className="recent-nav-group"
+                    >
+                      <span className="truncate">{group.label}</span>
+                      {!isOpen && groupCount > 0 && <span className="recent-nav-count">{groupCount}</span>}
+                      <ChevronDown
+                        aria-hidden="true"
+                        className={`recent-nav-chevron w-3.5 h-3.5 shrink-0 transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    {isOpen && (
+                      <div id={listId} className="flex flex-col items-start gap-1 pl-3 pt-1 pb-2">
+                        {visibleItems.map((item) => {
+                          const active = hasExactMatch
+                            ? pathname === item.href
+                            : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                          const count = countFor(item.href);
+                          const content = (
+                            <>
+                              <span className="truncate">{item.label}</span>
+                              {count > 0 && <span className="recent-nav-count">{count}</span>}
+                              {active && <span aria-hidden="true" className="recent-nav-dot" />}
+                            </>
+                          );
+                          if ((item as any).external) {
+                            return (
+                              <a
+                                key={`${item.href}__${item.label}`}
+                                href={item.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="recent-nav-link"
+                              >
+                                {content}
+                              </a>
+                            );
+                          }
+                          return (
+                            <Link
+                              key={`${item.href}__${item.label}`}
+                              href={item.href}
+                              prefetch={true}
+                              aria-current={active ? "page" : undefined}
+                              data-active={active ? "true" : "false"}
+                              className="recent-nav-link"
+                            >
+                              {content}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
+            </nav>
+          )}
 
-          <div className="px-5 py-4 shrink-0 border-t border-[#ECECEC]">
+          <div className={`py-4 shrink-0 border-t border-[#ECECEC] ${recentCollapsed ? "flex justify-center px-0" : "px-5"}`}>
             <Link
               href="/profile"
               className="flex items-center gap-2.5 min-w-0 rounded-lg focus-visible:outline-2 focus-visible:outline-[#0B0B0B]"
@@ -588,12 +683,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 userId={user?.id}
                 className="w-7 h-7 rounded-full shrink-0"
               />
-              <span className="min-w-0 flex flex-col leading-[1.4]">
-                <span className="text-[13px] font-medium text-[#0B0B0B] truncate">
-                  {user?.first_name} {user?.last_name}
+              {!recentCollapsed && (
+                <span className="min-w-0 flex flex-col leading-[1.4]">
+                  <span className="text-[13px] font-medium text-[#0B0B0B] truncate">
+                    {user?.first_name} {user?.last_name}
+                  </span>
+                  <span className="text-[12px] text-black/50 truncate">{user?.role}</span>
                 </span>
-                <span className="text-[12px] text-black/50 truncate">{user?.role}</span>
-              </span>
+              )}
             </Link>
           </div>
         </aside>
@@ -998,13 +1095,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main Wrapper */}
       <div className={`flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ease-in-out ${
-        isRecent ? 'md:pl-[240px]' : !isDark ? 'md:pl-[84px]' : isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
+        isRecent ? (recentCollapsed ? 'md:pl-[64px]' : 'md:pl-[240px]') : !isDark ? 'md:pl-[84px]' : isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
       }`}>
         {/* ── FIXED TOP HEADER & SUB-TABS BAR (ALWAYS PINNED AT TOP ON SCROLL) ── */}
         <div
           id="global-fixed-header-container"
           className={`fixed top-0 right-0 z-50 transition-all duration-300 ease-in-out shadow-md ${
-            isRecent ? 'left-0 md:left-[240px]' : !isDark ? 'left-0 md:left-[84px]' : isSidebarCollapsed ? 'left-0 md:left-20' : 'left-0 md:left-64'
+            isRecent ? (recentCollapsed ? 'left-0 md:left-[64px]' : 'left-0 md:left-[240px]') : !isDark ? 'left-0 md:left-[84px]' : isSidebarCollapsed ? 'left-0 md:left-20' : 'left-0 md:left-64'
           }`}
         >
 
@@ -1239,7 +1336,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
 
         {/* ── FLASH MARQUEE (PINNED AT BOTTOM IN HEADER PURPLE WITH WHITE TEXT) ── */}
-        <RecognitionTicker isDark={isDark} isSidebarCollapsed={isSidebarCollapsed} isRecent={isRecent} />
+        <RecognitionTicker isDark={isDark} isSidebarCollapsed={isSidebarCollapsed} isRecent={isRecent} isRecentCollapsed={recentCollapsed} />
         <DoubleClickGuard />
         <StaleTabGuard />
       </div>

@@ -8,9 +8,10 @@ interface RecognitionTickerProps {
   isDark?: boolean;
   isSidebarCollapsed?: boolean;
   isRecent?: boolean;
+  isRecentCollapsed?: boolean;
 }
 
-export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, isRecent = false }: RecognitionTickerProps) {
+export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, isRecent = false, isRecentCollapsed = false }: RecognitionTickerProps) {
   const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
@@ -81,7 +82,7 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, i
   const durationSeconds = Math.max(16, Math.min(38, 14 + totalChars * 0.06));
 
   const leftOffsetClass = isRecent
-    ? "left-0 md:left-[240px]"
+    ? isRecentCollapsed ? "left-0 md:left-[64px]" : "left-0 md:left-[240px]"
     : !isDark
     ? "left-0 md:left-[84px]"
     : isSidebarCollapsed
