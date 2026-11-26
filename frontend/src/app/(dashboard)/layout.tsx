@@ -34,6 +34,7 @@ import { AddToHomeScreenModal } from "@/components/layout/AddToHomeScreenModal";
 import { DesktopPushConsent } from "@/components/layout/DesktopPushConsent";
 import { SideChatsContainer } from "@/components/chat/SideChatsContainer";
 import { NAV_GROUPS, applyMenuLayout, type NavGroup, type NavItem, type MenuLayout } from "@/lib/navGroups";
+import { playRecentSound, soundForElement } from "@/lib/recentSounds";
 import "@/styles/portal-accent.css";
 
 type StandaloneLink = {
@@ -136,6 +137,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setRecentCollapsed(next);
     try { localStorage.setItem("recent_sidebar_collapsed", next ? "1" : "0"); } catch {}
   };
+  // Recent theme: recent.design-style click sounds on every interactive element
+  useEffect(() => {
+    if (!isRecent) return;
+    const onClick = (e: MouseEvent) => {
+      if (!(e.target instanceof Element)) return;
+      const sound = soundForElement(e.target);
+      if (sound) playRecentSound(sound);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [isRecent]);
   const toggleRecentGroup = (id: string) =>
     setRecentOpenGroups((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
 

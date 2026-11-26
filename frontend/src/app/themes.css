@@ -295,6 +295,15 @@ html[data-ui-theme="recent"] main :is(h1, h2, h3, .box-title) { color: var(--r-i
 #recent-sidebar .recent-nav-link[data-active="true"] { color: var(--r-ink); }
 #recent-sidebar .recent-nav-link:focus-visible { outline: 2px solid var(--r-ink); outline-offset: 2px; border-radius: 4px; }
 #recent-sidebar .recent-nav-dot { position: absolute; top: 0; bottom: 0; right: 0; width: 8px; height: 8px; margin-block: auto; border-radius: 9999px; background: var(--r-ink); }
+/* Hide the menu scrollbar: globals.css sets `* { scrollbar-width: thin }` unlayered, which beats Tailwind's layered class */
+#recent-sidebar nav { scrollbar-width: none; }
+#recent-sidebar nav::-webkit-scrollbar { display: none; }
+
+/* Pill/chip rows that scroll sideways: chips keep their full width (globals.css lets flex children shrink to 0) */
+html[data-ui-theme="recent"] main .flex:is(.overflow-x-auto, .overflow-x-scroll) > :is(button, a, [role="tab"]) { flex-shrink: 0; min-width: max-content; border-radius: 9999px !important; border-color: transparent !important; }
+html[data-ui-theme="recent"] main :is(.scrollbar-none, .no-scrollbar, [role="tablist"]) { scrollbar-width: none; }
+html[data-ui-theme="recent"] main :is(.scrollbar-none, .no-scrollbar, [role="tablist"])::-webkit-scrollbar { display: none; }
+
 /* Dropdown group header: grey label + chevron, black when it holds the current page */
 #recent-sidebar .recent-nav-group {
   display: flex;
