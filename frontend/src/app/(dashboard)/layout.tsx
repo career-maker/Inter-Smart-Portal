@@ -127,11 +127,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  // Recent theme sidebar: collapsed rail (remembered per browser) and which dropdown groups are open
-  const [recentCollapsed, setRecentCollapsed] = useState(false);
+  // Recent theme sidebar: collapsed rail by default (choice remembered per browser) and which dropdown groups are open
+  const [recentCollapsed, setRecentCollapsed] = useState(true);
   const [recentOpenGroups, setRecentOpenGroups] = useState<string[]>([]);
   useEffect(() => {
-    try { setRecentCollapsed(localStorage.getItem("recent_sidebar_collapsed") === "1"); } catch {}
+    try { setRecentCollapsed(localStorage.getItem("recent_sidebar_collapsed") !== "0"); } catch {}
   }, []);
   const toggleRecentCollapsed = (next: boolean) => {
     setRecentCollapsed(next);
