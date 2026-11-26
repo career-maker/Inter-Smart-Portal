@@ -11,7 +11,7 @@ import {
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle, Download,
   Users, ShieldCheck, PanelLeftClose, PanelLeftOpen, Wallet, TrendingUp, ClipboardList, Layers,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
-  Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote, MessageSquare
+  Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote, MessageSquare, Volume2, VolumeX
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import DoubleClickGuard from "@/components/layout/DoubleClickGuard";
@@ -137,11 +137,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setRecentCollapsed(next);
     try { localStorage.setItem("recent_sidebar_collapsed", next ? "1" : "0"); } catch {}
   };
-  // Recent theme: recent.design-style click sounds on every interactive element
+  // Recent theme: recent.design-style click sounds on every interactive element.
+  // Each account can turn them off; the choice is stored per user id in this browser.
+  const soundPrefKey = user?.id ? `recent_sounds_off_${user.id}` : null;
+  const [soundsOff, setSoundsOff] = useState(false);
+  const soundsOffRef = useRef(false);
+  useEffect(() => {
+    let off = false;
+    try { off = !!soundPrefKey && localStorage.getItem(soundPrefKey) === "1"; } catch {}
+    soundsOffRef.current = off;
+    setSoundsOff(off);
+  }, [soundPrefKey]);
+  const toggleSounds = () => {
+    const next = !soundsOffRef.current;
+    soundsOffRef.current = next;
+    setSoundsOff(next);
+    try { if (soundPrefKey) localStorage.setItem(soundPrefKey, next ? "1" : "0"); } catch {}
+  };
   useEffect(() => {
     if (!isRecent) return;
     const onClick = (e: MouseEvent) => {
-      if (!(e.target instanceof Element)) return;
+      if (soundsOffRef.current || !(e.target instanceof Element)) return;
       const sound = soundForElement(e.target);
       if (sound) playRecentSound(sound);
     };
@@ -683,7 +699,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </nav>
           )}
 
-          <div className={`py-4 shrink-0 border-t border-[#ECECEC] ${recentCollapsed ? "flex justify-center px-0" : "px-5"}`}>
+          <div className={`py-4 shrink-0 border-t border-[#ECECEC] flex flex-col gap-3 ${recentCollapsed ? "items-center px-0" : "px-5"}`}>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={!soundsOff}
+              aria-label="Sound effects"
+              title={soundsOff ? "Sound effects off" : "Sound effects on"}
+              onClick={toggleSounds}
+              className={recentCollapsed ? "recent-icon-btn" : "recent-sound-toggle"}
+            >
+              {soundsOff ? <VolumeX className="w-[18px] h-[18px] shrink-0" /> : <Volume2 className="w-[18px] h-[18px] shrink-0" />}
+              {!recentCollapsed && (
+                <>
+                  <span className="truncate">Sound effects</span>
+                  <span aria-hidden="true" className="recent-switch" data-on={soundsOff ? "false" : "true"} />
+                </>
+              )}
+            </button>
             <Link
               href="/profile"
               className="flex items-center gap-2.5 min-w-0 rounded-lg focus-visible:outline-2 focus-visible:outline-[#0B0B0B]"
