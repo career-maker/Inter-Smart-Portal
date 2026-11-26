@@ -138,21 +138,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     try { localStorage.setItem("recent_sidebar_collapsed", next ? "1" : "0"); } catch {}
   };
   // Recent theme: recent.design-style click sounds on every interactive element.
-  // Each account can turn them off; the choice is stored per user id in this browser.
-  const soundPrefKey = user?.id ? `recent_sounds_off_${user.id}` : null;
-  const [soundsOff, setSoundsOff] = useState(false);
-  const soundsOffRef = useRef(false);
-  useEffect(() => {
-    let off = false;
-    try { off = !!soundPrefKey && localStorage.getItem(soundPrefKey) === "1"; } catch {}
-    soundsOffRef.current = off;
-    setSoundsOff(off);
-  }, [soundPrefKey]);
+  // Each account can turn them off; saved on the user record (PUT /me/preferences), so it follows them to every device.
+  const soundsOff = !!user?.ui_sounds_off;
+  const soundsOffRef = useRef(soundsOff);
+  soundsOffRef.current = soundsOff;
   const toggleSounds = () => {
     const next = !soundsOffRef.current;
     soundsOffRef.current = next;
-    setSoundsOff(next);
-    try { if (soundPrefKey) localStorage.setItem(soundPrefKey, next ? "1" : "0"); } catch {}
+    updateUser({ ui_sounds_off: next });
+    api.put("/me/preferences", { ui_sounds_off: next }).catch(() => {
+      soundsOffRef.current = !next;
+      updateUser({ ui_sounds_off: !next });
+    });
   };
   useEffect(() => {
     if (!isRecent) return;

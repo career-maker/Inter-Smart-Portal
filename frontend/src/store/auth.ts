@@ -22,6 +22,7 @@ export interface User {
   state?: string;
   zip?: string;
   is_approver?: boolean;
+  ui_sounds_off?: boolean;
 }
 
 interface AuthState {

@@ -48,6 +48,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'me']);
+    Route::put('me/preferences', [AuthController::class, 'updatePreferences']);
 
     // Employee Profile Edit Requests
     Route::get('profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);

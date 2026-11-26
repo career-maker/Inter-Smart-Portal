@@ -74,6 +74,7 @@ class AuthController extends Controller
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'profile_photo_path' => $user->profilePhotoUrl(),
                 'is_approver' => \App\Services\ApprovalRoutingService::isUserAnyApprover($user),
+                'ui_sounds_off' => (bool) $user->ui_sounds_off,
             ]
         ]);
     }
@@ -104,8 +105,23 @@ class AuthController extends Controller
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'profile_photo_path' => $user->profilePhotoUrl(),
                 'is_approver' => \App\Services\ApprovalRoutingService::isUserAnyApprover($user),
+                'ui_sounds_off' => (bool) $user->ui_sounds_off,
             ]
         ]);
+    }
+
+    /** The signed-in user's own UI preferences (only their own row is ever touched). */
+    public function updatePreferences(Request $request)
+    {
+        $data = $request->validate([
+            'ui_sounds_off' => 'required|boolean',
+        ]);
+
+        $user = $request->user();
+        $user->ui_sounds_off = $data['ui_sounds_off'];
+        $user->save();
+
+        return response()->json(['ui_sounds_off' => (bool) $user->ui_sounds_off]);
     }
 
     public function logout(Request $request)
