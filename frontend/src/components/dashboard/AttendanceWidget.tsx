@@ -16,7 +16,6 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  Users,
   User as UserIcon,
 } from "lucide-react";
 import { format, addDays, subDays, parseISO } from "date-fns";
@@ -616,7 +615,7 @@ export function AttendanceWidget({
             {/* Drawer Panel */}
             <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300 text-slate-900 dark:text-white">
             {/* Header */}
-            <div className="relative p-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 via-purple-50/30 to-white dark:from-slate-800 dark:to-slate-900 shrink-0">
+            <div className="relative p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
               <button
                 onClick={handleCloseDrawer}
                 className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer z-10"
@@ -632,12 +631,12 @@ export function AttendanceWidget({
                       src={selectedMember.profile_photo_path}
                       name={selectedMember.name || `${selectedMember.first_name || ""} ${selectedMember.last_name || ""}`.trim()}
                       userId={selectedMember.id}
-                      className="w-10 h-10 rounded-full border border-purple-300 dark:border-purple-600 shadow-xs shrink-0"
+                      className="w-10 h-10 rounded-full shrink-0"
                       textClass="text-xs font-bold"
                     />
                   </div>
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/50 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
                     <CalendarCheck className="w-5 h-5" />
                   </div>
                 )}
@@ -675,18 +674,18 @@ export function AttendanceWidget({
 
             {/* Team Member Switcher (for Team Leads) */}
             {teamMembers && teamMembers.length > 0 && (
-              <div className="px-5 py-2.5 bg-purple-50/40 dark:bg-purple-950/20 border-b border-purple-100/70 dark:border-purple-900/30 shrink-0">
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-purple-900/70 dark:text-purple-300/80 flex items-center gap-1">
-                    <Users className="w-3 h-3" /> Select Team Member
+              <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                    Team member
                   </span>
                   {selectedMember && (
                     <button
                       type="button"
                       onClick={() => handleSelectMember(null)}
-                      className="text-[11px] text-[#56348f] dark:text-purple-300 hover:underline font-semibold cursor-pointer"
+                      className="inline-flex items-center gap-0.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white underline-offset-2 hover:underline cursor-pointer"
                     >
-                      ← Back to My Punches
+                      <ChevronLeft className="w-3.5 h-3.5" /> My punches
                     </button>
                   )}
                 </div>
@@ -695,10 +694,10 @@ export function AttendanceWidget({
                   <button
                     type="button"
                     onClick={() => handleSelectMember(null)}
-                    className={`px-2.5 py-1 text-xs font-semibold rounded-lg shrink-0 transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`h-8 px-3 text-xs font-medium rounded-full shrink-0 transition-colors flex items-center gap-1.5 cursor-pointer ${
                       !selectedMember
-                        ? "bg-[#56348f] text-white shadow-xs"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50"
+                        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100"
                     }`}
                   >
                     <UserIcon className="w-3.5 h-3.5 shrink-0" />
@@ -713,10 +712,10 @@ export function AttendanceWidget({
                         key={member.id}
                         type="button"
                         onClick={() => handleSelectMember(member)}
-                        className={`px-2.5 py-1 text-xs font-semibold rounded-lg shrink-0 transition-all flex items-center gap-1.5 cursor-pointer ${
+                        className={`h-8 px-3 text-xs font-medium rounded-full shrink-0 transition-colors flex items-center gap-1.5 cursor-pointer ${
                           isSelected
-                            ? "bg-[#56348f] text-white shadow-xs"
-                            : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50"
+                            ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                            : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100"
                         }`}
                       >
                         <span className="truncate max-w-[130px]">
@@ -761,7 +760,7 @@ export function AttendanceWidget({
                     onChange={(e) => {
                       if (e.target.value) handleDateChange(e.target.value);
                     }}
-                    className="text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 cursor-pointer shadow-2xs"
+                    className="text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer"
                   />
                 </div>
 
@@ -779,7 +778,7 @@ export function AttendanceWidget({
                   <button
                     type="button"
                     onClick={handleJumpToday}
-                    className="px-2 py-0.5 text-[11px] font-bold rounded-md bg-purple-100 dark:bg-purple-900/60 text-[#56348f] dark:text-purple-300 hover:bg-purple-200 transition-colors cursor-pointer"
+                    className="ml-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white underline-offset-2 hover:underline cursor-pointer"
                   >
                     Today
                   </button>
@@ -789,7 +788,7 @@ export function AttendanceWidget({
               <button
                 onClick={() => fetchTimelineData(selectedDate, selectedMember)}
                 disabled={isLoadingTimeline}
-                className="inline-flex items-center gap-1 font-semibold text-[#56348f] dark:text-purple-300 hover:text-purple-800 dark:hover:text-purple-200 disabled:opacity-50 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-colors cursor-pointer"
               >
                 <RefreshCw className={`w-3 h-3 ${isLoadingTimeline ? "animate-spin" : ""}`} />
                 <span>Refresh</span>
@@ -800,7 +799,7 @@ export function AttendanceWidget({
             <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
               {isLoadingTimeline ? (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
-                  <RefreshCw className="h-7 w-7 animate-spin text-[#56348f] dark:text-purple-400" />
+                  <RefreshCw className="h-7 w-7 animate-spin text-slate-400" />
                   <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                     Loading your punches for today...
                   </p>
@@ -844,11 +843,11 @@ export function AttendanceWidget({
                       </p>
                     </div>
 
-                    <div className="bg-purple-50/70 dark:bg-purple-950/40 p-2.5 sm:p-3 rounded-xl border border-purple-200/80 dark:border-purple-800/60 min-w-0">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#56348f] dark:text-purple-300 truncate" title="Total Work Hours">
+                    <div className="bg-slate-50 dark:bg-slate-800/80 p-2.5 sm:p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60 min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate" title="Total Work Hours">
                         Total Work Hours
                       </p>
-                      <p className="text-sm font-black text-[#56348f] dark:text-purple-200 mt-0.5 font-mono tracking-tight truncate flex items-center gap-1">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate flex items-center gap-1">
                         {timelineData?.is_currently_working && (
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block shrink-0" />
                         )}
@@ -872,12 +871,12 @@ export function AttendanceWidget({
                     return (
                       <>
                         <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-2xs">
-                          <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-center justify-between">
-                            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                              Check-In & Check-Out Sessions
+                          <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-baseline justify-between gap-3">
+                            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                              Check-in and check-out sessions
                             </h3>
-                            <span className="text-[11px] font-semibold text-slate-400">
-                              {timelineData?.working_sessions?.length || 0} Sessions
+                            <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap shrink-0">
+                              {timelineData?.working_sessions?.length || 0} {(timelineData?.working_sessions?.length || 0) === 1 ? "session" : "sessions"}
                             </span>
                           </div>
 
@@ -889,7 +888,7 @@ export function AttendanceWidget({
                                 const durText = sessionMins
                                   ? `${Math.floor(sessionMins / 60)}h ${sessionMins % 60}m`
                                   : isOngoing
-                                  ? "Active / In Progress"
+                                  ? "In progress"
                                   : "--";
 
                                 const isSessionManual = Boolean(
@@ -903,33 +902,25 @@ export function AttendanceWidget({
                                     key={sIdx}
                                     className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 space-y-2"
                                   >
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs font-bold text-slate-900 dark:text-white">
-                                          Session #{sIdx + 1}
+                                    <div className="flex items-baseline justify-between gap-3">
+                                      <div className="flex items-baseline gap-2 min-w-0">
+                                        <span className="text-xs font-semibold text-slate-900 dark:text-white whitespace-nowrap">
+                                          Session {sIdx + 1}
                                         </span>
-                                        {isSessionManual ? (
-                                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800 whitespace-nowrap shrink-0">
-                                            WFH Manual
-                                          </span>
-                                        ) : (
-                                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200/60 dark:border-teal-800 whitespace-nowrap shrink-0">
-                                            Office Biometric
-                                          </span>
-                                        )}
+                                        <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                          {isSessionManual ? "WFH manual" : "Office biometric"}
+                                        </span>
                                       </div>
                                       <span
-                                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                                          isOngoing
-                                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300"
-                                            : "bg-slate-200/60 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                        className={`text-xs font-medium whitespace-nowrap shrink-0 ${
+                                          isOngoing ? "text-emerald-700 dark:text-emerald-300" : "text-slate-700 dark:text-slate-300"
                                         }`}
                                       >
                                         {durText}
                                       </span>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-800 text-xs">
+                                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/60 dark:border-slate-800 text-xs">
                                       <div>
                                         <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">
                                           Check In
@@ -944,8 +935,8 @@ export function AttendanceWidget({
                                           Check Out
                                         </span>
                                         {isOngoing ? (
-                                          <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 text-[11px]">
-                                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                          <span className="font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
                                             Working
                                           </span>
                                         ) : (
@@ -969,14 +960,14 @@ export function AttendanceWidget({
 
                         {/* ── SECTION 2: BIOMETRIC / WFH PUNCH LOG ── */}
                         <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-2xs">
-                          <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                          <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-baseline justify-between gap-3">
+                            <div className="flex items-baseline gap-2 min-w-0">
+                              <h3 className="text-sm font-semibold text-slate-900 dark:text-white whitespace-nowrap">
                                 {isHybrid
-                                  ? "Hybrid Punch Log"
+                                  ? "Hybrid punch log"
                                   : isWfhManual
-                                  ? "WFH Manual Punch Log"
-                                  : "Biometric Scanner Log"}
+                                  ? "WFH manual punch log"
+                                  : "Biometric scanner log"}
                               </h3>
                               {isHybrid ? (
                                 <span className="text-[10px] font-semibold text-blue-700 dark:text-blue-300 whitespace-nowrap shrink-0">
@@ -988,8 +979,8 @@ export function AttendanceWidget({
                                 </span>
                               ) : null}
                             </div>
-                            <span className="text-[11px] font-semibold text-slate-400 whitespace-nowrap shrink-0">
-                              {timelineData?.raw_punches?.length || 0} Events
+                            <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap shrink-0">
+                              {timelineData?.raw_punches?.length || 0} {(timelineData?.raw_punches?.length || 0) === 1 ? "event" : "events"}
                             </span>
                           </div>
 
@@ -1031,15 +1022,15 @@ export function AttendanceWidget({
                                         )}
                                       </span>
                                       <div>
-                                        <p className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                        <p className="text-xs font-semibold text-slate-900 dark:text-white flex items-baseline gap-1.5">
                                           <span>{isPunchIn ? "Punch IN" : isPunchOut ? "Punch OUT" : typeUpper}</span>
                                           {isPunchManual ? (
-                                            <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
+                                            <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
                                               WFH
                                             </span>
                                           ) : (
-                                            <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300">
-                                              Office Bio
+                                            <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                                              Office
                                             </span>
                                           )}
                                         </p>
@@ -1072,13 +1063,7 @@ export function AttendanceWidget({
                         </div>
 
                         {/* Security / WFH Notice */}
-                        <div className={`p-3 rounded-xl text-center border ${
-                          isHybrid
-                            ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30"
-                            : isWfhManual
-                            ? "bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30"
-                            : "bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30"
-                        }`}>
+                        <div className="px-1 text-center">
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                             {isHybrid
                               ? "Morning office shift verified via biometric scanner. Afternoon shift tracked via approved Work From Home (WFH)."
