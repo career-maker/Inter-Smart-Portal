@@ -6,6 +6,11 @@ You are continuing the **Internal Software Plan** for the Intersmart Employee Po
 
 **Read order for a new agent:** this file, then `PROGRESS.md` (history and gotchas), then `EXECUTION_PLAN.md` (rules and phase order), then `SOFTWARE_PLAN.md` (have vs build per role). `SERVER.md` has the live server layout.
 
+## 0000-ZB. 27 Nov 2026: Dashboard polish (LIVE, commit cf243d64)
+- Team Lead "Team Status Today": avatar circles with status outline (green present, red absent/leave, blue WFH only when checked in, amber half day); hover/focus tooltip shows name, designation, status. Backend `team_members` now returns designation/photo (were never selected) and `checked_in`.
+- Info text pills removed on dashboard widgets (pending approval, holiday countdown, day counts, Live/Today tags), all themes.
+- Recent theme: coloured action buttons solid black/white, tinted boxes neutral grey (rules in `themes.css` before "Always on"). Stat tiles, birthday cards and tiny status dots/progress bars keep colour.
+
 ## 0000-ZA. 25 Nov 2026: Attendance history for every employee (committed locally, NOT pushed/deployed)
 - `/attendance` rewritten: Date (daily summary + biometric punch timeline from `/attendance/details`), Month and Custom Range (`EmployeeDateRangeView` from `/reports/attendance-summary`), the same views as the Super Admin per-employee view in `/attendance/management`. Team Leads get a person picker (`/reports/employee-list`: self + teams they lead or belong to).
 - "Attendance" tab added to the top sub-tab bar for Team Lead and Employee (`(dashboard)/layout.tsx` getSubTabs). The `/m` Android shell only has Feed/Chat and was not changed.
