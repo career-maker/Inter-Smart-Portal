@@ -73,7 +73,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
       <div className="flex items-center gap-2">
         <Heart className="w-5 h-5 text-pink-400" />
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">Birthday Wishes</h2>
-        <span className="text-xs bg-pink-500/20 text-pink-300 px-2 py-1 rounded-full ml-auto">
+        <span className="text-xs text-pink-600 dark:text-pink-300 ml-auto">
           {wishes.length} wishes
         </span>
       </div>

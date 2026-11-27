@@ -133,11 +133,11 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
                 <div className="flex items-center gap-2 shrink-0">
                   {isToday ? (
-                    <span className="text-[10px] font-semibold uppercase tracking-wider bg-rose-500 text-white px-2 py-0.5 rounded-full animate-pulse">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">
                       Today!
                     </span>
                   ) : (
-                    <span className="text-[11px] font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-300">
                       {format(new Date(person.date), "MMM d")}
                     </span>
                   )}

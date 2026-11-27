@@ -191,7 +191,7 @@ export function EmergencyContactsCard({
             <span className="flex items-center gap-1.5">
               <span>{title}</span>
               {contacts.length > 0 && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300">
+                <span className="text-[10px] font-bold text-[#56348f] dark:text-purple-300">
                   {contacts.length}
                 </span>
               )}
@@ -363,7 +363,7 @@ export function EmergencyContactsCard({
                   </div>
 
                   {contact.department && (
-                    <span className="hidden sm:inline-flex text-[10px] font-semibold px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 border border-purple-200/50 dark:border-purple-800/40 shrink-0">
+                    <span className="hidden sm:inline-flex text-[10px] font-semibold text-[#56348f] dark:text-purple-300 shrink-0">
                       {contact.department}
                     </span>
                   )}

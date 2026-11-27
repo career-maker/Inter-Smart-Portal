@@ -690,13 +690,10 @@ Upcoming Celebration
                       return { ...seg, strokeDasharray, strokeDashoffset };
                     });
 
-                    const isCompact = teamMembers.length > 2;
-                    const isUltraCompact = teamMembers.length > 4;
-
                     return (
                       <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-1">
-                        {/* Member Cards Area (All in one line, wrapping to multiple lines if many members) */}
-                        <div className={`flex-1 min-w-0 flex flex-wrap items-center gap-2 sm:gap-2.5 pr-1 pt-2 pb-1.5 -mt-1 [scrollbar-width:thin] ${teamMembers.length > 8 ? "max-h-[120px] overflow-y-auto" : ""}`}>
+                        {/* Member avatars: outline colour shows today's status, hover/focus shows name and designation */}
+                        <div className="flex-1 min-w-0 flex flex-wrap items-center gap-3 pt-2 pb-1.5 px-1">
                           {teamMembers.length > 0 ? (
                             teamMembers.map((member: any) => {
                               const statusLower = (member.status || "").toLowerCase();
@@ -704,25 +701,17 @@ Upcoming Celebration
                               const isWfh = statusLower.includes("wfh");
                               const isHalfDay = statusLower.includes("half day");
 
-                              let cardBg = "bg-[#fff1f2] dark:bg-rose-950/25 border-[#fecdd3] dark:border-rose-800/40";
-                              let dotColor = "bg-[#ef4444]";
-                              let textColor = "text-[#e11d48] dark:text-rose-400";
-                              let statusLabel = "Absent";
-
+                              // WFH counts as blue only once the member has checked in; otherwise red like absent.
+                              let ring = "#ef4444";
+                              let statusLabel = isWfh ? "WFH (not checked in)" : member.status || "Absent";
                               if (isPresent) {
-                                cardBg = "bg-[#f0fdf4] dark:bg-emerald-950/25 border-[#bbf7d0] dark:border-emerald-800/40";
-                                dotColor = "bg-[#10b981]";
-                                textColor = "text-[#16a34a] dark:text-emerald-400";
+                                ring = "#10b981";
                                 statusLabel = "Present";
-                              } else if (isWfh) {
-                                cardBg = "bg-[#eff6ff] dark:bg-blue-950/25 border-[#bfdbfe] dark:border-blue-800/40";
-                                dotColor = "bg-[#3b82f6]";
-                                textColor = "text-[#2563eb] dark:text-blue-400";
+                              } else if (isWfh && member.checked_in) {
+                                ring = "#3b82f6";
                                 statusLabel = "WFH";
                               } else if (isHalfDay) {
-                                cardBg = "bg-[#fffbeb] dark:bg-amber-950/25 border-[#fde68a] dark:border-amber-800/40";
-                                dotColor = "bg-[#f59e0b]";
-                                textColor = "text-[#d97706] dark:text-amber-400";
+                                ring = "#f59e0b";
                                 statusLabel = member.status || "Half Day";
                               }
 
@@ -734,32 +723,21 @@ Upcoming Celebration
                               })();
 
                               return (
-                                <div
+                                <button
+                                  type="button"
                                   key={member.id}
                                   onClick={() => setSelectedTeamMemberForPunches(member)}
-                                  className={`group inline-flex items-center ${
-                                    isUltraCompact
-                                      ? "gap-1.5 p-1 px-2 rounded-xl"
-                                      : isCompact
-                                      ? "gap-2 p-1.5 px-2.5 rounded-xl"
-                                      : "gap-2.5 sm:gap-3 py-2 px-3 rounded-2xl flex-1 min-w-[140px] max-w-[220px]"
-                                  } ${cardBg} border hover:shadow-2xs transition-all duration-200 text-left cursor-pointer shrink-0`}
-                                  title={`Click to view punches for ${member.name} (${statusLabel})`}
+                                  aria-label={`${member.name}${member.designation ? `, ${member.designation}` : ""}, ${statusLabel}. View punches`}
+                                  className="group relative shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-white focus-visible:ring-offset-[6px]"
                                 >
-                                  {/* Avatar */}
-                                  <div
-                                    className={`${
-                                      isUltraCompact
-                                        ? "w-6 h-6 text-[10px]"
-                                        : isCompact
-                                        ? "w-7 h-7 text-[11px]"
-                                        : "w-8 h-8 sm:w-9 sm:h-9 text-xs font-bold"
-                                    } rounded-full bg-[#2563eb] text-white flex items-center justify-center shrink-0 shadow-2xs overflow-hidden`}
+                                  <span
+                                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-700 text-white text-xs font-bold flex items-center justify-center overflow-hidden transition-transform duration-150 group-hover:scale-105"
+                                    style={{ outline: `2.5px solid ${ring}`, outlineOffset: "2px" }}
                                   >
                                     {member.profile_photo_path ? (
                                       <img
                                         src={member.profile_photo_path}
-                                        alt={member.name}
+                                        alt=""
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
                                           (e.currentTarget as HTMLElement).style.display = "none";
@@ -768,45 +746,17 @@ Upcoming Celebration
                                     ) : (
                                       initials
                                     )}
-                                  </div>
-
-                                  {/* Name + Text & Color Dot Only (No Pills) */}
-                                  <div className="min-w-0 flex-1">
-                                    <div
-                                      className={`${
-                                        isUltraCompact
-                                          ? "text-[11px] max-w-[80px]"
-                                          : isCompact
-                                          ? "text-xs max-w-[100px]"
-                                          : "text-xs sm:text-[13px] font-bold max-w-[125px]"
-                                      } font-bold text-slate-800 dark:text-slate-100 truncate leading-tight`}
-                                    >
-                                      {member.name}
-                                    </div>
-                                    <div className="flex items-center gap-1.5 mt-0.5">
-                                      <span className={`${isCompact ? "w-1.5 h-1.5" : "w-2 h-2"} rounded-full shrink-0 ${dotColor}`} />
-                                      <span className={`${isCompact ? "text-[10px]" : "text-xs"} font-bold ${textColor} leading-none`}>
-                                        {statusLabel}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  {/* Subtle Clock Button */}
-                                  <div
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedTeamMemberForPunches(member);
-                                    }}
-                                    className={`${
-                                      isCompact ? "w-5 h-5" : "w-6 h-6 sm:w-7 sm:h-7"
-                                    } rounded-full bg-slate-200/50 dark:bg-slate-700/50 flex items-center justify-center text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors shrink-0 ml-auto cursor-pointer`}
-                                    title={`View punches for ${member.name}`}
+                                  </span>
+                                  <span
+                                    role="tooltip"
+                                    className="pointer-events-none absolute bottom-full left-0 mb-2.5 z-20 hidden group-hover:block group-focus-visible:block w-max max-w-[200px] rounded-md bg-slate-900 px-2.5 py-1.5 text-left shadow-md"
                                   >
-                                    <Clock className={`${isCompact ? "w-2.5 h-2.5" : "w-3.5 h-3.5"} stroke-[1.8]`} />
-                                  </div>
-                                </div>
+                                    <span className="block text-xs font-semibold text-white">{member.name}</span>
+                                    <span className="block text-[11px] text-slate-300">
+                                      {member.designation || "Team member"} · {statusLabel}
+                                    </span>
+                                  </span>
+                                </button>
                               );
                             })
                           ) : (
@@ -955,7 +905,7 @@ Upcoming Celebration
                             <p className="text-[13px] font-medium text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
                             <p className="text-[12px] text-slate-500 dark:text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
                           </div>
-                          <span className="text-xs font-semibold bg-purple-100 dark:bg-purple-500/20 text-[#56348f] dark:text-purple-300 px-2.5 py-1 rounded-full shrink-0">{approval.days} d</span>
+                          <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300 shrink-0">{approval.days} d</span>
                         </div>
                       ))}
                     </div>
@@ -1076,7 +1026,7 @@ Upcoming Celebration
                                 <p className="text-[13px] font-medium text-slate-900 dark:text-white">{a.name}</p>
                                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
                               </div>
-                              <span className="text-[11px] font-semibold bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 px-2 py-0.5 rounded-full">
+                              <span className="text-[11px] font-semibold text-pink-700 dark:text-pink-300">
                                 {format(new Date(a.date), "MMM d")}
                               </span>
                             </div>
@@ -1351,8 +1301,8 @@ Upcoming Celebration
           {/* Right section: pending notice and apply action */}
           <div className="flex flex-col justify-center items-stretch lg:items-end gap-3 shrink-0 min-w-[260px] w-full lg:w-auto pt-4 lg:pt-8">
             {leave_metrics.pending_leaves > 0 && (
-              <div className="bg-orange-500/10 border border-orange-500/20 rounded-md px-4 py-2 flex items-center gap-2 text-orange-400 text-xs justify-center lg:justify-start w-full">
-                <Clock className="w-4 h-4 shrink-0 animate-pulse" />
+              <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400 text-xs font-medium justify-center lg:justify-start w-full">
+                <Clock className="w-4 h-4 shrink-0" />
                 <span>{leave_metrics.pending_leaves} request(s) pending approval</span>
               </div>
             )}
@@ -2102,7 +2052,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <div className="flex items-center justify-between pr-8">
               <DialogTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
                 <span>{leaveModalData?.title}</span>
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/50">
+                <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300">
                   {leaveModalData?.list.length || 0}
                 </span>
               </DialogTitle>

@@ -478,6 +478,24 @@ html[data-ui-theme="recent"] #mobile-nav-drawer > div:last-child .text-sm { colo
 html[data-ui-theme="recent"] #mobile-nav-drawer > div:last-child .text-xs { color: var(--r-muted) !important; }
 html[data-ui-theme="recent"] #mobile-nav-drawer > div:last-child button { background: var(--r-ink) !important; border: 0 !important; border-radius: 9999px !important; box-shadow: none !important; }
 
+/* ── Recent theme: black-and-white buttons and boxes ──
+ * Coloured action buttons become solid black with white text; tinted boxes (icon circles, notices,
+ * coloured tiles) become neutral grey. Tiny dots and progress bars (w/h 0.5-3) keep their status colour,
+ * as do stat tiles, birthday cards and anything coloured with an inline style.
+ * Only classes at the start of the attribute or after a space match, so dark:/hover: variants are ignored. */
+html[data-ui-theme="recent"] :is(main, [role="dialog"]) :is(button, a, [role="button"])[class*="px-"]:is([class^="bg-red-"], [class*=" bg-red-"], [class^="bg-orange-"], [class*=" bg-orange-"], [class^="bg-amber-"], [class*=" bg-amber-"], [class^="bg-yellow-"], [class*=" bg-yellow-"], [class^="bg-lime-"], [class*=" bg-lime-"], [class^="bg-green-"], [class*=" bg-green-"], [class^="bg-emerald-"], [class*=" bg-emerald-"], [class^="bg-teal-"], [class*=" bg-teal-"], [class^="bg-cyan-"], [class*=" bg-cyan-"], [class^="bg-sky-"], [class*=" bg-sky-"], [class^="bg-blue-"], [class*=" bg-blue-"], [class^="bg-indigo-"], [class*=" bg-indigo-"], [class^="bg-violet-"], [class*=" bg-violet-"], [class^="bg-purple-"], [class*=" bg-purple-"], [class^="bg-fuchsia-"], [class*=" bg-fuchsia-"], [class^="bg-pink-"], [class*=" bg-pink-"], [class^="bg-rose-"], [class*=" bg-rose-"], [class^="bg-[#"], [class*=" bg-[#"], [class*="bg-gradient-"], [class*="bg-linear-"]) {
+  background: var(--r-ink) !important;
+  color: #FFFFFF !important;
+  border-color: var(--r-ink) !important;
+}
+html[data-ui-theme="recent"] :is(main, [role="dialog"]) :is(button, a, [role="button"])[class*="px-"]:is([class^="bg-red-"], [class*=" bg-red-"], [class^="bg-orange-"], [class*=" bg-orange-"], [class^="bg-amber-"], [class*=" bg-amber-"], [class^="bg-yellow-"], [class*=" bg-yellow-"], [class^="bg-lime-"], [class*=" bg-lime-"], [class^="bg-green-"], [class*=" bg-green-"], [class^="bg-emerald-"], [class*=" bg-emerald-"], [class^="bg-teal-"], [class*=" bg-teal-"], [class^="bg-cyan-"], [class*=" bg-cyan-"], [class^="bg-sky-"], [class*=" bg-sky-"], [class^="bg-blue-"], [class*=" bg-blue-"], [class^="bg-indigo-"], [class*=" bg-indigo-"], [class^="bg-violet-"], [class*=" bg-violet-"], [class^="bg-purple-"], [class*=" bg-purple-"], [class^="bg-fuchsia-"], [class*=" bg-fuchsia-"], [class^="bg-pink-"], [class*=" bg-pink-"], [class^="bg-rose-"], [class*=" bg-rose-"], [class^="bg-[#"], [class*=" bg-[#"], [class*="bg-gradient-"], [class*="bg-linear-"]) * { color: inherit !important; }
+html[data-ui-theme="recent"] :is(main, [role="dialog"]) div:is([class^="bg-red-"], [class*=" bg-red-"], [class^="bg-orange-"], [class*=" bg-orange-"], [class^="bg-amber-"], [class*=" bg-amber-"], [class^="bg-yellow-"], [class*=" bg-yellow-"], [class^="bg-lime-"], [class*=" bg-lime-"], [class^="bg-green-"], [class*=" bg-green-"], [class^="bg-emerald-"], [class*=" bg-emerald-"], [class^="bg-teal-"], [class*=" bg-teal-"], [class^="bg-cyan-"], [class*=" bg-cyan-"], [class^="bg-sky-"], [class*=" bg-sky-"], [class^="bg-blue-"], [class*=" bg-blue-"], [class^="bg-indigo-"], [class*=" bg-indigo-"], [class^="bg-violet-"], [class*=" bg-violet-"], [class^="bg-purple-"], [class*=" bg-purple-"], [class^="bg-fuchsia-"], [class*=" bg-fuchsia-"], [class^="bg-pink-"], [class*=" bg-pink-"], [class^="bg-rose-"], [class*=" bg-rose-"]):not(.stat-tile, .bday-card, [class~="w-0.5"], [class~="w-1"], [class~="w-1.5"], [class~="w-2"], [class~="w-2.5"], [class~="w-3"], [class~="h-0.5"], [class~="h-1"], [class~="h-1.5"], [class~="h-2"], [class~="h-2.5"], [class~="h-3"]) {
+  background: #F5F5F5 !important;
+  border-color: var(--r-line) !important;
+  color: var(--r-ink) !important;
+}
+html[data-ui-theme="recent"] :is(main, [role="dialog"]) div:is([class^="bg-red-"], [class*=" bg-red-"], [class^="bg-orange-"], [class*=" bg-orange-"], [class^="bg-amber-"], [class*=" bg-amber-"], [class^="bg-yellow-"], [class*=" bg-yellow-"], [class^="bg-lime-"], [class*=" bg-lime-"], [class^="bg-green-"], [class*=" bg-green-"], [class^="bg-emerald-"], [class*=" bg-emerald-"], [class^="bg-teal-"], [class*=" bg-teal-"], [class^="bg-cyan-"], [class*=" bg-cyan-"], [class^="bg-sky-"], [class*=" bg-sky-"], [class^="bg-blue-"], [class*=" bg-blue-"], [class^="bg-indigo-"], [class*=" bg-indigo-"], [class^="bg-violet-"], [class*=" bg-violet-"], [class^="bg-purple-"], [class*=" bg-purple-"], [class^="bg-fuchsia-"], [class*=" bg-fuchsia-"], [class^="bg-pink-"], [class*=" bg-pink-"], [class^="bg-rose-"], [class*=" bg-rose-"]):not(.stat-tile, .bday-card, [class~="w-0.5"], [class~="w-1"], [class~="w-1.5"], [class~="w-2"], [class~="w-2.5"], [class~="w-3"], [class~="h-0.5"], [class~="h-1"], [class~="h-1.5"], [class~="h-2"], [class~="h-2.5"], [class~="h-3"]) > svg { color: var(--r-ink) !important; }
+
 /* ── Always on: tinted attendance tiles and per-person birthday hovers (all themes) ── */
 .stat-tile { transition: transform .2s ease, box-shadow .2s ease; }
 .stat-tile:hover { transform: translateY(-2px); }
@@ -584,11 +602,12 @@ html[data-ui-theme]:not([data-ui-theme="classic"]) :is(.bg-primary, button[class
 .holiday-card[data-img="1"] .hc-title,
 .holiday-card[data-img="1"] .hc-date,
 .holiday-card[data-img="1"] .hc-type,
-.holiday-card[data-img="1"] .hc-other {
+.holiday-card[data-img="1"] .hc-other,
+.holiday-card[data-img="1"] .hc-pill {
   color: #ffffff !important;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85), 0 2px 12px rgba(0, 0, 0, 0.6);
 }
-.holiday-card[data-img="1"] .hc-pill { background: rgba(255, 255, 255, 0.95) !important; color: #0f172a !important; border-color: #ffffff !important; text-shadow: none; }
+
 .holiday-card[data-img="1"] .hc-arrow { color: #ffffff !important; background: rgba(0, 0, 0, 0.45) !important; }
 .holiday-card[data-img="1"] .hc-arrow svg { stroke: #ffffff !important; }
 

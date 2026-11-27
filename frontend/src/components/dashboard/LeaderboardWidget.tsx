@@ -147,7 +147,7 @@ export function LeaderboardWidget() {
                       </div>
                     </div>
 
-                    <span className="text-[11px] font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-full shrink-0">
+                    <span className="text-[11px] font-semibold text-amber-800 dark:text-amber-300 shrink-0">
                       {entry.total_achievements} Award{entry.total_achievements !== 1 ? "s" : ""}
                     </span>
                   </div>

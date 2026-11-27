@@ -664,7 +664,7 @@ export function AttendanceWidget({
                       {selectedDate === todayStr ? "Today" : format(parseISO(selectedDate), "d MMM yyyy")}
                     </span>
                     {selectedDate === todayStr && (
-                      <span className="px-1.5 py-0.2 bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                      <span className="text-emerald-700 dark:text-emerald-300 text-[10px] font-bold uppercase tracking-wider">
                         Live
                       </span>
                     )}
@@ -979,11 +979,11 @@ export function AttendanceWidget({
                                   : "Biometric Scanner Log"}
                               </h3>
                               {isHybrid ? (
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 whitespace-nowrap shrink-0">
+                                <span className="text-[10px] font-semibold text-blue-700 dark:text-blue-300 whitespace-nowrap shrink-0">
                                   Hybrid Day
                                 </span>
                               ) : isWfhManual ? (
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 whitespace-nowrap shrink-0">
+                                <span className="text-[10px] font-semibold text-purple-700 dark:text-purple-300 whitespace-nowrap shrink-0">
                                   Manual Mode
                                 </span>
                               ) : null}

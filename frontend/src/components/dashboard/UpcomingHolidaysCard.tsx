@@ -257,7 +257,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                   {(getDaysRemainingText(currentHoliday.date) || currentHoliday.type) && (
                     <div className="flex items-center justify-center gap-1.5 pt-1">
                       {getDaysRemainingText(currentHoliday.date) && (
-                        <span className={`hc-pill text-[10.5px] font-semibold px-2.5 py-0.5 rounded-full shadow-2xs border ${hasImg ? "bg-white/90 text-slate-900 border-white" : "bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 border-purple-200/60 dark:border-purple-800/60"}`}>
+                        <span className={`hc-pill text-[11px] font-semibold ${hasImg ? "text-white" : "text-[#56348f] dark:text-purple-300"} ${imgText}`}>
                           {getDaysRemainingText(currentHoliday.date)}
                         </span>
                       )}

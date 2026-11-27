@@ -590,7 +590,7 @@ class DashboardController extends Controller
 
                         $teamMembers = User::where('team_id', $teamId)
                             ->where('status', 'Active')
-                            ->get(['id', 'first_name', 'last_name'])
+                            ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'profile_photo_path'])
                             ->map(function($member) use ($checkedInIds, $punchedInIds, $onLeaveIds, $onWfhIds) {
                                 $hasCheckIn = $checkedInIds->has($member->id) || $punchedInIds->has($member->id);
                                 $isOnLeave = $onLeaveIds->has($member->id);
@@ -613,7 +613,8 @@ class DashboardController extends Controller
                                     'employee_code' => $member->employee_code,
                                     'designation' => $member->designation,
                                     'profile_photo_path' => $member->profilePhotoUrl(),
-                                    'status' => $status
+                                    'status' => $status,
+                                    'checked_in' => $hasCheckIn,
                                 ];
                             });
 
