@@ -389,14 +389,14 @@ export function AttendanceWidget({
           </div>
 
           {/* Action Button & Status Pill */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-4 shrink-0">
             <button
               type="button"
               onClick={() => setIsTimelineDrawerOpen(true)}
-              className="group inline-flex items-center gap-1.5 px-3.5 py-1 text-xs font-semibold rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-[#56348f] dark:hover:text-purple-300 hover:bg-purple-50/60 dark:hover:bg-purple-950/40 border border-slate-200/90 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700/60 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer active:scale-95"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white underline-offset-4 hover:underline transition-colors cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500"
               title="View all your check-in and check-out punches for today"
             >
-              <History className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400 group-hover:rotate-[-25deg] transition-transform duration-300 shrink-0" />
+              <History className="w-3.5 h-3.5 shrink-0" />
               <span>Today&apos;s Punches</span>
             </button>
 
