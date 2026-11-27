@@ -79,10 +79,12 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
             return (
               <div
                 key={person.id || idx}
-                role="button"
-                tabIndex={0}
-                aria-label={`Send a birthday wish to ${person.name}`}
+                // Wishing opens only on the birthday itself; other rows are plain information.
+                {...(isToday
+                  ? { role: "button", tabIndex: 0, "aria-label": `Send a birthday wish to ${person.name}` }
+                  : {})}
                 onClick={() =>
+                  isToday &&
                   setWishTarget({
                     id: person.id,
                     name: person.name,
@@ -93,12 +95,12 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
                   })
                 }
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
+                  if (isToday && (e.key === "Enter" || e.key === " ")) {
                     e.preventDefault();
                     (e.currentTarget as HTMLElement).click();
                   }
                 }}
-                className={`cursor-pointer bday-card bday-card-${idx % 3} flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800`}
+                className={`${isToday ? `cursor-pointer bday-card bday-card-${idx % 3}` : ""} flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <RoyalAvatar
@@ -133,8 +135,9 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
                 <div className="flex items-center gap-2 shrink-0">
                   {isToday ? (
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">
-                      Today!
+                    <span className="text-right leading-tight">
+                      <span className="block text-[11px] font-semibold text-rose-600 dark:text-rose-400">Today</span>
+                      <span className="block text-[11px] text-slate-600 dark:text-slate-300 underline underline-offset-2">Send a wish</span>
                     </span>
                   ) : (
                     <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-300">

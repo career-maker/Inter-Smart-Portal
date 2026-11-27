@@ -18,7 +18,7 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { format, parseISO } from "date-fns";
 import { BirthdayWishDrawer, WishTargetPerson } from "@/components/community/BirthdayWishDrawer";
-import { CommunityHolidayCard } from "@/components/community/CommunityHolidayCard";
+import { UpcomingHolidaysCard } from "@/components/dashboard/UpcomingHolidaysCard";
 import { MilestoneCelebrationsWidget } from "@/components/community/MilestoneCelebrationsWidget";
 import { CommunityFeed } from "@/components/community/CommunityFeed";
 
@@ -92,7 +92,7 @@ function CommunityPageContent() {
     return <PageLoader />;
   }
 
-  const holiday = summary?.upcoming_holiday;
+  const holidays = summary?.upcoming_holidays ?? (summary?.upcoming_holiday ? [summary.upcoming_holiday] : []);
   const onLeave = summary?.on_leave_today || [];
   const onWfh = summary?.wfh_today || [];
   const leaveBalances = {
@@ -119,7 +119,7 @@ function CommunityPageContent() {
           {/* ── TOP CELEBRATION HIGHLIGHTS: UPCOMING HOLIDAY + MILESTONE CELEBRATIONS ── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             <div className="lg:col-span-5 flex">
-              <CommunityHolidayCard holiday={holiday} />
+              <UpcomingHolidaysCard className="w-full" holidays={holidays} />
             </div>
             <div className="lg:col-span-7 flex">
               <MilestoneCelebrationsWidget

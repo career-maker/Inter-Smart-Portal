@@ -745,9 +745,12 @@ class CommunityController extends Controller
         $user = $request->user();
         $today = Carbon::today('Asia/Kolkata');
 
-        $upcomingHoliday = Holiday::where('date', '>=', $today->format('Y-m-d'))
+        // Same list the dashboard holiday card uses (image carousel); the first one stays as upcoming_holiday.
+        $upcomingHolidays = Holiday::where('date', '>=', $today->format('Y-m-d'))
             ->orderBy('date', 'asc')
-            ->first();
+            ->take(6)
+            ->get(['id', 'name', 'date', 'type', 'description', 'image_url']);
+        $upcomingHoliday = $upcomingHolidays->first();
 
         $todayIsHoliday = Holiday::whereDate('date', $today->format('Y-m-d'))->first();
         if (!$todayIsHoliday && $today->isWeekend()) {
@@ -895,6 +898,7 @@ class CommunityController extends Controller
 
         return response()->json([
             'upcoming_holiday' => $upcomingHoliday,
+            'upcoming_holidays' => $upcomingHolidays,
             'today_is_holiday' => $todayIsHoliday ? ['name' => $todayIsHoliday->name, 'type' => $todayIsHoliday->type] : null,
             'on_leave_today' => $onLeaveToday,
             'wfh_today' => $wfhToday,

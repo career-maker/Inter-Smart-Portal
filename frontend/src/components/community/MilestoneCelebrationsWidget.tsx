@@ -204,7 +204,7 @@ export function MilestoneCelebrationsWidget({
                     No upcoming birthdays in the next 30 days.
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-none">
+                  <div className="flex items-center gap-3 overflow-x-auto scrollbar-none pt-2 pb-3 -mt-2 -mb-2 px-1 -mx-1">
                     {allBirthdays.map((person) => (
                       <div
                         key={person.id}
@@ -268,7 +268,7 @@ export function MilestoneCelebrationsWidget({
                     No work anniversaries in the next 30 days.
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-none">
+                  <div className="flex items-center gap-3 overflow-x-auto scrollbar-none pt-2 pb-3 -mt-2 -mb-2 px-1 -mx-1">
                     {allAnniversaries.map((person) => (
                       <div
                         key={person.id}
@@ -328,7 +328,7 @@ export function MilestoneCelebrationsWidget({
                     No new members joined recently.
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-none">
+                  <div className="flex items-center gap-3 overflow-x-auto scrollbar-none pt-2 pb-3 -mt-2 -mb-2 px-1 -mx-1">
                     {allJoined.map((person) => (
                       <div
                         key={person.id}
