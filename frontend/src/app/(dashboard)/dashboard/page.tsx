@@ -930,7 +930,62 @@ Upcoming Celebration
               onClearExternalOpen={() => setSelectedTeamMemberForPunches(null)}
             />
 
-            {/* Latest Updates (Moves directly below Today's Attendance - zero gap!) */}
+            {/* Side-by-Side: Work Anniversaries & Upcoming Birthdays */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Work Anniversaries */}
+              {(() => {
+                const today = new Date(); today.setHours(0,0,0,0);
+                const filteredAnni = (widgets.anniversaries || []).filter((a: any) => {
+                  const d = new Date(a.date); d.setHours(0,0,0,0);
+                  const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+                  return diff >= 0 && diff <= 14;
+                }).map((a: any) => {
+                  const d = new Date(a.date); d.setHours(0,0,0,0);
+                  return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
+                });
+                return (
+                  <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
+                    <div>
+                      <div className="mb-3">
+                        <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                          <PartyPopper className="w-4 h-4 text-pink-500" />
+                          Work Anniversaries
+                        </h3>
+                        <p style={{ fontSize: "var(--portal-desc-size, 13px)", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal box-subtitle card-desc">
+                          Upcoming work milestones in 14 days
+                        </p>
+                      </div>
+                      {filteredAnni.length === 0 ? (
+                        <div className="py-6 text-center">
+                          <p style={{ fontSize: "var(--portal-body-size, 12px)", lineHeight: "18px" }} className="text-slate-500 dark:text-slate-400 empty-state-text">No work anniversaries in the next 2 weeks.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2.5">
+                          {filteredAnni.slice(0, 3).map((a: any, idx: number) => (
+                            <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800">
+                              <div>
+                                <p className="text-[13px] font-medium text-slate-900 dark:text-white">{a.name}</p>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
+                              </div>
+                              <span className="text-[11px] font-semibold text-pink-700 dark:text-pink-300">
+                                {format(new Date(a.date), "MMM d")}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Upcoming Birthdays with Wishes */}
+              <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
+                <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
+              </div>
+            </div>
+
+            {/* Latest Updates (last item in the left column) */}
             {widgets.company_updates.length > 1 ? (
               <RotatingCard
                 title="Latest Updates"
@@ -988,61 +1043,6 @@ Upcoming Celebration
                 </div>
               </div>
             )}
-
-            {/* Side-by-Side: Work Anniversaries & Upcoming Birthdays */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Work Anniversaries */}
-              {(() => {
-                const today = new Date(); today.setHours(0,0,0,0);
-                const filteredAnni = (widgets.anniversaries || []).filter((a: any) => {
-                  const d = new Date(a.date); d.setHours(0,0,0,0);
-                  const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
-                  return diff >= 0 && diff <= 14;
-                }).map((a: any) => {
-                  const d = new Date(a.date); d.setHours(0,0,0,0);
-                  return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
-                });
-                return (
-                  <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
-                    <div>
-                      <div className="mb-3">
-                        <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                          <PartyPopper className="w-4 h-4 text-pink-500" />
-                          Work Anniversaries
-                        </h3>
-                        <p style={{ fontSize: "var(--portal-desc-size, 13px)", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal box-subtitle card-desc">
-                          Upcoming work milestones in 14 days
-                        </p>
-                      </div>
-                      {filteredAnni.length === 0 ? (
-                        <div className="py-6 text-center">
-                          <p style={{ fontSize: "var(--portal-body-size, 12px)", lineHeight: "18px" }} className="text-slate-500 dark:text-slate-400 empty-state-text">No work anniversaries in the next 2 weeks.</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-2.5">
-                          {filteredAnni.slice(0, 3).map((a: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800">
-                              <div>
-                                <p className="text-[13px] font-medium text-slate-900 dark:text-white">{a.name}</p>
-                                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
-                              </div>
-                              <span className="text-[11px] font-semibold text-pink-700 dark:text-pink-300">
-                                {format(new Date(a.date), "MMM d")}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Upcoming Birthdays with Wishes */}
-              <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
-                <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
-              </div>
-            </div>
           </div>
 
           {/* ── RIGHT COLUMN (Spans 1 column on desktop) ── */}
