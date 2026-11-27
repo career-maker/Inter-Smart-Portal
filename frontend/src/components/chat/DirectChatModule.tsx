@@ -334,6 +334,46 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
   const currentUser = useAuthStore((state) => state.user);
   const minimizeChat = useMinimizedChatsStore((state) => state.minimizeChat);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Desktop/tablet: size the chat box to exactly fill the viewport below the header and lock page scroll,
+  // so only the conversation list and the message stream scroll. Phones keep the CSS height.
+  const chatRootRef = useRef<HTMLDivElement>(null);
+  const [fitHeight, setFitHeight] = useState<number | null>(null);
+  useEffect(() => {
+    if (isFullscreen) return;
+    const el = chatRootRef.current;
+    if (!el) return;
+    const html = document.documentElement;
+    const prevOverflow = html.style.overflow;
+    const fit = () => {
+      if (window.innerWidth < 768) {
+        setFitHeight(null);
+        html.style.overflow = prevOverflow;
+        return;
+      }
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      const h = Math.floor(window.innerHeight - top - 16);
+      if (h >= 360) {
+        window.scrollTo(0, 0);
+        setFitHeight(h);
+        html.style.overflow = "hidden";
+      } else {
+        // Window too short to fit: fall back to normal page scrolling.
+        setFitHeight(null);
+        html.style.overflow = prevOverflow;
+      }
+    };
+    fit();
+    // Header/sub-tabs can render after the chat mounts and shift it down.
+    const ro = new ResizeObserver(fit);
+    if (el.parentElement) ro.observe(el.parentElement);
+    window.addEventListener("resize", fit);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", fit);
+      html.style.overflow = prevOverflow;
+    };
+  }, [isFullscreen]);
   const { permissionStatus, requestNotificationPermission, sendTestNotification } = useChatPushNotifications();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<number | null>(
@@ -1270,13 +1310,15 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
 
   const content = (
     <div
-      style={{
-        fontFamily: '"Google Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-      }}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
+      ref={chatRootRef}
+      style={{
+        fontFamily: '"Google Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+        ...(!isFullscreen && fitHeight ? { height: fitHeight } : {}),
+      }}
       className={isFullscreen ? "fixed inset-0 z-[100] bg-white dark:bg-[#111b21] overflow-hidden flex flex-col md:flex-row h-[100dvh] w-full max-w-full select-text" : "relative bg-white dark:bg-[#111b21] overflow-hidden flex flex-col md:flex-row h-[calc(100dvh-150px)] w-full max-w-full select-text border border-slate-200 dark:border-slate-800 rounded-xl"}
     >
       {/* ─────────────────────────────────────────────────────────────
@@ -1416,7 +1458,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
         </div>
 
         {/* WhatsApp Style Conversation Rows */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar overflow-x-hidden">
+        <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar overflow-x-hidden">
           {loadingConversations ? (
             <div className="p-8 text-center text-xs text-slate-400">Loading chats...</div>
           ) : filteredConversations.length === 0 ? (
@@ -1677,7 +1719,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
             </div>
 
             {/* Google Chat Style Messages Stream (ONLY this section scrolls) */}
-            <div ref={chatStreamRef} className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-5 custom-scrollbar space-y-3 overflow-x-hidden">
+            <div ref={chatStreamRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5 custom-scrollbar space-y-3 overflow-x-hidden">
               {loadingMessages && messages.length === 0 ? (
                 <div className="flex items-center justify-center gap-2 h-full text-xs text-slate-400">
                   <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />
@@ -1941,7 +1983,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                   )}
 
                   {/* Emoji Grid */}
-                  <div className="flex-1 min-h-0 overflow-y-auto p-1.5 custom-scrollbar">
+                  <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-1.5 custom-scrollbar">
                     {filteredEmojis.length > 0 ? (
                       <div className="grid grid-cols-8 gap-0.5">
                         {filteredEmojis.map((emoji, idx) => (
@@ -2167,7 +2209,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-3 custom-scrollbar space-y-1">
+              <div className="flex-1 overflow-y-auto overscroll-contain p-3 custom-scrollbar space-y-1">
                 {loadingColleagues && allColleagues.length === 0 ? (
                   <div className="p-8 text-center text-xs text-slate-400">Loading directory...</div>
                 ) : filteredColleagues.length === 0 ? (
