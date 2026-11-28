@@ -21,7 +21,7 @@ export function CommonSpinner({
   return (
     <div
       className={cn(
-        "rounded-full border-slate-200 dark:border-slate-800 border-t-[#56348f] dark:border-t-purple-400 animate-spin",
+        "rounded-full border-slate-200 dark:border-slate-800 border-t-[var(--portal-primary-color)] dark:border-t-purple-400 animate-spin",
         sizeClasses[size],
         className
       )}

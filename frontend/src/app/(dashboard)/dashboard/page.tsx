@@ -539,7 +539,7 @@ Upcoming Celebration
           </div>
           <Link
             href="/calendar"
-            className="flex-shrink-0 text-xs font-semibold text-[#56348f] dark:text-purple-300 hover:underline px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-purple-200/80 dark:border-purple-800 rounded-xl shadow-2xs hover:bg-slate-50 transition-colors"
+            className="flex-shrink-0 text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300 hover:underline px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-purple-200/80 dark:border-purple-800 rounded-xl shadow-2xs hover:bg-slate-50 transition-colors"
           >
             View Calendar →
           </Link>
@@ -845,14 +845,14 @@ Upcoming Celebration
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h2 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                        <Clock className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                        <Clock className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400" />
                         Pending Approvals
                       </h2>
                       <p style={{ fontSize: "var(--portal-desc-size, 13px)", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal box-subtitle card-desc">
                         Leave requests awaiting review
                       </p>
                     </div>
-                    <Link href="/leaves/approvals" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-1">
+                    <Link href="/leaves/approvals" className="text-xs font-medium text-[var(--portal-primary-color)] dark:text-purple-400 hover:underline flex items-center gap-1">
                       View All <ChevronRight className="w-3 h-3" />
                     </Link>
                   </div>
@@ -864,7 +864,7 @@ Upcoming Celebration
                             <p className="text-[13px] font-medium text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
                             <p className="text-[12px] text-slate-500 dark:text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
                           </div>
-                          <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300 shrink-0">{approval.days} d</span>
+                          <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300 shrink-0">{approval.days} d</span>
                         </div>
                       ))}
                     </div>
@@ -950,7 +950,7 @@ Upcoming Celebration
                 title="Latest Updates"
                 subtitle="Company announcements and news"
                 icon={Megaphone}
-                iconColorClass="text-[#56348f] dark:text-purple-400"
+                iconColorClass="text-[var(--portal-primary-color)] dark:text-purple-400"
                 items={widgets.company_updates}
                 emptyMessage="No announcements yet"
                 renderItem={(update) => (
@@ -959,7 +959,7 @@ Upcoming Celebration
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
                     <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
                       <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
-                      <Link href="/announcements" className="text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:underline">View →</Link>
+                      <Link href="/announcements" className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 hover:underline">View →</Link>
                     </div>
                   </div>
                 )}
@@ -970,14 +970,14 @@ Upcoming Celebration
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                        <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                        <Megaphone className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400" />
                         Latest Updates
                       </h3>
                       <p style={{ fontSize: "var(--portal-desc-size, 13px)", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal box-subtitle card-desc">
                         Important company announcements and news
                       </p>
                     </div>
-                    <Link href="/announcements" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">View All</Link>
+                    <Link href="/announcements" className="text-xs font-medium text-[var(--portal-primary-color)] dark:text-purple-400 hover:underline">View All</Link>
                   </div>
                   <div className="space-y-3">
                     {widgets.company_updates.length === 0 ? (
@@ -1057,14 +1057,14 @@ Upcoming Celebration
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                  <Layers className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                  <Layers className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400" />
                   Recent Audit Logs
                 </h3>
                 <p style={{ fontSize: "var(--portal-desc-size, 13px)", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal box-subtitle card-desc">
                   System activities and audit trail
                 </p>
               </div>
-              <Link href="/audit-logs" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-1">
+              <Link href="/audit-logs" className="text-xs font-medium text-[var(--portal-primary-color)] dark:text-purple-400 hover:underline flex items-center gap-1">
                 View All <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
@@ -1072,7 +1072,7 @@ Upcoming Celebration
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {data.widgets.recent_audit_logs.slice(0, 8).map((log: any, idx: number) => (
                   <div key={idx} className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3 border border-slate-200/60 dark:border-slate-800 flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#56348f] rounded-full flex-shrink-0 mt-1.5"></div>
+                    <div className="w-2 h-2 bg-[var(--portal-primary-color)] rounded-full flex-shrink-0 mt-1.5"></div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-slate-900 dark:text-white truncate">{log.action || 'System Action'}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{log.description || log.user_name}</p>
@@ -1161,7 +1161,7 @@ Upcoming Celebration
             
             <Link 
               href="/hall"
-              className="md:col-span-3 lg:col-span-2 group relative rounded-md p-5 sm:p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200/90 dark:border-slate-700/60 hover:border-[#56348f]/40 dark:hover:border-purple-400/40 transition-colors duration-200"
+              className="md:col-span-3 lg:col-span-2 group relative rounded-md p-5 sm:p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200/90 dark:border-slate-700/60 hover:border-[var(--portal-primary-color)]/40 dark:hover:border-purple-400/40 transition-colors duration-200"
             >
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="space-y-1">
@@ -1719,7 +1719,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               title="Company Announcements"
               subtitle="Latest company news and updates"
               icon={Megaphone}
-              iconColorClass="text-[#56348f] dark:text-purple-400"
+              iconColorClass="text-[var(--portal-primary-color)] dark:text-purple-400"
               items={widgets.company_updates}
               emptyMessage="No announcements yet"
               renderItem={(update) => (
@@ -1728,7 +1728,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
                   <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
                     <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
-                    <Link href="/announcements" className="text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:underline">View →</Link>
+                    <Link href="/announcements" className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 hover:underline">View →</Link>
                   </div>
                 </div>
               )}
@@ -1738,14 +1738,14 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                  <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                  <Megaphone className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400" />
                   Company Announcements
                 </h3>
                 <p style={{ fontSize: "var(--portal-desc-size, 13px)", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal box-subtitle card-desc">
                   Latest company news and updates
                 </p>
               </div>
-              <Link href="/announcements" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">View All</Link>
+              <Link href="/announcements" className="text-xs font-medium text-[var(--portal-primary-color)] dark:text-purple-400 hover:underline">View All</Link>
             </div>
             <div className="space-y-3">
                 {widgets.company_updates.length === 0 ? (
@@ -1753,7 +1753,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                 ) : (
                   widgets.company_updates.slice(0, 1).map((update: any, idx: number) => (
                     <div key={idx} className="flex gap-3 items-start border-b border-slate-200 dark:border-white/10 pb-3 last:border-0 last:pb-0">
-                      <div className="w-2 h-2 mt-1.5 rounded-full bg-[#56348f] shrink-0"></div>
+                      <div className="w-2 h-2 mt-1.5 rounded-full bg-[var(--portal-primary-color)] shrink-0"></div>
                       <div>
                         <p className="text-sm font-medium text-slate-900 dark:text-white leading-tight">{update.title}</p>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
@@ -1893,14 +1893,14 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                  <Activity className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                  <Activity className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400" />
                   Recent Activity
                 </h3>
                 <p style={{ fontSize: "var(--portal-desc-size, 13px)", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal box-subtitle card-desc">
                   Latest actions across the portal
                 </p>
               </div>
-              <Link href="/activities" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">View All</Link>
+              <Link href="/activities" className="text-xs font-medium text-[var(--portal-primary-color)] dark:text-purple-400 hover:underline">View All</Link>
             </div>
             <div className="space-y-4">
               {paginatedActivity.map((act: any, i: number) => (
@@ -1922,7 +1922,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   <button
                     onClick={() => setActivityPage(p => Math.max(1, p - 1))}
                     disabled={activityPage === 1}
-                    className="text-xs font-semibold text-[#56348f] dark:text-purple-400 disabled:opacity-50"
+                    className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 disabled:opacity-50"
                   >
                     Previous
                   </button>
@@ -1930,7 +1930,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   <button
                     onClick={() => setActivityPage(p => Math.min(totalActivityPages, p + 1))}
                     disabled={activityPage === totalActivityPages}
-                    className="text-xs font-semibold text-[#56348f] dark:text-purple-400 disabled:opacity-50"
+                    className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 disabled:opacity-50"
                   >
                     Next
                   </button>
@@ -1960,7 +1960,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   Leave summary for today
                 </p>
               </div>
-              <Link href="/manage-leaves" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">Manage</Link>
+              <Link href="/manage-leaves" className="text-xs font-medium text-[var(--portal-primary-color)] dark:text-purple-400 hover:underline">Manage</Link>
             </div>
             <div className="space-y-4">
                <div className="flex justify-between items-center bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-md">
@@ -1990,7 +1990,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <div className="flex items-center justify-between pr-8">
               <DialogTitle className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2.5">
                 <span>{leaveModalData?.title}</span>
-                <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300">
+                <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                   {leaveModalData?.list.length || 0}
                 </span>
               </DialogTitle>
@@ -2018,7 +2018,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     key={idx}
                     type="button"
                     onClick={() => handleSelectEmployee(item)}
-                    className="w-full flex items-center justify-between p-3.5 bg-white hover:bg-purple-50/50 dark:bg-slate-800/80 dark:hover:bg-slate-750 border border-slate-200/80 hover:border-[#56348f]/40 dark:border-slate-700/80 dark:hover:border-purple-500/50 rounded-xl transition group text-left cursor-pointer shadow-xs hover:shadow-sm"
+                    className="w-full flex items-center justify-between p-3.5 bg-white hover:bg-purple-50/50 dark:bg-slate-800/80 dark:hover:bg-slate-750 border border-slate-200/80 hover:border-[var(--portal-primary-color)]/40 dark:border-slate-700/80 dark:hover:border-purple-500/50 rounded-xl transition group text-left cursor-pointer shadow-xs hover:shadow-sm"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <RoyalAvatar
@@ -2029,7 +2029,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                         className="w-10 h-10 rounded-full shrink-0 border border-slate-200 dark:border-slate-700 text-xs font-semibold"
                       />
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors truncate">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-[var(--portal-primary-color)] dark:group-hover:text-purple-300 transition-colors truncate">
                           <RoyalName
                             name={empName}
                             userId={empId}
@@ -2043,7 +2043,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                         </p>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 group-hover:translate-x-0.5 transition shrink-0 ml-2" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[var(--portal-primary-color)] dark:group-hover:text-purple-300 group-hover:translate-x-0.5 transition shrink-0 ml-2" />
                   </button>
                 );
               })
@@ -2214,7 +2214,7 @@ function RotatingCard({
             style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }}
             className="dark:text-white flex items-center gap-2 box-title"
           >
-            <Icon className={`w-4 h-4 ${iconColorClass || (headerClass ? headerClass.replace('text-', 'text-') : 'text-[#56348f] dark:text-purple-400')}`} />
+            <Icon className={`w-4 h-4 ${iconColorClass || (headerClass ? headerClass.replace('text-', 'text-') : 'text-[var(--portal-primary-color)] dark:text-purple-400')}`} />
             {title}
           </h3>
           {subtitle && (
@@ -2465,8 +2465,8 @@ function CelebrationCard({ recognition, firstName }: { recognition: any; firstNa
 function MenuCard({ href, icon: Icon, title, subtitle, className = "" }: any) {
   return (
     <Link href={href} className={`block ${className}`}>
-      <div className="h-full rounded-md p-5 sm:p-6 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 hover:border-[#56348f]/40 dark:hover:border-purple-400/40 transition-colors duration-200">
-        <div className="w-10 h-10 rounded-md bg-slate-100 dark:bg-slate-700/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center mb-4">
+      <div className="h-full rounded-md p-5 sm:p-6 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 hover:border-[var(--portal-primary-color)]/40 dark:hover:border-purple-400/40 transition-colors duration-200">
+        <div className="w-10 h-10 rounded-md bg-slate-100 dark:bg-slate-700/60 text-[var(--portal-primary-color)] dark:text-purple-300 flex items-center justify-center mb-4">
           <Icon className="w-5 h-5" />
         </div>
         <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white box-title">{title}</h3>

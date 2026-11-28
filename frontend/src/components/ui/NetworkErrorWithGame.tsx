@@ -503,7 +503,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
             <button
               onClick={handleRetry}
               disabled={retrying}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 sm:py-2.5 bg-[#56348f] hover:bg-[#472a77] text-white text-sm font-semibold rounded-xl shadow-md shadow-purple-900/20 transition active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 sm:py-2.5 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-sm font-semibold rounded-xl shadow-md shadow-purple-900/20 transition active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${retrying ? "animate-spin" : ""}`} />
               <span>{retrying ? "Connecting..." : "Try Reconnecting"}</span>
@@ -515,7 +515,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
             style={{ touchAction: "manipulation" }}
             className={`w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 sm:py-2.5 text-base sm:text-sm font-semibold rounded-xl transition active:scale-95 cursor-pointer shadow-md select-none ${
               standalone
-                ? "bg-[#56348f] hover:bg-[#472a77] text-white shadow-purple-900/25"
+                ? "bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white shadow-purple-900/25"
                 : "bg-purple-600 hover:bg-purple-700 text-white shadow-purple-900/25"
             }`}
           >
@@ -535,7 +535,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
             </div>
 
             {/* Current user rank pill */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-[#56348f] dark:bg-purple-950/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-[var(--portal-primary-color)] dark:bg-purple-950/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
               <Award className="w-3 h-3" />
               <span>Your Rank: #{currentRank}</span>
             </div>
@@ -578,7 +578,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
                   key={player.id}
                   className={`flex items-center justify-between px-3 py-2 rounded-xl transition ${
                     isUser
-                      ? "bg-purple-50 dark:bg-purple-950/40 border-2 border-[#56348f]/60 shadow-xs"
+                      ? "bg-purple-50 dark:bg-purple-950/40 border-2 border-[var(--portal-primary-color)]/60 shadow-xs"
                       : "bg-white dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
                   }`}
                 >
@@ -587,7 +587,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
                       {medal}
                     </span>
                     <div
-                      className={`w-7 h-7 rounded-full ${player.avatarBg || "bg-[#56348f]"} text-white text-xs font-semibold flex items-center justify-center shrink-0`}
+                      className={`w-7 h-7 rounded-full ${player.avatarBg || "bg-[var(--portal-primary-color)]"} text-white text-xs font-semibold flex items-center justify-center shrink-0`}
                     >
                       {player.avatarText || "IS"}
                     </div>
@@ -596,14 +596,14 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
                         <span
                           className={`text-xs font-semibold truncate ${
                             isUser
-                              ? "text-[#56348f] dark:text-purple-300 font-bold"
+                              ? "text-[var(--portal-primary-color)] dark:text-purple-300 font-bold"
                               : "text-slate-800 dark:text-slate-100"
                           }`}
                         >
                           {player.name}
                         </span>
                         {isUser && (
-                          <span className="text-xs font-semibold px-1.5 py-0.2 bg-[#56348f] text-white rounded-md">
+                          <span className="text-xs font-semibold px-1.5 py-0.2 bg-[var(--portal-primary-color)] text-white rounded-md">
                             You
                           </span>
                         )}

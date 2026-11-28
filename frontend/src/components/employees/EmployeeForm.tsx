@@ -361,7 +361,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
           <Card className="shadow-sm border-purple-200/80 dark:border-purple-800/40 bg-purple-50/25 dark:bg-purple-950/10">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2 text-slate-900 dark:text-white">
-                <LifeBuoy className="w-5 h-5 text-[#56348f] dark:text-purple-400 shrink-0" />
+                <LifeBuoy className="w-5 h-5 text-[var(--portal-primary-color)] dark:text-purple-400 shrink-0" />
                 <span>Emergency Contact Settings</span>
               </CardTitle>
               <CardDescription>
@@ -402,7 +402,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" size="lg" className="rounded-xl cursor-pointer" href="/employees">Cancel</Button>
-          <Button loading={isLoading} type="submit" size="lg" className="rounded-xl bg-[#56348f] hover:bg-[#432870] !text-white font-semibold cursor-pointer shadow-sm" disabled={isLoading}>{isLoading ? "Saving..." : "Save Employee Profile"}</Button>
+          <Button loading={isLoading} type="submit" size="lg" className="rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white font-semibold cursor-pointer shadow-sm" disabled={isLoading}>{isLoading ? "Saving..." : "Save Employee Profile"}</Button>
         </div>
       </form>
     </Form>

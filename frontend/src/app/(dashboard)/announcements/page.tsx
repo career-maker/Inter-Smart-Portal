@@ -290,7 +290,7 @@ export default function AnnouncementsPage() {
             <span className="text-slate-900 dark:text-white">Updates & Announcements</span>
           </div>
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2.5 mt-1">
-            <Megaphone className="w-6 h-6 text-[#56348f] dark:text-purple-400" />
+            <Megaphone className="w-6 h-6 text-[var(--portal-primary-color)] dark:text-purple-400" />
             <span>Company Updates & Announcements</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -305,13 +305,13 @@ export default function AnnouncementsPage() {
               type="button"
               onClick={openCreate}
               style={{
-                backgroundColor: "#56348f",
+                backgroundColor: "var(--portal-primary-color, #00806E)",
                 color: "rgb(255, 255, 255)",
                 fontFamily: 'Inter, sans-serif',
                 fontSize: "12px",
                 fontWeight: 600,
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold shadow-sm transition cursor-pointer"
             >
               <Plus className="w-4 h-4 !text-white" />
               <span className="!text-white">New Announcement</span>
@@ -341,7 +341,7 @@ export default function AnnouncementsPage() {
             onClick={() => setSelectedCategory("all")}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
               selectedCategory === "all"
-                ? "bg-[#56348f] text-white border-[#56348f]"
+                ? "bg-[var(--portal-primary-color)] text-white border-[var(--portal-primary-color)]"
                 : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
             }`}
           >
@@ -358,7 +358,7 @@ export default function AnnouncementsPage() {
                 onClick={() => setSelectedCategory(cat.name)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
                   isSelected
-                    ? "bg-[#56348f] text-white border-[#56348f]"
+                    ? "bg-[var(--portal-primary-color)] text-white border-[var(--portal-primary-color)]"
                     : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
                 }`}
               >
@@ -372,11 +372,11 @@ export default function AnnouncementsPage() {
       {/* ── Community-Style Announcements Feed ── */}
       {isLoading ? (
         <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-[#56348f]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--portal-primary-color)]" />
         </div>
       ) : filteredAnnouncements.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3 text-center border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-2xs">
-          <div className="w-14 h-14 rounded-full bg-purple-50 dark:bg-purple-950/40 flex items-center justify-center text-[#56348f] dark:text-purple-400">
+          <div className="w-14 h-14 rounded-full bg-purple-50 dark:bg-purple-950/40 flex items-center justify-center text-[var(--portal-primary-color)] dark:text-purple-400">
             <Megaphone className="h-7 w-7" />
           </div>
           <p className="text-slate-700 dark:text-slate-300 font-semibold text-sm">
@@ -392,13 +392,13 @@ export default function AnnouncementsPage() {
               type="button"
               onClick={openCreate}
               style={{
-                backgroundColor: "#56348f",
+                backgroundColor: "var(--portal-primary-color, #00806E)",
                 color: "rgb(255, 255, 255)",
                 fontFamily: 'Inter, sans-serif',
                 fontSize: "12px",
                 fontWeight: 600,
               }}
-              className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+              className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
             >
               <Plus className="h-4 w-4 !text-white" />
               <span className="!text-white">Create First Announcement</span>
@@ -460,7 +460,7 @@ export default function AnnouncementsPage() {
                       <button
                         type="button"
                         onClick={() => openEdit(ann)}
-                        className="p-1.5 text-slate-400 hover:text-[#56348f] hover:bg-purple-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-[var(--portal-primary-color)] hover:bg-purple-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                         title="Edit Announcement"
                       >
                         <Pencil className="w-4 h-4" />
@@ -640,7 +640,7 @@ export default function AnnouncementsPage() {
                   ref={imageRef}
                   type="file"
                   accept="image/*"
-                  className="mt-1 w-full text-xs border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 bg-slate-50/70 dark:bg-slate-800/80 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#56348f] file:text-white cursor-pointer"
+                  className="mt-1 w-full text-xs border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 bg-slate-50/70 dark:bg-slate-800/80 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[var(--portal-primary-color)] file:text-white cursor-pointer"
                 />
               </div>
             )}
@@ -678,7 +678,7 @@ export default function AnnouncementsPage() {
                 id="pinned"
                 checked={isPinned}
                 onChange={(e) => setIsPinned(e.target.checked)}
-                className="w-4 h-4 rounded text-[#56348f] focus:ring-[#56348f] cursor-pointer"
+                className="w-4 h-4 rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)] cursor-pointer"
               />
               <Label htmlFor="pinned" className="cursor-pointer font-semibold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
                 <Pin className="h-3.5 w-3.5 text-amber-600 fill-amber-500" />
@@ -706,14 +706,14 @@ export default function AnnouncementsPage() {
                 isAddingCategory
               }
               style={{
-                backgroundColor: "#56348f",
+                backgroundColor: "var(--portal-primary-color, #00806E)",
                 color: "rgb(255, 255, 255)",
                 fontFamily: 'Inter, sans-serif',
                 fontSize: "13px",
                 lineHeight: "20px",
                 fontWeight: 600,
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
             >
               {actionLoading && (
                 <Loader2 className="h-4 w-4 animate-spin !text-white" />

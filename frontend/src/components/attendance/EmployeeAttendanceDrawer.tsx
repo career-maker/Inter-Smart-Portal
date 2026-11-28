@@ -183,7 +183,7 @@ export function EmployeeAttendanceDrawer({
                     {employee.employee_code || "N/A"}
                   </span>
                 </p>
-                <p className="text-xs text-[#56348f] dark:text-purple-400 mt-0.5 font-medium truncate">
+                <p className="text-xs text-[var(--portal-primary-color)] dark:text-purple-400 mt-0.5 font-medium truncate">
                   {employee.designation || "Team Member"}
                   {teamName ? ` • ${teamName}` : ""}
                 </p>
@@ -206,7 +206,7 @@ export function EmployeeAttendanceDrawer({
                 onClick={handleOpenDateWise}
                 className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition group flex items-start gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[var(--portal-primary-color)] dark:text-purple-300 shrink-0 transition-transform">
                   <Calendar className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -214,7 +214,7 @@ export function EmployeeAttendanceDrawer({
                     <p className="font-semibold text-slate-900 dark:text-white text-[15px]">
                       Date Wise
                     </p>
-                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors" />
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[var(--portal-primary-color)] dark:group-hover:text-purple-300 transition-colors" />
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                     View detailed timeline for a specific date
@@ -292,7 +292,7 @@ export function EmployeeAttendanceDrawer({
                   <button
                     onClick={() => handleDateChange(format(new Date(), "yyyy-MM-dd"))}
                     disabled={isLoadingDetails}
-                    className="text-xs font-semibold px-2 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors cursor-pointer"
+                    className="text-xs font-semibold px-2 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-[var(--portal-primary-color)] dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors cursor-pointer"
                   >
                     Today
                   </button>
@@ -305,7 +305,7 @@ export function EmployeeAttendanceDrawer({
                       `/attendance/management?user_id=${employee.id}&date=${selectedDate}`
                     );
                   }}
-                  className="p-1.5 text-slate-400 hover:text-[#56348f] dark:hover:text-purple-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-[var(--portal-primary-color)] dark:hover:text-purple-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   title="Open full page in Attendance Management"
                 >
                   <ExternalLink className="w-4 h-4" />
@@ -316,7 +316,7 @@ export function EmployeeAttendanceDrawer({
               <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
                 {isLoadingDetails ? (
                   <div className="flex flex-col items-center justify-center py-16 gap-3">
-                    <Loader2 className="h-7 w-7 animate-spin text-[#56348f] dark:text-purple-400" />
+                    <Loader2 className="h-7 w-7 animate-spin text-[var(--portal-primary-color)] dark:text-purple-400" />
                     <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                       Loading attendance details for {selectedDate}...
                     </p>

@@ -251,7 +251,7 @@ export function EmployeeIdCardDrawer({
 
               {loadingDirectory ? (
                 <div className="py-20 flex flex-col items-center justify-center gap-2">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#56348f]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-[var(--portal-primary-color)]" />
                   <span className="text-xs text-slate-400">Searching colleagues...</span>
                 </div>
               ) : directoryResults.length === 0 ? (
@@ -274,7 +274,7 @@ export function EmployeeIdCardDrawer({
                           className="w-10 h-10 rounded-xl object-cover shrink-0"
                         />
                         <div className="min-w-0">
-                          <div className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors">
+                          <div className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5 group-hover:text-[var(--portal-primary-color)] dark:group-hover:text-purple-300 transition-colors">
                             <RoyalName name={emp.name || `${emp.first_name} ${emp.last_name}`} userId={emp.id} showCrownIcon={false} />
                             {emp.employee_code && (
                               <span className="text-xs font-mono px-1.5 py-0.2 rounded bg-slate-200/80 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
@@ -287,7 +287,7 @@ export function EmployeeIdCardDrawer({
                           </div>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] transition-colors shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[var(--portal-primary-color)] transition-colors shrink-0" />
                     </button>
                   ))}
                 </div>
@@ -310,7 +310,7 @@ export function EmployeeIdCardDrawer({
           <div className="flex-1 flex flex-col justify-between p-5 sm:p-6 overflow-y-auto sm:overflow-hidden select-none">
             {loading && !profile ? (
               <div className="my-auto py-24 flex flex-col items-center justify-center gap-3">
-                <Loader2 className="w-8 h-8 animate-spin text-[#56348f]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[var(--portal-primary-color)]" />
                 <p className="text-xs font-semibold text-slate-500">Loading Employee Badge...</p>
               </div>
             ) : data ? (

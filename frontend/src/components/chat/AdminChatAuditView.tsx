@@ -338,7 +338,7 @@ export function AdminChatAuditView() {
                       <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                         {activeConversation.participants.map((p) => p.name).join(" & ")}
                       </span>
-                      <span className="text-xs font-mono bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 px-2 py-0.5 rounded-full font-semibold">
+                      <span className="text-xs font-mono bg-purple-50 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300 px-2 py-0.5 rounded-full font-semibold">
                         Audit Mode
                       </span>
                     </div>

@@ -1152,7 +1152,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <header
             id="portal-top-header"
             style={{
-              backgroundColor: !isDark ? "var(--portal-header-bg, #56348f)" : undefined,
+              backgroundColor: !isDark ? "var(--portal-header-bg, #00806E)" : undefined,
               color: !isDark ? "var(--portal-header-text, #ffffff)" : undefined,
               fontFamily: 'var(--portal-font-family, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)'
             }}

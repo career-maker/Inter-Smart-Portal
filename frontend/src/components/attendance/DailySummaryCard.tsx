@@ -149,7 +149,7 @@ export function DailySummaryCard({
           {/* Total Working Hours */}
           <div className="p-3 sm:p-4 rounded-2xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200/90 dark:border-purple-800/70 shadow-xs flex flex-col justify-between min-w-0 overflow-hidden space-y-1">
             <div className="flex items-center justify-between gap-1">
-              <p className="text-xs sm:text-xs font-semibold text-[#56348f] dark:text-purple-300 truncate">
+              <p className="text-xs sm:text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300 truncate">
                 Total Worked
               </p>
               <Clock className="w-3.5 h-3.5 text-purple-700 dark:text-purple-400 shrink-0" />

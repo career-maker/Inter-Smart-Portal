@@ -66,7 +66,7 @@ export function WorkplaceLeaderboard({
         </div>
 
         {/* Current User Rank Pill */}
-        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#56348f]/10 text-[#56348f] dark:bg-purple-500/15 dark:text-purple-300 border border-[#56348f]/25 dark:border-purple-500/30 shrink-0">
+        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[var(--portal-primary-color)]/10 text-[var(--portal-primary-color)] dark:bg-purple-500/15 dark:text-purple-300 border border-[var(--portal-primary-color)]/25 dark:border-purple-500/30 shrink-0">
           <Award className="w-4 h-4" />
           <span>Your Rank: #{currentRank}</span>
         </div>
@@ -132,7 +132,7 @@ export function WorkplaceLeaderboard({
         {onLaunchGame && (
           <button
             onClick={() => onLaunchGame(selectedGame)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#472a77] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition active:scale-95 cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition active:scale-95 cursor-pointer shrink-0"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>Play {gameInfo.title}</span>
@@ -153,7 +153,7 @@ export function WorkplaceLeaderboard({
               key={player.id || `${player.name}-${idx}`}
               className={`flex items-center justify-between px-3.5 sm:px-4 py-2.5 rounded-2xl transition ${
                 isUser
-                  ? "bg-purple-50 dark:bg-purple-950/40 border-2 border-[#56348f] dark:border-purple-600 shadow-sm"
+                  ? "bg-purple-50 dark:bg-purple-950/40 border-2 border-[var(--portal-primary-color)] dark:border-purple-600 shadow-sm"
                   : "bg-white dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
@@ -163,7 +163,7 @@ export function WorkplaceLeaderboard({
                   {medal}
                 </span>
                 <div
-                  className={`w-8 h-8 rounded-full ${player.avatarBg || "bg-[#56348f]"} text-white text-xs font-semibold flex items-center justify-center shrink-0 shadow-2xs`}
+                  className={`w-8 h-8 rounded-full ${player.avatarBg || "bg-[var(--portal-primary-color)]"} text-white text-xs font-semibold flex items-center justify-center shrink-0 shadow-2xs`}
                 >
                   {player.avatarText || "IS"}
                 </div>
@@ -172,14 +172,14 @@ export function WorkplaceLeaderboard({
                     <span
                       className={`text-xs sm:text-sm font-semibold truncate ${
                         isUser
-                          ? "text-[#56348f] dark:text-purple-300 font-extrabold"
+                          ? "text-[var(--portal-primary-color)] dark:text-purple-300 font-extrabold"
                           : "text-slate-900 dark:text-slate-100"
                       }`}
                     >
                       {player.name}
                     </span>
                     {isUser && (
-                      <span className="text-xs font-semibold px-2 py-0.5 bg-[#56348f] text-white rounded-md shadow-2xs">
+                      <span className="text-xs font-semibold px-2 py-0.5 bg-[var(--portal-primary-color)] text-white rounded-md shadow-2xs">
                         You
                       </span>
                     )}

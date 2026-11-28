@@ -195,10 +195,10 @@ export default function TAStatusPage() {
         <button
           onClick={() => setIsApplyDrawerOpen(true)}
           style={{
-            backgroundColor: "#56348f",
+            backgroundColor: "var(--portal-primary-color, #00806E)",
             color: "rgb(255, 255, 255)",
           }}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] font-semibold !text-white text-xs sm:text-sm shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] font-semibold !text-white text-xs sm:text-sm shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4 !text-white" />
           <span>New TA Request</span>
@@ -213,7 +213,7 @@ export default function TAStatusPage() {
             onClick={() => setFilter(option.value)}
             className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
               filter === option.value
-                ? "bg-[#56348f] text-white shadow-sm"
+                ? "bg-[var(--portal-primary-color)] text-white shadow-sm"
                 : "bg-white dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/80"
             }`}
           >
@@ -225,7 +225,7 @@ export default function TAStatusPage() {
       {/* Content */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-          <Loader2 className="w-8 h-8 animate-spin text-[#56348f] mb-3" />
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--portal-primary-color)] mb-3" />
           <span className="text-xs sm:text-sm font-medium">Loading your travel claims…</span>
         </div>
       ) : requests.length === 0 ? (
@@ -239,7 +239,7 @@ export default function TAStatusPage() {
           </p>
           <button
             onClick={() => setIsApplyDrawerOpen(true)}
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
+            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Apply Now
@@ -285,7 +285,7 @@ export default function TAStatusPage() {
                 <div className="text-left sm:text-right shrink-0">
                   <span className="text-xs text-slate-400 block font-medium">Claim Amount</span>
                   <div className="flex sm:flex-col items-baseline sm:items-end gap-1.5 sm:gap-0">
-                    <span className="text-xl sm:text-2xl font-semibold text-[#56348f] dark:text-purple-300">
+                    <span className="text-xl sm:text-2xl font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                       ₹{formatCurrency(request.approved_amount || request.total_amount)}
                     </span>
                     {request.approved_amount && Number(request.approved_amount) !== Number(request.total_amount) && (
@@ -295,7 +295,7 @@ export default function TAStatusPage() {
                     )}
                   </div>
                   {request.receipt_number && (
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-purple-50 dark:bg-purple-950/70 text-[#56348f] dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/60">
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-purple-50 dark:bg-purple-950/70 text-[var(--portal-primary-color)] dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/60">
                       {request.receipt_number}
                     </span>
                   )}
@@ -343,7 +343,7 @@ export default function TAStatusPage() {
                     <button
                       type="button"
                       onClick={() => setViewingVoucher(request)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-[#56348f] dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/60 font-semibold border border-purple-200/80 dark:border-purple-800/60 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-[var(--portal-primary-color)] dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/60 font-semibold border border-purple-200/80 dark:border-purple-800/60 transition-colors cursor-pointer"
                       title="View and Download Generated Official Bill Receipt Image"
                     >
                       <Receipt className="w-3.5 h-3.5" />

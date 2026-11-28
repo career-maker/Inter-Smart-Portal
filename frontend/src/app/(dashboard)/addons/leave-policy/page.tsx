@@ -369,7 +369,7 @@ export default function LeavePolicyManagementPage() {
             <span className="text-slate-900 dark:text-white">Leave Policy Management</span>
           </div>
           <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
-            <CalendarCheck className="w-5 h-5 text-[#56348f]" />
+            <CalendarCheck className="w-5 h-5 text-[var(--portal-primary-color)]" />
             <span>Leave Policy Management</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -384,7 +384,7 @@ export default function LeavePolicyManagementPage() {
             disabled={refreshing || loading}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[var(--portal-primary-color)]" : ""}`} />
             <span>Refresh</span>
           </button>
         </div>
@@ -416,7 +416,7 @@ export default function LeavePolicyManagementPage() {
           <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
               <span>Monthly Cycle Start</span>
-              <Calendar className="w-4 h-4 text-[#56348f]" />
+              <Calendar className="w-4 h-4 text-[var(--portal-primary-color)]" />
             </div>
             <div className="text-2xl font-semibold text-slate-900 dark:text-white">
               {cycleInfo.start_day}<span className="text-xs font-normal text-slate-400">th of every month</span>
@@ -477,7 +477,7 @@ export default function LeavePolicyManagementPage() {
           onClick={() => setActiveTab("general")}
           className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer whitespace-nowrap ${
             activeTab === "general"
-              ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
+              ? "border-[var(--portal-primary-color)] text-[var(--portal-primary-color)] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
           }`}
         >
@@ -490,7 +490,7 @@ export default function LeavePolicyManagementPage() {
           onClick={() => setActiveTab("routing")}
           className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer whitespace-nowrap ${
             activeTab === "routing"
-              ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
+              ? "border-[var(--portal-primary-color)] text-[var(--portal-primary-color)] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
           }`}
         >
@@ -503,7 +503,7 @@ export default function LeavePolicyManagementPage() {
           onClick={() => setActiveTab("employees")}
           className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer whitespace-nowrap ${
             activeTab === "employees"
-              ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
+              ? "border-[var(--portal-primary-color)] text-[var(--portal-primary-color)] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
           }`}
         >
@@ -516,7 +516,7 @@ export default function LeavePolicyManagementPage() {
           onClick={() => setActiveTab("ledger")}
           className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer whitespace-nowrap ${
             activeTab === "ledger"
-              ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
+              ? "border-[var(--portal-primary-color)] text-[var(--portal-primary-color)] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
           }`}
         >
@@ -529,7 +529,7 @@ export default function LeavePolicyManagementPage() {
           onClick={() => setActiveTab("simulator")}
           className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer whitespace-nowrap ${
             activeTab === "simulator"
-              ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
+              ? "border-[var(--portal-primary-color)] text-[var(--portal-primary-color)] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
           }`}
         >
@@ -547,7 +547,7 @@ export default function LeavePolicyManagementPage() {
             {/* Section A: Monthly Cycle & Probation */}
             <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
               <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
-                <Calendar className="w-4 h-4 text-[#56348f]" />
+                <Calendar className="w-4 h-4 text-[var(--portal-primary-color)]" />
                 <span>Monthly Cycle & Probation Boundary</span>
               </div>
 
@@ -698,7 +698,7 @@ export default function LeavePolicyManagementPage() {
                     <span>Late Time Define (Late Coming Threshold)</span>
                     <span className="text-rose-500">*</span>
                   </span>
-                  <span className="text-xs font-semibold text-[#56348f] dark:text-purple-400">
+                  <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400">
                     Default: 09:40 AM
                   </span>
                 </label>
@@ -717,7 +717,7 @@ export default function LeavePolicyManagementPage() {
             {/* Section D: Approval Workflow Rules */}
             <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
               <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
-                <ShieldCheck className="w-4 h-4 text-[#56348f]" />
+                <ShieldCheck className="w-4 h-4 text-[var(--portal-primary-color)]" />
                 <span>Multi-Level Approval Workflow Rules</span>
               </div>
 
@@ -764,7 +764,7 @@ export default function LeavePolicyManagementPage() {
                   type="checkbox"
                   checked={settings.lop_admin_approval_required ?? true}
                   onChange={(e) => setSettings({ ...settings, lop_admin_approval_required: e.target.checked })}
-                  className="rounded text-[#56348f] focus:ring-[#56348f]"
+                  className="rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)]"
                 />
                 <span className="font-semibold text-slate-800 dark:text-slate-200">
                   Require Super Admin approval for any Unpaid Leave (LOP)
@@ -815,13 +815,13 @@ export default function LeavePolicyManagementPage() {
               type="submit"
               disabled={savingSettings}
               style={{
-                backgroundColor: "#56348f",
+                backgroundColor: "var(--portal-primary-color, #00806E)",
                 color: "rgb(255, 255, 255)",
                 fontFamily: 'Inter, sans-serif',
                 fontSize: "13px",
                 fontWeight: 600,
               }}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
             >
               {savingSettings ? (
                 <>
@@ -872,7 +872,7 @@ export default function LeavePolicyManagementPage() {
                 onClick={() => setEmployeeStatusFilter("all")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
                   employeeStatusFilter === "all"
-                    ? "bg-[#56348f] text-white border-[#56348f]"
+                    ? "bg-[var(--portal-primary-color)] text-white border-[var(--portal-primary-color)]"
                     : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
                 }`}
               >
@@ -1037,13 +1037,13 @@ export default function LeavePolicyManagementPage() {
                                 type="button"
                                 onClick={() => handleOpenEditEmployee(emp)}
                                 style={{
-                                  backgroundColor: "#56348f",
+                                  backgroundColor: "var(--portal-primary-color, #00806E)",
                                   color: "rgb(255, 255, 255)",
                                   fontFamily: 'Inter, sans-serif',
                                   fontSize: "11px",
                                   fontWeight: 600,
                                 }}
-                                className="px-2.5 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold cursor-pointer"
+                                className="px-2.5 py-1.5 rounded-lg bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold cursor-pointer"
                               >
                                 Configure
                               </button>
@@ -1067,7 +1067,7 @@ export default function LeavePolicyManagementPage() {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
             <div className="flex items-center gap-2">
-              <History className="w-4 h-4 text-[#56348f]" />
+              <History className="w-4 h-4 text-[var(--portal-primary-color)]" />
               <span className="text-xs font-semibold text-slate-900 dark:text-white">Leave Balance Audit Ledger</span>
             </div>
 
@@ -1113,7 +1113,7 @@ export default function LeavePolicyManagementPage() {
                   {ledgerLoading ? (
                     <tr>
                       <td colSpan={7} className="py-12 text-center text-slate-400">
-                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#56348f]" />
+                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-[var(--portal-primary-color)]" />
                       </td>
                     </tr>
                   ) : ledgerEntries.length === 0 ? (
@@ -1237,7 +1237,7 @@ export default function LeavePolicyManagementPage() {
         <div className="space-y-6">
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
             <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
-              <PlayCircle className="w-4 h-4 text-[#56348f]" />
+              <PlayCircle className="w-4 h-4 text-[var(--portal-primary-color)]" />
               <span>Manual Policy Execution & Cycle Testing</span>
             </div>
 
@@ -1265,7 +1265,7 @@ export default function LeavePolicyManagementPage() {
                     type="checkbox"
                     checked={simForce}
                     onChange={(e) => setSimForce(e.target.checked)}
-                    className="rounded border-slate-300 text-[#56348f] focus:ring-purple-500 w-4 h-4"
+                    className="rounded border-slate-300 text-[var(--portal-primary-color)] focus:ring-purple-500 w-4 h-4"
                   />
                   <span>Force execute even if already allocated for this cycle</span>
                 </label>
@@ -1278,13 +1278,13 @@ export default function LeavePolicyManagementPage() {
                 onClick={handleRunSimulator}
                 disabled={runningSimulator}
                 style={{
-                  backgroundColor: "#56348f",
+                  backgroundColor: "var(--portal-primary-color, #00806E)",
                   color: "rgb(255, 255, 255)",
                   fontFamily: 'Inter, sans-serif',
                   fontSize: "13px",
                   fontWeight: 600,
                 }}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
               >
                 {runningSimulator ? (
                   <>
@@ -1462,13 +1462,13 @@ export default function LeavePolicyManagementPage() {
                   onClick={handleSaveEmployeePolicy}
                   disabled={savingEmployeePolicy}
                   style={{
-                    backgroundColor: "#56348f",
+                    backgroundColor: "var(--portal-primary-color, #00806E)",
                     color: "rgb(255, 255, 255)",
                     fontFamily: 'Inter, sans-serif',
                     fontSize: "12px",
                     fontWeight: 600,
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
                 >
                   {savingEmployeePolicy ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Save className="w-3.5 h-3.5 !text-white" />}
                   <span className="!text-white">Save Override</span>
@@ -1589,13 +1589,13 @@ export default function LeavePolicyManagementPage() {
                   onClick={handleSaveAdjustment}
                   disabled={savingAdjustment}
                   style={{
-                    backgroundColor: "#56348f",
+                    backgroundColor: "var(--portal-primary-color, #00806E)",
                     color: "rgb(255, 255, 255)",
                     fontFamily: 'Inter, sans-serif',
                     fontSize: "12px",
                     fontWeight: 600,
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
                 >
                   {savingAdjustment ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Check className="w-3.5 h-3.5 !text-white" />}
                   <span className="!text-white">Save Balance Adjustment</span>

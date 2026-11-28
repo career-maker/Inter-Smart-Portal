@@ -291,7 +291,7 @@ export default function ForecastTasksPage() {
                 onClick={() => setViewMode("grouped")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "grouped"
-                    ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
+                    ? "bg-white dark:bg-slate-900 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -303,7 +303,7 @@ export default function ForecastTasksPage() {
                 onClick={() => setViewMode("flat")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "flat"
-                    ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
+                    ? "bg-white dark:bg-slate-900 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -329,8 +329,8 @@ export default function ForecastTasksPage() {
                 setSelectedAssigneeForModal(undefined);
                 setIsCreateModalOpen(true);
               }}
-              style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
+              style={{ backgroundColor: "var(--portal-primary-color, #00806E)", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4 !text-white" />
               <span className="!text-white">New Forecast Task</span>
@@ -408,7 +408,7 @@ export default function ForecastTasksPage() {
                         setSelectedAssigneeForModal(group.member.id);
                         setIsCreateModalOpen(true);
                       }}
-                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 max-sm:px-0 max-sm:w-11 max-sm:min-h-11 rounded-lg bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 max-sm:px-0 max-sm:w-11 max-sm:min-h-11 rounded-lg bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
                       aria-label={`New task for ${group.member.name}`}
                     >
                       <Plus className="w-3.5 h-3.5" />

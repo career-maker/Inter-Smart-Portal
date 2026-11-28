@@ -39,10 +39,10 @@ export default function TAApplyPage() {
         <button
           onClick={() => setIsModalOpen(true)}
           style={{
-            backgroundColor: "#56348f",
+            backgroundColor: "var(--portal-primary-color, #00806E)",
             color: "rgb(255, 255, 255)",
           }}
-          className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-[#56348f] hover:bg-[#462875] rounded-xl font-semibold !text-white text-sm shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] rounded-xl font-semibold !text-white text-sm shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
         >
           <Plus className="w-5 h-5 !text-white" />
           <span>New TA Request</span>
@@ -69,7 +69,7 @@ export default function TAApplyPage() {
 
           <div className="space-y-4 text-sm">
             <div className="flex gap-3.5 items-start">
-              <div className="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center font-semibold text-xs shrink-0 border border-purple-200 dark:border-purple-800/60">
+              <div className="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300 flex items-center justify-center font-semibold text-xs shrink-0 border border-purple-200 dark:border-purple-800/60">
                 1
               </div>
               <div>
@@ -81,7 +81,7 @@ export default function TAApplyPage() {
             </div>
 
             <div className="flex gap-3.5 items-start">
-              <div className="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center font-semibold text-xs shrink-0 border border-purple-200 dark:border-purple-800/60">
+              <div className="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300 flex items-center justify-center font-semibold text-xs shrink-0 border border-purple-200 dark:border-purple-800/60">
                 2
               </div>
               <div>
@@ -93,7 +93,7 @@ export default function TAApplyPage() {
             </div>
 
             <div className="flex gap-3.5 items-start">
-              <div className="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center font-semibold text-xs shrink-0 border border-purple-200 dark:border-purple-800/60">
+              <div className="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300 flex items-center justify-center font-semibold text-xs shrink-0 border border-purple-200 dark:border-purple-800/60">
                 3
               </div>
               <div>

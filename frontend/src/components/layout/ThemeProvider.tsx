@@ -27,7 +27,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           --border-color: rgba(226, 232, 240, 0.9);
           --card-bg: #FFFFFF;
           --card-border: rgba(226, 232, 240, 0.9);
-          --accent: #56348f;
+          --accent: #00806E;
         }
 
         html, body {

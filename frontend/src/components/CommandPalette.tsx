@@ -461,7 +461,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             <div className="p-3 sm:p-4 space-y-4 overflow-y-auto max-h-[60vh] custom-scrollbar">
               {/* Employee Search Mode Active Indicator */}
               {isEmployeeSearchMode && (
-                <div className="px-3 py-1.5 rounded-xl bg-purple-50 text-[#56348f] text-xs font-semibold flex items-center justify-between">
+                <div className="px-3 py-1.5 rounded-xl bg-purple-50 text-[var(--portal-primary-color)] text-xs font-semibold flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5" />
                     Searching Employees Directory (Click any colleague to view ID card)
@@ -500,7 +500,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                           }}
                           className={`command-palette-btn w-full text-left px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors cursor-pointer ${
                             isSelected
-                              ? "bg-purple-50 text-[#56348f] font-medium"
+                              ? "bg-purple-50 text-[var(--portal-primary-color)] font-medium"
                               : "hover:bg-[#f8fafc] text-slate-700"
                           }`}
                         >
@@ -525,7 +525,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1.5 text-xs text-[#56348f] font-semibold shrink-0 pl-2">
+                          <div className="flex items-center gap-1.5 text-xs text-[var(--portal-primary-color)] font-semibold shrink-0 pl-2">
                             <span className="hidden sm:inline text-xs text-slate-400 font-normal">View ID</span>
                             <ChevronRight className="w-4 h-4" style={{ color: "#94a3b8", stroke: "#94a3b8" }} />
                           </div>

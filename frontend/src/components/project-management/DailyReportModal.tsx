@@ -334,12 +334,12 @@ export function DailyReportModal({
     ctx.fillRect(0, 0, width, estimatedHeight);
 
     // Top Brand Accent Bar (Corporate Royal Purple)
-    ctx.fillStyle = "#56348f";
+    ctx.fillStyle = "#00806E";
     ctx.fillRect(0, 0, width, 5);
 
     // 2. Header Section
     // Brand Tag
-    ctx.fillStyle = "#56348f";
+    ctx.fillStyle = "#00806E";
     ctx.font = "bold 11px Inter, sans-serif";
     ctx.fillText("INTER SMART WORKPLACE", marginX, 30);
 
@@ -389,7 +389,7 @@ export function DailyReportModal({
     ctx.strokeRect(width - marginX - 140, 24, 140, 48);
     ctx.fillRect(width - marginX - 140, 24, 140, 48);
 
-    ctx.fillStyle = "#56348f";
+    ctx.fillStyle = "#00806E";
     ctx.font = "bold 9px Inter, sans-serif";
     ctx.fillText("OFFICIAL REPORT", width - marginX - 128, 42);
     ctx.fillStyle = "#64748b";
@@ -508,7 +508,7 @@ export function DailyReportModal({
 
       // Col 2: Project Tag & Task Title
       const projTag = `[${t.project_name || "Project"}] `;
-      ctx.fillStyle = "#56348f";
+      ctx.fillStyle = "#00806E";
       ctx.font = "bold 11px Inter, sans-serif";
       ctx.fillText(projTag, colX[1] + 10, y + 22);
 
@@ -632,7 +632,7 @@ export function DailyReportModal({
         ctx.strokeStyle = "#cbd5e1";
         ctx.strokeRect(marginX, currentY, tableWidth, 34);
 
-        ctx.fillStyle = "#56348f";
+        ctx.fillStyle = "#00806E";
         ctx.font = "bold 10px Inter, sans-serif";
         ctx.fillText("⏱️ TIME TRACKING:", marginX + 12, currentY + 21);
 
@@ -998,7 +998,7 @@ export function DailyReportModal({
               <button
                 onClick={generateImageReport}
                 disabled={loading || !reportData || imageGenerating}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#56348f] hover:bg-purple-800 !text-white text-xs font-semibold transition disabled:opacity-50 cursor-pointer shadow-md shadow-purple-500/20"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-purple-800 !text-white text-xs font-semibold transition disabled:opacity-50 cursor-pointer shadow-md shadow-purple-500/20"
               >
                 {imageGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <ImageIcon className="w-3.5 h-3.5 !text-white" />}
                 <span className="!text-white font-bold">Generate Image Report</span>
@@ -1133,9 +1133,9 @@ export function DailyReportModal({
                         <span className="font-semibold text-slate-700 dark:text-slate-300">
                           {m.total_tasks} Tasks:
                         </span>
-                        <span className="text-emerald-600 font-semibold">✅ {m.completed_count}</span>
-                        <span className="text-blue-600 font-semibold">🔄 {m.in_progress_count}</span>
-                        {m.overdue_count > 0 && <span className="text-rose-600 font-semibold">⚠️ {m.overdue_count}</span>}
+                        <span className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-300 tabular-nums" title="Completed"><span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-emerald-500" />{m.completed_count} done</span>
+                        <span className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-300 tabular-nums" title="In progress"><span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-sky-500" />{m.in_progress_count} in progress</span>
+                        {m.overdue_count > 0 && <span className="inline-flex items-center gap-1 text-rose-700 tabular-nums" title="Overdue"><span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-rose-500" />{m.overdue_count} overdue</span>}
                       </div>
                     </div>
 
@@ -1232,7 +1232,7 @@ export function DailyReportModal({
                 <button
                   type="button"
                   onClick={downloadImage}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 !text-white text-xs font-semibold transition cursor-pointer shadow-md"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-purple-800 active:bg-purple-900 !text-white text-xs font-semibold transition cursor-pointer shadow-md"
                 >
                   <Download className="w-4 h-4 !text-white shrink-0" />
                   <span className="!text-white font-bold">Download PNG</span>

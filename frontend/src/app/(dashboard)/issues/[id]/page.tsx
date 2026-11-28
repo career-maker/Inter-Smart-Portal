@@ -115,7 +115,7 @@ export default function IssueDetailPage() {
   const isAssignedToMe = !isSuperAdmin && assignedToId === user?.id;
   const statusCls = STATUS_COLORS[issue.status] || "bg-slate-100 text-slate-700 dark:bg-slate-500/20 dark:text-slate-300 border-slate-300 dark:border-slate-500/30";
 
-  const inputCls = "w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-[#56348f] dark:focus:border-amber-500 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors resize-none";
+  const inputCls = "w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-[var(--portal-primary-color)] dark:focus:border-amber-500 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors resize-none";
 
   return (
     <div className="space-y-6 mt-6">
@@ -147,7 +147,7 @@ export default function IssueDetailPage() {
             <SelectCompat
               value={issue.status}
               onChange={(e) => handleStatusChange(e.target.value)}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-[#56348f]"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-[var(--portal-primary-color)]"
             >
               {["Open", "In Progress", "Waiting for User Response", "Resolved", "Rejected", "Closed"].map((s) => (
                 <option key={s} value={s}>{s}</option>
@@ -292,12 +292,12 @@ export default function IssueDetailPage() {
                 )}
                 <div className="flex justify-between items-center">
                   <button type="button" onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-[#56348f] dark:hover:text-amber-400 transition-colors px-3 py-1.5 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10">
+                    className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-[var(--portal-primary-color)] dark:hover:text-amber-400 transition-colors px-3 py-1.5 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10">
                     <Paperclip className="w-3.5 h-3.5" /> Attach File
                   </button>
                   <input type="file" multiple className="hidden" ref={fileInputRef} onChange={(e) => { if (e.target.files) setFiles([...files, ...Array.from(e.target.files)]); }} />
                   <button type="submit" disabled={submitting || (!commentText.trim() && files.length === 0)}
-                    className="flex items-center gap-2 px-4 py-1.5 bg-[#56348f] hover:bg-[#472a77] text-white text-sm font-semibold rounded-xl disabled:opacity-50 transition-colors">
+                    className="flex items-center gap-2 px-4 py-1.5 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-sm font-semibold rounded-xl disabled:opacity-50 transition-colors">
                     <Send className="w-3.5 h-3.5" />
                     {submitting ? "Sending..." : "Send Reply"}
                   </button>
@@ -328,7 +328,7 @@ export default function IssueDetailPage() {
                     value={assignedToId ?? ""}
                     onChange={(e) => handleAssign(e.target.value)}
                     disabled={assigning}
-                    className="w-full text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-2.5 py-2 outline-none focus:border-[#56348f] disabled:opacity-60"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-2.5 py-2 outline-none focus:border-[var(--portal-primary-color)] disabled:opacity-60"
                   >
                     <option value="">— Unassigned —</option>
                     {employees.map((emp) => (

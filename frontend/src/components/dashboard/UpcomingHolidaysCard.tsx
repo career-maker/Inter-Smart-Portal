@@ -226,7 +226,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                   onClick={handlePrev}
                   disabled={holidays.length <= 1}
                   aria-label="Previous holiday"
-                  className={`hc-arrow w-8 h-8 flex items-center justify-center rounded-full active:scale-90 disabled:opacity-20 disabled:pointer-events-none transition cursor-pointer shrink-0 ${hasImg ? "text-white bg-black/30 hover:bg-black/50" : "text-[#56348f] dark:text-purple-400 hover:bg-purple-100/60 dark:hover:bg-purple-900/30"}`}
+                  className={`hc-arrow w-8 h-8 flex items-center justify-center rounded-full active:scale-90 disabled:opacity-20 disabled:pointer-events-none transition cursor-pointer shrink-0 ${hasImg ? "text-white bg-black/30 hover:bg-black/50" : "text-[var(--portal-primary-color)] dark:text-purple-400 hover:bg-purple-100/60 dark:hover:bg-purple-900/30"}`}
                 >
                   <ChevronLeft className="w-5 h-5 stroke-[2]" />
                 </button>
@@ -236,7 +236,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                   <h4
                     style={{
                       fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
-                      color: hasImg ? "#ffffff" : "var(--portal-primary-color, #56348f)",
+                      color: hasImg ? "#ffffff" : "var(--portal-primary-color, #00806E)",
                     }}
                     className={`hc-title text-[20px] sm:text-[22px] font-semibold tracking-tight truncate max-w-full leading-tight dark:text-purple-300 ${imgText}`}
                     title={currentHoliday.name}
@@ -246,7 +246,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                   <p
                     style={{
                       fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
-                      color: hasImg ? "#ffffff" : "var(--portal-primary-color, #56348f)",
+                      color: hasImg ? "#ffffff" : "var(--portal-primary-color, #00806E)",
                     }}
                     className={`hc-date text-[13px] sm:text-[14px] font-medium dark:text-purple-300/85 ${hasImg ? "opacity-100" : "opacity-85"} ${imgText}`}
                   >
@@ -257,7 +257,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                   {(getDaysRemainingText(currentHoliday.date) || currentHoliday.type) && (
                     <div className="flex items-center justify-center gap-1.5 pt-1">
                       {getDaysRemainingText(currentHoliday.date) && (
-                        <span className={`hc-pill text-xs font-semibold ${hasImg ? "text-white" : "text-[#56348f] dark:text-purple-300"} ${imgText}`}>
+                        <span className={`hc-pill text-xs font-semibold ${hasImg ? "text-white" : "text-[var(--portal-primary-color)] dark:text-purple-300"} ${imgText}`}>
                           {getDaysRemainingText(currentHoliday.date)}
                         </span>
                       )}
@@ -276,7 +276,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                   onClick={handleNext}
                   disabled={holidays.length <= 1}
                   aria-label="Next holiday"
-                  className={`hc-arrow w-8 h-8 flex items-center justify-center rounded-full active:scale-90 disabled:opacity-20 disabled:pointer-events-none transition cursor-pointer shrink-0 ${hasImg ? "text-white bg-black/30 hover:bg-black/50" : "text-[#56348f] dark:text-purple-400 hover:bg-purple-100/60 dark:hover:bg-purple-900/30"}`}
+                  className={`hc-arrow w-8 h-8 flex items-center justify-center rounded-full active:scale-90 disabled:opacity-20 disabled:pointer-events-none transition cursor-pointer shrink-0 ${hasImg ? "text-white bg-black/30 hover:bg-black/50" : "text-[var(--portal-primary-color)] dark:text-purple-400 hover:bg-purple-100/60 dark:hover:bg-purple-900/30"}`}
                 >
                   <ChevronRight className="w-5 h-5 stroke-[2]" />
                 </button>
@@ -294,7 +294,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                     aria-label={`Go to holiday ${i + 1}`}
                     className={`h-1.5 rounded-full transition-all cursor-pointer ${
                       i === safeIndex
-                        ? `w-4 ${hasImg ? "bg-white" : "bg-[#56348f] dark:bg-purple-400"}`
+                        ? `w-4 ${hasImg ? "bg-white" : "bg-[var(--portal-primary-color)] dark:bg-purple-400"}`
                         : `w-1.5 ${hasImg ? "bg-white/50 hover:bg-white/80" : "bg-slate-300 dark:bg-slate-700 hover:bg-slate-400"}`
                     }`}
                   />

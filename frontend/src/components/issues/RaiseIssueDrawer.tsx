@@ -165,7 +165,7 @@ export function RaiseIssueDrawer({
   };
 
   const inputCls =
-    "w-full bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] dark:focus:border-purple-400 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition shadow-xs";
+    "w-full bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]/20 focus:border-[var(--portal-primary-color)] dark:focus:border-purple-400 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition shadow-xs";
 
   if (!isOpen) return null;
 
@@ -191,7 +191,7 @@ export function RaiseIssueDrawer({
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#56348f]/10 dark:bg-purple-500/20 text-[#56348f] dark:text-purple-300 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-[var(--portal-primary-color)]/10 dark:bg-purple-500/20 text-[var(--portal-primary-color)] dark:text-purple-300 flex items-center justify-center shrink-0">
               <LifeBuoy className="w-5 h-5" />
             </div>
             <div>
@@ -217,7 +217,7 @@ export function RaiseIssueDrawer({
                 Issue Raised Successfully!
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-300 max-w-sm mb-6">
-                Ticket <span className="font-semibold text-[#56348f] dark:text-purple-300">#{successIssue.id}</span> has been created. The team will review and update you on the progress.
+                Ticket <span className="font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">#{successIssue.id}</span> has been created. The team will review and update you on the progress.
               </p>
 
               <div className="flex items-center gap-3">
@@ -232,7 +232,7 @@ export function RaiseIssueDrawer({
                     handleClose();
                     router.push(`/issues/${successIssue.id}`);
                   }}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[#56348f] hover:bg-[#472a77] transition-colors shadow-sm cursor-pointer"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] transition-colors shadow-sm cursor-pointer"
                 >
                   View Ticket <ArrowRight className="w-4 h-4" />
                 </button>
@@ -355,7 +355,7 @@ export function RaiseIssueDrawer({
                       onClick={() => setAttachMode("url")}
                       className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition cursor-pointer ${
                         attachMode === "url"
-                          ? "bg-[#56348f] text-white shadow-xs font-semibold"
+                          ? "bg-[var(--portal-primary-color)] text-white shadow-xs font-semibold"
                           : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
@@ -366,7 +366,7 @@ export function RaiseIssueDrawer({
                       onClick={() => setAttachMode("file")}
                       className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition cursor-pointer ${
                         attachMode === "file"
-                          ? "bg-[#56348f] text-white shadow-xs font-semibold"
+                          ? "bg-[var(--portal-primary-color)] text-white shadow-xs font-semibold"
                           : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
@@ -390,7 +390,7 @@ export function RaiseIssueDrawer({
                   </div>
                 ) : (
                   <div>
-                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-[#56348f] dark:hover:border-purple-400 rounded-xl p-5 cursor-pointer transition-colors bg-slate-50/50 dark:bg-slate-800/30">
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-[var(--portal-primary-color)] dark:hover:border-purple-400 rounded-xl p-5 cursor-pointer transition-colors bg-slate-50/50 dark:bg-slate-800/30">
                       <UploadCloud className="w-7 h-7 text-slate-400 dark:text-slate-500 mb-1.5" />
                       <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                         Click to upload screenshots or logs
@@ -455,7 +455,7 @@ export function RaiseIssueDrawer({
               type="submit"
               form="raise-issue-form"
               disabled={loading}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-[#56348f] hover:bg-[#472a77] disabled:opacity-50 transition shadow-sm cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] disabled:opacity-50 transition shadow-sm cursor-pointer"
             >
               {loading ? (
                 <>

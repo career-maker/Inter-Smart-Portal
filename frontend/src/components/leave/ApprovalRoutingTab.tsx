@@ -291,7 +291,7 @@ function ThreeCardsEditor({
         {/* Card Header & Enabled Switch */}
         <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+            <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300 border border-purple-200 dark:border-purple-800">
               {icon}
             </div>
             <div>
@@ -307,7 +307,7 @@ function ThreeCardsEditor({
               onChange={(e) => updater({ ...rule, enabled: e.target.checked })}
               className="sr-only peer"
             />
-            <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition peer-checked:bg-[#56348f]"></div>
+            <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition peer-checked:bg-[var(--portal-primary-color)]"></div>
           </label>
         </div>
 
@@ -338,7 +338,7 @@ function ThreeCardsEditor({
               }
               className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition cursor-pointer ${
                 isMulti
-                  ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
+                  ? "bg-purple-50 text-[var(--portal-primary-color)] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
               }`}
             >
@@ -349,7 +349,7 @@ function ThreeCardsEditor({
               onClick={() => updater({ ...rule, approval_level: "single" })}
               className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition cursor-pointer ${
                 !isMulti
-                  ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
+                  ? "bg-purple-50 text-[var(--portal-primary-color)] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
               }`}
             >
@@ -366,7 +366,7 @@ function ThreeCardsEditor({
           <SelectCompat
             value={rule.to_user_id || 0}
             onChange={(e) => handleToAccount(rule, updater, Number(e.target.value) || null)}
-            className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+            className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
           >
             <option value={0}>-- Direct to Super Admin (admin@intersmart.in) --</option>
             {users.map((u) => (
@@ -384,14 +384,14 @@ function ThreeCardsEditor({
               <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                 Second Approver (Level 2)
               </label>
-              <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300">
+              <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                 Default: Super Admin
               </span>
             </div>
             <SelectCompat
               value={rule.to_user_id_2 || 0}
               onChange={(e) => handleToAccount2(rule, updater, Number(e.target.value) || null)}
-              className="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+              className="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
             >
               <option value={0}>-- Super Admin (admin@intersmart.in) [Default] --</option>
               {users.map((u) => (
@@ -432,7 +432,7 @@ function ThreeCardsEditor({
               placeholder="Search user to CC..."
               value={ccSearch}
               onChange={(e) => setCcSearch(e.target.value)}
-              className="w-full pl-7 pr-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+              className="w-full pl-7 pr-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
             />
           </div>
           <div className="max-h-36 overflow-y-auto space-y-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
@@ -449,7 +449,7 @@ function ThreeCardsEditor({
                   onClick={() => toggleCc(rule, updater, u)}
                   className={`flex items-center gap-2 text-xs p-1.5 rounded-lg cursor-pointer select-none transition-colors ${
                     isChecked
-                      ? "bg-purple-100/70 text-[#56348f] dark:bg-purple-950/60 dark:text-purple-300 font-semibold"
+                      ? "bg-purple-100/70 text-[var(--portal-primary-color)] dark:bg-purple-950/60 dark:text-purple-300 font-semibold"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50"
                   }`}
                 >
@@ -457,7 +457,7 @@ function ThreeCardsEditor({
                     type="checkbox"
                     checked={isChecked}
                     onChange={() => {}}
-                    className="rounded text-[#56348f] focus:ring-[#56348f] pointer-events-none"
+                    className="rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)] pointer-events-none"
                   />
                   <span className="truncate">
                     {u.first_name} {u.last_name} ({u.email})
@@ -569,7 +569,7 @@ function MultiSelectUserPicker({
       <div className="flex items-center justify-between gap-2">
         <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
           <span>{title}</span>
-          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
+          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[var(--portal-primary-color)]/10 text-[var(--portal-primary-color)] dark:bg-purple-900/60 dark:text-purple-300">
             {selectedIds.length} selected
           </span>
         </label>
@@ -577,7 +577,7 @@ function MultiSelectUserPicker({
           <button
             type="button"
             onClick={selectAll}
-            className="text-[#56348f] dark:text-purple-300 font-semibold hover:underline"
+            className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold hover:underline"
           >
             Select All
           </button>
@@ -599,7 +599,7 @@ function MultiSelectUserPicker({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={placeholder}
-          className="w-full pl-8 pr-8 py-1.5 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+          className="w-full pl-8 pr-8 py-1.5 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
         />
         {search && (
           <button
@@ -632,7 +632,7 @@ function MultiSelectUserPicker({
                     type="checkbox"
                     checked={isChecked}
                     onChange={() => toggleUser(u.id)}
-                    className="rounded text-[#56348f] focus:ring-[#56348f]"
+                    className="rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)]"
                   />
                   <div className="truncate">
                     <span className="font-semibold text-slate-900 dark:text-white">
@@ -1164,7 +1164,7 @@ export default function ApprovalRoutingTab() {
   if (loading) {
     return (
       <div className="py-20 flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-8 h-8 text-[#56348f] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--portal-primary-color)] animate-spin" />
         <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
           Loading approval & email routing configurations…
         </span>
@@ -1226,14 +1226,14 @@ export default function ApprovalRoutingTab() {
             onClick={() => setSubTab("role")}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
               subTab === "role"
-                ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
+                ? "bg-white dark:bg-slate-900 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Role-Wise (Team Leads)</span>
             {(rules.team_lead_rules?.length || 0) > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-xs bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
+              <span className="px-1.5 py-0.2 rounded-full text-xs bg-purple-100 text-[var(--portal-primary-color)] dark:bg-purple-900/60 dark:text-purple-300">
                 {rules.team_lead_rules?.length} custom
               </span>
             )}
@@ -1244,14 +1244,14 @@ export default function ApprovalRoutingTab() {
             onClick={() => setSubTab("department")}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
               subTab === "department"
-                ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
+                ? "bg-white dark:bg-slate-900 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <Building2 className="w-3.5 h-3.5" />
             <span>Department-Wise Routing</span>
             {deptRules.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-xs bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
+              <span className="px-1.5 py-0.2 rounded-full text-xs bg-purple-100 text-[var(--portal-primary-color)] dark:bg-purple-900/60 dark:text-purple-300">
                 {deptRules.length}
               </span>
             )}
@@ -1262,14 +1262,14 @@ export default function ApprovalRoutingTab() {
             onClick={() => setSubTab("employee")}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
               subTab === "employee"
-                ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
+                ? "bg-white dark:bg-slate-900 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
             <span>Employee-Wise Routing</span>
             {(rules.employee_rules?.length || 0) > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-xs bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
+              <span className="px-1.5 py-0.2 rounded-full text-xs bg-purple-100 text-[var(--portal-primary-color)] dark:bg-purple-900/60 dark:text-purple-300">
                 {rules.employee_rules?.length}
               </span>
             )}
@@ -1280,7 +1280,7 @@ export default function ApprovalRoutingTab() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer disabled:opacity-50 shrink-0"
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer disabled:opacity-50 shrink-0"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           <span>Save Changes</span>
@@ -1296,7 +1296,7 @@ export default function ApprovalRoutingTab() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#56348f]" />
+                <ShieldCheck className="w-4 h-4 text-[var(--portal-primary-color)]" />
                 <span>Team Leads Approval & Mail Routing</span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
@@ -1307,7 +1307,7 @@ export default function ApprovalRoutingTab() {
             <button
               type="button"
               onClick={openNewTlRuleModal}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Create Separate Rule for Team Leads</span>
@@ -1336,7 +1336,7 @@ export default function ApprovalRoutingTab() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-[var(--portal-primary-color)] dark:bg-purple-950 dark:text-purple-300">
                               Rule #{idx + 1}
                             </span>
                             <h4 className="text-xs font-semibold text-slate-900 dark:text-white">
@@ -1351,7 +1351,7 @@ export default function ApprovalRoutingTab() {
                                 key={tl.id}
                                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
                               >
-                                <UserCheck2 className="w-3 h-3 text-[#56348f]" />
+                                <UserCheck2 className="w-3 h-3 text-[var(--portal-primary-color)]" />
                                 <span>
                                   {tl.first_name} {tl.last_name}
                                 </span>
@@ -1407,7 +1407,7 @@ export default function ApprovalRoutingTab() {
                                 "Super Admin"}
                             </strong>
                             {rule.wfh?.approval_level === "multi" && (
-                              <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                              <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold">
                                 {" "}→ {users.find((u) => u.id === rule.wfh?.to_user_id_2)?.first_name || rule.wfh?.to_email_2 || "Super Admin"}
                               </span>
                             )}
@@ -1443,7 +1443,7 @@ export default function ApprovalRoutingTab() {
                                 "Super Admin"}
                             </strong>
                             {(rule.wfh_multi_day || rule.wfh)?.approval_level === "multi" && (
-                              <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                              <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold">
                                 {" "}→ {users.find((u) => u.id === (rule.wfh_multi_day || rule.wfh)?.to_user_id_2)?.first_name || (rule.wfh_multi_day || rule.wfh)?.to_email_2 || "Super Admin"}
                               </span>
                             )}
@@ -1480,7 +1480,7 @@ export default function ApprovalRoutingTab() {
                                 "Super Admin"}
                             </strong>
                             {rule.leave_single_day?.approval_level === "multi" && (
-                              <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                              <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold">
                                 {" "}→ {users.find((u) => u.id === rule.leave_single_day?.to_user_id_2)?.first_name || rule.leave_single_day?.to_email_2 || "Super Admin"}
                               </span>
                             )}
@@ -1519,7 +1519,7 @@ export default function ApprovalRoutingTab() {
                                 "Super Admin"}
                             </strong>
                             {rule.leave_multi_day?.approval_level === "multi" && (
-                              <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                              <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold">
                                 {" "}→ {users.find((u) => u.id === rule.leave_multi_day?.to_user_id_2)?.first_name || rule.leave_multi_day?.to_email_2 || "Super Admin"}
                               </span>
                             )}
@@ -1543,7 +1543,7 @@ export default function ApprovalRoutingTab() {
           <div className="space-y-3 pt-2">
             <div className="p-4 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/60 dark:border-purple-800/40 space-y-1">
               <h4 className="text-xs font-semibold text-purple-900 dark:text-purple-200 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#56348f]" />
+                <ShieldCheck className="w-4 h-4 text-[var(--portal-primary-color)]" />
                 <span>Default Team Lead Routing (Fallback)</span>
               </h4>
               <p className="text-xs text-purple-700/80 dark:text-purple-300/80">
@@ -1574,7 +1574,7 @@ export default function ApprovalRoutingTab() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-[#56348f]" />
+                <UserCheck className="w-4 h-4 text-[var(--portal-primary-color)]" />
                 <span>Employee-Wise Approval & Mail Routing</span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
@@ -1585,7 +1585,7 @@ export default function ApprovalRoutingTab() {
             <button
               type="button"
               onClick={openNewEmpRuleModal}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Add Employee Rule</span>
@@ -1603,7 +1603,7 @@ export default function ApprovalRoutingTab() {
               </p>
               <button
                 onClick={openNewEmpRuleModal}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create Employee Rule</span>
@@ -1623,7 +1623,7 @@ export default function ApprovalRoutingTab() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-[var(--portal-primary-color)] dark:bg-purple-950 dark:text-purple-300">
                             Rule #{idx + 1}
                           </span>
                           <h4 className="text-xs font-semibold text-slate-900 dark:text-white">
@@ -1638,7 +1638,7 @@ export default function ApprovalRoutingTab() {
                               key={emp.id}
                               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
                             >
-                              <UserCheck className="w-3 h-3 text-[#56348f]" />
+                              <UserCheck className="w-3 h-3 text-[var(--portal-primary-color)]" />
                               <span>
                                 {emp.first_name} {emp.last_name}
                               </span>
@@ -1694,7 +1694,7 @@ export default function ApprovalRoutingTab() {
                               "Super Admin"}
                           </strong>
                           {rule.wfh?.approval_level === "multi" && (
-                            <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                            <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold">
                               {" "}→ {users.find((u) => u.id === rule.wfh?.to_user_id_2)?.first_name || rule.wfh?.to_email_2 || "Super Admin"}
                             </span>
                           )}
@@ -1730,7 +1730,7 @@ export default function ApprovalRoutingTab() {
                               "Super Admin"}
                           </strong>
                           {(rule.wfh_multi_day || rule.wfh)?.approval_level === "multi" && (
-                              <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                              <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold">
                                 {" "}→ {users.find((u) => u.id === (rule.wfh_multi_day || rule.wfh)?.to_user_id_2)?.first_name || (rule.wfh_multi_day || rule.wfh)?.to_email_2 || "Super Admin"}
                               </span>
                           )}
@@ -1767,7 +1767,7 @@ export default function ApprovalRoutingTab() {
                               "Super Admin"}
                           </strong>
                           {rule.leave_single_day?.approval_level === "multi" && (
-                            <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                            <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold">
                               {" "}→ {users.find((u) => u.id === rule.leave_single_day?.to_user_id_2)?.first_name || rule.leave_single_day?.to_email_2 || "Super Admin"}
                             </span>
                           )}
@@ -1806,7 +1806,7 @@ export default function ApprovalRoutingTab() {
                               "Super Admin"}
                           </strong>
                           {rule.leave_multi_day?.approval_level === "multi" && (
-                            <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                            <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold">
                               {" "}→ {users.find((u) => u.id === rule.leave_multi_day?.to_user_id_2)?.first_name || rule.leave_multi_day?.to_email_2 || "Super Admin"}
                             </span>
                           )}
@@ -1847,7 +1847,7 @@ export default function ApprovalRoutingTab() {
               {/* Sticky Top Header */}
               <div className="p-4 px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300">
+                  <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
@@ -1883,7 +1883,7 @@ export default function ApprovalRoutingTab() {
                     placeholder="e.g. Frontend Team Leads Routing or Senior TLs"
                     value={tlModalForm.name || ""}
                     onChange={(e) => setTlModalForm({ ...tlModalForm, name: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
                   />
                 </div>
 
@@ -1935,7 +1935,7 @@ export default function ApprovalRoutingTab() {
                   type="button"
                   disabled={saving}
                   onClick={saveTlRuleModal}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-[var(--portal-primary-color)] text-white hover:bg-[var(--portal-hover-color)] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   <span>{saving ? "Saving Rule..." : "Save Team Lead Rule"}</span>
@@ -1952,7 +1952,7 @@ export default function ApprovalRoutingTab() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <div className="space-y-1 min-w-0">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-[#56348f]" />
+                <Building2 className="w-4 h-4 text-[var(--portal-primary-color)]" />
                 <span>Department-Wise Approval & Mail Routing</span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
@@ -1962,7 +1962,7 @@ export default function ApprovalRoutingTab() {
             <button
               type="button"
               onClick={openNewDeptRuleModal}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Add Department Rule</span>
@@ -1994,7 +1994,7 @@ export default function ApprovalRoutingTab() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-[var(--portal-primary-color)] dark:bg-purple-950 dark:text-purple-300">
                             Rule #{idx + 1}
                           </span>
                           <h4 className="text-xs font-semibold text-slate-900 dark:text-white">
@@ -2005,7 +2005,7 @@ export default function ApprovalRoutingTab() {
                           <span className="text-xs text-slate-400 font-medium">Departments:</span>
                           {selectedTeams.map((t) => (
                             <span key={t.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
-                              <Building2 className="w-3 h-3 text-[#56348f]" />
+                              <Building2 className="w-3 h-3 text-[var(--portal-primary-color)]" />
                               <span>{t.name}</span>
                             </span>
                           ))}
@@ -2042,7 +2042,7 @@ export default function ApprovalRoutingTab() {
                           <div className="text-xs text-slate-500 dark:text-slate-400 break-words">
                             Approver: <strong className="text-slate-800 dark:text-slate-200">{nameOf(c?.to_user_id, c?.to_email)}</strong>
                             {c?.approval_level === "multi" && (
-                              <span className="text-[#56348f] dark:text-purple-300 font-semibold"> → {nameOf(c?.to_user_id_2, c?.to_email_2)}</span>
+                              <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold"> → {nameOf(c?.to_user_id_2, c?.to_email_2)}</span>
                             )}
                           </div>
                           <div className="text-xs text-slate-400">
@@ -2079,7 +2079,7 @@ export default function ApprovalRoutingTab() {
               {/* Sticky Top Header */}
               <div className="p-4 px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300">
+                  <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300">
                     <UserPlus className="w-5 h-5" />
                   </div>
                   <div>
@@ -2115,7 +2115,7 @@ export default function ApprovalRoutingTab() {
                     placeholder="e.g. Marketing Executives or Trainee Staff Routing"
                     value={empModalForm.name || ""}
                     onChange={(e) => setEmpModalForm({ ...empModalForm, name: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
                   />
                 </div>
 
@@ -2167,7 +2167,7 @@ export default function ApprovalRoutingTab() {
                   type="button"
                   disabled={saving}
                   onClick={saveEmpRuleModal}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-[var(--portal-primary-color)] text-white hover:bg-[var(--portal-hover-color)] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   <span>{saving ? "Saving Rule..." : "Save Employee Rule"}</span>
@@ -2198,7 +2198,7 @@ export default function ApprovalRoutingTab() {
               {/* Sticky Top Header */}
               <div className="p-4 px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300">
+                  <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300">
                     <Building2 className="w-5 h-5" />
                   </div>
                   <div>
@@ -2234,7 +2234,7 @@ export default function ApprovalRoutingTab() {
                     placeholder="e.g. Sales & Marketing Routing"
                     value={deptModalForm.name || ""}
                     onChange={(e) => setDeptModalForm({ ...deptModalForm, name: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
                   />
                 </div>
 
@@ -2286,7 +2286,7 @@ export default function ApprovalRoutingTab() {
                   type="button"
                   disabled={saving}
                   onClick={saveDeptRuleModal}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-[var(--portal-primary-color)] text-white hover:bg-[var(--portal-hover-color)] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   <span>{saving ? "Saving Rule..." : "Save Department Rule"}</span>

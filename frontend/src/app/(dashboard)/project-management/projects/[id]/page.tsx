@@ -274,14 +274,14 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors shrink-0 cursor-pointer"
             title="Refresh Details"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[var(--portal-primary-color)]" : ""}`} />
           </button>
 
           {canCreateTask && (<button
             type="button"
             onClick={() => setIsCreateTaskModalOpen(true)}
-            style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-            className="whitespace-nowrap inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer shrink-0"
+            style={{ backgroundColor: "var(--portal-primary-color, #00806E)", color: "rgb(255, 255, 255)", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="whitespace-nowrap inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer shrink-0"
           >
             <Plus className="w-4 h-4 !text-white shrink-0" />
             <span className="whitespace-nowrap !text-white">Add Task</span>
@@ -295,7 +295,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 style={{ fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
                 className="whitespace-nowrap inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[13px] leading-[20px] font-normal border border-slate-200 dark:border-slate-700 transition-colors shrink-0 cursor-pointer"
               >
-                <Edit3 className="w-4 h-4 text-[#56348f] dark:text-purple-400 shrink-0" />
+                <Edit3 className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400 shrink-0" />
                 <span className="whitespace-nowrap">Edit Project</span>
               </button>
 
@@ -540,7 +540,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 >
                   {savingCoordinator ? (
                     <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#56348f]" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--portal-primary-color)]" />
                       <span>Saving Coordinator…</span>
                     </>
                   ) : (

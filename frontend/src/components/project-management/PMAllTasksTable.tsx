@@ -165,7 +165,7 @@ export function PMAllTasksTable({
       <div className="p-4 sm:p-5 border-b border-slate-200/90 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/70 dark:bg-slate-800/50">
         {/* Title */}
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+          <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-[var(--portal-primary-color)] dark:text-purple-300 border border-purple-200 dark:border-purple-800">
             <Layers className="w-5 h-5" />
           </div>
           <h2
@@ -193,7 +193,7 @@ export function PMAllTasksTable({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search tasks..."
-              className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f]"
+              className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]/20 focus:border-[var(--portal-primary-color)]"
             />
           </div>
 
@@ -223,14 +223,14 @@ export function PMAllTasksTable({
           <button
             type="button"
             onClick={onToggleTodayOnly}
-            style={showTodayOnly ? { backgroundColor: "#56348f", color: "#ffffff" } : undefined}
+            style={showTodayOnly ? { backgroundColor: "var(--portal-primary-color, #00806E)", color: "#ffffff" } : undefined}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition border cursor-pointer shadow-xs ${
               showTodayOnly
-                ? "bg-[#56348f] border-[#56348f] !text-white shadow-sm"
+                ? "bg-[var(--portal-primary-color)] border-[var(--portal-primary-color)] !text-white shadow-sm"
                 : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 !text-slate-800 dark:!text-slate-100 hover:bg-purple-50 dark:hover:bg-slate-800"
             }`}
           >
-            <Calendar className={`w-3.5 h-3.5 ${showTodayOnly ? "!text-white" : "text-[#56348f] dark:text-purple-400"}`} />
+            <Calendar className={`w-3.5 h-3.5 ${showTodayOnly ? "!text-white" : "text-[var(--portal-primary-color)] dark:text-purple-400"}`} />
             <span className={showTodayOnly ? "!text-white font-bold" : "!text-slate-800 dark:!text-slate-100 font-bold"}>Present Day</span>
           </button>
         </div>
@@ -291,7 +291,7 @@ export function PMAllTasksTable({
                           fontWeight: 400,
                           color: "rgb(15, 24, 36)",
                         }}
-                        className="dark:!text-white group-hover:!text-[#56348f] dark:group-hover:!text-purple-300 transition-colors"
+                        className="dark:!text-white group-hover:!text-[var(--portal-primary-color)] dark:group-hover:!text-purple-300 transition-colors"
                       >
                         {task.project?.name ? `${task.project.name} / ${task.title}` : task.title}
                       </div>

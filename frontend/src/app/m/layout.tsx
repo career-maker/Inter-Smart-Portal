@@ -54,7 +54,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
             <Link
               key={href}
               href={href}
-              className={`flex flex-col items-center gap-0.5 py-2 text-xs font-medium ${active ? "text-[#56348f]" : "text-slate-500"}`}
+              className={`flex flex-col items-center gap-0.5 py-2 text-xs font-medium ${active ? "text-[var(--portal-primary-color)]" : "text-slate-500"}`}
             >
               <Icon className="w-6 h-6" strokeWidth={active ? 2.5 : 2} />
               {label}

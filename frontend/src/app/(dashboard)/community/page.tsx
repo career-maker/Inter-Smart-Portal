@@ -135,7 +135,7 @@ function CommunityPageContent() {
             <div className="lg:col-span-4 space-y-6">
               {/* 1. Today's Out of Office (Leaves & WFH) */}
               <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 space-y-4">
-                <span className="text-xs font-semibold text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 flex items-center gap-1.5">
                   <Palmtree className="w-3.5 h-3.5" /> Out of Office Today
                 </span>
 
@@ -217,12 +217,12 @@ function CommunityPageContent() {
               {/* 2. My Available Leave Balances */}
               <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-semibold text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 flex items-center gap-1.5">
 My Leave Balances
                   </span>
                   <Link
                     href="/leaves"
-                    className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline"
+                    className="text-xs font-medium text-[var(--portal-primary-color)] dark:text-purple-400 hover:underline"
                   >
                     Details
                   </Link>
@@ -231,7 +231,7 @@ My Leave Balances
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 bg-purple-50/70 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 rounded-md">
                     <span className="text-xs text-slate-600 dark:text-slate-400 block">Casual Leave</span>
-                    <span className="text-xl font-semibold text-[#56348f] dark:text-purple-400 mt-1 block">
+                    <span className="text-xl font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 mt-1 block">
                       {leaveBalances.casual}
                     </span>
                   </div>
@@ -246,40 +246,40 @@ My Leave Balances
 
               {/* 3. Quick Portal Shortcuts */}
               <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 space-y-3">
-                <span className="text-xs font-semibold text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 flex items-center gap-1.5">
                   <LinkIcon className="w-3.5 h-3.5" /> Quick Actions
                 </span>
                 <div className="space-y-1 text-xs">
                   {isSuperAdmin || currentUser?.role === "Team Lead" ? (
                     <Link
                       href="/leaves/approvals"
-                      className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f] font-semibold"
+                      className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[var(--portal-primary-color)] font-semibold"
                     >
                       <ClipboardCheck className="w-4 h-4 shrink-0 text-slate-400" /> Review Leave & WFH Approvals
                     </Link>
                   ) : (
                     <Link
                       href="/leaves"
-                      className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
+                      className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[var(--portal-primary-color)]"
                     >
                       <Palmtree className="w-4 h-4 shrink-0 text-slate-400" /> Apply for Leave or WFH
                     </Link>
                   )}
                   <Link
                     href="/policies"
-                    className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
+                    className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[var(--portal-primary-color)]"
                   >
                     <BookOpen className="w-4 h-4 shrink-0 text-slate-400" /> Company HR Policies
                   </Link>
                   <Link
                     href="/documents"
-                    className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
+                    className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[var(--portal-primary-color)]"
                   >
                     <FileText className="w-4 h-4 shrink-0 text-slate-400" /> Request HR Documents
                   </Link>
                   <Link
                     href="/recognitions/leaderboard"
-                    className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
+                    className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[var(--portal-primary-color)]"
                   >
                     <Trophy className="w-4 h-4 shrink-0 text-slate-400" /> View Hall of Fame Leaderboard
                   </Link>

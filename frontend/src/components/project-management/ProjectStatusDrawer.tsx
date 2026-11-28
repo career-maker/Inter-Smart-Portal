@@ -105,7 +105,7 @@ export function ProjectStatusDrawer({
           {/* ── Top Header ── */}
           <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-purple-50 via-white to-white dark:from-slate-800/80 dark:via-slate-900 dark:to-slate-900 shrink-0">
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-11 h-11 rounded-2xl bg-[#56348f]/10 text-[#56348f] dark:text-purple-400 flex items-center justify-center border border-purple-500/20 shadow-xs shrink-0">
+              <div className="w-11 h-11 rounded-2xl bg-[var(--portal-primary-color)]/10 text-[var(--portal-primary-color)] dark:text-purple-400 flex items-center justify-center border border-purple-500/20 shadow-xs shrink-0">
                 <FolderKanban className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -145,14 +145,14 @@ export function ProjectStatusDrawer({
                   type="button"
                   onClick={() => onOpenMarkLive(project)}
                   style={{
-                    backgroundColor: "#56348f",
+                    backgroundColor: "var(--portal-primary-color, #00806E)",
                     color: "rgb(255, 255, 255)",
                     fontFamily: 'Inter, sans-serif',
                     fontSize: "13px",
                     lineHeight: "20px",
                     fontWeight: 400,
                   }}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer"
                 >
                   <Rocket className="w-3.5 h-3.5 !text-white" />
                   <span className="!text-white">Mark Made Live</span>
@@ -192,7 +192,7 @@ export function ProjectStatusDrawer({
                   }}
                   className={`flex items-center gap-1.5 px-3.5 py-2.5 border-b-2 text-[13px] leading-[20px] font-normal transition whitespace-nowrap cursor-pointer ${
                     isSelected
-                      ? "border-[#56348f] text-[#56348f] dark:text-purple-300 font-bold"
+                      ? "border-[var(--portal-primary-color)] text-[var(--portal-primary-color)] dark:text-purple-300 font-bold"
                       : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
@@ -215,7 +215,7 @@ export function ProjectStatusDrawer({
           <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
             {loading ? (
               <div className="py-20 flex flex-col items-center justify-center gap-3 text-slate-400">
-                <Loader2 className="w-8 h-8 animate-spin text-[#56348f] dark:text-purple-400" />
+                <Loader2 className="w-8 h-8 animate-spin text-[var(--portal-primary-color)] dark:text-purple-400" />
                 <p className="text-xs font-semibold">Loading 360° Project Status...</p>
               </div>
             ) : error ? (
@@ -262,14 +262,14 @@ export function ProjectStatusDrawer({
                             type="button"
                             onClick={() => onOpenMarkLive(project)}
                             style={{
-                              backgroundColor: "#56348f",
+                              backgroundColor: "var(--portal-primary-color, #00806E)",
                               color: "rgb(255, 255, 255)",
                               fontFamily: 'Inter, sans-serif',
                               fontSize: "13px",
                               lineHeight: "20px",
                               fontWeight: 400,
                             }}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer shrink-0"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer shrink-0"
                           >
                             <Rocket className="w-4 h-4 !text-white" />
                             <span className="!text-white">Mark as Made Live</span>
@@ -288,11 +288,11 @@ export function ProjectStatusDrawer({
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs font-semibold">
                           <span className="text-slate-600 dark:text-slate-400">Deliverables Completion Rate</span>
-                          <span className="text-[#56348f] dark:text-purple-300 font-semibold">{completionPct}%</span>
+                          <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold">{completionPct}%</span>
                         </div>
                         <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                           <div
-                            className="h-full bg-[#56348f] rounded-full transition duration-500"
+                            className="h-full bg-[var(--portal-primary-color)] rounded-full transition duration-500"
                             style={{ width: `${completionPct}%` }}
                           />
                         </div>
@@ -381,7 +381,7 @@ export function ProjectStatusDrawer({
                       <div className="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Activity className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                            <Activity className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400" />
                             <h3 className="text-xs font-semibold text-slate-900 dark:text-white">
                               Hubstaff Work Tracking
                             </h3>
@@ -416,12 +416,12 @@ export function ProjectStatusDrawer({
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className="w-6 h-6 rounded-lg bg-purple-100 text-[#56348f] dark:bg-purple-950/80 dark:text-purple-300 font-semibold text-xs flex items-center justify-center">
+                              <span className="w-6 h-6 rounded-lg bg-purple-100 text-[var(--portal-primary-color)] dark:bg-purple-950/80 dark:text-purple-300 font-semibold text-xs flex items-center justify-center">
                                 {sp.order}
                               </span>
                               <h4 className="text-sm font-semibold text-slate-900 dark:text-white">{sp.name}</h4>
                             </div>
-                            <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300">
+                            <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                               {sp.progress_percentage}% Completed
                             </span>
                           </div>
@@ -640,7 +640,7 @@ export function ProjectStatusDrawer({
                 {activeTab === "after_live" && (
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-800/40 text-xs text-slate-700 dark:text-slate-300 space-y-1">
-                      <div className="flex items-center gap-1.5 font-semibold text-[#56348f] dark:text-purple-300">
+                      <div className="flex items-center gap-1.5 font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                         <span>Post-Launch Testing & Warranty Tasks</span>
                       </div>
                       <p className="text-slate-600 dark:text-slate-400 text-[13px] leading-[18px]">

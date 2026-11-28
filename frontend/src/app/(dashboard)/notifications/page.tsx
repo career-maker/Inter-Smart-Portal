@@ -93,7 +93,7 @@ function getNotificationCategory(notification: any) {
   if (type.includes("Profile") || title.includes("profile")) {
     return { icon: "User", label: "Profile", bg: "bg-sky-50 dark:bg-sky-950/40 border-sky-200/70 dark:border-sky-800/40 text-sky-600 dark:text-sky-300" };
   }
-  return { icon: "Bell", label: "Alert", bg: "bg-violet-50 dark:bg-violet-950/40 border-violet-200/70 dark:border-violet-800/40 text-[#56348f] dark:text-purple-300" };
+  return { icon: "Bell", label: "Alert", bg: "bg-violet-50 dark:bg-violet-950/40 border-violet-200/70 dark:border-violet-800/40 text-[var(--portal-primary-color)] dark:text-purple-300" };
 }
 
 function formatRelativeTime(dateStr: string) {
@@ -177,7 +177,7 @@ export default function NotificationsPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">Notifications</h1>
             {unreadTotal > 0 && (
-              <span className="bg-[#56348f] text-white text-xs font-semibold px-2.5 py-0.5 rounded-full shadow-2xs">
+              <span className="bg-[var(--portal-primary-color)] text-white text-xs font-semibold px-2.5 py-0.5 rounded-full shadow-2xs">
                 {unreadTotal} unread
               </span>
             )}
@@ -189,7 +189,7 @@ export default function NotificationsPage() {
             <button
               onClick={() => setFilter("all")}
               className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
-                filter === "all" ? "bg-[#56348f] text-white shadow-2xs" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50"
+                filter === "all" ? "bg-[var(--portal-primary-color)] text-white shadow-2xs" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50"
               }`}
             >
               All
@@ -197,13 +197,13 @@ export default function NotificationsPage() {
             <button
               onClick={() => setFilter("unread")}
               className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
-                filter === "unread" ? "bg-[#56348f] text-white shadow-2xs" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50"
+                filter === "unread" ? "bg-[var(--portal-primary-color)] text-white shadow-2xs" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50"
               }`}
             >
               <span>Unread</span>
               {unreadTotal > 0 && (
                 <span className={`text-xs px-1.5 py-0.2 rounded-full font-semibold ${
-                  filter === "unread" ? "bg-white/20 text-white" : "bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300"
+                  filter === "unread" ? "bg-white/20 text-white" : "bg-purple-100 text-[var(--portal-primary-color)] dark:bg-purple-950 dark:text-purple-300"
                 }`}>
                   {unreadTotal}
                 </span>
@@ -215,7 +215,7 @@ export default function NotificationsPage() {
               onClick={(e) => { e.stopPropagation(); return handleMarkAllAsRead(); }}
               variant="outline"
               size="sm"
-              className="h-9 gap-2 border-slate-200 dark:border-slate-700 text-[#56348f] dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 rounded-xl font-semibold cursor-pointer shadow-2xs"
+              className="h-9 gap-2 border-slate-200 dark:border-slate-700 text-[var(--portal-primary-color)] dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 rounded-xl font-semibold cursor-pointer shadow-2xs"
             >
               <CheckCheck className="h-4 w-4" />
               Mark all as read
@@ -228,7 +228,7 @@ export default function NotificationsPage() {
         <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/40">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
-              <div className="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/60 flex items-center justify-center text-[#56348f] dark:text-purple-300">
+              <div className="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/60 flex items-center justify-center text-[var(--portal-primary-color)] dark:text-purple-300">
                 <Bell className="h-4 w-4" />
               </div>
               Timeline
@@ -241,7 +241,7 @@ export default function NotificationsPage() {
         <CardContent className="p-3 sm:p-4">
           {loading ? (
             <div className="py-16 flex flex-col items-center justify-center gap-2 text-slate-400">
-              <Loader2 className="h-7 w-7 animate-spin text-[#56348f]" />
+              <Loader2 className="h-7 w-7 animate-spin text-[var(--portal-primary-color)]" />
               <p className="text-xs font-medium">Loading notifications...</p>
             </div>
           ) : filteredNotifications.length === 0 ? (
@@ -280,15 +280,15 @@ export default function NotificationsPage() {
                       <div className="flex-1 space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           {isUnread && (
-                            <span className="w-2 h-2 rounded-full bg-[#56348f] dark:bg-purple-400 ring-2 ring-purple-200 dark:ring-purple-900/80 shrink-0" />
+                            <span className="w-2 h-2 rounded-full bg-[var(--portal-primary-color)] dark:bg-purple-400 ring-2 ring-purple-200 dark:ring-purple-900/80 shrink-0" />
                           )}
                           <p className={`text-sm truncate transition-colors ${
-                            isUnread ? "font-bold text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300" : "font-medium text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white"
+                            isUnread ? "font-bold text-slate-900 dark:text-white group-hover:text-[var(--portal-primary-color)] dark:group-hover:text-purple-300" : "font-medium text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white"
                           }`}>
                             {notif.data?.title || "Update"}
                           </p>
                           {isUnread && (
-                            <Badge variant="secondary" className="bg-[#56348f]/10 text-[#56348f] dark:bg-purple-950 dark:text-purple-300 border-0 text-xs font-semibold px-2 py-0.2">
+                            <Badge variant="secondary" className="bg-[var(--portal-primary-color)]/10 text-[var(--portal-primary-color)] dark:bg-purple-950 dark:text-purple-300 border-0 text-xs font-semibold px-2 py-0.2">
                               New
                             </Badge>
                           )}
@@ -314,7 +314,7 @@ export default function NotificationsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={(e) => { e.stopPropagation(); return handleMarkAsRead(notif.id); }}
-                        className="shrink-0 h-8 text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:text-purple-900 hover:bg-purple-100/80 dark:hover:bg-purple-950/60 rounded-lg cursor-pointer"
+                        className="shrink-0 h-8 text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 hover:text-purple-900 hover:bg-purple-100/80 dark:hover:bg-purple-950/60 rounded-lg cursor-pointer"
                       >
                         Mark as read
                       </Button>

@@ -117,7 +117,7 @@ export default function MenuLayoutPage() {
             role="tab"
             aria-selected={role === r}
             onClick={() => setRole(r)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-semibold cursor-pointer ${role === r ? "bg-[var(--portal-primary-color,#56348f)] text-white" : "text-slate-600 hover:bg-slate-200/60"}`}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold cursor-pointer ${role === r ? "bg-[var(--portal-primary-color, #00806E)] text-white" : "text-slate-600 hover:bg-slate-200/60"}`}
           >
             {r}
           </button>
@@ -184,7 +184,7 @@ export default function MenuLayoutPage() {
           type="button"
           onClick={save}
           disabled={saving || loading}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color,#56348f)] text-white text-sm font-semibold disabled:opacity-50 cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color, #00806E)] text-white text-sm font-semibold disabled:opacity-50 cursor-pointer"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save for {role}
         </button>

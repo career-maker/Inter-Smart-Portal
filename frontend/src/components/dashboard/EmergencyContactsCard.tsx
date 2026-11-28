@@ -8,7 +8,7 @@ import api from "@/services/api";
 import emergencyContactsApi, { EmergencyContact } from "@/services/emergencyContacts";
 
 const fallbackAvatarBgs = [
-  "bg-[#56348f]",
+  "bg-[var(--portal-primary-color)]",
   "bg-indigo-600",
   "bg-blue-600",
   "bg-rose-500",
@@ -187,11 +187,11 @@ export function EmergencyContactsCard({
             }}
             className="dark:text-white flex items-center gap-2 box-title"
           >
-            <LifeBuoy className="w-4 h-4 text-[#56348f] dark:text-purple-400 shrink-0" />
+            <LifeBuoy className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400 shrink-0" />
             <span className="flex items-center gap-1.5">
               <span>{title}</span>
               {contacts.length > 0 && (
-                <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300">
+                <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                   {contacts.length}
                 </span>
               )}
@@ -201,7 +201,7 @@ export function EmergencyContactsCard({
             <Link
               href="/employees"
               title="Manage employees and assign emergency contacts"
-              className="text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-0.5"
+              className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 hover:underline flex items-center gap-0.5"
             >
               <span>Manage</span>
               <ChevronRight className="w-3 h-3" />
@@ -238,7 +238,7 @@ export function EmergencyContactsCard({
       {/* Empty State - No Emergency Contacts assigned */}
       {!loading && contacts.length === 0 && (
         <div className="py-6 px-4 text-center rounded-lg border border-dashed border-slate-200 dark:border-slate-700/70 bg-slate-50/50 dark:bg-slate-900/30 my-1">
-          <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-950/40 text-[#56348f] dark:text-purple-400 flex items-center justify-center mx-auto mb-2.5 shadow-2xs">
+          <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-950/40 text-[var(--portal-primary-color)] dark:text-purple-400 flex items-center justify-center mx-auto mb-2.5 shadow-2xs">
             <LifeBuoy className="w-5 h-5" />
           </div>
           <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
@@ -251,7 +251,7 @@ export function EmergencyContactsCard({
             <div className="mt-3">
               <Link
                 href="/employees"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#56348f] text-white hover:bg-[#452875] transition-colors shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--portal-primary-color)] text-white hover:bg-[var(--portal-hover-color)] transition-colors shadow-2xs"
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 <span>Assign in Employee Management</span>
@@ -271,7 +271,7 @@ export function EmergencyContactsCard({
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search emergency contacts"
             aria-label="Search emergency contacts"
-            className="w-full h-9 pl-8 pr-3 text-[13px] rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#56348f]/30"
+            className="w-full h-9 pl-8 pr-3 text-[13px] rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]/30"
           />
         </div>
       )}
@@ -363,7 +363,7 @@ export function EmergencyContactsCard({
                   </div>
 
                   {contact.department && (
-                    <span className="hidden sm:inline-flex text-xs font-semibold text-[#56348f] dark:text-purple-300 shrink-0">
+                    <span className="hidden sm:inline-flex text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300 shrink-0">
                       {contact.department}
                     </span>
                   )}
@@ -377,12 +377,12 @@ export function EmergencyContactsCard({
                       style={{
                         fontSize: "13px",
                         lineHeight: "20px",
-                        color: "#56348f",
+                        color: "var(--portal-primary-color, #00806E)",
                       }}
                       title={`Email ${contact.name}`}
                       className="dark:text-purple-400 inline-flex items-center gap-1.5 hover:underline transition-colors group cursor-pointer"
                     >
-                      <Mail className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#56348f] shrink-0" />
+                      <Mail className="w-3.5 h-3.5 text-slate-400 group-hover:text-[var(--portal-primary-color)] shrink-0" />
                       <span className="font-medium truncate max-w-[200px] sm:max-w-none">
                         {contact.email}
                       </span>
@@ -397,9 +397,9 @@ export function EmergencyContactsCard({
                         color: "rgb(15, 24, 36)",
                       }}
                       title={`Call ${contact.name}`}
-                      className="dark:text-slate-200 inline-flex items-center gap-1.5 hover:text-[#56348f] dark:hover:text-purple-300 transition-colors group cursor-pointer"
+                      className="dark:text-slate-200 inline-flex items-center gap-1.5 hover:text-[var(--portal-primary-color)] dark:hover:text-purple-300 transition-colors group cursor-pointer"
                     >
-                      <Phone className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#56348f] shrink-0" />
+                      <Phone className="w-3.5 h-3.5 text-slate-400 group-hover:text-[var(--portal-primary-color)] shrink-0" />
                       <span className="font-normal">{contact.phone}</span>
                     </a>
                   )}

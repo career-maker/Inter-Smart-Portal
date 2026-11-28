@@ -81,7 +81,7 @@ export function EditTaskModal({ isOpen, onClose, task, onSuccess }: { isOpen: bo
           <label className="block text-xs font-semibold text-slate-500">Description<textarea rows={3} className={field} value={f.description || ""} onChange={(e) => setF({ ...f, description: e.target.value })} /></label>
           <div className="flex justify-end gap-2 pt-1">
             <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl border text-sm">Cancel</button>
-            <button type="submit" disabled={busy} className="px-4 py-2 rounded-xl bg-[#56348f] text-white text-sm font-semibold disabled:opacity-60 inline-flex items-center gap-2">{busy && <Loader2 className="h-4 w-4 animate-spin" />}Save</button>
+            <button type="submit" disabled={busy} className="px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] text-white text-sm font-semibold disabled:opacity-60 inline-flex items-center gap-2">{busy && <Loader2 className="h-4 w-4 animate-spin" />}Save</button>
           </div>
         </form>
       </div>

@@ -37,7 +37,7 @@ import { format, parseISO, addDays } from "date-fns";
 
 
 const EMOJI_REACTIONS = [
-  { id: "like", emoji: "👍", label: "Like", color: "text-[#56348f]" },
+  { id: "like", emoji: "👍", label: "Like", color: "text-[var(--portal-primary-color)]" },
   { id: "smile", emoji: "😊", label: "Smile", color: "text-amber-500" },
   { id: "heart", emoji: "❤️", label: "Love", color: "text-rose-500" },
   { id: "clap", emoji: "👏", label: "Clap", color: "text-emerald-500" },
@@ -697,7 +697,7 @@ export function CommunityFeed() {
             <button
               onClick={() => setActiveType("post")}
               className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition cursor-pointer ${
-                activeType === "post" ? "border-[#56348f] text-[#56348f] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                activeType === "post" ? "border-[var(--portal-primary-color)] text-[var(--portal-primary-color)] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
               <Edit3 className="w-4 h-4 text-purple-400" />
@@ -707,7 +707,7 @@ export function CommunityFeed() {
             <button
               onClick={() => setActiveType("poll")}
               className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition cursor-pointer ${
-                activeType === "poll" ? "border-[#56348f] text-[#56348f] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                activeType === "poll" ? "border-[var(--portal-primary-color)] text-[var(--portal-primary-color)] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
               <BarChart2 className="w-4 h-4 text-green-500" />
@@ -717,7 +717,7 @@ export function CommunityFeed() {
             <button
               onClick={() => setActiveType("praise")}
               className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition cursor-pointer ${
-                activeType === "praise" ? "border-[#56348f] text-[#56348f] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                activeType === "praise" ? "border-[var(--portal-primary-color)] text-[var(--portal-primary-color)] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
               <Medal className="w-4 h-4 text-yellow-600" />
@@ -732,12 +732,12 @@ export function CommunityFeed() {
           <div className="space-y-4">
             {/* 1. Multiple Employees Selection & Search */}
             <div className="relative" ref={employeeSearchRef}>
-              <div className="flex flex-wrap items-center gap-2 p-2.5 border-b-2 border-[#56348f] bg-slate-50/50 dark:bg-slate-900/40 rounded-t-md">
+              <div className="flex flex-wrap items-center gap-2 p-2.5 border-b-2 border-[var(--portal-primary-color)] bg-slate-50/50 dark:bg-slate-900/40 rounded-t-md">
                 {/* Selected Employee Pills */}
                 {selectedEmployees.map((emp) => (
                   <span
                     key={emp.id}
-                    className="inline-flex items-center gap-1.5 bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-200 px-2.5 py-1 rounded-full text-xs font-semibold shadow-2xs animate-in fade-in"
+                    className="inline-flex items-center gap-1.5 bg-purple-100 dark:bg-purple-950/80 text-[var(--portal-primary-color)] dark:text-purple-200 px-2.5 py-1 rounded-full text-xs font-semibold shadow-2xs animate-in fade-in"
                   >
                     <RoyalAvatar
                       src={emp.profile_photo_path}
@@ -817,7 +817,7 @@ export function CommunityFeed() {
                 onChange={(e) => handleMentionChange(e, "praise", setPraiseDescription)}
                 rows={3}
                 placeholder="What did the employee do to deserve the praise"
-                className="w-full text-[13px] leading-relaxed p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] dark:text-white resize-none"
+                className="w-full text-[13px] leading-relaxed p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)] dark:text-white resize-none"
               />
               {mentionActiveField === "praise" && mentionQuery !== null && (
                 <div className="absolute z-40 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl custom-scrollbar">
@@ -842,7 +842,7 @@ export function CommunityFeed() {
             <div className="flex items-center gap-4">
               <div
                 onClick={() => setIsBadgeModalOpen(!isBadgeModalOpen)}
-                className="w-14 h-14 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-center text-2xl shadow-xs cursor-pointer hover:border-[#56348f] transition"
+                className="w-14 h-14 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-center text-2xl shadow-xs cursor-pointer hover:border-[var(--portal-primary-color)] transition"
               >
                 <span>{selectedBadge?.icon || "🎖️"}</span>
               </div>
@@ -851,7 +851,7 @@ export function CommunityFeed() {
                 <button
                   type="button"
                   onClick={() => setIsBadgeModalOpen(!isBadgeModalOpen)}
-                  style={{ color: "#56348f" }}
+                  style={{ color: "var(--portal-primary-color, #00806E)" }}
                   className="text-xs font-semibold hover:underline cursor-pointer dark:text-purple-400 flex items-center gap-1"
                 >
                   <span>{selectedBadge?.name ? `Badge: ${selectedBadge.name}` : "Select badge"}</span>
@@ -876,7 +876,7 @@ export function CommunityFeed() {
                     }}
                     className={`flex items-center gap-2 p-2 rounded-md border text-xs font-semibold transition cursor-pointer ${
                       selectedBadge?.id === b.id
-                        ? "border-[#56348f] bg-white dark:bg-slate-800 shadow-xs"
+                        ? "border-[var(--portal-primary-color)] bg-white dark:bg-slate-800 shadow-xs"
                         : "border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/40 hover:border-slate-400"
                     }`}
                   >
@@ -895,7 +895,7 @@ export function CommunityFeed() {
               <SelectCompat
                 value={selectedProject}
                 onChange={(e) => setSelectedProject(e.target.value)}
-                className="w-full text-xs px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] dark:text-white"
+                className="w-full text-xs px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)] dark:text-white"
               >
                 <option value="">Select project</option>
                 {projectsList.map((p) => (
@@ -941,7 +941,7 @@ export function CommunityFeed() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    style={{ color: "#56348f" }}
+                    style={{ color: "var(--portal-primary-color, #00806E)" }}
                     className="flex items-center gap-1.5 text-xs font-semibold hover:underline cursor-pointer dark:text-purple-400"
                   >
                     <Paperclip className="w-3.5 h-3.5" />
@@ -955,10 +955,10 @@ export function CommunityFeed() {
                     type="checkbox"
                     checked={sendEmailNotification}
                     onChange={(e) => setSendEmailNotification(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-slate-300 text-[#56348f] focus:ring-[#56348f] cursor-pointer"
+                    className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)] cursor-pointer"
                   />
                   <span className="flex items-center gap-1 font-medium">
-                    <Mail className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                    <Mail className="w-3.5 h-3.5 text-[var(--portal-primary-color)] dark:text-purple-400" />
                     Send email notification to all employees
                   </span>
                 </label>
@@ -968,10 +968,10 @@ export function CommunityFeed() {
                 onClick={handleCreatePost}
                 disabled={posting || selectedEmployees.length === 0 || !praiseDescription.trim()}
                 style={{
-                  backgroundColor: "#56348f",
+                  backgroundColor: "var(--portal-primary-color, #00806E)",
                   color: "#ffffff",
                 }}
-                className="px-6 py-2 bg-[#56348f] hover:bg-[#452773] !text-white text-xs font-semibold rounded-md shadow-xs transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                className="px-6 py-2 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold rounded-md shadow-xs transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
               >
                 {posting ? (
                   <>
@@ -993,7 +993,7 @@ export function CommunityFeed() {
                 value={pollQuestion}
                 onChange={(e) => handleMentionChange(e, "poll", setPollQuestion)}
                 placeholder="What this poll is about"
-                className="w-full text-[14px] font-medium py-2 px-1 border-b border-slate-200 dark:border-slate-700 bg-transparent focus:outline-none focus:border-[#56348f] text-slate-900 dark:text-white placeholder:text-slate-400"
+                className="w-full text-[14px] font-medium py-2 px-1 border-b border-slate-200 dark:border-slate-700 bg-transparent focus:outline-none focus:border-[var(--portal-primary-color)] text-slate-900 dark:text-white placeholder:text-slate-400"
               />
               {mentionActiveField === "poll" && mentionQuery !== null && (
                 <div className="absolute z-40 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl custom-scrollbar">
@@ -1022,7 +1022,7 @@ export function CommunityFeed() {
                     value={opt}
                     onChange={(e) => handlePollOptionChange(idx, e.target.value)}
                     placeholder="Add option here"
-                    className="flex-1 text-[13px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] dark:text-white placeholder:text-slate-400"
+                    className="flex-1 text-[13px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)] dark:text-white placeholder:text-slate-400"
                   />
                   {pollOptions.length > 2 && (
                     <button
@@ -1042,7 +1042,7 @@ export function CommunityFeed() {
               <button
                 type="button"
                 onClick={handleAddPollOption}
-                style={{ color: "#56348f" }}
+                style={{ color: "var(--portal-primary-color, #00806E)" }}
                 className="text-xs font-semibold hover:underline cursor-pointer dark:text-purple-400"
               >
                 +Add Option
@@ -1057,7 +1057,7 @@ export function CommunityFeed() {
                     type="date"
                     value={pollExpiresOn}
                     onChange={(e) => setPollExpiresOn(e.target.value)}
-                    className="text-xs px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] dark:text-white cursor-pointer"
+                    className="text-xs px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)] dark:text-white cursor-pointer"
                   />
                 </div>
 
@@ -1069,10 +1069,10 @@ export function CommunityFeed() {
                       setSendEmailNotification(e.target.checked);
                       setNotifyEmployees(e.target.checked);
                     }}
-                    className="w-3.5 h-3.5 rounded border-slate-300 text-[#56348f] focus:ring-[#56348f] cursor-pointer"
+                    className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)] cursor-pointer"
                   />
                   <span className="flex items-center gap-1 font-medium">
-                    <Mail className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                    <Mail className="w-3.5 h-3.5 text-[var(--portal-primary-color)] dark:text-purple-400" />
                     Send email notification to all employees
                   </span>
                 </label>
@@ -1082,7 +1082,7 @@ export function CommunityFeed() {
                     type="checkbox"
                     checked={anonymousPoll}
                     onChange={(e) => setAnonymousPoll(e.target.checked)}
-                    className="rounded text-[#56348f] focus:ring-[#56348f]"
+                    className="rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)]"
                   />
                   <span>Anonymous poll</span>
                 </label>
@@ -1092,10 +1092,10 @@ export function CommunityFeed() {
                 onClick={handleCreatePost}
                 disabled={posting || !pollQuestion.trim()}
                 style={{
-                  backgroundColor: "#56348f",
+                  backgroundColor: "var(--portal-primary-color, #00806E)",
                   color: "#ffffff",
                 }}
-                className="px-6 py-2 bg-[#56348f] hover:bg-[#452773] !text-white text-xs font-semibold rounded-md shadow-xs transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                className="px-6 py-2 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold rounded-md shadow-xs transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
               >
                 {posting ? (
                   <>
@@ -1169,7 +1169,7 @@ export function CommunityFeed() {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-24 h-24 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center text-slate-400 hover:text-[#56348f] hover:border-[#56348f] transition-colors cursor-pointer"
+                      className="w-24 h-24 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center text-slate-400 hover:text-[var(--portal-primary-color)] hover:border-[var(--portal-primary-color)] transition-colors cursor-pointer"
                     >
                       <Plus className="w-5 h-5 mb-0.5" />
                       <span className="text-xs font-semibold">Add more</span>
@@ -1203,7 +1203,7 @@ export function CommunityFeed() {
                     onClick={() => setShowPostEmojiPicker((prev) => !prev)}
                     className={`w-8 h-8 rounded-full border transition-colors cursor-pointer flex items-center justify-center ${
                       showPostEmojiPicker
-                        ? "border-[#56348f] text-[#56348f] bg-purple-50 dark:bg-purple-950/40"
+                        ? "border-[var(--portal-primary-color)] text-[var(--portal-primary-color)] bg-purple-50 dark:bg-purple-950/40"
                         : "border-slate-200 dark:border-slate-700 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                     title="Add emoji"
@@ -1248,7 +1248,7 @@ export function CommunityFeed() {
                 <div className="flex flex-wrap items-center gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] text-slate-500 dark:text-slate-400">Posting to</span>
-                    <SelectCompat className="border border-slate-200 dark:border-slate-700 rounded text-[13px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 py-1.5 px-2 focus:outline-none focus:ring-1 focus:ring-[#56348f]">
+                    <SelectCompat className="border border-slate-200 dark:border-slate-700 rounded text-[13px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 py-1.5 px-2 focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]">
                       <option>Organization</option>
                     </SelectCompat>
                   </div>
@@ -1258,10 +1258,10 @@ export function CommunityFeed() {
                       type="checkbox"
                       checked={sendEmailNotification}
                       onChange={(e) => setSendEmailNotification(e.target.checked)}
-                      className="w-3.5 h-3.5 rounded border-slate-300 text-[#56348f] focus:ring-[#56348f] cursor-pointer"
+                      className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)] cursor-pointer"
                     />
                     <span className="flex items-center gap-1 font-medium">
-                      <Mail className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                      <Mail className="w-3.5 h-3.5 text-[var(--portal-primary-color)] dark:text-purple-400" />
                       Send email notification to all employees
                     </span>
                   </label>
@@ -1279,10 +1279,10 @@ export function CommunityFeed() {
                     onClick={handleCreatePost}
                     disabled={(!content.trim() && selectedImages.length === 0) || posting}
                     style={{
-                      backgroundColor: "#56348f",
+                      backgroundColor: "var(--portal-primary-color, #00806E)",
                       color: "#ffffff",
                     }}
-                    className="px-6 py-1.5 bg-[#56348f] hover:bg-[#452773] !text-white text-[13px] font-semibold rounded-md transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                    className="px-6 py-1.5 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-[13px] font-semibold rounded-md transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
                   >
                     {posting ? (
                       <>
@@ -1305,7 +1305,7 @@ export function CommunityFeed() {
       <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-            <Filter className="w-3.5 h-3.5 text-[#56348f]" /> Filter Feed:
+            <Filter className="w-3.5 h-3.5 text-[var(--portal-primary-color)]" /> Filter Feed:
           </span>
 
           {/* Type Filter */}
@@ -1315,7 +1315,7 @@ export function CommunityFeed() {
               setFilterType(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+            className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
           >
             <option value="all">All Types</option>
             <option value="post">Regular Posts</option>
@@ -1330,7 +1330,7 @@ export function CommunityFeed() {
               setFilterYear(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+            className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
           >
             <option value="all">All Years</option>
             <option value="2026">2026</option>
@@ -1345,7 +1345,7 @@ export function CommunityFeed() {
               setFilterMonth(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+            className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
           >
             {MONTHS.map((m) => (
               <option key={m.value} value={m.value}>
@@ -1482,13 +1482,13 @@ export function CommunityFeed() {
                           <span className="font-semibold">Praise for</span>
                           {praisedList.length > 0 ? (
                             praisedList.map((pUser: any, pIdx: number) => (
-                              <span key={pUser.id || pIdx} className="text-[#56348f] dark:text-purple-400 font-semibold">
+                              <span key={pUser.id || pIdx} className="text-[var(--portal-primary-color)] dark:text-purple-400 font-semibold">
                                 {pUser.first_name} {pUser.last_name}
                                 {pIdx < praisedList.length - 1 ? "," : ""}
                               </span>
                             ))
                           ) : (
-                            <span className="font-semibold text-[#56348f]">Colleague</span>
+                            <span className="font-semibold text-[var(--portal-primary-color)]">Colleague</span>
                           )}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
@@ -1533,7 +1533,7 @@ export function CommunityFeed() {
                   <div className="text-[14px] leading-relaxed text-slate-900 dark:text-slate-200 whitespace-pre-wrap px-4 pb-3">
                     {post.type === "poll" && (
                       <div className="mb-2 inline-flex items-center gap-1 text-[13px] font-semibold px-2.5 py-0.5 bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 rounded-full">
-                        <BarChart2 className="w-4 h-4 text-[#56348f]" /> Community Poll
+                        <BarChart2 className="w-4 h-4 text-[var(--portal-primary-color)]" /> Community Poll
                       </div>
                     )}
                     <p className={isPoll ? "font-semibold text-sm text-slate-900 dark:text-white" : ""}>
@@ -1559,14 +1559,14 @@ export function CommunityFeed() {
                           disabled={votingPostId === post.id}
                           className={`w-full relative overflow-hidden text-left p-3 rounded-md border transition cursor-pointer ${
                             isUserVote
-                              ? "border-[#56348f] bg-purple-50/50 dark:bg-purple-950/20"
+                              ? "border-[var(--portal-primary-color)] bg-purple-50/50 dark:bg-purple-950/20"
                               : "border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-slate-50/50 dark:bg-slate-900/40"
                           }`}
                         >
                           <div
                             style={{ width: `${percentage}%` }}
                             className={`absolute inset-y-0 left-0 transition duration-500 opacity-20 ${
-                              isUserVote ? "bg-[#56348f]" : "bg-slate-400 dark:bg-slate-600"
+                              isUserVote ? "bg-[var(--portal-primary-color)]" : "bg-slate-400 dark:bg-slate-600"
                             }`}
                           />
 
@@ -1575,7 +1575,7 @@ export function CommunityFeed() {
                               <span
                                 className={`w-4 h-4 rounded-full border flex items-center justify-center text-xs ${
                                   isUserVote
-                                    ? "border-[#56348f] bg-[#56348f] text-white"
+                                    ? "border-[var(--portal-primary-color)] bg-[var(--portal-primary-color)] text-white"
                                     : "border-slate-400"
                                 }`}
                               >
@@ -1690,7 +1690,7 @@ export function CommunityFeed() {
                               }
                               className={`transition duration-200 rounded-full cursor-pointer ${
                                 currentSlide === sIdx
-                                  ? "w-2.5 h-2.5 bg-[#56348f] dark:bg-purple-400 scale-110 shadow-xs"
+                                  ? "w-2.5 h-2.5 bg-[var(--portal-primary-color)] dark:bg-purple-400 scale-110 shadow-xs"
                                   : "w-1.5 h-1.5 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400"
                               }`}
                               title={`Go to photo ${sIdx + 1}`}
@@ -1917,7 +1917,7 @@ export function CommunityFeed() {
                         onClick={() => setCurrentPage(p)}
                         className={`w-8 h-8 rounded-md text-xs font-semibold transition cursor-pointer ${
                           currentPage === p
-                            ? "bg-[#56348f] text-white"
+                            ? "bg-[var(--portal-primary-color)] text-white"
                             : "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
                         }`}
                       >
@@ -1974,7 +1974,7 @@ export function CommunityFeed() {
                 onClick={() => setReactionModalTab("all")}
                 className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors cursor-pointer shrink-0 ${
                   reactionModalTab === "all"
-                    ? "bg-[#56348f] text-white"
+                    ? "bg-[var(--portal-primary-color)] text-white"
                     : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
                 }`}
               >
@@ -1993,7 +1993,7 @@ export function CommunityFeed() {
                     onClick={() => setReactionModalTab(re.id)}
                     className={`flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full transition-colors cursor-pointer shrink-0 ${
                       isSelected
-                        ? "bg-[#56348f] text-white"
+                        ? "bg-[var(--portal-primary-color)] text-white"
                         : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
                     }`}
                   >

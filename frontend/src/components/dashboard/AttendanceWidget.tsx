@@ -372,7 +372,7 @@ export function AttendanceWidget({
               }}
               className="dark:text-white flex items-center gap-2 box-title"
             >
-              <Clock className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+              <Clock className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400" />
               Today's Attendance
             </h2>
             <p
@@ -435,7 +435,7 @@ export function AttendanceWidget({
         {data?.has_approved_wfh_today && (
           <div className="mb-4 p-3 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10 shadow-2xs">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/60 text-[var(--portal-primary-color)] dark:text-purple-300 flex items-center justify-center shrink-0">
                 <CalendarCheck className="w-4 h-4" />
               </div>
               <div>

@@ -68,7 +68,7 @@ const CalendarDatePicker = ({
 
           let btnClass = "text-xs h-7 w-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer ";
           if (isSelected) {
-            btnClass += "bg-[#56348f] text-white font-semibold shadow-xs";
+            btnClass += "bg-[var(--portal-primary-color)] text-white font-semibold shadow-xs";
           } else if (isDisabled) {
             btnClass += "text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-40";
           } else if (isHoliday) {

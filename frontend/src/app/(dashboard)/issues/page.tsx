@@ -101,7 +101,7 @@ export default function IssuesPage() {
         </div>
         <Button
           onClick={() => setIsDrawerOpen(true)}
-          className="flex items-center gap-2 cursor-pointer bg-[#56348f] hover:bg-[#472a77] text-white shadow-sm font-semibold rounded-xl"
+          className="flex items-center gap-2 cursor-pointer bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white shadow-sm font-semibold rounded-xl"
         >
           <PlusCircle className="w-4 h-4" />
           Raise an Issue
@@ -126,7 +126,7 @@ export default function IssuesPage() {
                 onClick={() => setStatusFilter(status)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                   statusFilter === status
-                    ? "bg-[#56348f] text-white shadow-xs"
+                    ? "bg-[var(--portal-primary-color)] text-white shadow-xs"
                     : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                 }`}
               >
@@ -139,7 +139,7 @@ export default function IssuesPage() {
         <CardContent className="p-0">
           {loading ? (
             <div className="p-12 text-center text-slate-500 dark:text-slate-400">
-              <div className="w-6 h-6 border-2 border-[#56348f] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <div className="w-6 h-6 border-2 border-[var(--portal-primary-color)] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               Loading issues...
             </div>
           ) : filteredIssues.length === 0 ? (
@@ -213,7 +213,7 @@ export default function IssuesPage() {
                         )}
                         {/* Assigned-to-me badge for non-admin */}
                         {user?.role !== "Super Admin" && issue.assigned_to === user?.id && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 border border-[#56348f]/20 dark:border-purple-800">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[var(--portal-primary-color)]/10 text-[var(--portal-primary-color)] dark:bg-purple-900/40 dark:text-purple-300 border border-[var(--portal-primary-color)]/20 dark:border-purple-800">
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                             Assigned to me
                           </span>

@@ -214,15 +214,15 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
               className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
               title="Refresh Task"
             >
-              <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+              <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[var(--portal-primary-color)]" : ""}`} />
             </button>
 
             {canUpdateExecution && (
               <button
                 type="button"
                 onClick={() => setIsExecutionModalOpen(true)}
-                style={{ backgroundColor: "#56348f", color: "#ffffff", fontFamily: 'Inter, sans-serif' }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors cursor-pointer"
+                style={{ backgroundColor: "var(--portal-primary-color, #00806E)", color: "#ffffff", fontFamily: 'Inter, sans-serif' }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors cursor-pointer"
               >
                 <Edit3 className="w-4 h-4 !text-white" />
                 <span className="!text-white">Edit / Update Execution</span>

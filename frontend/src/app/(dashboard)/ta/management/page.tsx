@@ -381,8 +381,8 @@ export default function TAManagementPage() {
     switch (status) {
       case "Approved":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#56348f]" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-950/80 text-[var(--portal-primary-color)] dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[var(--portal-primary-color)]" />
             <span>Approved (Unpaid)</span>
           </span>
         );
@@ -453,7 +453,7 @@ export default function TAManagementPage() {
             <span className="text-slate-900 dark:text-white font-semibold">TA Management</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-white mt-1 flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
+            <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[var(--portal-primary-color)] dark:text-purple-300">
               <Receipt className="w-6 h-6" />
             </div>
             <span>Travel Allowance Management</span>
@@ -468,7 +468,7 @@ export default function TAManagementPage() {
           disabled={isLoading}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 self-start sm:self-auto cursor-pointer"
         >
-          <Loader2 className={`w-4 h-4 ${isLoading ? "animate-spin text-[#56348f]" : ""}`} />
+          <Loader2 className={`w-4 h-4 ${isLoading ? "animate-spin text-[var(--portal-primary-color)]" : ""}`} />
           <span>Refresh</span>
         </button>
       </div>
@@ -506,7 +506,7 @@ export default function TAManagementPage() {
               onClick={() => setFilter(option.value)}
               className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 filter === option.value
-                  ? "bg-[#56348f] text-white shadow-sm"
+                  ? "bg-[var(--portal-primary-color)] text-white shadow-sm"
                   : "bg-white dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/80"
               }`}
             >
@@ -523,7 +523,7 @@ export default function TAManagementPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search employee, reason, receipt…"
-            className="w-full pl-10 pr-4 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+            className="w-full pl-10 pr-4 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
           />
         </div>
       </div>
@@ -531,7 +531,7 @@ export default function TAManagementPage() {
       {/* ── Claims List ── */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-          <Loader2 className="w-8 h-8 animate-spin text-[#56348f] mb-3" />
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--portal-primary-color)] mb-3" />
           <span className="text-xs sm:text-sm font-semibold">Loading travel allowance claims…</span>
         </div>
       ) : filteredRequests.length === 0 ? (
@@ -556,7 +556,7 @@ export default function TAManagementPage() {
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2.5 flex-wrap">
                     <div className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-white text-base sm:text-lg">
-                      <User className="w-4 h-4 text-[#56348f]" />
+                      <User className="w-4 h-4 text-[var(--portal-primary-color)]" />
                       <span>{req.user?.first_name} {req.user?.last_name}</span>
                       {req.user?.employee_code && (
                         <span className="px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
@@ -595,7 +595,7 @@ export default function TAManagementPage() {
                 <div className="text-left sm:text-right shrink-0 space-y-1">
                   <span className="text-xs text-slate-400 block font-medium">Claim Amount</span>
                   <div className="flex sm:flex-col items-baseline sm:items-end gap-1.5 sm:gap-0">
-                    <span className="text-xl sm:text-2xl font-semibold text-[#56348f] dark:text-purple-300">
+                    <span className="text-xl sm:text-2xl font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                       ₹{formatCurrency(req.approved_amount || req.total_amount)}
                     </span>
                     {req.approved_amount && Number(req.approved_amount) !== Number(req.total_amount) && (
@@ -605,7 +605,7 @@ export default function TAManagementPage() {
                     )}
                   </div>
                   {req.receipt_number && (
-                    <span className="inline-block px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-purple-50 dark:bg-purple-950/70 text-[#56348f] dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/60">
+                    <span className="inline-block px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-purple-50 dark:bg-purple-950/70 text-[var(--portal-primary-color)] dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/60">
                       {req.receipt_number}
                     </span>
                   )}
@@ -653,7 +653,7 @@ export default function TAManagementPage() {
                     <button
                       type="button"
                       onClick={() => setViewVoucherItem(req)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-[#56348f] dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/60 font-semibold border border-purple-200/80 dark:border-purple-800/60 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-[var(--portal-primary-color)] dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/60 font-semibold border border-purple-200/80 dark:border-purple-800/60 transition-colors cursor-pointer"
                       title="View & Download Generated Official Bill Receipt Image"
                     >
                       <Receipt className="w-3.5 h-3.5" />
@@ -726,7 +726,7 @@ export default function TAManagementPage() {
                       type="button"
                       onClick={() => openApproveModal(req)}
                       disabled={actionLoadingId === req.id}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#56348f] hover:bg-[#462875] shadow-sm transition cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] shadow-sm transition cursor-pointer disabled:opacity-50"
                     >
                       <Check className="w-3.5 h-3.5" />
                       <span>Approve / Settle Claim</span>
@@ -790,7 +790,7 @@ export default function TAManagementPage() {
                     required
                     value={approvalForm.approved_amount}
                     onChange={(e) => setApprovalForm({ ...approvalForm, approved_amount: e.target.value })}
-                    className="w-full pl-8 pr-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                    className="w-full pl-8 pr-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                   />
                 </div>
                 <p className="text-xs text-slate-400">
@@ -806,7 +806,7 @@ export default function TAManagementPage() {
                 <SelectCompat
                   value={approvalForm.payment_mode}
                   onChange={(e) => setApprovalForm({ ...approvalForm, payment_mode: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                 >
                   <option value="Bank Transfer">Bank Transfer / NEFT / IMPS</option>
                   <option value="UPI / Google Pay">UPI / Google Pay / PhonePe</option>
@@ -829,7 +829,7 @@ export default function TAManagementPage() {
                       payment_receipt_file: e.target.files?.[0] || null,
                     })
                   }
-                  className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-[#56348f] hover:file:bg-purple-100 cursor-pointer"
+                  className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-[var(--portal-primary-color)] hover:file:bg-purple-100 cursor-pointer"
                 />
                 <p className="text-xs text-slate-400">
                   Upload transaction proof screenshot so the employee receives it in their email and portal dashboard.
@@ -842,7 +842,7 @@ export default function TAManagementPage() {
                   type="checkbox"
                   checked={approvalForm.is_paid}
                   onChange={(e) => setApprovalForm({ ...approvalForm, is_paid: e.target.checked })}
-                  className="rounded text-[#56348f] focus:ring-[#56348f]"
+                  className="rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)]"
                 />
                 <span className="font-semibold text-slate-800 dark:text-slate-200">
                   Mark as Paid & Disbursed Immediately
@@ -859,7 +859,7 @@ export default function TAManagementPage() {
                   value={approvalForm.approval_notes}
                   onChange={(e) => setApprovalForm({ ...approvalForm, approval_notes: e.target.value })}
                   placeholder="e.g., Approved as per actual distance travelled."
-                  className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                 />
               </div>
 
@@ -874,7 +874,7 @@ export default function TAManagementPage() {
                 <button
                   type="submit"
                   disabled={actionLoadingId === approvalModalItem.id}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md transition cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md transition cursor-pointer disabled:opacity-50"
                 >
                   {actionLoadingId === approvalModalItem.id ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -954,7 +954,7 @@ export default function TAManagementPage() {
             <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-[#56348f]" />
+                  <ShieldCheck className="w-5 h-5 text-[var(--portal-primary-color)]" />
                   <span>Super Admin Request Override</span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -982,7 +982,7 @@ export default function TAManagementPage() {
                     required
                     value={overrideForm.reason}
                     onChange={(e) => setOverrideForm({ ...overrideForm, reason: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                   />
                 </div>
 
@@ -996,7 +996,7 @@ export default function TAManagementPage() {
                     required
                     value={overrideForm.date_travelled}
                     onChange={(e) => setOverrideForm({ ...overrideForm, date_travelled: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                   />
                 </div>
 
@@ -1008,7 +1008,7 @@ export default function TAManagementPage() {
                   <SelectCompat
                     value={overrideForm.status}
                     onChange={(e) => setOverrideForm({ ...overrideForm, status: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                   >
                     <option value="Applied">Applied (Pending Review)</option>
                     <option value="Approved">Approved</option>
@@ -1027,7 +1027,7 @@ export default function TAManagementPage() {
                     step="0.01"
                     value={overrideForm.approved_amount}
                     onChange={(e) => setOverrideForm({ ...overrideForm, approved_amount: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                   />
                 </div>
 
@@ -1041,7 +1041,7 @@ export default function TAManagementPage() {
                     placeholder="Auto-generated if blank"
                     value={overrideForm.receipt_number}
                     onChange={(e) => setOverrideForm({ ...overrideForm, receipt_number: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                   />
                 </div>
               </div>
@@ -1055,7 +1055,7 @@ export default function TAManagementPage() {
                   <button
                     type="button"
                     onClick={handleAddOverrideItem}
-                    className="text-xs font-semibold text-[#56348f] hover:underline"
+                    className="text-xs font-semibold text-[var(--portal-primary-color)] hover:underline"
                   >
                     + Add Item
                   </button>
@@ -1160,7 +1160,7 @@ export default function TAManagementPage() {
                   value={overrideForm.approval_notes}
                   onChange={(e) => setOverrideForm({ ...overrideForm, approval_notes: e.target.value })}
                   placeholder="Admin notes..."
-                  className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                 />
               </div>
 
@@ -1175,7 +1175,7 @@ export default function TAManagementPage() {
                 <button
                   type="submit"
                   disabled={actionLoadingId === overrideModalItem.id}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md cursor-pointer disabled:opacity-50"
                 >
                   {actionLoadingId === overrideModalItem.id ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

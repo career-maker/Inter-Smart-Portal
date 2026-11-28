@@ -85,7 +85,7 @@ export const DEFAULT_GAME_ROSTERS: Record<GameKeyType, GameLeaderboardEntry[]> =
   ],
   neongalaxy: [
     { id: "emp-vishal", name: "Vishal Ramesh", role: "Technical Lead", score: 8950, avatarBg: "bg-sky-600", avatarText: "VR" },
-    { id: "emp-abhiram", name: "Abhiram P Mohan", role: "Full Stack Developer", score: 7420, avatarBg: "bg-[#56348f]", avatarText: "AP" },
+    { id: "emp-abhiram", name: "Abhiram P Mohan", role: "Full Stack Developer", score: 7420, avatarBg: "bg-[var(--portal-primary-color)]", avatarText: "AP" },
     { id: "emp-josin", name: "Josin Joseph", role: "Full Stack Developer", score: 6180, avatarBg: "bg-teal-600", avatarText: "JJ" },
     { id: "emp-aswathi", name: "Aswathi M Ashok", role: "Lead QA Analyst", score: 5340, avatarBg: "bg-pink-600", avatarText: "AA" },
     { id: "emp-vishnu-s", name: "Vishnu Sasidharan", role: "Technical Architect", score: 4890, avatarBg: "bg-blue-700", avatarText: "VS" },
@@ -97,7 +97,7 @@ export const DEFAULT_GAME_ROSTERS: Record<GameKeyType, GameLeaderboardEntry[]> =
     { id: "emp-vishnu-s", name: "Vishnu Sasidharan", role: "Technical Architect", score: 3250, avatarBg: "bg-blue-700", avatarText: "VS" },
     { id: "emp-manu", name: "Manu K O", role: "Senior UI/UX Designer", score: 2800, avatarBg: "bg-indigo-600", avatarText: "MK" },
     { id: "emp-jijo", name: "Jijo Jose", role: "Senior Backend Engineer", score: 2450, avatarBg: "bg-cyan-700", avatarText: "JJ" },
-    { id: "emp-abhiram", name: "Abhiram P Mohan", role: "Full Stack Developer", score: 2100, avatarBg: "bg-[#56348f]", avatarText: "AP" },
+    { id: "emp-abhiram", name: "Abhiram P Mohan", role: "Full Stack Developer", score: 2100, avatarBg: "bg-[var(--portal-primary-color)]", avatarText: "AP" },
     { id: "emp-aswathi", name: "Aswathi M Ashok", role: "Lead QA Analyst", score: 1850, avatarBg: "bg-pink-600", avatarText: "AA" },
     { id: "emp-akhila", name: "Akhila Mohanan", role: "QA Lead", score: 1600, avatarBg: "bg-rose-600", avatarText: "AM" },
     { id: "emp-amal", name: "Amal Tomy", role: "System Administrator", score: 1350, avatarBg: "bg-blue-600", avatarText: "AT" },
@@ -129,7 +129,7 @@ export const DEFAULT_GAME_ROSTERS: Record<GameKeyType, GameLeaderboardEntry[]> =
     { id: "emp-aswathi", name: "Aswathi M Ashok", role: "Lead QA Analyst", score: 19, formattedScore: "19 jets", avatarBg: "bg-pink-600", avatarText: "AA" },
     { id: "emp-amal", name: "Amal Tomy", role: "System Administrator", score: 16, formattedScore: "16 jets", avatarBg: "bg-blue-600", avatarText: "AT" },
     { id: "emp-manu", name: "Manu K O", role: "Senior UI/UX Designer", score: 14, formattedScore: "14 jets", avatarBg: "bg-indigo-600", avatarText: "MK" },
-    { id: "emp-abhiram", name: "Abhiram P Mohan", role: "Full Stack Developer", score: 12, formattedScore: "12 jets", avatarBg: "bg-[#56348f]", avatarText: "AP" },
+    { id: "emp-abhiram", name: "Abhiram P Mohan", role: "Full Stack Developer", score: 12, formattedScore: "12 jets", avatarBg: "bg-[var(--portal-primary-color)]", avatarText: "AP" },
     { id: "emp-sunil", name: "Sunil Anurudhan", role: "Digital Marketing Strategist", score: 9, formattedScore: "9 jets", avatarBg: "bg-amber-600", avatarText: "SA" },
     { id: "emp-mercy", name: "Mercy Nelson", role: "HR & Administrative Head", score: 7, formattedScore: "7 jets", avatarBg: "bg-purple-600", avatarText: "MN" },
   ],
@@ -217,7 +217,7 @@ export function getGameLeaderboard(
           role: currentUserRole,
           isCurrentUser: true,
           score: Math.max(entry.score || 0, savedPersonalHigh),
-          avatarBg: "bg-[#56348f]",
+          avatarBg: "bg-[var(--portal-primary-color)]",
           avatarText: currentUserInitials,
         };
       } else {
@@ -239,7 +239,7 @@ export function getGameLeaderboard(
       role: currentUserRole,
       isCurrentUser: true,
       score: savedPersonalHigh,
-      avatarBg: "bg-[#56348f]",
+      avatarBg: "bg-[var(--portal-primary-color)]",
       avatarText: currentUserInitials,
     };
   }
@@ -284,7 +284,7 @@ export function recordGameScore(
         role: currentUserRole,
         score: Math.max(entry.score, score),
         isCurrentUser: true,
-        avatarBg: "bg-[#56348f]",
+        avatarBg: "bg-[var(--portal-primary-color)]",
         avatarText: currentUserInitials,
       };
     }

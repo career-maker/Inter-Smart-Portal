@@ -484,7 +484,7 @@ export default function EmailManagementPage() {
             <span className="text-slate-900 dark:text-white">Email Management</span>
           </div>
           <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
+            <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[var(--portal-primary-color)] dark:text-purple-300">
               <Mail className="w-5 h-5" />
             </div>
             <span>Email & SMTP Management</span>
@@ -500,7 +500,7 @@ export default function EmailManagementPage() {
           disabled={refreshing || loading}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 self-start sm:self-auto cursor-pointer"
         >
-          <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[var(--portal-primary-color)]" : ""}`} />
           <span>Refresh</span>
         </button>
       </div>
@@ -534,7 +534,7 @@ export default function EmailManagementPage() {
           onClick={() => setActiveTab("smtp")}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
             activeTab === "smtp"
-              ? "bg-[#56348f] text-white shadow-sm"
+              ? "bg-[var(--portal-primary-color)] text-white shadow-sm"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
@@ -546,7 +546,7 @@ export default function EmailManagementPage() {
           onClick={() => setActiveTab("routing")}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
             activeTab === "routing"
-              ? "bg-[#56348f] text-white shadow-sm"
+              ? "bg-[var(--portal-primary-color)] text-white shadow-sm"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
@@ -558,7 +558,7 @@ export default function EmailManagementPage() {
           onClick={() => setActiveTab("approval_workflow")}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
             activeTab === "approval_workflow"
-              ? "bg-[#56348f] text-white shadow-sm"
+              ? "bg-[var(--portal-primary-color)] text-white shadow-sm"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
@@ -569,7 +569,7 @@ export default function EmailManagementPage() {
 
       {loading ? (
         <div className="py-24 text-center text-slate-400 space-y-3">
-          <Loader2 className="w-8 h-8 mx-auto animate-spin text-[#56348f]" />
+          <Loader2 className="w-8 h-8 mx-auto animate-spin text-[var(--portal-primary-color)]" />
           <p className="text-xs font-semibold">Loading email configuration…</p>
         </div>
       ) : (
@@ -583,7 +583,7 @@ export default function EmailManagementPage() {
               <div className="lg:col-span-2 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-6">
                 <div>
                   <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title flex items-center gap-2">
-                    <Server className="w-4 h-4 text-[#56348f]" />
+                    <Server className="w-4 h-4 text-[var(--portal-primary-color)]" />
                     <span>SMTP Mailer Credentials</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -610,7 +610,7 @@ export default function EmailManagementPage() {
                           })
                         }
                         placeholder="career@intersmart.in"
-                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                       />
                     </div>
 
@@ -625,7 +625,7 @@ export default function EmailManagementPage() {
                         value={smtp.from_name}
                         onChange={(e) => setSmtp({ ...smtp, from_name: e.target.value })}
                         placeholder="Inter Smart Portal"
-                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                       />
                     </div>
 
@@ -663,7 +663,7 @@ export default function EmailManagementPage() {
                           value={smtp.password || ""}
                           onChange={(e) => setSmtp({ ...smtp, password: e.target.value })}
                           placeholder={smtp.has_password ? "Leave blank to keep current password unchanged" : "Enter Google App Password (required)"}
-                          className={`w-full px-3.5 py-2 pr-10 rounded-xl text-xs font-mono bg-slate-50 dark:bg-slate-800 border text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f] ${
+                          className={`w-full px-3.5 py-2 pr-10 rounded-xl text-xs font-mono bg-slate-50 dark:bg-slate-800 border text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)] ${
                             !smtp.has_password && !smtp.password
                               ? "border-rose-400 dark:border-rose-600"
                               : "border-slate-200 dark:border-slate-700"
@@ -696,7 +696,7 @@ export default function EmailManagementPage() {
                         value={smtp.host}
                         onChange={(e) => setSmtp({ ...smtp, host: e.target.value })}
                         placeholder="smtp.gmail.com"
-                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                       />
                     </div>
 
@@ -712,7 +712,7 @@ export default function EmailManagementPage() {
                           value={smtp.port}
                           onChange={(e) => setSmtp({ ...smtp, port: Number(e.target.value) })}
                           placeholder="587"
-                          className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                          className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                         />
                       </div>
 
@@ -723,7 +723,7 @@ export default function EmailManagementPage() {
                         <SelectCompat
                           value={smtp.encryption || "tls"}
                           onChange={(e) => setSmtp({ ...smtp, encryption: e.target.value })}
-                          className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                          className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                         >
                           <option value="tls">TLS (Port 587)</option>
                           <option value="ssl">SSL (Port 465)</option>
@@ -737,7 +737,7 @@ export default function EmailManagementPage() {
                     <button
                       type="submit"
                       disabled={saving}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer disabled:opacity-50"
                     >
                       {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                       <span>Save SMTP Settings</span>
@@ -750,7 +750,7 @@ export default function EmailManagementPage() {
               <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-5 h-fit">
                 <div className="space-y-1">
                   <h3 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Send className="w-4 h-4 text-[#56348f]" />
+                    <Send className="w-4 h-4 text-[var(--portal-primary-color)]" />
                     <span>Send Test Email</span>
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -768,7 +768,7 @@ export default function EmailManagementPage() {
                       value={testEmail}
                       onChange={(e) => setTestEmail(e.target.value)}
                       placeholder="admin@intersmart.in"
-                      className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                      className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                     />
                   </div>
 
@@ -776,7 +776,7 @@ export default function EmailManagementPage() {
                     type="button"
                     onClick={handleSendTest}
                     disabled={sendingTest}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-100 hover:bg-purple-200 dark:bg-purple-950/70 dark:hover:bg-purple-900/80 text-[#56348f] dark:text-purple-300 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-100 hover:bg-purple-200 dark:bg-purple-950/70 dark:hover:bg-purple-900/80 text-[var(--portal-primary-color)] dark:text-purple-300 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
                   >
                     {sendingTest ? (
                       <>
@@ -841,7 +841,7 @@ export default function EmailManagementPage() {
                   type="button"
                   onClick={handleSaveRouting}
                   disabled={saving}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer disabled:opacity-50 shrink-0"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer disabled:opacity-50 shrink-0"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   <span>Save Routing Rules</span>
@@ -896,7 +896,7 @@ export default function EmailManagementPage() {
                             }
                             className="sr-only peer"
                           />
-                          <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition peer-checked:bg-[#56348f]"></div>
+                          <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition peer-checked:bg-[var(--portal-primary-color)]"></div>
                         </label>
                       </div>
 
@@ -913,7 +913,7 @@ export default function EmailManagementPage() {
                                   [actionKey]: { ...rule, notify_tl: e.target.checked },
                                 })
                               }
-                              className="rounded text-[#56348f] focus:ring-[#56348f]"
+                              className="rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)]"
                             />
                             <span className="font-semibold text-slate-700 dark:text-slate-300">
                               Notify Team Lead (TO)
@@ -931,7 +931,7 @@ export default function EmailManagementPage() {
                                 [actionKey]: { ...rule, notify_admin: e.target.checked },
                               })
                             }
-                            className="rounded text-[#56348f] focus:ring-[#56348f]"
+                            className="rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)]"
                           />
                           <span className="font-semibold text-slate-700 dark:text-slate-300">
                             CC Super Admin
@@ -948,7 +948,7 @@ export default function EmailManagementPage() {
                                 [actionKey]: { ...rule, notify_hr: e.target.checked },
                               })
                             }
-                            className="rounded text-[#56348f] focus:ring-[#56348f]"
+                            className="rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)]"
                           />
                           <span className="font-semibold text-slate-700 dark:text-slate-300">
                             CC HR (hr@intersmart.in)
@@ -966,7 +966,7 @@ export default function EmailManagementPage() {
                                   [actionKey]: { ...rule, cc_applicant: e.target.checked },
                                 })
                               }
-                              className="rounded text-[#56348f] focus:ring-[#56348f]"
+                              className="rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)]"
                             />
                             <span className="font-semibold text-slate-700 dark:text-slate-300">
                               CC Applicant Copy
@@ -984,7 +984,7 @@ export default function EmailManagementPage() {
                           {(rule.custom_to || []).map((em) => (
                             <span
                               key={em}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300 border border-purple-200 dark:border-purple-800"
                             >
                               <span>{em}</span>
                               <button
@@ -1011,7 +1011,7 @@ export default function EmailManagementPage() {
                               }
                             }}
                             placeholder="Add recipient (e.g. manager@intersmart.in)"
-                            className="flex-1 px-3 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+                            className="flex-1 px-3 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
                           />
                           <button
                             type="button"
@@ -1059,7 +1059,7 @@ export default function EmailManagementPage() {
                               }
                             }}
                             placeholder="Add CC email (e.g. all@intersmart.in)"
-                            className="flex-1 px-3 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+                            className="flex-1 px-3 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
                           />
                           <button
                             type="button"
@@ -1103,7 +1103,7 @@ export default function EmailManagementPage() {
                 <button
                   type="button"
                   onClick={openNewOverride}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Employee Override</span>
@@ -1118,7 +1118,7 @@ export default function EmailManagementPage() {
                   value={employeeSearch}
                   onChange={(e) => setEmployeeSearch(e.target.value)}
                   placeholder="Search override by employee name, code, or action…"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                 />
               </div>
 
@@ -1134,7 +1134,7 @@ export default function EmailManagementPage() {
                   </p>
                   <button
                     onClick={openNewOverride}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Create Override</span>
@@ -1219,7 +1219,7 @@ export default function EmailManagementPage() {
 
                         {/* Action / Trigger Tag */}
                         <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                          <ActIcon className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                          <ActIcon className="w-3.5 h-3.5 text-[var(--portal-primary-color)] dark:text-purple-400" />
                           <span>Trigger: {actDef.label}</span>
                         </div>
 
@@ -1228,7 +1228,7 @@ export default function EmailManagementPage() {
                           {item.approver_name && (
                             <div className="flex items-start gap-2">
                               <strong className="text-slate-400 w-24 shrink-0">Approver 1:</strong>
-                              <span className="font-semibold text-[#56348f] dark:text-purple-300">
+                              <span className="font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                                 {item.approver_name} {item.custom_to ? `(${item.custom_to})` : ""}
                               </span>
                             </div>
@@ -1246,7 +1246,7 @@ export default function EmailManagementPage() {
                           {item.approver_name_2 && (
                             <div className="flex items-start gap-2">
                               <strong className="text-slate-400 w-24 shrink-0">Approver 2:</strong>
-                              <span className="font-semibold text-[#56348f] dark:text-purple-300">
+                              <span className="font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                                 {item.approver_name_2} {item.custom_to_2 ? `(${item.custom_to_2})` : ""}
                               </span>
                             </div>
@@ -1315,7 +1315,7 @@ export default function EmailManagementPage() {
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 to-white dark:from-slate-850 dark:to-slate-900 flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                  <UserCheck className="w-5 h-5 text-[#56348f]" />
+                  <UserCheck className="w-5 h-5 text-[var(--portal-primary-color)]" />
                   <span>{editingIndex !== null ? "Edit Employee Override" : "New Employee Email Override"}</span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1341,7 +1341,7 @@ export default function EmailManagementPage() {
                 <SelectCompat
                   value={modalForm.user_id}
                   onChange={(e) => setModalForm({ ...modalForm, user_id: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                 >
                   <option value={0}>Choose an employee…</option>
                   {allEmployees.map((emp) => (
@@ -1360,7 +1360,7 @@ export default function EmailManagementPage() {
                 <SelectCompat
                   value={modalForm.action}
                   onChange={(e) => setModalForm({ ...modalForm, action: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                 >
                   {Object.entries(ACTION_DEFINITIONS).map(([actKey, actDef]) => (
                     <option key={actKey} value={actKey}>
@@ -1388,7 +1388,7 @@ export default function EmailManagementPage() {
                         custom_to: apprObj?.email || modalForm.custom_to,
                       });
                     }}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                   >
                     <option value={0}>-- None (Manual Email / Default Team Lead) --</option>
                     {allEmployees.map((emp) => (
@@ -1408,7 +1408,7 @@ export default function EmailManagementPage() {
                     value={modalForm.custom_to}
                     onChange={(e) => setModalForm({ ...modalForm, custom_to: e.target.value })}
                     placeholder="supervisor@intersmart.in"
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                   />
                 </div>
               </div>
@@ -1431,7 +1431,7 @@ export default function EmailManagementPage() {
                         custom_to_2: apprObj2?.email || modalForm.custom_to_2,
                       });
                     }}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                   >
                     <option value={0}>-- None (Single Approver) --</option>
                     {allEmployees.map((emp) => (
@@ -1451,7 +1451,7 @@ export default function EmailManagementPage() {
                     value={modalForm.custom_to_2}
                     onChange={(e) => setModalForm({ ...modalForm, custom_to_2: e.target.value })}
                     placeholder="manager2@intersmart.in"
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                   />
                 </div>
               </div>
@@ -1512,7 +1512,7 @@ export default function EmailManagementPage() {
                       }
                     }}
                     placeholder="coordinator@intersmart.in"
-                    className="flex-1 px-3 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+                    className="flex-1 px-3 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)]"
                   />
                   <button
                     type="button"
@@ -1545,7 +1545,7 @@ export default function EmailManagementPage() {
                   value={modalForm.notes}
                   onChange={(e) => setModalForm({ ...modalForm, notes: e.target.value })}
                   placeholder="Direct report to Project Manager"
-                  className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]"
                 />
               </div>
 
@@ -1555,7 +1555,7 @@ export default function EmailManagementPage() {
                   type="checkbox"
                   checked={modalForm.enabled}
                   onChange={(e) => setModalForm({ ...modalForm, enabled: e.target.checked })}
-                  className="rounded text-[#56348f] focus:ring-[#56348f]"
+                  className="rounded text-[var(--portal-primary-color)] focus:ring-[var(--portal-primary-color)]"
                 />
                 <span className="font-semibold text-slate-800 dark:text-slate-200">
                   Enable this override immediately
@@ -1604,7 +1604,7 @@ export default function EmailManagementPage() {
                 <button
                   type="button"
                   onClick={handleSaveModalOverride}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
                   <span>Save Override</span>

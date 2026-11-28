@@ -307,7 +307,7 @@ export default function OverdueTasksPage() {
                 onClick={() => setViewMode("grouped")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "grouped"
-                    ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
+                    ? "bg-white dark:bg-slate-900 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -319,7 +319,7 @@ export default function OverdueTasksPage() {
                 onClick={() => setViewMode("flat")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "flat"
-                    ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
+                    ? "bg-white dark:bg-slate-900 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >

@@ -92,7 +92,7 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, i
   return (
     <div
       style={{
-        backgroundColor: "#56348f",
+        backgroundColor: "var(--portal-primary-color, #00806E)",
         fontFamily: '"Google Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       className={`fixed bottom-0 right-0 z-30 ${leftOffsetClass} transition duration-300 ease-in-out text-white overflow-hidden h-9 sm:h-9.5 flex items-center border-t border-purple-700/60 shadow-2xl select-none`}
@@ -109,8 +109,8 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, i
 
       {/* Marquee Container with side fade */}
       <div className="flex-1 overflow-hidden relative h-full flex items-center">
-        <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-[#56348f] to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#56348f] to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-[var(--portal-primary-color)] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[var(--portal-primary-color)] to-transparent z-10 pointer-events-none" />
 
         {/* Marquee Track (Starts from far right edge using 100vw) */}
         <div

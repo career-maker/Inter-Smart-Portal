@@ -146,22 +146,22 @@ export default function MyTasksPage() {
       {/* ── Top Header Bar ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-6">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-            <Link href="/project-management" className="hover:text-purple-600 dark:hover:text-purple-400">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[13px] text-slate-500 dark:text-slate-400 mb-1">
+            <Link href="/project-management" className="hover:text-slate-900 dark:hover:text-white transition-colors">
               Project Management
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
-            <Link href="/project-management/tasks" className="hover:text-purple-600 dark:hover:text-purple-400">
+            <Link href="/project-management/tasks" className="hover:text-slate-900 dark:hover:text-white transition-colors">
               Tasks
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-slate-900 dark:text-white">My Tasks</span>
-          </div>
+            <span aria-current="page" className="text-slate-900 dark:text-white">My Tasks</span>
+          </nav>
           <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight">
             My Tasks
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            View all deliverables, sub-phases, and deadlines assigned to you.
+            View all deliverables, sub-phases, and deadlines assigned to you
           </p>
         </div>
 
@@ -170,14 +170,7 @@ export default function MyTasksPage() {
           {canViewAllTasks && (
             <Link
               href="/project-management/tasks"
-              style={{
-                backgroundColor: "#56348f",
-                color: "rgb(255, 255, 255)",
-                fontFamily: 'Inter, sans-serif',
-                fontSize: "12px",
-                fontWeight: 600,
-              }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-[13px] font-medium transition-colors cursor-pointer"
               title="Open All Team Tasks & Switcher"
             >
               <Layers className="w-4 h-4 !text-white" />
@@ -187,11 +180,10 @@ export default function MyTasksPage() {
 
           <button
             onClick={() => setIsDailyReportOpen(true)}
-            style={{ fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-[13px] leading-5 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
             title="Open My Daily Report"
           >
-            <FileText className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+            <FileText aria-hidden="true" className="w-4 h-4 text-slate-500" />
             <span>Daily Reports</span>
           </button>
 
@@ -199,10 +191,10 @@ export default function MyTasksPage() {
             onClick={() => fetchMyTasks(currentPage, true)}
             disabled={refreshing || loading}
             aria-label="Refresh My Tasks"
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50"
+            className="p-2.5 rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50"
             title="Refresh List"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[var(--portal-primary-color)]" : ""}`} />
           </button>
         </div>
       </div>
@@ -210,25 +202,18 @@ export default function MyTasksPage() {
       {/* ── Filters & Search Header ── */}
       <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
         {/* Status Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        <div className="flex flex-wrap items-center gap-1.5">
           {["Active", "All", ...TASK_STATUSES].map((status) => {
             const isSelected = statusFilter === status;
             return (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                style={{
-                  backgroundColor: isSelected ? "#56348f" : undefined,
-                  color: isSelected ? "rgb(255, 255, 255)" : undefined,
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: "13px",
-                  lineHeight: "20px",
-                  fontWeight: 400,
-                }}
-                className={`px-3 py-1 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition cursor-pointer ${
+                aria-pressed={isSelected}
+                className={`px-3 py-1 rounded-full text-[13px] leading-5 whitespace-nowrap transition-colors cursor-pointer ${
                   isSelected
-                    ? "bg-[#56348f] !text-white shadow-sm"
-                    : "bg-slate-100 dark:bg-slate-800/60 !text-slate-800 dark:!text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700"
+                    ? "bg-[var(--portal-primary-color)] !text-white"
+                    : "bg-slate-100 dark:bg-slate-800/60 !text-slate-700 dark:!text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700/60"
                 }`}
               >
                 {status}

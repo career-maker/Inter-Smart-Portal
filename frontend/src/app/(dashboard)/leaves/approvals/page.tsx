@@ -749,7 +749,7 @@ export default function ApprovalsPage() {
                     onClick={() => handleTabChange(t)}
                     className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-lg transition whitespace-nowrap cursor-pointer ${
                       isActive
-                        ? "bg-[#56348f] text-white font-bold shadow-sm"
+                        ? "bg-[var(--portal-primary-color)] text-white font-bold shadow-sm"
                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold"
                     }`}
                   >
@@ -763,7 +763,7 @@ export default function ApprovalsPage() {
             {isSuperAdmin && (
               <button
                 onClick={() => setIsDirectModalOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-xl font-semibold bg-[#56348f] hover:bg-[#452875] text-white shadow-xs transition-colors cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-xl font-semibold bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white shadow-xs transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Leave / WFH</span>

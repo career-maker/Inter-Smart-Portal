@@ -244,7 +244,7 @@ export default function BirthdayWishesPage() {
             }}
             className={`px-3.5 py-1.5 rounded-md transition cursor-pointer flex items-center gap-2 ${
               activeTab === "received"
-                ? "bg-white dark:bg-slate-700 text-[#56348f] dark:text-purple-300 shadow-xs"
+                ? "bg-white dark:bg-slate-700 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-xs"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
@@ -276,7 +276,7 @@ export default function BirthdayWishesPage() {
             }}
             className={`px-3.5 py-1.5 rounded-md transition cursor-pointer flex items-center gap-2 ${
               activeTab === "upcoming"
-                ? "bg-white dark:bg-slate-700 text-[#56348f] dark:text-purple-300 shadow-xs"
+                ? "bg-white dark:bg-slate-700 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-xs"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
@@ -336,7 +336,7 @@ export default function BirthdayWishesPage() {
                   lineHeight: "20px",
                   color: "rgb(15, 24, 36)",
                 }}
-                className="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:ring-1 focus:ring-[#56348f] focus:border-[#56348f] dark:text-white placeholder:text-slate-400"
+                className="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)] focus:border-[var(--portal-primary-color)] dark:text-white placeholder:text-slate-400"
               />
             </div>
           </div>
@@ -345,7 +345,7 @@ export default function BirthdayWishesPage() {
           <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/80">
             {isLoading ? (
               <div className="p-8 text-center space-y-3">
-                <Loader2 className="w-6 h-6 animate-spin text-[#56348f] mx-auto" />
+                <Loader2 className="w-6 h-6 animate-spin text-[var(--portal-primary-color)] mx-auto" />
                 <p
                   style={{ fontSize: "13px", color: "rgb(94, 105, 120)" }}
                   className="dark:text-slate-400"
@@ -388,7 +388,7 @@ export default function BirthdayWishesPage() {
                       }}
                       className={`p-3.5 flex items-start gap-3 cursor-pointer transition-colors border-l-[3px] ${
                         isSelected
-                          ? "bg-purple-50/60 dark:bg-purple-950/25 border-l-[#56348f]"
+                          ? "bg-purple-50/60 dark:bg-purple-950/25 border-l-[var(--portal-primary-color)]"
                           : "border-l-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50"
                       }`}
                     >
@@ -647,7 +647,7 @@ export default function BirthdayWishesPage() {
                       }}
                       className="dark:text-white flex items-center gap-1.5"
                     >
-                      <MessageSquare className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                      <MessageSquare className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400" />
                       Send a Thank You Message
                     </span>
 
@@ -684,14 +684,14 @@ export default function BirthdayWishesPage() {
                         lineHeight: "20px",
                         color: "rgb(15, 24, 36)",
                       }}
-                      className="flex-1 px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] dark:text-white placeholder:text-slate-400"
+                      className="flex-1 px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]/20 focus:border-[var(--portal-primary-color)] dark:text-white placeholder:text-slate-400"
                     />
 
                     <button
                       type="button"
                       onClick={handleSendWish}
                       disabled={isSending || !replyMessage.trim()}
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 text-white rounded-lg text-xs font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm shrink-0"
+                      className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[var(--portal-primary-color)] hover:bg-purple-800 active:bg-purple-900 text-white rounded-lg text-xs font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm shrink-0"
                     >
                       {isSending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -718,7 +718,7 @@ export default function BirthdayWishesPage() {
             ) : (
               <div className="flex-1 flex items-center justify-center p-8 text-center">
                 <div className="max-w-xs space-y-2">
-                  <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-950 text-[#56348f] dark:text-purple-400 flex items-center justify-center mx-auto">
+                  <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-950 text-[var(--portal-primary-color)] dark:text-purple-400 flex items-center justify-center mx-auto">
                     <Cake className="w-6 h-6" />
                   </div>
                   <h3
@@ -859,7 +859,7 @@ export default function BirthdayWishesPage() {
                     }}
                     className="dark:text-white flex items-center gap-1.5"
                   >
-                    <Send className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                    <Send className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400" />
                     Write a Birthday Wish
                   </span>
 
@@ -896,14 +896,14 @@ export default function BirthdayWishesPage() {
                       lineHeight: "20px",
                       color: "rgb(15, 24, 36)",
                     }}
-                    className="flex-1 px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] dark:text-white placeholder:text-slate-400"
+                    className="flex-1 px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]/20 focus:border-[var(--portal-primary-color)] dark:text-white placeholder:text-slate-400"
                   />
 
                   <button
                     type="button"
                     onClick={handleSendWish}
                     disabled={isSending || !replyMessage.trim()}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 text-white rounded-lg text-xs font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm shrink-0"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[var(--portal-primary-color)] hover:bg-purple-800 active:bg-purple-900 text-white rounded-lg text-xs font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm shrink-0"
                   >
                     {isSending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />

@@ -28,17 +28,17 @@ export const STATUS_COLORS: Record<string, string> = {
 
 export function PriorityDot({ priority, size = 14 }: { priority: string; size?: number }) {
   const c = PRIORITY_COLORS[priority] || "#A1A1AA";
-  return <span title={`Priority: ${priority}`} aria-label={`Priority: ${priority}`} className="inline-block rounded-full align-middle shadow-sm" style={{ width: size, height: size, backgroundColor: c, boxShadow: `0 0 0 3px ${c}33` }} />;
+  return <span title={`Priority: ${priority}`} aria-label={`Priority: ${priority}`} className="inline-block rounded-full align-middle" style={{ width: size, height: size, backgroundColor: c }} />;
 }
 
 /** Info strip shown above task tables: which colour means which priority. */
 export function PriorityLegend({ className = "" }: { className?: string }) {
   return (
-    <div className={`flex flex-wrap items-center gap-x-5 gap-y-2 rounded-[12px] border px-4 py-2.5 text-[12px] ${className}`} style={{ borderColor: "var(--portal-border-color, #E4E7F0)", background: "var(--portal-card-bg, #FDFBFE)" }}>
-      <span className="font-semibold" style={{ color: "var(--portal-dark-text, #161D2C)" }}>PTY (priority) colours</span>
+    <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 py-1 text-xs ${className}`}>
+      <span style={{ color: "var(--portal-secondary-text, #52525B)" }}>Priority</span>
       {PRIORITY_ORDER.map((p) => (
-        <span key={p} className="inline-flex items-center gap-2" style={{ color: "var(--portal-muted-text, #85858F)" }}>
-          <PriorityDot priority={p} size={12} />{p}
+        <span key={p} className="inline-flex items-center gap-2" style={{ color: "var(--portal-secondary-text, #52525B)" }}>
+          <PriorityDot priority={p} size={8} />{p}
         </span>
       ))}
     </div>

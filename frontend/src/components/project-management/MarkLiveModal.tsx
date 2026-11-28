@@ -96,7 +96,7 @@ export function MarkLiveModal({
           {/* Header */}
           <div className="px-6 py-5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-purple-50 via-white to-white dark:from-slate-800/80 dark:via-slate-900 dark:to-slate-900 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-600/10 text-[#56348f] dark:text-purple-400 flex items-center justify-center border border-purple-500/20 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-purple-600/10 text-[var(--portal-primary-color)] dark:text-purple-400 flex items-center justify-center border border-purple-500/20 shadow-xs">
                 <Rocket className="w-5 h-5" />
               </div>
               <div>
@@ -128,7 +128,7 @@ export function MarkLiveModal({
               )}
 
               <div className="p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-800/40 text-xs text-slate-700 dark:text-slate-300 space-y-1.5">
-                <div className="flex items-center gap-1.5 font-semibold text-[#56348f] dark:text-purple-300">
+                <div className="flex items-center gap-1.5 font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Production Live Milestone</span>
                 </div>

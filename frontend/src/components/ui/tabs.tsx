@@ -71,7 +71,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "dark:data-active:bg-slate-700 dark:data-active:text-white",
         "dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-white",
         // Focus states
-        "focus-visible:ring-2 focus-visible:ring-[#56348f]/40 focus-visible:outline-none",
+        "focus-visible:ring-2 focus-visible:ring-[var(--portal-primary-color)]/40 focus-visible:outline-none",
         className
       )}
       {...props}

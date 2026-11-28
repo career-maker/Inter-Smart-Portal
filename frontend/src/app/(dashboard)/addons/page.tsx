@@ -171,7 +171,7 @@ export default function PmAddonsPage() {
             <span className="text-slate-900 dark:text-white">Add-ons Directory</span>
           </div>
           <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
-            <Puzzle className="w-5 h-5 text-[#56348f]" />
+            <Puzzle className="w-5 h-5 text-[var(--portal-primary-color)]" />
             <span>Portal Add-ons</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -185,7 +185,7 @@ export default function PmAddonsPage() {
           disabled={refreshing || loading}
           className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 self-start sm:self-auto cursor-pointer"
         >
-          <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[var(--portal-primary-color)]" : ""}`} />
           <span>Refresh</span>
         </button>
       </div>
@@ -234,7 +234,7 @@ export default function PmAddonsPage() {
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3">
-                    <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300 shrink-0">
+                    <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/80 text-[var(--portal-primary-color)] dark:text-purple-300 shrink-0">
                       {addon.key === "bug_tracker" ? (
                         <Bug className="w-6 h-6" />
                       ) : addon.key === "bugzilla" ? (
@@ -283,7 +283,7 @@ export default function PmAddonsPage() {
                     title={addon.is_active ? "Disable Add-on" : "Enable Add-on"}
                   >
                     {addon.is_active ? (
-                      <ToggleRight className="w-8 h-8 text-[#56348f] dark:text-purple-400" />
+                      <ToggleRight className="w-8 h-8 text-[var(--portal-primary-color)] dark:text-purple-400" />
                     ) : (
                       <ToggleLeft className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                     )}
@@ -335,14 +335,14 @@ export default function PmAddonsPage() {
                       <Link
                         href="/addons/leave-policy"
                         style={{
-                          backgroundColor: "var(--portal-primary-color, #56348f)",
+                          backgroundColor: "var(--portal-primary-color, #00806E)",
                           color: "rgb(255, 255, 255)",
                           fontFamily: 'Inter, sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 600,
                         }}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color, #00806E)] hover:opacity-90 !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
                       >
                         <Settings2 className="w-4 h-4 !text-white" />
                         <span className="!text-white">Configure Policy Management</span>
@@ -364,14 +364,14 @@ export default function PmAddonsPage() {
                       <Link
                         href="/addons/email-management"
                         style={{
-                          backgroundColor: "var(--portal-primary-color, #56348f)",
+                          backgroundColor: "var(--portal-primary-color, #00806E)",
                           color: "rgb(255, 255, 255)",
                           fontFamily: 'Inter, sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 600,
                         }}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color, #00806E)] hover:opacity-90 !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
                       >
                         <Settings2 className="w-4 h-4 !text-white" />
                         <span className="!text-white">Configure Email Management</span>
@@ -386,7 +386,7 @@ export default function PmAddonsPage() {
                     <div className="flex items-center justify-end pt-2">
                       <Link
                         href="/addons/menu-layout"
-                        style={{ backgroundColor: "var(--portal-primary-color, #56348f)", color: "rgb(255, 255, 255)", fontSize: "13px", lineHeight: "20px", fontWeight: 600 }}
+                        style={{ backgroundColor: "var(--portal-primary-color, #00806E)", color: "rgb(255, 255, 255)", fontSize: "13px", lineHeight: "20px", fontWeight: 600 }}
                         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl hover:opacity-90 !text-white shadow-sm transition-colors cursor-pointer"
                       >
                         <Settings2 className="w-4 h-4 !text-white" />
@@ -409,14 +409,14 @@ export default function PmAddonsPage() {
                       <Link
                         href="/addons/permissions"
                         style={{
-                          backgroundColor: "var(--portal-primary-color, #56348f)",
+                          backgroundColor: "var(--portal-primary-color, #00806E)",
                           color: "rgb(255, 255, 255)",
                           fontFamily: 'Inter, sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 600,
                         }}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color, #00806E)] hover:opacity-90 !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
                       >
                         <Settings2 className="w-4 h-4 !text-white" />
                         <span className="!text-white">Configure Permissions</span>
@@ -522,7 +522,7 @@ export default function PmAddonsPage() {
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Content Cleanup</h2>
               <p className="text-xs text-slate-600 dark:text-slate-400">Find and delete anything users created: one item, many items, or everything from a user or department.</p>
               <div className="flex justify-end">
-                <Link href="/addons/content-cleanup" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 text-white text-[13px] font-semibold">
+                <Link href="/addons/content-cleanup" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color, #00806E)] hover:opacity-90 text-white text-[13px] font-semibold">
                   <Settings2 className="w-4 h-4 text-white" /><span>Open Content Cleanup</span>
                 </Link>
               </div>
@@ -533,7 +533,7 @@ export default function PmAddonsPage() {
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition shadow-sm p-6 space-y-5">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
-                <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300 shrink-0">
+                <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/80 text-[var(--portal-primary-color)] dark:text-purple-300 shrink-0">
                   <HardDrive className="w-6 h-6" />
                 </div>
                 <div>
@@ -561,7 +561,7 @@ export default function PmAddonsPage() {
               <div className="flex justify-end pt-1">
                 <Link
                   href="/addons/storage"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color, #00806E)] hover:opacity-90 text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
                 >
                   <Settings2 className="w-4 h-4 text-white" />
                   <span>Configure Storage & Retention</span>

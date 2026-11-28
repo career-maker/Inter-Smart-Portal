@@ -158,7 +158,7 @@ const GAMES: GameDef[] = [
       ["Feature", "High Scores"]
     ],
     launchText: "Play Pixel Runner",
-    buttonGradient: "from-[#56348f] to-[#3b1d6b] hover:from-[#673fb0] hover:to-[#482482] text-white border-purple-500/40"
+    buttonGradient: "from-[var(--portal-primary-color)] to-[#3b1d6b] hover:from-[#673fb0] hover:to-[#482482] text-white border-purple-500/40"
   }
 ];
 
@@ -396,7 +396,7 @@ export default function GamePage() {
             onClick={() => setActiveGame(null)}
             className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold text-xs border border-slate-200 dark:border-slate-700 shadow-xs transition cursor-pointer group"
           >
-            <ArrowLeft className="w-4 h-4 text-[#56348f] dark:text-purple-400 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400 group-hover:-translate-x-1 transition-transform" />
             <span>Back to Games</span>
           </button>
         </div>

@@ -396,7 +396,7 @@ export default function LeavesPage() {
           {isSuperAdmin && (
             <button
               onClick={() => setIsDirectModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#56348f] hover:bg-[#452875] active:bg-[#382061] text-white font-semibold text-sm rounded-xl shadow-xs transition-colors cursor-pointer text-center"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] active:bg-[#382061] text-white font-semibold text-sm rounded-xl shadow-xs transition-colors cursor-pointer text-center"
             >
               <Plus className="w-4 h-4" />
               <span>Add Leave / WFH</span>
@@ -406,7 +406,7 @@ export default function LeavesPage() {
             <div className="flex flex-col items-stretch sm:items-end gap-1.5 w-full sm:w-auto">
               <button
                 onClick={() => router.push("/leaves/apply")}
-                className="w-full sm:w-auto px-6 py-2.5 bg-[#56348f] hover:bg-[#452875] active:bg-[#382061] text-white font-semibold text-sm rounded-xl shadow-xs transition-colors cursor-pointer text-center"
+                className="w-full sm:w-auto px-6 py-2.5 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] active:bg-[#382061] text-white font-semibold text-sm rounded-xl shadow-xs transition-colors cursor-pointer text-center"
               >
                 Request Leave
               </button>
@@ -457,7 +457,7 @@ export default function LeavesPage() {
                         style={{ height: `${barHeightPct}%` }}
                         className={`w-full max-w-[20px] rounded-t-sm transition duration-500 ${
                           count > 0
-                            ? "bg-[#56348f] dark:bg-purple-500 group-hover:bg-purple-600"
+                            ? "bg-[var(--portal-primary-color)] dark:bg-purple-500 group-hover:bg-purple-600"
                             : "bg-slate-200 dark:bg-slate-800 h-[3px]"
                         }`}
                       />
@@ -544,7 +544,7 @@ export default function LeavesPage() {
                         style={{ height: `${barHeightPct}%` }}
                         className={`w-full max-w-[12px] rounded-t-xs transition duration-500 ${
                           count > 0
-                            ? "bg-[#56348f] dark:bg-purple-500 group-hover:bg-purple-600"
+                            ? "bg-[var(--portal-primary-color)] dark:bg-purple-500 group-hover:bg-purple-600"
                             : "bg-slate-200 dark:bg-slate-800 h-[2px]"
                         }`}
                       />
@@ -757,7 +757,7 @@ export default function LeavesPage() {
                 onClick={() => { setFilterStatus(st); setCurrentPage(1); }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
                   isActive
-                    ? "bg-[#56348f]/15 border border-[#56348f]/40 text-[#56348f] dark:text-purple-300 font-bold shadow-xs"
+                    ? "bg-[var(--portal-primary-color)]/15 border border-[var(--portal-primary-color)]/40 text-[var(--portal-primary-color)] dark:text-purple-300 font-bold shadow-xs"
                     : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 border border-slate-200 dark:border-slate-700"
                 }`}
               >
@@ -770,7 +770,7 @@ export default function LeavesPage() {
                 <span
                   className={`px-1.5 py-0.5 rounded-md text-xs font-semibold ${
                     isActive
-                      ? "bg-[#56348f] text-white"
+                      ? "bg-[var(--portal-primary-color)] text-white"
                       : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                   }`}
                 >

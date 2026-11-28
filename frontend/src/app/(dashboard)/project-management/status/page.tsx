@@ -190,7 +190,7 @@ export default function ProjectStatusPage() {
             className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
             title="Refresh status list"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[var(--portal-primary-color)]" : ""}`} />
           </button>
         </div>
       </div>
@@ -235,7 +235,7 @@ export default function ProjectStatusPage() {
                   key={status}
                   onClick={() => setStatusFilter(status)}
                   style={{
-                    backgroundColor: isSelected ? "#56348f" : undefined,
+                    backgroundColor: isSelected ? "var(--portal-primary-color, #00806E)" : undefined,
                     color: isSelected ? "rgb(255, 255, 255)" : undefined,
                     fontFamily: 'Inter, sans-serif',
                     fontSize: "13px",
@@ -244,7 +244,7 @@ export default function ProjectStatusPage() {
                   }}
                   className={`px-3 py-1 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition cursor-pointer ${
                     isSelected
-                      ? "bg-[#56348f] !text-white shadow-sm"
+                      ? "bg-[var(--portal-primary-color)] !text-white shadow-sm"
                       : "bg-slate-100 dark:bg-slate-800/60 !text-slate-800 dark:!text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700"
                   }`}
                 >
@@ -261,7 +261,7 @@ export default function ProjectStatusPage() {
               onClick={() => setLiveFilter("all")}
               className={`px-3 py-1 rounded-lg transition cursor-pointer ${
                 liveFilter === "all"
-                  ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
+                  ? "bg-white dark:bg-slate-900 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-sm font-bold"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -315,7 +315,7 @@ export default function ProjectStatusPage() {
       <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800/90 shadow-sm overflow-hidden">
         {loading ? (
           <div className="py-24 text-center text-slate-400 flex flex-col items-center justify-center gap-3">
-            <RefreshCw className="w-8 h-8 animate-spin text-[#56348f] dark:text-purple-400" />
+            <RefreshCw className="w-8 h-8 animate-spin text-[var(--portal-primary-color)] dark:text-purple-400" />
             <p className="text-xs font-semibold">Loading projects status...</p>
           </div>
         ) : error ? (
@@ -358,7 +358,7 @@ export default function ProjectStatusPage() {
                     >
                       {/* Name & Category */}
                       <td className="py-4 px-4 sm:px-6 break-words whitespace-normal leading-tight">
-                        <div className="font-semibold text-sm text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors flex items-center gap-2">
+                        <div className="font-semibold text-sm text-slate-900 dark:text-white group-hover:text-[var(--portal-primary-color)] dark:group-hover:text-purple-300 transition-colors flex items-center gap-2">
                           <span>{p.name}</span>
                           {p.is_live && (
                             <span title="Made Live in Production" className="inline-flex items-center">
@@ -397,11 +397,11 @@ export default function ProjectStatusPage() {
                       <td className="py-4 px-4 min-w-[160px] break-words whitespace-normal leading-tight">
                         <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                           <span>{tasksCompleted}/{tasksTotal} Tasks</span>
-                          <span className="text-[#56348f] dark:text-purple-300 font-semibold">{progressPct}%</span>
+                          <span className="text-[var(--portal-primary-color)] dark:text-purple-300 font-semibold">{progressPct}%</span>
                         </div>
                         <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                           <div
-                            className="h-full bg-[#56348f] rounded-full transition duration-300"
+                            className="h-full bg-[var(--portal-primary-color)] rounded-full transition duration-300"
                             style={{ width: `${progressPct}%` }}
                           />
                         </div>
@@ -437,7 +437,7 @@ export default function ProjectStatusPage() {
                               lineHeight: "20px",
                               fontWeight: 400,
                             }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[var(--portal-primary-color)] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer whitespace-nowrap shrink-0"
                             title="View full 360° Project Status Drawer"
                           >
                             <Eye className="w-3.5 h-3.5 shrink-0" />
@@ -449,14 +449,14 @@ export default function ProjectStatusPage() {
                               type="button"
                               onClick={() => handleOpenMarkLiveModal(p)}
                               style={{
-                                backgroundColor: "#56348f",
+                                backgroundColor: "var(--portal-primary-color, #00806E)",
                                 color: "rgb(255, 255, 255)",
                                 fontFamily: 'Inter, sans-serif',
                                 fontSize: "13px",
                                 lineHeight: "20px",
                                 fontWeight: 400,
                               }}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer whitespace-nowrap shrink-0"
                               title="Mark as Made Live"
                             >
                               <Rocket className="w-3.5 h-3.5 !text-white shrink-0" />

@@ -236,7 +236,7 @@ export default function LeaveBalancesPage() {
             <span className="text-slate-900 dark:text-white">Leave Balances</span>
           </div>
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2.5">
-            <Shield className="w-6 h-6 text-[#56348f]" />
+            <Shield className="w-6 h-6 text-[var(--portal-primary-color)]" />
             <span>Leave Balance Management</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -250,13 +250,13 @@ export default function LeaveBalancesPage() {
           <Link
             href="/addons/leave-policy"
             style={{
-              backgroundColor: "#56348f",
+              backgroundColor: "var(--portal-primary-color, #00806E)",
               color: "rgb(255, 255, 255)",
               fontFamily: 'Inter, sans-serif',
               fontSize: "12px",
               fontWeight: 600,
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold shadow-sm transition cursor-pointer"
           >
             <Settings2 className="w-4 h-4 !text-white" />
             <span className="!text-white">Leave Policy Settings</span>
@@ -268,7 +268,7 @@ export default function LeaveBalancesPage() {
             disabled={refreshing}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[var(--portal-primary-color)]" : ""}`} />
             <span>Refresh</span>
           </button>
         </div>
@@ -315,7 +315,7 @@ export default function LeaveBalancesPage() {
             onClick={() => setStatusFilter("all")}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
               statusFilter === "all"
-                ? "bg-[#56348f] text-white border-[#56348f]"
+                ? "bg-[var(--portal-primary-color)] text-white border-[var(--portal-primary-color)]"
                 : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
             }`}
           >
@@ -483,13 +483,13 @@ export default function LeaveBalancesPage() {
                             type="button"
                             onClick={() => handleOpenConfigure(emp)}
                             style={{
-                              backgroundColor: "#56348f",
+                              backgroundColor: "var(--portal-primary-color, #00806E)",
                               color: "rgb(255, 255, 255)",
                               fontFamily: 'Inter, sans-serif',
                               fontSize: "11px",
                               fontWeight: 600,
                             }}
-                            className="px-2.5 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold cursor-pointer"
+                            className="px-2.5 py-1.5 rounded-lg bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold cursor-pointer"
                           >
                             Configure
                           </button>
@@ -612,13 +612,13 @@ export default function LeaveBalancesPage() {
                   onClick={handleSaveAdjustment}
                   disabled={savingAdjustment}
                   style={{
-                    backgroundColor: "#56348f",
+                    backgroundColor: "var(--portal-primary-color, #00806E)",
                     color: "rgb(255, 255, 255)",
                     fontFamily: 'Inter, sans-serif',
                     fontSize: "12px",
                     fontWeight: 600,
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
                 >
                   {savingAdjustment ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Check className="w-3.5 h-3.5 !text-white" />}
                   <span className="!text-white">Save Balance Adjustment</span>
@@ -740,13 +740,13 @@ export default function LeaveBalancesPage() {
                   onClick={handleSaveConfigure}
                   disabled={savingConfig}
                   style={{
-                    backgroundColor: "#56348f",
+                    backgroundColor: "var(--portal-primary-color, #00806E)",
                     color: "rgb(255, 255, 255)",
                     fontFamily: 'Inter, sans-serif',
                     fontSize: "12px",
                     fontWeight: 600,
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
                 >
                   {savingConfig ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Save className="w-3.5 h-3.5 !text-white" />}
                   <span className="!text-white">Save Override</span>

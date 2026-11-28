@@ -39,7 +39,7 @@ export function NotFoundPage() {
               <Button
                 variant="default"
                 onClick={() => router.push("/")}
-                style={{ backgroundColor: "#56348f" }}
+                style={{ backgroundColor: "var(--portal-primary-color, #00806E)" }}
                 className="my-5 text-white hover:opacity-90 font-semibold px-6 py-2.5 rounded-xl shadow-md transition cursor-pointer"
               >
                 Go to Home

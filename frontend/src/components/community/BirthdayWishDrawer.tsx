@@ -143,7 +143,7 @@ export function BirthdayWishDrawer({
               userId={Number(person.id)}
               className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 shadow-md text-xl"
             />
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#56348f] text-white flex items-center justify-center shadow-sm">
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[var(--portal-primary-color)] text-white flex items-center justify-center shadow-sm">
               {isBirthday ? <Cake className="w-4 h-4 text-amber-300" /> : <PartyPopper className="w-4 h-4 text-pink-300" />}
             </div>
           </div>
@@ -175,7 +175,7 @@ export function BirthdayWishDrawer({
             style={{
               fontSize: "13px",
               lineHeight: "20px",
-              color: "#56348f",
+              color: "var(--portal-primary-color, #00806E)",
               fontWeight: 500,
             }}
             className="dark:text-purple-400 mt-1"
@@ -202,7 +202,7 @@ export function BirthdayWishDrawer({
                   onChange={(e) => setMessage(e.target.value)}
                   rows={3}
                   placeholder={`Write your ${isBirthday ? 'birthday' : 'anniversary'} wish...`}
-                  className="w-full text-[13px] leading-relaxed p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] focus:border-[#56348f] dark:text-white resize-none"
+                  className="w-full text-[13px] leading-relaxed p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--portal-primary-color)] focus:border-[var(--portal-primary-color)] dark:text-white resize-none"
                 />
 
                 <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-200/60 dark:border-slate-700/50">
@@ -214,7 +214,7 @@ export function BirthdayWishDrawer({
                   <button
                     onClick={handleSendWish}
                     disabled={!message.trim() || submitting}
-                    className="px-4 py-1.5 bg-[#56348f] hover:bg-[#452773] text-white text-xs font-semibold rounded-md shadow-xs transition-colors flex items-center gap-1.5 disabled:opacity-60 disabled:text-white cursor-pointer"
+                    className="px-4 py-1.5 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold rounded-md shadow-xs transition-colors flex items-center gap-1.5 disabled:opacity-60 disabled:text-white cursor-pointer"
                   >
                     {submitting ? (
                       <>
@@ -308,10 +308,10 @@ export function BirthdayWishDrawer({
                       {/* Footer Actions (Like / Comment) */}
                       <div className="flex items-center justify-between pl-11">
                         <div className="flex items-center gap-5 text-slate-500 dark:text-slate-400">
-                          <button className="flex items-center gap-1.5 text-[12px] font-medium hover:text-[#56348f] dark:hover:text-purple-400 transition cursor-pointer">
+                          <button className="flex items-center gap-1.5 text-[12px] font-medium hover:text-[var(--portal-primary-color)] dark:hover:text-purple-400 transition cursor-pointer">
                             <span className="text-lg leading-none">👍</span> Like
                           </button>
-                          <button className="flex items-center gap-1.5 text-[12px] font-medium hover:text-[#56348f] dark:hover:text-purple-400 transition cursor-pointer">
+                          <button className="flex items-center gap-1.5 text-[12px] font-medium hover:text-[var(--portal-primary-color)] dark:hover:text-purple-400 transition cursor-pointer">
                             <MessageSquare className="w-3.5 h-3.5" /> Comment
                           </button>
                         </div>

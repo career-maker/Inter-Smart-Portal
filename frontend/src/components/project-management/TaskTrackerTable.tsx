@@ -829,7 +829,7 @@ export function TaskTrackerTable({
                         onClick={() => setTablePage(p)}
                         className={`min-w-[28px] h-7 px-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
                           tablePage === p
-                            ? "bg-[#56348f] text-white shadow-xs"
+                            ? "bg-[var(--portal-primary-color)] text-white shadow-xs"
                             : "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                         }`}
                       >

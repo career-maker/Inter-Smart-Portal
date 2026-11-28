@@ -117,7 +117,7 @@ export function EmployeeDateRangeView({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <h3 className="font-semibold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-              <CalendarDays className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+              <CalendarDays className="w-4 h-4 text-[var(--portal-primary-color)] dark:text-purple-400" />
               Date Range Filter
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -181,7 +181,7 @@ export function EmployeeDateRangeView({
 
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-8 shadow-sm">
-          <Loader2 className="h-8 w-8 animate-spin text-[#56348f] dark:text-purple-400" />
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--portal-primary-color)] dark:text-purple-400" />
           <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
             Analyzing biometric events, leaves, and floor times for {employee.first_name}...
           </p>
@@ -206,7 +206,7 @@ export function EmployeeDateRangeView({
                 <span className="text-xs font-semibold text-purple-700 dark:text-purple-300">
                   Days Used eSSL
                 </span>
-                <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 flex items-center justify-center text-[#56348f] dark:text-purple-300 border border-purple-100 dark:border-purple-800/40">
+                <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 flex items-center justify-center text-[var(--portal-primary-color)] dark:text-purple-300 border border-purple-100 dark:border-purple-800/40">
                   <Fingerprint className="w-5 h-5" />
                 </div>
               </div>
@@ -421,7 +421,7 @@ export function EmployeeDateRangeView({
                         {/* Total Floor Time */}
                         <td className="py-3.5 px-5 text-right">
                           {day.total_working_minutes ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-800/40 font-mono text-xs font-semibold text-[#56348f] dark:text-purple-300">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-800/40 font-mono text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300">
                               <Timer className="w-3.5 h-3.5" />
                               {formatMinutes(day.total_working_minutes)}
                             </span>

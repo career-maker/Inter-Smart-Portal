@@ -157,7 +157,7 @@ export function AllEmployeesReportModal({
         {/* Header */}
         <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-purple-50/50 via-white to-transparent dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#56348f]/10 dark:bg-purple-950/50 flex items-center justify-center text-[#56348f] dark:text-purple-300 border border-[#56348f]/20 dark:border-purple-800/40 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[var(--portal-primary-color)]/10 dark:bg-purple-950/50 flex items-center justify-center text-[var(--portal-primary-color)] dark:text-purple-300 border border-[var(--portal-primary-color)]/20 dark:border-purple-800/40 shrink-0">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
@@ -213,7 +213,7 @@ export function AllEmployeesReportModal({
             <Button
               onClick={handleGenerate}
               disabled={isGenerating || !startDate || !endDate}
-              className="w-full sm:w-auto bg-[#56348f] hover:bg-[#462a75] text-white font-semibold text-sm shadow-sm gap-2"
+              className="w-full sm:w-auto bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white font-semibold text-sm shadow-sm gap-2"
             >
               {isGenerating ? (
                 <>
@@ -266,7 +266,7 @@ export function AllEmployeesReportModal({
         <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4">
           {!hasGenerated ? (
             <div className="text-center py-16 px-4">
-              <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 mx-auto mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/40 flex items-center justify-center text-[var(--portal-primary-color)] dark:text-purple-300 mx-auto mb-3">
                 <FileSpreadsheet className="w-6 h-6" />
               </div>
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
@@ -278,7 +278,7 @@ export function AllEmployeesReportModal({
             </div>
           ) : isGenerating ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-[#56348f] dark:text-purple-400" />
+              <Loader2 className="h-8 w-8 animate-spin text-[var(--portal-primary-color)] dark:text-purple-400" />
               <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
                 Calculating attendance, holidays, leaves, and biometric logs for all employees...
               </p>
@@ -300,7 +300,7 @@ export function AllEmployeesReportModal({
                   placeholder="Search employee by name, code, designation..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#56348f]/40 dark:focus:ring-purple-400/40 transition"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color)]/40 dark:focus:ring-purple-400/40 transition"
                 />
               </div>
 

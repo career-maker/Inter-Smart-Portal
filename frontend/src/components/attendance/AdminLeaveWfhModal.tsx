@@ -208,7 +208,7 @@ export function AdminLeaveWfhModal({
               }}
               className={`py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
                 type === "leave"
-                  ? "bg-[#56348f] text-white shadow-xs"
+                  ? "bg-[var(--portal-primary-color)] text-white shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -222,7 +222,7 @@ export function AdminLeaveWfhModal({
               }}
               className={`py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
                 type === "wfh"
-                  ? "bg-[#56348f] text-white shadow-xs"
+                  ? "bg-[var(--portal-primary-color)] text-white shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -380,7 +380,7 @@ export function AdminLeaveWfhModal({
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="bg-[#56348f] hover:bg-[#452875] text-white rounded-xl text-xs font-semibold shadow-xs px-5 cursor-pointer"
+                className="bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white rounded-xl text-xs font-semibold shadow-xs px-5 cursor-pointer"
               >
                 {isLoading && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
                 Create & Approve

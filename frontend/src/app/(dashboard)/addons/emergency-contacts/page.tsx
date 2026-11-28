@@ -42,7 +42,7 @@ const AVATAR_COLOR_PALETTE = [
   { label: "Amber", class: "bg-amber-500" },
   { label: "Teal", class: "bg-teal-500" },
   { label: "Emerald", class: "bg-emerald-500" },
-  { label: "InterSmart Purple", class: "bg-[#56348f]" },
+  { label: "InterSmart Purple", class: "bg-[var(--portal-primary-color)]" },
   { label: "Slate Gray", class: "bg-slate-700" },
 ];
 
@@ -215,7 +215,7 @@ export default function EmergencyContactsManagementPage() {
           email: "abhiram@intersmart.in",
           phone: "07012649326",
           department: "QA",
-          avatar_bg: "bg-[#56348f]",
+          avatar_bg: "bg-[var(--portal-primary-color)]",
           initials: "AP",
         },
       ];
@@ -365,7 +365,7 @@ export default function EmergencyContactsManagementPage() {
       email: "",
       phone: "",
       department: "HR",
-      avatar_bg: "bg-[#56348f]",
+      avatar_bg: "bg-[var(--portal-primary-color)]",
       initials: "",
       order: contacts.length + 1,
       is_active: true,
@@ -634,7 +634,7 @@ export default function EmergencyContactsManagementPage() {
             <span className="text-slate-900 dark:text-white font-semibold">Emergency Contacts</span>
           </div>
           <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
-            <LifeBuoy className="w-5 h-5 text-[#56348f] shrink-0" />
+            <LifeBuoy className="w-5 h-5 text-[var(--portal-primary-color)] shrink-0" />
             <span>Emergency Contacts Management</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -655,11 +655,11 @@ export default function EmergencyContactsManagementPage() {
             type="button"
             onClick={() => handleSyncTeamLeads(false)}
             disabled={syncingLeads || refreshing || loading}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-[var(--portal-primary-color)] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
             title="Scan & sync all team leads and phone numbers from employee directory"
           >
             <Users
-              className={`w-3.5 h-3.5 ${syncingLeads ? "animate-pulse text-[#56348f]" : ""}`}
+              className={`w-3.5 h-3.5 ${syncingLeads ? "animate-pulse text-[var(--portal-primary-color)]" : ""}`}
             />
             <span>{syncingLeads ? "Syncing..." : "Sync Team Leads & Numbers"}</span>
           </button>
@@ -671,7 +671,7 @@ export default function EmergencyContactsManagementPage() {
             className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw
-              className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#56348f]" : ""}`}
+              className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[var(--portal-primary-color)]" : ""}`}
             />
             <span>Refresh</span>
           </button>
@@ -679,7 +679,7 @@ export default function EmergencyContactsManagementPage() {
           <button
             type="button"
             onClick={handleOpenCreate}
-            style={{ backgroundColor: "#56348f" }}
+            style={{ backgroundColor: "var(--portal-primary-color, #00806E)" }}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-semibold shadow-sm hover:opacity-90 transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
@@ -736,10 +736,10 @@ export default function EmergencyContactsManagementPage() {
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
-          <p className="text-xs font-semibold text-[#56348f] dark:text-purple-400">
+          <p className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-400">
             Departments
           </p>
-          <p className="text-2xl font-semibold text-[#56348f] dark:text-purple-400 mt-1">
+          <p className="text-2xl font-semibold text-[var(--portal-primary-color)] dark:text-purple-400 mt-1">
             {stats.departments.length || 1}
           </p>
         </div>
@@ -754,7 +754,7 @@ export default function EmergencyContactsManagementPage() {
             placeholder="Search by name, role, email, or department…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
+            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[var(--portal-primary-color)]/20"
           />
         </div>
 
@@ -886,7 +886,7 @@ export default function EmergencyContactsManagementPage() {
                     {/* Department */}
                     <td className="py-3.5 px-4">
                       {contact.department ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 dark:bg-purple-950/50 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 dark:bg-purple-950/50 text-[var(--portal-primary-color)] dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
                           <Building2 className="w-3 h-3" />
                           <span>{contact.department}</span>
                         </span>
@@ -901,9 +901,9 @@ export default function EmergencyContactsManagementPage() {
                         <a
                           href={`mailto:${contact.email}`}
                           title={`Email ${contact.name}`}
-                          className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-[#56348f] dark:hover:text-purple-300 font-medium group text-xs"
+                          className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-[var(--portal-primary-color)] dark:hover:text-purple-300 font-medium group text-xs"
                         >
-                          <Mail className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#56348f] shrink-0" />
+                          <Mail className="w-3.5 h-3.5 text-slate-400 group-hover:text-[var(--portal-primary-color)] shrink-0" />
                           <span className="hover:underline">{contact.email}</span>
                         </a>
                       )}
@@ -912,9 +912,9 @@ export default function EmergencyContactsManagementPage() {
                           <a
                             href={`tel:${contact.phone}`}
                             title={`Call ${contact.name}`}
-                            className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-[#56348f] dark:hover:text-purple-300 group text-xs"
+                            className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-[var(--portal-primary-color)] dark:hover:text-purple-300 group text-xs"
                           >
-                            <Phone className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#56348f] shrink-0" />
+                            <Phone className="w-3.5 h-3.5 text-slate-400 group-hover:text-[var(--portal-primary-color)] shrink-0" />
                             <span className="hover:underline">{contact.phone}</span>
                           </a>
                         </div>
@@ -955,7 +955,7 @@ export default function EmergencyContactsManagementPage() {
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(contact)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-[#56348f] hover:bg-purple-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-[var(--portal-primary-color)] hover:bg-purple-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                           title="Edit Contact"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -1012,7 +1012,7 @@ export default function EmergencyContactsManagementPage() {
                   {formData.initials || "EC"}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 mb-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300 mb-1">
                     <LifeBuoy className="w-3 h-3" />
                     <span>{editingContact ? "Edit Contact" : "Add New Contact"}</span>
                   </div>
@@ -1033,7 +1033,7 @@ export default function EmergencyContactsManagementPage() {
                 {/* Directory Auto-fill Selector */}
                 <div className="p-3.5 bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 rounded-2xl space-y-1.5 shadow-2xs">
                   <div className="flex items-center justify-between">
-                    <label className="font-semibold text-[#56348f] dark:text-purple-300 flex items-center gap-1.5">
+                    <label className="font-semibold text-[var(--portal-primary-color)] dark:text-purple-300 flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5" />
                       <span>Select from Employee Directory (Auto-fill)</span>
                     </label>
@@ -1050,7 +1050,7 @@ export default function EmergencyContactsManagementPage() {
                   <SelectCompat
                     value={selectedEmployeeId}
                     onChange={(e) => handleSelectEmployee(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-700 text-slate-800 dark:text-white font-medium focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/30 text-xs cursor-pointer shadow-2xs"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-700 text-slate-800 dark:text-white font-medium focus:outline-hidden focus:ring-2 focus:ring-[var(--portal-primary-color)]/30 text-xs cursor-pointer shadow-2xs"
                   >
                     <option value="">-- Choose employee to auto-fill name, role, email & phone --</option>
                     {employeeList.map((emp: any) => {
@@ -1079,7 +1079,7 @@ export default function EmergencyContactsManagementPage() {
                     placeholder="e.g. Sahad, Nobby or Manu K O"
                     value={formData.name}
                     onChange={(e) => handleNameChange(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20 font-medium"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[var(--portal-primary-color)]/20 font-medium"
                   />
                 </div>
 
@@ -1094,7 +1094,7 @@ export default function EmergencyContactsManagementPage() {
                       placeholder="e.g. Team HR or Lead Developer"
                       value={formData.role}
                       onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[var(--portal-primary-color)]/20"
                     />
                   </div>
 
@@ -1107,7 +1107,7 @@ export default function EmergencyContactsManagementPage() {
                       placeholder="e.g. HR, Development, Tech"
                       value={formData.department || ""}
                       onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[var(--portal-primary-color)]/20"
                     />
                   </div>
                 </div>
@@ -1122,7 +1122,7 @@ export default function EmergencyContactsManagementPage() {
                       placeholder="e.g. hr@intersmart.in"
                       value={formData.email || ""}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[var(--portal-primary-color)]/20"
                     />
                   </div>
 
@@ -1135,7 +1135,7 @@ export default function EmergencyContactsManagementPage() {
                       placeholder="e.g. +91 9876543210"
                       value={formData.phone || ""}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[var(--portal-primary-color)]/20"
                     />
                   </div>
                 </div>
@@ -1173,7 +1173,7 @@ export default function EmergencyContactsManagementPage() {
                     </div>
                     <div className="pl-12 space-y-1 text-xs">
                       {formData.email && (
-                        <div className="flex items-center gap-1.5 text-[#56348f] dark:text-purple-300 font-medium">
+                        <div className="flex items-center gap-1.5 text-[var(--portal-primary-color)] dark:text-purple-300 font-medium">
                           <Mail className="w-3 h-3 text-slate-400 shrink-0" />
                           <span className="truncate">{formData.email}</span>
                         </div>
@@ -1273,7 +1273,7 @@ export default function EmergencyContactsManagementPage() {
                     id="drawer_contact_is_active"
                     checked={formData.is_active}
                     onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                    className="w-4 h-4 text-[#56348f] rounded border-slate-300 focus:ring-[#56348f] cursor-pointer"
+                    className="w-4 h-4 text-[var(--portal-primary-color)] rounded border-slate-300 focus:ring-[var(--portal-primary-color)] cursor-pointer"
                   />
                   <label
                     htmlFor="drawer_contact_is_active"
@@ -1295,7 +1295,7 @@ export default function EmergencyContactsManagementPage() {
                   <button
                     type="submit"
                     disabled={savingContact}
-                    style={{ backgroundColor: "#56348f" }}
+                    style={{ backgroundColor: "var(--portal-primary-color, #00806E)" }}
                     className="px-5 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 text-xs shadow-sm flex items-center gap-1.5"
                   >
                     {savingContact ? (

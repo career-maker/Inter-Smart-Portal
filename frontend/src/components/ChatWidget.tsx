@@ -45,7 +45,7 @@ function FormattedMessage({ text }: { text: string }) {
             <Link
               key={idx}
               href={url}
-              className="text-[#56348f] font-semibold underline underline-offset-2 hover:text-[#432670] transition-colors mx-0.5"
+              className="text-[var(--portal-primary-color)] font-semibold underline underline-offset-2 hover:text-[var(--portal-hover-color)] transition-colors mx-0.5"
             >
               {label}
             </Link>
@@ -63,7 +63,7 @@ function FormattedMessage({ text }: { text: string }) {
         return (
           <code
             key={idx}
-            className="bg-purple-50 text-[#56348f] border border-purple-100 px-1.5 py-0.5 mx-0.5 rounded text-xs font-mono"
+            className="bg-purple-50 text-[var(--portal-primary-color)] border border-purple-100 px-1.5 py-0.5 mx-0.5 rounded text-xs font-mono"
           >
             {part.slice(1, -1)}
           </code>
@@ -87,7 +87,7 @@ function FormattedMessage({ text }: { text: string }) {
           const cleaned = trimmed.replace(/^([-•*]|\d+\.)\s*/, "");
           return (
             <div key={lineIdx} className="flex items-start gap-2 pl-1">
-              <span className="text-[#56348f] font-bold select-none text-base leading-tight">•</span>
+              <span className="text-[var(--portal-primary-color)] font-bold select-none text-base leading-tight">•</span>
               <div className="flex-1 font-normal text-slate-800">{parseInline(cleaned)}</div>
             </div>
           );
@@ -409,7 +409,7 @@ export default function ChatWidget() {
                   <div
                     className={`p-3.5 rounded-2xl text-sm leading-relaxed ${
                       msg.sender === "user"
-                        ? "bg-[#56348f] text-white rounded-tr-none shadow-sm font-normal"
+                        ? "bg-[var(--portal-primary-color)] text-white rounded-tr-none shadow-sm font-normal"
                         : "bg-white text-slate-800 border border-slate-200/90 rounded-tl-none shadow-xs font-normal"
                     }`}
                   >
@@ -435,7 +435,7 @@ export default function ChatWidget() {
                       <button
                         key={idx}
                         onClick={() => handleSend(q.text)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white hover:bg-purple-50 text-slate-700 hover:text-[#56348f] border border-slate-200 hover:border-[#56348f]/40 rounded-full transition-all shadow-xs active:scale-95 cursor-pointer text-left"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white hover:bg-purple-50 text-slate-700 hover:text-[var(--portal-primary-color)] border border-slate-200 hover:border-[var(--portal-primary-color)]/40 rounded-full transition-all shadow-xs active:scale-95 cursor-pointer text-left"
                       >
                         {(() => { const Icon = QUICK_ICONS[q.icon] || Palmtree; return <Icon className="w-4 h-4 shrink-0" />; })()}
                         <span>{q.text}</span>
@@ -456,9 +456,9 @@ export default function ChatWidget() {
                     />
                   </div>
                   <div className="bg-white border border-slate-200/90 p-3 rounded-2xl rounded-tl-none flex items-center gap-1.5 shadow-xs">
-                    <span className="w-2 h-2 rounded-full bg-[#56348f] animate-bounce [animation-delay:-0.3s]"></span>
-                    <span className="w-2 h-2 rounded-full bg-[#56348f] animate-bounce [animation-delay:-0.15s]"></span>
-                    <span className="w-2 h-2 rounded-full bg-[#56348f] animate-bounce"></span>
+                    <span className="w-2 h-2 rounded-full bg-[var(--portal-primary-color)] animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-2 h-2 rounded-full bg-[var(--portal-primary-color)] animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-2 h-2 rounded-full bg-[var(--portal-primary-color)] animate-bounce"></span>
                     <span className="text-xs ml-1.5 font-medium text-slate-500">Thinking...</span>
                   </div>
                 </div>
@@ -559,12 +559,12 @@ export default function ChatWidget() {
                       : "Ask about leaves, projects, leads, attendance..."
                   }
                   disabled={isLoading}
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#56348f] focus:ring-1 focus:ring-[#56348f] transition-all disabled:opacity-50"
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[var(--portal-primary-color)] focus:ring-1 focus:ring-[var(--portal-primary-color)] transition-all disabled:opacity-50"
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !inputValue.trim() || (countdown !== null && countdown > 0)}
-                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#56348f] hover:bg-[#432670] text-white transition-all disabled:opacity-40 disabled:hover:bg-[#56348f] select-none active:scale-95 shrink-0 cursor-pointer shadow-sm font-medium"
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white transition-all disabled:opacity-40 disabled:hover:bg-[var(--portal-primary-color)] select-none active:scale-95 shrink-0 cursor-pointer shadow-sm font-medium"
                 >
                   <Send className="w-4 h-4" />
                 </button>

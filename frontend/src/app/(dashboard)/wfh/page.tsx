@@ -422,7 +422,7 @@ export default function WfhPage() {
           {isSuperAdmin ? (
             <button
               onClick={() => setIsDirectModalOpen(true)}
-              className="px-4 py-2 font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 bg-[#56348f] hover:bg-[#452875] text-white"
+              className="px-4 py-2 font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white"
             >
               <Plus className="w-4 h-4" />
               <span>Add Leave / WFH</span>

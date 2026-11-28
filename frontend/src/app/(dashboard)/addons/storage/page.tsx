@@ -156,7 +156,7 @@ export default function StorageRetentionAddonPage() {
               <span className="text-xs text-slate-500 font-medium">Data Lifecycle</span>
             </div>
             <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 mt-0.5 flex items-center gap-2">
-              <HardDrive className="w-5 h-5 text-[#56348f]" />
+              <HardDrive className="w-5 h-5 text-[var(--portal-primary-color)]" />
               Storage & Data Retention Policy
             </h1>
           </div>
@@ -206,7 +206,7 @@ export default function StorageRetentionAddonPage() {
         <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
           <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
             <span className="flex items-center gap-1.5">
-              <MessageSquare className="w-4 h-4 text-[#56348f]" />
+              <MessageSquare className="w-4 h-4 text-[var(--portal-primary-color)]" />
               Chat Messages
             </span>
             <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">
@@ -315,7 +315,7 @@ export default function StorageRetentionAddonPage() {
                   onClick={() => setChatDays(d)}
                   className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                     chatDays === d
-                      ? "bg-[#56348f] text-white border-[#56348f]"
+                      ? "bg-[var(--portal-primary-color)] text-white border-[var(--portal-primary-color)]"
                       : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100"
                   }`}
                 >
@@ -354,7 +354,7 @@ export default function StorageRetentionAddonPage() {
                   onClick={() => setPostDays(d)}
                   className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                     postDays === d
-                      ? "bg-[#56348f] text-white border-[#56348f]"
+                      ? "bg-[var(--portal-primary-color)] text-white border-[var(--portal-primary-color)]"
                       : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100"
                   }`}
                 >
@@ -368,7 +368,7 @@ export default function StorageRetentionAddonPage() {
         {/* Auto-cleanup Switch & Safeguard note */}
         <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-purple-100 dark:bg-purple-900/40 text-[#56348f] dark:text-purple-300 rounded-xl mt-0.5">
+            <div className="p-2 bg-purple-100 dark:bg-purple-900/40 text-[var(--portal-primary-color)] dark:text-purple-300 rounded-xl mt-0.5">
               <FileCheck className="w-5 h-5" />
             </div>
             <div>
@@ -387,7 +387,7 @@ export default function StorageRetentionAddonPage() {
               type="checkbox"
               checked={autoCleanup}
               onChange={(e) => setAutoCleanup(e.target.checked)}
-              className="w-4 h-4 text-[#56348f] rounded-md focus:ring-purple-500 border-slate-300"
+              className="w-4 h-4 text-[var(--portal-primary-color)] rounded-md focus:ring-purple-500 border-slate-300"
             />
             <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
               Enable Auto-Cleanup
@@ -410,7 +410,7 @@ export default function StorageRetentionAddonPage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#56348f] hover:bg-[#452875] text-white rounded-xl text-xs font-semibold shadow-sm transition cursor-pointer hover:shadow-md"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white rounded-xl text-xs font-semibold shadow-sm transition cursor-pointer hover:shadow-md"
           >
             <Save className="w-4 h-4" />
             <span>{saving ? "Saving Changes..." : "Save Retention Settings"}</span>

@@ -495,7 +495,7 @@ export default function HubstaffAnalyticsPage() {
           <button
             onClick={exportToCSV}
             disabled={loading || !analyticsData}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition disabled:opacity-50 cursor-pointer shadow-sm whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[var(--portal-primary-color)] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition disabled:opacity-50 cursor-pointer shadow-sm whitespace-nowrap shrink-0"
           >
             <Download className="w-4 h-4 shrink-0" />
             <span className="whitespace-nowrap">Export CSV</span>
@@ -529,7 +529,7 @@ export default function HubstaffAnalyticsPage() {
                 }}
                 className={`px-3 py-1.5 rounded-lg transition cursor-pointer whitespace-nowrap shrink-0 ${
                   dateMode === "single"
-                    ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
+                    ? "bg-white dark:bg-slate-900 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-sm font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -543,7 +543,7 @@ export default function HubstaffAnalyticsPage() {
                 }}
                 className={`px-3 py-1.5 rounded-lg transition cursor-pointer whitespace-nowrap shrink-0 ${
                   dateMode === "range"
-                    ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
+                    ? "bg-white dark:bg-slate-900 text-[var(--portal-primary-color)] dark:text-purple-300 shadow-sm font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -622,7 +622,7 @@ export default function HubstaffAnalyticsPage() {
                   onClick={handleSearchDate}
                   disabled={loading || refreshing}
                   title="Search this date"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
                 >
                   {loading || refreshing ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
@@ -725,7 +725,7 @@ export default function HubstaffAnalyticsPage() {
                   onClick={handleSearchDate}
                   disabled={loading || refreshing}
                   title="Search this range"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
                 >
                   {loading || refreshing ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
@@ -775,7 +775,7 @@ export default function HubstaffAnalyticsPage() {
               onClick={() => setActiveTab("users")}
               className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "users"
-                  ? "bg-[#56348f] text-white font-bold shadow-sm"
+                  ? "bg-[var(--portal-primary-color)] text-white font-bold shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -786,7 +786,7 @@ export default function HubstaffAnalyticsPage() {
               onClick={() => setActiveTab("projects")}
               className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "projects"
-                  ? "bg-[#56348f] text-white font-bold shadow-sm"
+                  ? "bg-[var(--portal-primary-color)] text-white font-bold shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -797,7 +797,7 @@ export default function HubstaffAnalyticsPage() {
               onClick={() => setActiveTab("trends")}
               className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "trends"
-                  ? "bg-[#56348f] text-white font-bold shadow-sm"
+                  ? "bg-[var(--portal-primary-color)] text-white font-bold shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -951,7 +951,7 @@ export default function HubstaffAnalyticsPage() {
           <div className="relative flex items-center justify-center">
             <div className="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-950/70 animate-ping absolute opacity-40" />
             <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/80 border border-purple-200 dark:border-purple-800 flex items-center justify-center shadow-sm">
-              <Loader2 className="w-6 h-6 text-[#56348f] dark:text-purple-400 animate-spin" />
+              <Loader2 className="w-6 h-6 text-[var(--portal-primary-color)] dark:text-purple-400 animate-spin" />
             </div>
           </div>
           <div className="text-center space-y-1">
@@ -1078,7 +1078,7 @@ export default function HubstaffAnalyticsPage() {
                           <button
                             onClick={() => fetchAnalytics(true)}
                             disabled={refreshing || loading}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[var(--portal-primary-color)] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition cursor-pointer"
                           >
                             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
                             <span>Refresh Hubstaff Data</span>
@@ -1290,7 +1290,7 @@ export default function HubstaffAnalyticsPage() {
                           <button
                             onClick={() => fetchAnalytics(true)}
                             disabled={refreshing || loading}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[var(--portal-primary-color)] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition cursor-pointer"
                           >
                             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
                             <span>Refresh Hubstaff Data</span>

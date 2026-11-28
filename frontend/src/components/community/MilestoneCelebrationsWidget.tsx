@@ -74,14 +74,14 @@ export function MilestoneCelebrationsWidget({
           <Cake
             className={`w-4 h-4 transition-colors ${
               activeTab === "birthdays"
-                ? "text-[#56348f] dark:text-purple-400"
+                ? "text-[var(--portal-primary-color)] dark:text-purple-400"
                 : "text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300"
             }`}
           />
           <span
             className={`text-xs sm:text-[13px] font-semibold transition-colors ${
               activeTab === "birthdays"
-                ? "text-[#56348f] dark:text-purple-400"
+                ? "text-[var(--portal-primary-color)] dark:text-purple-400"
                 : "text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200"
             }`}
           >
@@ -90,7 +90,7 @@ export function MilestoneCelebrationsWidget({
           <span
             className={`text-xs font-semibold px-2 py-0.5 rounded-full transition-colors ${
               activeTab === "birthdays"
-                ? "bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300"
+                ? "bg-purple-100 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300"
                 : "bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300"
             }`}
           >
@@ -98,7 +98,7 @@ export function MilestoneCelebrationsWidget({
           </span>
           {/* Active bottom bar */}
           {activeTab === "birthdays" && (
-            <span className="absolute -bottom-2.5 left-2 right-2 h-[3px] bg-[#56348f] dark:bg-purple-400 rounded-full" />
+            <span className="absolute -bottom-2.5 left-2 right-2 h-[3px] bg-[var(--portal-primary-color)] dark:bg-purple-400 rounded-full" />
           )}
         </button>
 
@@ -114,14 +114,14 @@ export function MilestoneCelebrationsWidget({
           <PartyPopper
             className={`w-4 h-4 transition-colors ${
               activeTab === "anniversaries"
-                ? "text-[#56348f] dark:text-purple-400"
+                ? "text-[var(--portal-primary-color)] dark:text-purple-400"
                 : "text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300"
             }`}
           />
           <span
             className={`text-xs sm:text-[13px] font-semibold transition-colors ${
               activeTab === "anniversaries"
-                ? "text-[#56348f] dark:text-purple-400"
+                ? "text-[var(--portal-primary-color)] dark:text-purple-400"
                 : "text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200"
             }`}
           >
@@ -130,7 +130,7 @@ export function MilestoneCelebrationsWidget({
           <span
             className={`text-xs font-semibold px-2 py-0.5 rounded-full transition-colors ${
               activeTab === "anniversaries"
-                ? "bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300"
+                ? "bg-purple-100 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300"
                 : "bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300"
             }`}
           >
@@ -138,7 +138,7 @@ export function MilestoneCelebrationsWidget({
           </span>
           {/* Active bottom bar */}
           {activeTab === "anniversaries" && (
-            <span className="absolute -bottom-2.5 left-2 right-2 h-[3px] bg-[#56348f] dark:bg-purple-400 rounded-full" />
+            <span className="absolute -bottom-2.5 left-2 right-2 h-[3px] bg-[var(--portal-primary-color)] dark:bg-purple-400 rounded-full" />
           )}
         </button>
 
@@ -154,14 +154,14 @@ export function MilestoneCelebrationsWidget({
           <UserPlus
             className={`w-4 h-4 transition-colors ${
               activeTab === "joined"
-                ? "text-[#56348f] dark:text-purple-400"
+                ? "text-[var(--portal-primary-color)] dark:text-purple-400"
                 : "text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300"
             }`}
           />
           <span
             className={`text-xs sm:text-[13px] font-semibold transition-colors ${
               activeTab === "joined"
-                ? "text-[#56348f] dark:text-purple-400"
+                ? "text-[var(--portal-primary-color)] dark:text-purple-400"
                 : "text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200"
             }`}
           >
@@ -170,7 +170,7 @@ export function MilestoneCelebrationsWidget({
           <span
             className={`text-xs font-semibold px-2 py-0.5 rounded-full transition-colors ${
               activeTab === "joined"
-                ? "bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300"
+                ? "bg-purple-100 dark:bg-purple-950/60 text-[var(--portal-primary-color)] dark:text-purple-300"
                 : "bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300"
             }`}
           >
@@ -178,7 +178,7 @@ export function MilestoneCelebrationsWidget({
           </span>
           {/* Active bottom bar */}
           {activeTab === "joined" && (
-            <span className="absolute -bottom-2.5 left-2 right-2 h-[3px] bg-[#56348f] dark:bg-purple-400 rounded-full" />
+            <span className="absolute -bottom-2.5 left-2 right-2 h-[3px] bg-[var(--portal-primary-color)] dark:bg-purple-400 rounded-full" />
           )}
         </button>
       </div>
@@ -216,7 +216,7 @@ export function MilestoneCelebrationsWidget({
                             src={person.profile_photo_path}
                             name={person.name}
                             userId={person.id}
-                            className="w-12 h-12 rounded-full font-semibold text-sm ring-2 ring-purple-200/60 dark:ring-purple-800/50 bg-[#56348f] text-white"
+                            className="w-12 h-12 rounded-full font-semibold text-sm ring-2 ring-purple-200/60 dark:ring-purple-800/50 bg-[var(--portal-primary-color)] text-white"
                           />
                         </div>
 
@@ -231,7 +231,7 @@ export function MilestoneCelebrationsWidget({
                         </p>
 
                         {/* Date / Countdown */}
-                        <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300 mt-2">
+                        <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300 mt-2">
                           {formatCelebrationDate(person.date, person.days_remaining)}
                         </span>
 
@@ -248,7 +248,7 @@ export function MilestoneCelebrationsWidget({
                                 type: "birthday",
                               })
                             }
-                            className="mt-2 w-full py-1 bg-[#56348f] hover:bg-purple-800 text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+                            className="mt-2 w-full py-1 bg-[var(--portal-primary-color)] hover:bg-purple-800 text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
                           >
                             Wish
                           </button>
@@ -291,7 +291,7 @@ export function MilestoneCelebrationsWidget({
                           {person.years} {person.years === 1 ? "Year" : "Years"} with Company
                         </p>
 
-                        <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300 mt-2">
+                        <span className="text-xs font-semibold text-[var(--portal-primary-color)] dark:text-purple-300 mt-2">
                           {formatCelebrationDate(person.date, person.days_remaining)}
                         </span>
 
