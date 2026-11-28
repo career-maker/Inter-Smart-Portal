@@ -31,6 +31,8 @@ export interface CustomizationSettings {
   hover_color?: string;
   active_color?: string;
   dark_text_color?: string;
+  secondary_text_color?: string;
+  muted_text_color?: string;
   light_bg_color?: string;
   card_bg_color?: string;
   border_color?: string;
@@ -57,6 +59,8 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   hover_color: "#006B5C",
   active_color: "#006B5C",
   dark_text_color: "#161D2C",
+  secondary_text_color: "#52525B",
+  muted_text_color: "#71717A",
   light_bg_color: "#F5F7FC",
   card_bg_color: "#FDFBFE",
   border_color: "#E4E7F0",
@@ -155,6 +159,14 @@ export function normalizeCustomizationSettings(raw?: any): CustomizationSettings
       raw.dark_text_color ||
       extra.dark_text_color ||
       DEFAULT_CUSTOMIZATION_SETTINGS.dark_text_color,
+    secondary_text_color:
+      raw.secondary_text_color ||
+      extra.secondary_text_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.secondary_text_color,
+    muted_text_color:
+      raw.muted_text_color ||
+      extra.muted_text_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.muted_text_color,
     light_bg_color:
       raw.light_bg_color ||
       extra.light_bg_color ||

@@ -111,6 +111,8 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     root.style.setProperty("--portal-hover-color", hoverColor);
     root.style.setProperty("--portal-active-color", activeColor);
     root.style.setProperty("--portal-dark-text", darkTextColor);
+    root.style.setProperty("--portal-secondary-text", conf.secondary_text_color || "#52525B");
+    root.style.setProperty("--portal-muted-text", conf.muted_text_color || "#71717A");
     root.style.setProperty("--portal-light-bg", lightBg);
     root.style.setProperty("--portal-card-bg", cardBg);
     root.style.setProperty("--portal-border-color", borderColor);

@@ -1,10 +1,16 @@
 # CHECKPOINT: read this first, then continue
 
-_Last updated: 2026-10-30 (section 0000 is the newest; then 000: handover and NEXT list; then 00; section 0 below is older). Update this file and commit it after every unit of work (see "Standing rules")._
+_Last updated: 2026-11-28 (section 0000 is the newest; then 000: handover and NEXT list; then 00; section 0 below is older). Update this file and commit it after every unit of work (see "Standing rules")._
 
 You are continuing the **Internal Software Plan** for the Intersmart Employee Portal. The owner is a developer on Team QA; the manager's sheet is `SOURCE_Internal_software_plan.xlsx`. Work in small, tested, reversible slices. Never break the existing modules.
 
 **Read order for a new agent:** this file, then `PROGRESS.md` (history and gotchas), then `EXECUTION_PLAN.md` (rules and phase order), then `SOFTWARE_PLAN.md` (have vs build per role). `SERVER.md` has the live server layout.
+
+## 0000-ZC. 28 Nov 2026: Unslop redesign, step 1 tokens (branch `redesign/unslop`, NOT merged, NOT deployed)
+- Owner approved the unslop direction (graphite neutrals, brand teal #00806E as the only accent, mono times, all platforms, copy fixes allowed, robot mascot and rocket icon become plain icons). Order: 1 tokens, 2 shell, 3 dashboard, 4 page by page, 5 per-file cleanup.
+- Step 1 done: `--portal-secondary-text` #52525B and `--portal-muted-text` #71717A (was #85858F, failed contrast) are now Customization add-on fields `secondary_text_color` / `muted_text_color`, stored in `extra_colors` JSON (no migration; backend `CustomizationController` must be pulled on the server before they persist). New "Graphite" palette preset. Type scale, control radius and motion tokens in `globals.css :root`. JetBrains Mono via next/font as `--font-mono-face`; `font-mono`, `code`, `kbd` now really render mono (the old `--font-geist-mono` was undefined).
+- Next: step 2 shell (header keycap, one badge style, no rocket, sidebar rhythm, one active style, plain chatbot launcher). Render with the owner logged in before merging.
+- Note: Proxima Nova comes from a third-party CDN copy; check licence before self-hosting. Only 3 bare `text-amber-400` heading icons remain (reports page); the other uses are dark-mode or status text.
 
 ## 0000-ZB. 27 Nov 2026: Dashboard polish (LIVE, commit cf243d64)
 - Team Lead "Team Status Today": avatar circles with status outline (green present, red absent/leave, blue WFH only when checked in, amber half day); hover/focus tooltip shows name, designation, status. Backend `team_members` now returns designation/photo (were never selected) and `checked_in`.

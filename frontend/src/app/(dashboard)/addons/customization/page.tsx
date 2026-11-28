@@ -161,10 +161,36 @@ export interface PalettePreset {
     border_color: string;
     header_text_color: string;
     sub_header_active_color: string;
+    secondary_text_color?: string;
+    muted_text_color?: string;
   };
 }
 
 export const PALETTE_PRESETS: PalettePreset[] = [
+  {
+    id: "graphite",
+    name: "Graphite",
+    tagline: "Neutral graphite surfaces with brand teal as the only accent - readable text tones",
+    category: "corporate",
+    previewColors: ["#FFFFFF", "#18181B", "#00806E", "#71717A", "#F7F7F8"],
+    settings: {
+      sidebar_bg_color: "#FFFFFF",
+      sidebar_hover_color: "#F4F4F5",
+      sidebar_active_color: "#00806E",
+      header_bg_color: "#FFFFFF",
+      primary_color: "#00806E",
+      hover_color: "#006B5C",
+      active_color: "#00806E",
+      dark_text_color: "#18181B",
+      light_bg_color: "#F7F7F8",
+      card_bg_color: "#FFFFFF",
+      border_color: "#E4E4E7",
+      header_text_color: "#18181B",
+      sub_header_active_color: "#00806E",
+      secondary_text_color: "#52525B",
+      muted_text_color: "#71717A",
+    },
+  },
   {
     id: "brand_new",
     name: "Intersmart Brand (Default)",
@@ -1857,6 +1883,47 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                 <div className="flex items-center justify-between text-[11px]">
                   <span className="text-slate-500 dark:text-slate-400">Page titles & dark text</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.dark_text_color || "#093E3A"}</span>
+                </div>
+              </div>
+
+              {/* 8b. Secondary and muted text */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.secondary_text_color || "#52525B" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Secondary Text</span>
+                  </div>
+                  <input
+                    type="color"
+                    aria-label="Secondary Text"
+                    value={form.secondary_text_color || "#52525B"}
+                    onChange={(e) => handleFieldChange("secondary_text_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Subtitles, descriptions & icons</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.secondary_text_color || "#52525B"}</span>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.muted_text_color || "#71717A" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Muted Text</span>
+                  </div>
+                  <input
+                    type="color"
+                    aria-label="Muted Text"
+                    value={form.muted_text_color || "#71717A"}
+                    onChange={(e) => handleFieldChange("muted_text_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Hints, meta & placeholders</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.muted_text_color || "#71717A"}</span>
                 </div>
               </div>
 

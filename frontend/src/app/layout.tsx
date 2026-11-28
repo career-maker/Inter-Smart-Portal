@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "./themes.css";
 import { Providers } from "@/components/providers";
+
+// Mono face for times, durations and figures (self-hosted by next/font).
+const monoFace = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono-face", display: "swap" });
 
 export const metadata: Metadata = {
   title: {
@@ -28,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased light" suppressHydrationWarning>
+    <html lang="en" className={`h-full antialiased light ${monoFace.variable}`} suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light only" />
         <script dangerouslySetInnerHTML={{ __html: `document.documentElement.classList.remove('dark'); document.documentElement.classList.add('light'); document.documentElement.style.colorScheme = 'light';` }} />
