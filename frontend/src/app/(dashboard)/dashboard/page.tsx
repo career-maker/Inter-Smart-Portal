@@ -63,7 +63,7 @@ import { useCustomization } from "@/context/CustomizationContext";
 import { resolveCustomizationAssetUrl } from "@/services/customization";
 
 /**
- * Senior Designer Glassmorphic Role Pill for Welcome Card Hero Banner
+ * Role pill on the welcome banner
  */
 function WelcomeRolePill({ role }: { role?: string }) {
   const normalized = (role || "").trim().toLowerCase();
@@ -389,28 +389,7 @@ export default function DashboardPage() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
           )}
 
-          {/* Soft Profile Circle Aura */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(circle at 14% 42%, rgba(118,156,255,0.18) 0%, transparent 26%)' }}
-            aria-hidden
-          />
 
-          {/* Purple Swoosh Shape from welcome_card.html */}
-          <div className="card-purple-swoosh" />
-
-          {/* Dot Matrix Grids from welcome_card.html */}
-          <div className="card-dots" />
-          <div className="card-dots2" />
-
-          {/* Wave Lines from welcome_card.html */}
-          <div className="card-waves">
-            <i className="card-wave w1" />
-            <i className="card-wave w2" />
-            <i className="card-wave w3" />
-            <i className="card-wave w4" />
-            <i className="card-wave w5" />
-          </div>
         </div>
 
         {/* ── TOP ROW: PROFILE & STATS ── */}
@@ -440,10 +419,10 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <Link
                   href="/profile"
-                  className="text-xl sm:text-2xl md:text-[28px] font-black tracking-tight text-white hover:text-amber-300 transition-colors flex items-center gap-1.5 sm:gap-2 group cursor-pointer"
+                  className="text-xl sm:text-2xl md:text-[28px] font-medium text-white hover:text-white/80 transition-colors flex items-center gap-1.5 sm:gap-2 group cursor-pointer"
                 >
                   <span className="truncate">{profile.first_name} {profile.last_name || ""}</span>
-                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-200 shrink-0" />
+                  <ExternalLink aria-hidden="true" className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity text-slate-200 shrink-0" />
                 </Link>
 
                 <WelcomeRolePill role={user?.role || profile?.role} />
@@ -452,20 +431,11 @@ export default function DashboardPage() {
                 {hasActiveRec && profile.active_recognition && (
                   <button
                     onClick={() => setShowRecognitionModal(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-500/25 via-yellow-500/20 to-amber-500/25 hover:from-amber-500/35 hover:to-amber-500/35 text-amber-600 dark:text-amber-300 border border-amber-400/50 rounded-full text-xs font-black shadow-[0_0_14px_rgba(245,158,11,0.25)] transition-all transform hover:scale-105 cursor-pointer shrink-0"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 hover:bg-white/15 text-white border border-white/20 rounded-full text-xs font-medium transition-colors cursor-pointer shrink-0"
                     title={`${profile.active_recognition.title} - Click to view certificate`}
                   >
-                    <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                      <DotLottiePlayer
-                        src="https://assets2.lottiefiles.com/packages/lf20_touohxv0.json"
-                        background="transparent"
-                        speed={1}
-                        style={{ width: 18, height: 18 }}
-                        loop
-                        autoplay
-                      />
-                    </div>
-                    <span className="tracking-wide uppercase text-[10.5px] font-black drop-shadow-xs">
+                    <Trophy aria-hidden="true" className="w-3.5 h-3.5 shrink-0 text-amber-300" />
+                    <span>
                       {profile.active_recognition.title}
                     </span>
                   </button>
@@ -473,7 +443,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Subtitle: Designation • Inter Smart, Kochi */}
-              <p className="text-xs sm:text-[13px] font-semibold text-slate-300 flex items-center gap-2 flex-wrap">
+              <p className="text-[13px] text-slate-300 flex items-center gap-2 flex-wrap">
                 <span>{profile.designation || user?.role || "Member"}</span>
                 <span className="text-slate-500">•</span>
                 <span>Inter Smart, Kochi</span>
@@ -482,18 +452,18 @@ export default function DashboardPage() {
               {/* Team Lead Contact Button if applicable */}
               {profile?.team_lead && (
                 <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-lg bg-white/10 border border-white/20 text-xs text-white max-w-full flex-wrap">
-                  <span className="text-[10.5px] text-purple-300 font-bold uppercase tracking-wider">
+                  <span className="text-xs text-slate-300">
                     Lead:
                   </span>
-                  <span className="font-bold text-xs truncate">
+                  <span className="font-medium text-xs truncate">
                     {profile.team_lead.name}
                   </span>
                   <Link
                     href={`/chat?userId=${profile.team_lead.id}`}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#56348f] hover:bg-[#6e43b6] text-white text-[10px] font-bold shadow-2xs transition-all cursor-pointer border border-purple-400/50 hover:scale-105 ml-1 shrink-0"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-white text-xs font-medium transition-colors cursor-pointer ml-1 shrink-0"
                     title={`Direct Message ${profile.team_lead.name}`}
                   >
-                    <MessageSquare className="w-2.5 h-2.5" />
+                    <MessageSquare aria-hidden="true" className="w-3 h-3" />
                     <span>Contact</span>
                   </Link>
                 </div>
@@ -502,22 +472,22 @@ export default function DashboardPage() {
               {/* Attendance Status Pill & Date / Time */}
               <div className="flex items-center gap-2.5 sm:gap-3.5 flex-wrap pt-1">
                 <span
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
-                    profile.attendance_status === 'Punched In'
-                      ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.25)]'
-                      : profile.attendance_status === 'Punched Out'
-                      ? 'bg-amber-950/60 text-amber-400 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.25)]'
-                      : 'bg-rose-950/60 text-rose-400 border-rose-500/50'
-                  }`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border bg-white/10 border-white/20 text-white"
                 >
-                  {profile.attendance_status === 'Punched In' && (
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0" />
-                  )}
-                  <Clock className="w-3.5 h-3.5 shrink-0" />
-                  <span>{profile.attendance_status || 'NOT PUNCHED IN'}</span>
+                  <span
+                    aria-hidden="true"
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      profile.attendance_status === 'Punched In'
+                        ? 'bg-emerald-400'
+                        : profile.attendance_status === 'Punched Out'
+                        ? 'bg-amber-400'
+                        : 'bg-rose-400'
+                    }`}
+                  />
+                  <span>{profile.attendance_status || 'Not punched in'}</span>
                 </span>
 
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold text-slate-200 flex-wrap">
+                <div className="inline-flex items-center gap-1.5 text-[13px] text-slate-200 flex-wrap">
                   <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span>{format(time, "EEEE, d MMMM yyyy")}</span>
                   <span className="text-slate-500">•</span>
@@ -540,12 +510,12 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR + Cursive Tagline (from welcome_card.html) ── */}
-        <div className="flex items-center gap-4 relative z-10 pt-2 border-t border-slate-800/60">
-          <span className="text-[12px] sm:text-[13px] font-semibold tracking-wide text-[#9fb0cc] whitespace-nowrap">
-            GOOD TO SEE YOU BACK
+        {/* Bottom row: greeting and company tagline */}
+        <div className="flex items-center gap-4 relative z-10 pt-3 border-t border-white/10">
+          <span className="text-[13px] text-slate-300 whitespace-nowrap">
+            Good to see you back
           </span>
-          <p className="hidden sm:block ml-auto shrink-0 card-tagline cursive-slogan !text-base leading-[1.15]">
+          <p className="hidden sm:block ml-auto shrink-0 text-[13px] leading-5 text-slate-300 text-right">
             Stronger People<br />Brighter Tomorrows
           </p>
         </div>
@@ -796,41 +766,38 @@ Upcoming Celebration
                                     strokeDasharray={seg.strokeDasharray}
                                     strokeDashoffset={seg.strokeDashoffset}
                                     strokeLinecap="butt"
-                                    className="transition-all duration-500 ease-out"
+                                    className="transition-[stroke-dasharray,stroke-dashoffset] duration-200 ease-out"
                                   />
                                 ))}
                             </svg>
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-400 dark:text-slate-500">
-                              <Users className="w-3.5 h-3.5 stroke-[2]" />
-                            </div>
                           </div>
 
                           {/* Stats Numbers */}
                           <div className="flex flex-col justify-center gap-1 shrink-0">
                             <div>
-                              <div className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-none tracking-tight font-sans">
+                              <div className="text-xl font-medium text-slate-900 dark:text-white leading-none tabular-nums">
                                 {totalTeam}
                               </div>
-                              <div className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">
-                                Total Team
+                              <div className="text-xs mt-1" style={{ color: "var(--portal-secondary-text, #52525B)" }}>
+                                Total team
                               </div>
                             </div>
 
                             <div className="flex items-center gap-2 pt-0.5 border-t border-slate-100 dark:border-slate-800">
                               <div>
-                                <div className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 leading-none">
+                                <div className="text-sm font-medium tabular-nums text-emerald-600 dark:text-emerald-400 leading-none">
                                   {presentCount}
                                 </div>
-                                <div className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                <div className="text-xs mt-0.5" style={{ color: "var(--portal-secondary-text, #52525B)" }}>
                                   Present
                                 </div>
                               </div>
                               <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 shrink-0" />
                               <div>
-                                <div className="text-xs sm:text-sm font-black text-rose-600 dark:text-rose-400 leading-none">
+                                <div className="text-sm font-medium tabular-nums text-rose-600 dark:text-rose-400 leading-none">
                                   {absentCount}
                                 </div>
-                                <div className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                <div className="text-xs mt-0.5" style={{ color: "var(--portal-secondary-text, #52525B)" }}>
                                   Absent
                                 </div>
                               </div>
@@ -838,10 +805,10 @@ Upcoming Celebration
                                 <>
                                   <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 shrink-0" />
                                   <div>
-                                    <div className="text-xs sm:text-sm font-black text-blue-600 dark:text-blue-400 leading-none">
+                                    <div className="text-sm font-medium tabular-nums text-blue-600 dark:text-blue-400 leading-none">
                                       {wfhCount}
                                     </div>
-                                    <div className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <div className="text-xs mt-0.5" style={{ color: "var(--portal-secondary-text, #52525B)" }}>
                                       WFH
                                     </div>
                                   </div>
@@ -851,10 +818,10 @@ Upcoming Celebration
                                 <>
                                   <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 shrink-0" />
                                   <div>
-                                    <div className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 leading-none">
+                                    <div className="text-sm font-medium tabular-nums text-amber-600 dark:text-amber-400 leading-none">
                                       {halfDayCount}
                                     </div>
-                                    <div className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <div className="text-xs mt-0.5" style={{ color: "var(--portal-secondary-text, #52525B)" }}>
                                       Half Day
                                     </div>
                                   </div>
@@ -864,14 +831,6 @@ Upcoming Celebration
                           </div>
                         </div>
 
-                        {/* Corner Graphic - Half style tucked into corner with low visibility */}
-                        <div className="absolute -right-5 -bottom-6 sm:-right-4 sm:-bottom-5 w-24 sm:w-28 h-24 sm:h-28 pointer-events-none select-none opacity-20 dark:opacity-10 overflow-hidden">
-                          <img
-                            src="/images/team-status-corner.png"
-                            alt=""
-                            className="w-full h-full object-contain object-bottom-right"
-                          />
-                        </div>
                       </div>
                     );
                   })()}
@@ -1528,28 +1487,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
           )}
 
-          {/* Soft Profile Circle Aura */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(circle at 14% 42%, rgba(118,156,255,0.18) 0%, transparent 26%)' }}
-            aria-hidden
-          />
 
-          {/* Purple Swoosh Shape from welcome_card.html */}
-          <div className="card-purple-swoosh" />
-
-          {/* Dot Matrix Grids from welcome_card.html */}
-          <div className="card-dots" />
-          <div className="card-dots2" />
-
-          {/* Wave Lines from welcome_card.html */}
-          <div className="card-waves">
-            <i className="card-wave w1" />
-            <i className="card-wave w2" />
-            <i className="card-wave w3" />
-            <i className="card-wave w4" />
-            <i className="card-wave w5" />
-          </div>
         </div>
 
         {/* ── TOP ROW: PROFILE & PENDING ITEMS ── */}
@@ -1579,17 +1517,17 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <Link
                   href="/profile"
-                  className="text-xl sm:text-2xl md:text-[28px] font-black tracking-tight text-white hover:text-amber-300 transition-colors flex items-center gap-1.5 sm:gap-2 group cursor-pointer"
+                  className="text-xl sm:text-2xl md:text-[28px] font-medium text-white hover:text-white/80 transition-colors flex items-center gap-1.5 sm:gap-2 group cursor-pointer"
                 >
                   <span className="truncate">{profile.first_name} {profile.last_name || ""}</span>
-                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-200 shrink-0" />
+                  <ExternalLink aria-hidden="true" className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity text-slate-200 shrink-0" />
                 </Link>
 
                 <WelcomeRolePill role="Super Admin" />
               </div>
 
               {/* Subtitle: Role • Location */}
-              <p className="text-xs sm:text-[13px] font-semibold text-slate-300 flex items-center gap-2 flex-wrap">
+              <p className="text-[13px] text-slate-300 flex items-center gap-2 flex-wrap">
                 <span>{profile.designation || "Super Administrator"}</span>
                 <span className="text-slate-500">•</span>
                 <span>Inter Smart, Kochi</span>
@@ -1597,7 +1535,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
               {/* Date & Time */}
               <div className="flex items-center gap-2.5 sm:gap-3.5 flex-wrap pt-1">
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold text-slate-200 flex-wrap">
+                <div className="inline-flex items-center gap-1.5 text-[13px] text-slate-200 flex-wrap">
                   <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span>{format(time, "EEEE, d MMMM yyyy")}</span>
                   <span className="text-slate-500">•</span>
@@ -1632,12 +1570,12 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           </div>
         </div>
 
-        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR + Cursive Tagline (from welcome_card.html) ── */}
-        <div className="flex items-center gap-4 relative z-10 pt-2 border-t border-slate-800/60">
-          <span className="text-[12px] sm:text-[13px] font-semibold tracking-wide text-[#9fb0cc] whitespace-nowrap">
-            GOOD TO SEE YOU BACK
+        {/* Bottom row: greeting and company tagline */}
+        <div className="flex items-center gap-4 relative z-10 pt-3 border-t border-white/10">
+          <span className="text-[13px] text-slate-300 whitespace-nowrap">
+            Good to see you back
           </span>
-          <p className="hidden sm:block ml-auto shrink-0 card-tagline cursive-slogan !text-base leading-[1.15]">
+          <p className="hidden sm:block ml-auto shrink-0 text-[13px] leading-5 text-slate-300 text-right">
             Stronger People<br />Brighter Tomorrows
           </p>
         </div>
@@ -2266,7 +2204,7 @@ function RotatingCard({
   return (
     <div
       className="premium-card wave-card p-6 flex flex-col overflow-hidden"
-      style={{ height: `${cardHeight}px` }}
+      style={count > 0 ? { height: `${cardHeight}px` } : undefined}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

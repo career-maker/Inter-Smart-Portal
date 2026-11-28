@@ -19,6 +19,7 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import { format, addDays, subDays, parseISO } from "date-fns";
+import { daySegments } from "@/lib/daySegments";
 import api from "@/services/api";
 import { Portal } from "@/components/ui/portal";
 import { RoyalAvatar } from "@/components/ui/RoyalAvatar";
@@ -253,6 +254,12 @@ export function AttendanceWidget({
     }
   };
 
+  // Own punches for today only; the drawer can point timelineData at another date or member
+  const dayTimeline =
+    !selectedMember && selectedDate === todayStr
+      ? daySegments(timelineData?.working_sessions, Date.now())
+      : null;
+
   const formatExactTime = (dateString: string | null) => {
     if (!dateString) return "--:--";
     try {
@@ -405,7 +412,7 @@ export function AttendanceWidget({
                 fontSize: "11px",
                 lineHeight: "16px",
               }}
-              className={`px-1 py-1 font-semibold uppercase tracking-wider ${
+              className={`px-1 py-1 font-medium ${
                 data?.status === "Checked In"
                   ? "text-emerald-700 dark:text-emerald-300"
                   : data?.status === "On Break"
@@ -528,74 +535,66 @@ export function AttendanceWidget({
         )}
 
         <div className="relative z-10">
-          {/* Metrics Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {/* Punch In */}
-            <div className="stat-tile stat-in bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
-              <p
-                style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
-                className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
+          {/* Day timeline: worked sessions on one bar, breaks are the gaps */}
+          {dayTimeline && (
+            <div className="mb-4">
+              <div
+                className="relative h-2 rounded-full bg-[#F4F4F5] overflow-hidden"
+                role="img"
+                aria-label={`Worked sessions today from ${formatTime(new Date(dayTimeline.startMs).toISOString())} to ${formatTime(new Date(dayTimeline.endMs).toISOString())}`}
               >
-                First In
-              </p>
-              <p
-                style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }}
-                className="font-semibold dark:text-white"
-              >
-                {formatTime(data?.attendance?.check_in_time)}
-              </p>
+                {dayTimeline.segments.map((seg, i) => (
+                  <span
+                    key={i}
+                    className="absolute inset-y-0 rounded-full"
+                    style={{
+                      left: `${seg.left}%`,
+                      width: `max(${seg.width}%, 4px)`,
+                      backgroundColor: "var(--portal-primary-color, #00806E)",
+                      opacity: seg.ongoing ? 1 : 0.55,
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="mt-1.5 flex justify-between font-mono text-xs" style={{ color: "var(--portal-muted-text, #71717A)" }}>
+                <span>{formatTime(new Date(dayTimeline.startMs).toISOString())}</span>
+                <span>{dayTimeline.segments.some((seg) => seg.ongoing) ? "Now" : formatTime(new Date(dayTimeline.endMs).toISOString())}</span>
+              </div>
             </div>
-            {/* Punch Out */}
-            <div className="stat-tile stat-out bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
-              <p
-                style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
-                className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
-              >
-                Last Out
-              </p>
-              <p
-                style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }}
-                className="font-semibold dark:text-white"
-              >
-                {formatTime(
+          )}
+
+          {/* Figures: one row, worked time leads */}
+          <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-4">
+            {[
+              { label: "First in", value: formatTime(data?.attendance?.check_in_time) },
+              {
+                label: "Last out",
+                value: formatTime(
                   data?.attendance?.last_out ||
                   data?.attendance?.check_out_time ||
                   data?.last_out ||
                   timelineData?.last_out
+                ),
+              },
+              { label: "Total break", value: breakDurationStr },
+            ].map((item) => (
+              <div key={item.label} className="min-w-0">
+                <dt className="text-xs" style={{ color: "var(--portal-secondary-text, #52525B)" }}>{item.label}</dt>
+                <dd className="mt-1 font-mono text-base font-medium dark:text-white" style={{ color: "var(--portal-dark-text, #18181B)" }}>{item.value}</dd>
+              </div>
+            ))}
+            <div className="min-w-0">
+              <dt className="text-xs flex items-center gap-1.5" style={{ color: "var(--portal-secondary-text, #52525B)" }}>
+                Worked time
+                {data?.status === "Checked In" && (
+                  <span aria-label="Live" className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--portal-primary-color, #00806E)" }} />
                 )}
-              </p>
-            </div>
-            {/* Total Break */}
-            <div className="stat-tile stat-break bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
-              <p
-                style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
-                className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
-              >
-                Total Break
-              </p>
-              <p
-                style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }}
-                className="font-semibold dark:text-white"
-              >
-                {breakDurationStr}
-              </p>
-            </div>
-            {/* Worked Time */}
-            <div className="stat-tile stat-work bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
-              <p
-                style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
-                className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
-              >
-                Worked Time
-              </p>
-              <p
-                style={{ fontSize: "15px", lineHeight: "22px" }}
-                className="font-semibold text-cyan-600 dark:text-cyan-300 font-mono tracking-tight"
-              >
+              </dt>
+              <dd className="mt-1 font-mono text-xl font-medium dark:text-white" style={{ color: "var(--portal-dark-text, #18181B)" }}>
                 {formatDuration(elapsedSeconds)}
-              </p>
+              </dd>
             </div>
-          </div>
+          </dl>
         </div>
       </div>
 

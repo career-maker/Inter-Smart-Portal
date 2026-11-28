@@ -192,7 +192,7 @@ export function MilestoneCelebrationsWidget({
           {activeTab === "joined" && "Joined Recently"}
         </h4>
 
-        {/* Content Row: Cards on left/middle, Gift illustration on right */}
+        {/* Content row: celebrant cards */}
         <div className="flex items-center justify-between gap-4">
           {/* Left / Middle: Celebrant Cards List */}
           <div className="flex-1 min-w-0">
@@ -362,82 +362,6 @@ export function MilestoneCelebrationsWidget({
             )}
           </div>
 
-          {/* Right: Pastel 3D Gift Boxes SVG Illustration (Matching Screenshot) */}
-          <div className="hidden sm:flex shrink-0 w-32 md:w-36 h-28 md:h-32 items-center justify-center pointer-events-none select-none">
-            <svg
-              viewBox="0 0 140 120"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-full h-full drop-shadow-2xs"
-            >
-              {/* Soft ground shadow ellipse */}
-              <ellipse cx="78" cy="104" rx="52" ry="7" fill="#EEF2FF" className="dark:fill-slate-700/40" />
-
-              {/* Confetti floating elements */}
-              {/* Yellow slashes & dots */}
-              <path d="M115 48L120 42" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" />
-              <circle cx="128" cy="68" r="1.5" fill="#FBBF24" />
-              <path d="M42 52L46 47" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
-
-              {/* Blue slash & dots */}
-              <path d="M124 56L130 52" stroke="#60A5FA" strokeWidth="2.5" strokeLinecap="round" />
-              <circle cx="106" cy="38" r="2" fill="#60A5FA" />
-              <circle cx="34" cy="62" r="1.5" fill="#60A5FA" />
-
-              {/* Pink dot */}
-              <circle cx="38" cy="72" r="2" fill="#F43F5E" />
-
-              {/* --- TALL PURPLE GIFT BOX (BACK) --- */}
-              <g>
-                {/* Box body */}
-                <rect x="68" y="52" width="46" height="48" rx="4" fill="#C4B5FD" />
-                {/* Box lid */}
-                <rect x="65" y="48" width="52" height="9" rx="3" fill="#A78BFA" />
-
-                {/* Box Vertical Ribbon */}
-                <rect x="87" y="48" width="8" height="52" fill="#DDD6FE" />
-
-                {/* Bow Loops on Top */}
-                {/* Left bow loop */}
-                <path
-                  d="M91 48C84 41 74 38 78 33C82 28 90 39 91 48Z"
-                  fill="#8B5CF6"
-                />
-                {/* Right bow loop */}
-                <path
-                  d="M91 48C98 41 108 38 104 33C100 28 92 39 91 48Z"
-                  fill="#8B5CF6"
-                />
-                {/* Bow center knot */}
-                <ellipse cx="91" cy="46" rx="3.5" ry="3" fill="#7C3AED" />
-              </g>
-
-              {/* --- SMALL PINK GIFT BOX (FRONT LEFT) --- */}
-              <g>
-                {/* Box body */}
-                <rect x="42" y="70" width="36" height="34" rx="3" fill="#FECDD3" />
-                {/* Box lid */}
-                <rect x="40" y="67" width="40" height="7" rx="2.5" fill="#FDA4AF" />
-
-                {/* Box Vertical Ribbon */}
-                <rect x="56" y="67" width="7" height="37" fill="#F43F5E" />
-
-                {/* Bow Loops on Pink Box */}
-                {/* Left loop */}
-                <path
-                  d="M59 67C54 62 47 60 49 55C52 51 58 60 59 67Z"
-                  fill="#F43F5E"
-                />
-                {/* Right loop */}
-                <path
-                  d="M60 67C65 62 72 60 70 55C67 51 61 60 60 67Z"
-                  fill="#F43F5E"
-                />
-                {/* Center knot */}
-                <circle cx="59.5" cy="66" r="2.5" fill="#E11D48" />
-              </g>
-            </svg>
-          </div>
         </div>
       </div>
     </div>

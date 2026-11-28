@@ -492,14 +492,7 @@ html[data-ui-theme="recent"] :is(main, [role="dialog"]) div:is([class^="bg-red-"
 }
 html[data-ui-theme="recent"] :is(main, [role="dialog"]) div:is([class^="bg-red-"], [class*=" bg-red-"], [class^="bg-orange-"], [class*=" bg-orange-"], [class^="bg-amber-"], [class*=" bg-amber-"], [class^="bg-yellow-"], [class*=" bg-yellow-"], [class^="bg-lime-"], [class*=" bg-lime-"], [class^="bg-green-"], [class*=" bg-green-"], [class^="bg-emerald-"], [class*=" bg-emerald-"], [class^="bg-teal-"], [class*=" bg-teal-"], [class^="bg-cyan-"], [class*=" bg-cyan-"], [class^="bg-sky-"], [class*=" bg-sky-"], [class^="bg-blue-"], [class*=" bg-blue-"], [class^="bg-indigo-"], [class*=" bg-indigo-"], [class^="bg-violet-"], [class*=" bg-violet-"], [class^="bg-purple-"], [class*=" bg-purple-"], [class^="bg-fuchsia-"], [class*=" bg-fuchsia-"], [class^="bg-pink-"], [class*=" bg-pink-"], [class^="bg-rose-"], [class*=" bg-rose-"]):not(.stat-tile, .bday-card, [class~="w-0.5"], [class~="w-1"], [class~="w-1.5"], [class~="w-2"], [class~="w-2.5"], [class~="w-3"], [class~="h-0.5"], [class~="h-1"], [class~="h-1.5"], [class~="h-2"], [class~="h-2.5"], [class~="h-3"]) > svg { color: var(--r-ink) !important; }
 
-/* ── Always on: tinted attendance tiles and per-person birthday hovers (all themes) ── */
-.stat-tile { transition: transform .2s ease, box-shadow .2s ease; }
-.stat-tile:hover { transform: translateY(-2px); }
-main .stat-tile.stat-in    { background-color: rgba(16, 185, 129, 0.16) !important; border-color: rgba(16, 185, 129, 0.35) !important; }
-main .stat-tile.stat-out   { background-color: rgba(244, 63, 94, 0.14) !important;  border-color: rgba(244, 63, 94, 0.32) !important; }
-main .stat-tile.stat-break { background-color: rgba(245, 158, 11, 0.17) !important; border-color: rgba(245, 158, 11, 0.38) !important; }
-main .stat-tile.stat-work  { background-color: rgba(6, 182, 212, 0.16) !important;  border-color: rgba(6, 182, 212, 0.35) !important; }
-
+/* ── Always on: per-person birthday hovers (all themes) ── */
 .bday-card { transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, background-color .25s ease; }
 main .bday-card.bday-card-0:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 24px -8px rgba(245, 158, 11, .45); background-color: rgba(254, 243, 199, .85) !important; }
 main .bday-card.bday-card-1:hover { transform: translateX(6px); box-shadow: 0 10px 22px -8px rgba(16, 185, 129, .45); background-color: rgba(209, 250, 229, .85) !important; }
