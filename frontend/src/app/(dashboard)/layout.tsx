@@ -11,7 +11,7 @@ import {
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle, Download,
   Users, ShieldCheck, PanelLeftClose, PanelLeftOpen, Wallet, TrendingUp, ClipboardList, Layers,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
-  Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote, MessageSquare, Volume2, VolumeX
+  Search, Command, Bell, Settings, Puzzle, Laptop, StickyNote, MessageSquare, Volume2, VolumeX
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import DoubleClickGuard from "@/components/layout/DoubleClickGuard";
@@ -1187,15 +1187,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <button
                   type="button"
                   onClick={() => setSearchModalOpen((prev) => !prev)}
-                  className="portal-search-input-btn w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
+                  className="portal-search-input-btn w-full bg-white hover:bg-slate-50 transition-colors rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Search className="w-4 h-4 text-purple-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <Search className="w-4 h-4 text-slate-500 shrink-0" aria-hidden="true" />
                     <span className="text-slate-400 font-normal truncate">
-                      Search any command or help
+                      Search
                     </span>
                   </div>
-                  <kbd className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2.5 py-0.5 rounded-full border border-slate-200 shrink-0 ml-2 shadow-inner">
+                  <kbd className="portal-keycap shrink-0 ml-2">
                     Alt + K
                   </kbd>
                 </button>
@@ -1221,9 +1221,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   onClick={() => setSearchModalOpen(true)}
                   style={{ color: "var(--portal-header-text, #ffffff)" }}
                   className="header-action-btn p-2 rounded-full hover:bg-white/15 hidden md:flex transition-colors cursor-pointer shrink-0"
-                  title="Quick Launch"
+                  title="Quick launch"
+                  aria-label="Quick launch"
                 >
-                  <Rocket className="w-5 h-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
+                  <Command className="w-5 h-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
                 </button>
 
                 {/* Bookmarks (Hidden on small mobile to prevent header overflow) */}
@@ -1242,7 +1243,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 >
                   <StickyNote className="w-5 h-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
                   {notesCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-white/20 text-white text-[9.5px] font-bold rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none border border-white/40 backdrop-blur-xs">
+                    <span className="portal-badge absolute -top-0.5 -right-0.5">
                       {notesCount > 99 ? '99+' : notesCount}
                     </span>
                   )}
@@ -1258,7 +1259,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 >
                   <MessageSquare className="w-5 h-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
                   {unreadChatCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-[#ef4444] text-white text-[9.5px] font-black rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none shadow-xs border border-white/60 animate-pulse">
+                    <span className="portal-badge absolute -top-0.5 -right-0.5">
                       {unreadChatCount > 99 ? "99+" : unreadChatCount}
                     </span>
                   )}
@@ -1353,7 +1354,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   >
                     <span className="py-2">{tab.label}</span>
                     {tab.badge && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block" />
                     )}
                     {/* Underline only — no background fill on active tab */}
                     {active && (

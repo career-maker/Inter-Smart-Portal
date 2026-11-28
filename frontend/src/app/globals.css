@@ -118,6 +118,46 @@
   --portal-dur-enter: 200ms;
 }
 
+/* One badge style for every count in the shell (notes, chat, notifications) */
+.portal-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: var(--portal-primary-color, #00806E);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--portal-header-bg, #FFFFFF);
+}
+.portal-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--portal-primary-color, #00806E);
+  box-shadow: 0 0 0 2px var(--portal-header-bg, #FFFFFF);
+}
+/* Keyboard shortcut keycap */
+.portal-keycap {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 6px;
+  border: 1px solid #E4E4E7;
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: #FAFAFA;
+  color: var(--portal-muted-text, #71717A);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+}
+
 /* Global Typography - Universal Font with Customization Fallback */
 @layer base {
   html, body, *, :root {

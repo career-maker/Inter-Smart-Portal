@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { MessageCircleQuestion } from "lucide-react";
 
 export default function ChatbaseLottieButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,7 +9,6 @@ export default function ChatbaseLottieButton() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isSidePopupOpen, setIsSidePopupOpen] = useState(false);
-  const dotLottieRef = useRef<any>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -130,8 +129,8 @@ export default function ChatbaseLottieButton() {
       const newY = e.clientY - dragOffset.y;
 
       // Keep button within viewport bounds with some padding
-      const maxX = window.innerWidth - 64 - 16; // button width + padding
-      const maxY = window.innerHeight - 64 - 16; // button height + padding
+      const maxX = window.innerWidth - 48 - 16; // button width + padding
+      const maxY = window.innerHeight - 48 - 16; // button height + padding
 
       const constrainedX = Math.max(16, Math.min(newX, maxX));
       const constrainedY = Math.max(16, Math.min(newY, maxY));
@@ -166,10 +165,6 @@ export default function ChatbaseLottieButton() {
         ref={buttonRef}
         onClick={handleToggle}
         onMouseDown={handleMouseDown}
-        onMouseEnter={() => dotLottieRef.current?.play()}
-        onMouseLeave={() => {
-          if (!isOpen) dotLottieRef.current?.pause();
-        }}
         aria-label="Open AI Assistant"
         title="Ask the Portal AI Assistant (drag to move)"
         style={{
@@ -177,33 +172,23 @@ export default function ChatbaseLottieButton() {
           left: `${position.x}px`,
           top: `${position.y}px`,
           zIndex: 99999,
-          width: "64px",
-          height: "64px",
+          width: "48px",
+          height: "48px",
           borderRadius: "50%",
-          border: "none",
-          background: "transparent",
+          border: "1px solid #E4E4E7",
+          background: isOpen ? "var(--portal-primary-color, #00806E)" : "#FFFFFF",
+          color: isOpen ? "#FFFFFF" : "var(--portal-secondary-text, #52525B)",
           cursor: isDragging ? "grabbing" : "grab",
           padding: 0,
           display: isSidePopupOpen ? "none" : "flex",
           alignItems: "center",
           justifyContent: "center",
-          filter: isOpen
-            ? "drop-shadow(0 0 14px rgba(139,92,246,0.9))"
-            : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))",
-          transform: isOpen ? "scale(1.12)" : "scale(1)",
-          transition: isDragging ? "none" : "transform 0.25s ease, filter 0.25s ease",
+          boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 4px 12px -4px rgba(0,0,0,0.12)",
+          transition: isDragging ? "none" : "background-color 120ms cubic-bezier(0.2, 0, 0, 1), color 120ms cubic-bezier(0.2, 0, 0, 1)",
           userSelect: "none",
         }}
       >
-        <DotLottieReact
-          dotLottieRefCallback={(ref) => {
-            dotLottieRef.current = ref;
-          }}
-          src="https://lottie.host/1f99bbee-848d-4ffe-b3c1-63c79cecccac/F4wgeiU3Y5.lottie"
-          loop
-          autoplay
-          style={{ width: "64px", height: "64px" }}
-        />
+        <MessageCircleQuestion aria-hidden="true" style={{ width: "20px", height: "20px" }} strokeWidth={1.5} />
       </button>
 
       {/* Hide on mobile devices AND whenever any side popup/drawer is open */}

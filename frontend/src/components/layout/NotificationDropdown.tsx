@@ -284,7 +284,7 @@ export function NotificationDropdown() {
       >
         <Bell className="h-5 w-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9.5px] font-bold rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none shadow-xs border border-white/40">
+          <span className="portal-badge absolute -top-0.5 -right-0.5">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}

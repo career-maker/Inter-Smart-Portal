@@ -217,24 +217,21 @@ html[data-ui-theme="minimal"] {
  */
 html[data-ui-theme="recent"] {
   --r-ink: #0B0B0B;
-  --r-muted: rgba(0, 0, 0, 0.486);
-  --r-faint: rgba(0, 0, 0, 0.267);
+  /* Text roles come from the Customization add-on (Secondary / Muted Text); 4.5:1 or better on white */
+  --r-muted: var(--portal-muted-text, #71717A);
+  --r-secondary: var(--portal-secondary-text, #52525B);
+  --r-faint: #A1A1AA; /* decorative only (chevrons), never body text */
   --r-chip: rgba(0, 0, 0, 0.063);
   --r-chip-hover: rgba(0, 0, 0, 0.09);
   --r-line: #ECECEC;
-  --r-accent: #F900A3;
+  /* One accent: selection, counts, the figure that matters. Customization: Primary colour */
+  --r-accent: var(--portal-primary-color, #00806E);
   --r-raised: 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 1px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.08);
 
-  --portal-font-family: "Inter", ui-sans-serif, system-ui, sans-serif !important;
   --portal-header-bg: #FFFFFF !important;
   --portal-header-text: #0B0B0B !important;
   --portal-sidebar-bg: #FFFFFF !important;
-  --portal-sidebar-active: #0B0B0B !important;
-  --portal-primary-color: #0B0B0B !important;
   --portal-sub-header-bg: #FFFFFF !important;
-  --portal-sub-header-active: #0B0B0B !important;
-  --primary: #0B0B0B !important;
-  --ring: #0B0B0B !important;
   --foreground: #0B0B0B !important;
   --background: #FFFFFF !important;
   --border: #ECECEC !important;
@@ -282,9 +279,8 @@ html[data-ui-theme="recent"] main :is(h1, h2, h3, .box-title) { color: var(--r-i
   display: flex;
   align-items: center;
   max-width: 100%;
-  min-height: 24px;
-  margin-block: -2px;
-  padding: 2px 14px 2px 0;
+  min-height: 28px;
+  padding: 4px 14px 4px 0;
   font-size: 13px;
   line-height: 1.4;
   color: var(--r-muted);
@@ -294,7 +290,7 @@ html[data-ui-theme="recent"] main :is(h1, h2, h3, .box-title) { color: var(--r-i
 #recent-sidebar .recent-nav-link:hover,
 #recent-sidebar .recent-nav-link[data-active="true"] { color: var(--r-ink); }
 #recent-sidebar .recent-nav-link:focus-visible { outline: 2px solid var(--r-ink); outline-offset: 2px; border-radius: 4px; }
-#recent-sidebar .recent-nav-dot { position: absolute; top: 0; bottom: 0; right: 0; width: 8px; height: 8px; margin-block: auto; border-radius: 9999px; background: var(--r-ink); }
+#recent-sidebar .recent-nav-dot { position: absolute; top: 0; bottom: 0; right: 0; width: 6px; height: 6px; margin-block: auto; border-radius: 9999px; background: var(--r-accent); }
 /* Hide the menu scrollbar: globals.css sets `* { scrollbar-width: thin }` unlayered, which beats Tailwind's layered class */
 #recent-sidebar nav { scrollbar-width: none; }
 #recent-sidebar nav::-webkit-scrollbar { display: none; }
@@ -388,9 +384,9 @@ html[data-ui-theme="recent"] main :is(.scrollbar-none, .no-scrollbar, [role="tab
   transition: background-color .12s cubic-bezier(.2, 0, 0, 1), color .12s cubic-bezier(.2, 0, 0, 1);
 }
 #recent-sidebar .recent-icon-btn:hover { background: var(--r-chip); color: var(--r-ink); }
-#recent-sidebar .recent-icon-btn[data-active="true"] { background: var(--r-ink); color: #FFFFFF; }
+#recent-sidebar .recent-icon-btn[data-active="true"] { background: var(--r-accent); color: #FFFFFF; }
 #recent-sidebar .recent-icon-btn:focus-visible { outline: 2px solid var(--r-ink); outline-offset: 2px; }
-#recent-sidebar .recent-nav-count { margin-inline-start: 8px; font-size: 12px; line-height: 1.4; color: var(--r-accent); }
+#recent-sidebar .recent-nav-count { margin-inline-start: 8px; font-size: 12px; line-height: 1.4; color: var(--r-accent); font-variant-numeric: tabular-nums; }
 
 /* Top header: white, black text and icons */
 html[data-ui-theme="recent"] #global-fixed-header-container { box-shadow: none !important; }
@@ -403,7 +399,7 @@ html[data-ui-theme="recent"] #portal-top-header .portal-search-input-btn {
   font-size: 13px;
 }
 html[data-ui-theme="recent"] #portal-top-header .portal-search-input-btn svg { color: var(--r-muted) !important; }
-html[data-ui-theme="recent"] #portal-top-header [class*="bg-white/20"] { background: var(--r-ink) !important; color: #fff !important; border-color: var(--r-ink) !important; }
+html[data-ui-theme="recent"] #portal-top-header .header-action-btn[aria-expanded="true"] { background-color: var(--r-chip-hover) !important; }
 
 /* Sub-header tabs: pill chips (grey idle, black active) */
 html[data-ui-theme="recent"] #sub-header-tabs-bar > div { gap: 8px !important; }
@@ -423,7 +419,7 @@ html[data-ui-theme="recent"] #sub-header-tabs-bar a {
 }
 html[data-ui-theme="recent"] #sub-header-tabs-bar a:hover { background-image: linear-gradient(var(--r-chip-hover), var(--r-chip-hover)) !important; color: var(--r-ink) !important; }
 html[data-ui-theme="recent"] #sub-header-tabs-bar a:active { transform: scale(.97); }
-html[data-ui-theme="recent"] #sub-header-tabs-bar a[data-subtab="active"] { background-image: linear-gradient(var(--r-ink), var(--r-ink)) !important; color: #FFFFFF !important; }
+html[data-ui-theme="recent"] #sub-header-tabs-bar a[data-subtab="active"] { background-image: linear-gradient(var(--r-accent), var(--r-accent)) !important; color: #FFFFFF !important; }
 /* One logo only: the expanded sidebar shows it on desktop; collapsed rail and phones show it in the header */
 @media (min-width: 768px) {
   html[data-ui-theme="recent"]:has(#recent-sidebar[data-collapsed="false"]) #portal-top-header a[href="/dashboard"]:has(> img) { display: none !important; }
@@ -444,7 +440,7 @@ html[data-ui-theme="recent"] main [role="tab"] {
   font-weight: 400;
 }
 html[data-ui-theme="recent"] main [role="tab"]:hover { background: var(--r-chip-hover) !important; color: var(--r-ink) !important; }
-html[data-ui-theme="recent"] main [role="tab"]:is([data-state="active"], [aria-selected="true"]) { background: var(--r-ink) !important; color: #FFFFFF !important; }
+html[data-ui-theme="recent"] main [role="tab"]:is([data-state="active"], [aria-selected="true"]) { background: var(--r-accent) !important; color: #FFFFFF !important; }
 
 /* Buttons: black pill primary, raised white secondary */
 html[data-ui-theme="recent"] main :is(button, a)[class*="bg-primary"] { border-radius: 9999px !important; background-color: var(--r-ink) !important; color: #fff !important; }
@@ -472,7 +468,7 @@ html[data-ui-theme="recent"] #mobile-nav-drawer .drawer-subitem-active { color: 
 html[data-ui-theme="recent"] #mobile-nav-drawer > div:nth-child(2) svg { display: none; }
 html[data-ui-theme="recent"] #mobile-nav-drawer > div:nth-child(2) .bg-amber-400 { background: transparent !important; color: var(--r-accent) !important; }
 html[data-ui-theme="recent"] #mobile-nav-drawer div:has(> .drawer-category-title) { text-transform: none; letter-spacing: 0; font-size: 13px; padding-inline: 12px; }
-html[data-ui-theme="recent"] #mobile-nav-drawer .drawer-category-title { color: var(--r-faint) !important; font-weight: 400 !important; }
+html[data-ui-theme="recent"] #mobile-nav-drawer .drawer-category-title { color: var(--r-secondary) !important; font-weight: 400 !important; }
 html[data-ui-theme="recent"] #mobile-nav-drawer .border-l { border-left: 0 !important; margin-left: 0 !important; }
 html[data-ui-theme="recent"] #mobile-nav-drawer > div:last-child .text-sm { color: var(--r-ink) !important; font-weight: 500 !important; }
 html[data-ui-theme="recent"] #mobile-nav-drawer > div:last-child .text-xs { color: var(--r-muted) !important; }

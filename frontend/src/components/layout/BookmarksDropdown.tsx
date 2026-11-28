@@ -127,9 +127,10 @@ export function BookmarksDropdown() {
         aria-label="Bookmarks"
         title="Quick Bookmarks & Favorites"
         style={{ color: "var(--portal-header-text, #ffffff)" }}
-        className={`header-action-btn p-2 rounded-full hover:bg-white/15 transition-all relative cursor-pointer ${
-          isOpen ? "bg-white/20" : ""
+        className={`header-action-btn p-2 rounded-full hover:bg-white/15 transition-colors relative cursor-pointer ${
+          isOpen ? "bg-white/15" : ""
         }`}
+        aria-expanded={isOpen}
       >
         {favorites.length > 0 ? (
           <Bookmark className="w-5 h-5 portal-header-icon fill-white/30" style={{ color: "var(--portal-header-text, #ffffff)" }} />
@@ -137,7 +138,7 @@ export function BookmarksDropdown() {
           <Bookmark className="w-5 h-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
         )}
         {favorites.length > 0 && (
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-[#56348f]" />
+          <span aria-hidden="true" className="portal-badge-dot absolute top-1.5 right-1.5" />
         )}
       </button>
 
