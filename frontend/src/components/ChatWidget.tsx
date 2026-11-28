@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, Send, AlertCircle, RotateCcw, Clock, CheckCircle2, Palmtree, BarChart3, Users, FolderOpen } from "lucide-react";
+import { X, Send, AlertCircle, RotateCcw, Clock, CheckCircle2, Palmtree, BarChart3, Users, FolderOpen, MessageCircleQuestion } from "lucide-react";
 
 const QUICK_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { Palmtree, BarChart3, Users, FolderOpen };
 import api from "@/services/api";
@@ -317,17 +317,10 @@ export default function ChatWidget() {
           data-chat-launcher="true"
           onClick={() => setIsOpen(true)}
           aria-label="Toggle Portal AI Assistant"
-          className="fixed bottom-11 right-3 md:bottom-6 md:right-6 z-40 flex items-center justify-center w-14 h-14 bg-transparent border-0 p-0 hover:scale-110 active:scale-95 transition-all cursor-pointer select-none"
+          className="fixed bottom-11 right-3 md:bottom-6 md:right-6 z-40 flex items-center justify-center w-12 h-12 rounded-full bg-white border border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 active:scale-95 shadow-[0_1px_2px_rgba(0,0,0,0.06),0_4px_12px_-4px_rgba(0,0,0,0.12)] transition-colors cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--portal-primary-color)]"
           title="Portal AI Assistant"
         >
-          <div className="relative flex items-center justify-center w-full h-full">
-            <img
-              src="/chatbot.png"
-              alt="AI Assistant"
-              className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
-            />
-            <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm animate-pulse"></span>
-          </div>
+          <MessageCircleQuestion aria-hidden="true" className="w-5 h-5" strokeWidth={1.5} />
         </button>
       )}
 
@@ -435,7 +428,7 @@ export default function ChatWidget() {
                       <button
                         key={idx}
                         onClick={() => handleSend(q.text)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white hover:bg-purple-50 text-slate-700 hover:text-[var(--portal-primary-color)] border border-slate-200 hover:border-[var(--portal-primary-color)]/40 rounded-full transition-all shadow-xs active:scale-95 cursor-pointer text-left"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white hover:bg-purple-50 text-slate-700 hover:text-[var(--portal-primary-color)] border border-slate-200 hover:border-[var(--portal-primary-color)]/40 rounded-full transition shadow-xs active:scale-95 cursor-pointer text-left"
                       >
                         {(() => { const Icon = QUICK_ICONS[q.icon] || Palmtree; return <Icon className="w-4 h-4 shrink-0" />; })()}
                         <span>{q.text}</span>
@@ -467,7 +460,7 @@ export default function ChatWidget() {
               {/* Quota limit error message or general error */}
               {quotaError ? (
                 <div
-                  className={`p-4 rounded-2xl border transition-all duration-300 animate-in fade-in ${
+                  className={`p-4 rounded-2xl border transition duration-300 animate-in fade-in ${
                     countdown === 0
                       ? "bg-emerald-50/90 border-emerald-200 text-emerald-900"
                       : "bg-amber-50/90 border-amber-200 text-amber-900"
@@ -559,12 +552,12 @@ export default function ChatWidget() {
                       : "Ask about leaves, projects, leads, attendance..."
                   }
                   disabled={isLoading}
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[var(--portal-primary-color)] focus:ring-1 focus:ring-[var(--portal-primary-color)] transition-all disabled:opacity-50"
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[var(--portal-primary-color)] focus:ring-1 focus:ring-[var(--portal-primary-color)] transition disabled:opacity-50"
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !inputValue.trim() || (countdown !== null && countdown > 0)}
-                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white transition-all disabled:opacity-40 disabled:hover:bg-[var(--portal-primary-color)] select-none active:scale-95 shrink-0 cursor-pointer shadow-sm font-medium"
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] text-white transition disabled:opacity-40 disabled:hover:bg-[var(--portal-primary-color)] select-none active:scale-95 shrink-0 cursor-pointer shadow-sm font-medium"
                 >
                   <Send className="w-4 h-4" />
                 </button>

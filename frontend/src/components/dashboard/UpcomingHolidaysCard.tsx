@@ -292,7 +292,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                     type="button"
                     onClick={() => setCurrentIndex(i)}
                     aria-label={`Go to holiday ${i + 1}`}
-                    className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                    className={`h-1.5 rounded-full transition cursor-pointer ${
                       i === safeIndex
                         ? `w-4 ${hasImg ? "bg-white" : "bg-[var(--portal-primary-color)] dark:bg-purple-400"}`
                         : `w-1.5 ${hasImg ? "bg-white/50 hover:bg-white/80" : "bg-slate-300 dark:bg-slate-700 hover:bg-slate-400"}`

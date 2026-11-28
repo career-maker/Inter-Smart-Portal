@@ -338,10 +338,7 @@ export default function DashboardPage() {
       ───────────────────────────────────────────────────────────────────────────── */}
       <div
         id="welcome-hero-banner"
-        className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
-          bg-[#060c18]
-          border border-[#1c3a63]/70
-          shadow-none"
+        className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition duration-300 bg-[#060c18] border border-[#1c3a63]/70 shadow-none"
       >
         {/* Video Banner Background */}
         {isBannerVideo && (
@@ -363,9 +360,7 @@ export default function DashboardPage() {
             </video>
             {/* Balanced translucent dark overlay for contrast while keeping looping video visible */}
             <div
-              className="absolute inset-0 pointer-events-none z-[1]
-                bg-[linear-gradient(to_bottom,rgba(6,12,24,0.78)_0%,rgba(6,12,24,0.52)_50%,rgba(6,12,24,0.80)_100%)]
-                lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.80)_0%,rgba(6,12,24,0.55)_45%,rgba(6,12,24,0.75)_100%)]"
+              className="absolute inset-0 pointer-events-none z-[1] bg-[linear-gradient(to_bottom,rgba(6,12,24,0.78)_0%,rgba(6,12,24,0.52)_50%,rgba(6,12,24,0.80)_100%)] lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.80)_0%,rgba(6,12,24,0.55)_45%,rgba(6,12,24,0.75)_100%)]"
             />
           </>
         )}
@@ -1314,33 +1309,24 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
   ];
 
   return (
-    <div className="gt-card w-full lg:w-auto rounded-[22px] p-3.5 sm:p-4.5 transition-all duration-300 backdrop-blur-md relative overflow-hidden
-      bg-gradient-to-b from-[#0b1220]/97 via-[#070d18]/97 to-[#070d18]/97
-      border border-white/10
-      shadow-[0_12px_35px_rgba(0,0,0,0.6)]"
+    <div className="gt-card w-full lg:w-auto rounded-[22px] p-3.5 sm:p-4.5 transition duration-300 backdrop-blur-md relative overflow-hidden bg-[#0b1220]/90 border border-white/10"
     >
-      {/* Warm Golden Ambient Glow (Top Right) */}
-      <div
-        className="absolute top-0 right-0 w-44 h-32 pointer-events-none opacity-20"
-        style={{ background: 'radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.28) 0%, rgba(254, 243, 199, 0.1) 50%, transparent 80%)' }}
-        aria-hidden
-      />
 
       {/* Top Header */}
       <div className="flex items-center justify-between gap-2 sm:gap-4 mb-3 sm:mb-3.5 relative z-10">
         {/* Left: Golden Badge + Title */}
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-          <div className="gt-badge w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#d97706] flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
-            <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white stroke-[2.2]" />
+          <div className="gt-badge w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 flex items-center justify-center text-white shrink-0">
+            <Users aria-hidden="true" className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" strokeWidth={1.5} />
           </div>
-          <h4 className="gt-title text-xs sm:text-[13px] font-semibold text-amber-400 leading-tight truncate">
-            GROWING TOGETHER
+          <h4 className="gt-title text-[13px] font-medium text-white leading-tight truncate">
+            Growing together
           </h4>
         </div>
 
         {/* Right: Ring / Gauge Icon */}
-        <div className="gt-ring w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-amber-500/40 flex items-center justify-center shrink-0 ml-1">
-          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+        <div className="gt-ring w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-white/20 flex items-center justify-center shrink-0 ml-1">
+          <svg aria-hidden="true" className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.75" />
             <line x1="12" y1="2.5" x2="12" y2="5" stroke="currentColor" strokeWidth="2" />
             <line x1="12" y1="12" x2="16.5" y2="7.5" stroke="currentColor" strokeWidth="2" />
@@ -1354,15 +1340,12 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
         {statBoxes.map((box, idx) => (
           <div
             key={idx}
-            className="gt-box rounded-xl py-1.5 sm:py-2.5 px-0.5 sm:px-2 flex flex-col items-center justify-center text-center min-w-0
-              bg-[#060a12]/80
-              border border-white/10
-              shadow-inner"
+            className="gt-box rounded-xl py-1.5 sm:py-2.5 px-0.5 sm:px-2 flex flex-col items-center justify-center text-center min-w-0 bg-[#060a12]/80 border border-white/10"
           >
-            <span className="gt-num text-sm sm:text-lg md:text-xl font-semibold leading-tight tracking-tight font-sans text-white">
+            <span className="gt-num font-mono text-sm sm:text-lg md:text-xl font-medium leading-tight text-white">
               {box.value}
             </span>
-            <span className="gt-lbl text-xs sm:text-xs font-semibold mt-1 sm:mt-1.5 leading-none text-slate-400">
+            <span className="gt-lbl text-xs mt-1 sm:mt-1.5 leading-none text-slate-300">
               {box.label}
             </span>
           </div>
@@ -1436,10 +1419,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       ───────────────────────────────────────────────────────────────────────────── */}
       <div
         id="welcome-hero-banner-admin"
-        className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
-          bg-[#060c18]
-          border border-[#1c3a63]/70
-          shadow-none"
+        className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition duration-300 bg-[#060c18] border border-[#1c3a63]/70 shadow-none"
       >
         {/* Video Banner Background */}
         {isBannerVideo && (
@@ -1461,9 +1441,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             </video>
             {/* Balanced translucent dark overlay for contrast while keeping looping video visible */}
             <div
-              className="absolute inset-0 pointer-events-none z-[1]
-                bg-[linear-gradient(to_bottom,rgba(6,12,24,0.78)_0%,rgba(6,12,24,0.52)_50%,rgba(6,12,24,0.80)_100%)]
-                lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.80)_0%,rgba(6,12,24,0.55)_45%,rgba(6,12,24,0.75)_100%)]"
+              className="absolute inset-0 pointer-events-none z-[1] bg-[linear-gradient(to_bottom,rgba(6,12,24,0.78)_0%,rgba(6,12,24,0.52)_50%,rgba(6,12,24,0.80)_100%)] lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.80)_0%,rgba(6,12,24,0.55)_45%,rgba(6,12,24,0.75)_100%)]"
             />
           </>
         )}
