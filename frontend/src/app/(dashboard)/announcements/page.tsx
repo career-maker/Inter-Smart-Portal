@@ -289,7 +289,7 @@ export default function AnnouncementsPage() {
             <span>/</span>
             <span className="text-slate-900 dark:text-white">Updates & Announcements</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5 mt-1">
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2.5 mt-1">
             <Megaphone className="w-6 h-6 text-[#56348f] dark:text-purple-400" />
             <span>Company Updates & Announcements</span>
           </h1>
@@ -311,7 +311,7 @@ export default function AnnouncementsPage() {
                 fontSize: "12px",
                 fontWeight: 600,
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition cursor-pointer"
             >
               <Plus className="w-4 h-4 !text-white" />
               <span className="!text-white">New Announcement</span>
@@ -339,7 +339,7 @@ export default function AnnouncementsPage() {
           <button
             type="button"
             onClick={() => setSelectedCategory("all")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
               selectedCategory === "all"
                 ? "bg-[#56348f] text-white border-[#56348f]"
                 : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
@@ -356,7 +356,7 @@ export default function AnnouncementsPage() {
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.name)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
                   isSelected
                     ? "bg-[#56348f] text-white border-[#56348f]"
                     : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
@@ -415,7 +415,7 @@ export default function AnnouncementsPage() {
             return (
               <div
                 key={ann.id}
-                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md"
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition duration-200 hover:shadow-md"
               >
                 {/* Author Info Header matching Community exact post layout */}
                 <div className="flex items-start justify-between px-5 pt-4 pb-2">
@@ -428,7 +428,7 @@ export default function AnnouncementsPage() {
                     />
                     <div className="min-w-0 space-y-0.5">
                       <p className="text-[14px] leading-tight text-slate-900 dark:text-white truncate flex flex-wrap items-center gap-1.5">
-                        <span className="font-bold text-slate-900 dark:text-white">
+                        <span className="font-semibold text-slate-900 dark:text-white">
                           <RoyalName name={authorName} userId={ann.author_id || ann.author?.id} />
                         </span>
                         <span className="text-slate-400 font-normal text-xs">
@@ -440,12 +440,12 @@ export default function AnnouncementsPage() {
                         <span>·</span>
                         <Globe className="w-3 h-3 text-slate-400" />
                         <span>·</span>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800">
                           <Tag className="w-3 h-3 text-purple-500" />
                           {ann.category}
                         </span>
                         {ann.is_pinned && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700 shadow-2xs">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700 shadow-2xs">
                             <Pin className="w-3 h-3 text-amber-600 fill-amber-500" />
                             Pinned Announcement
                           </span>
@@ -479,7 +479,7 @@ export default function AnnouncementsPage() {
 
                 {/* Announcement Title */}
                 <div className="px-5 pt-2 pb-1">
-                  <h2 className="text-[17px] font-bold leading-snug text-slate-900 dark:text-white">
+                  <h2 className="text-[17px] font-semibold leading-snug text-slate-900 dark:text-white">
                     {ann.title}
                   </h2>
                 </div>
@@ -498,7 +498,7 @@ export default function AnnouncementsPage() {
                       <img
                         src={getStorageUrl(ann.image_path)}
                         alt={ann.title}
-                        className="max-w-full w-auto h-auto max-h-[380px] object-contain rounded-xl block transition-all"
+                        className="max-w-full w-auto h-auto max-h-[380px] object-contain rounded-xl block transition"
                         loading="lazy"
                       />
                     </div>
@@ -513,7 +513,7 @@ export default function AnnouncementsPage() {
                       <span>Expires on: {formatDisplayDate(ann.expires_at)}</span>
                     </div>
                     {ann.scheduled_at && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                      <div className="flex items-center gap-1.5 text-xs text-slate-400">
                         <Calendar className="w-3 h-3" />
                         <span>Scheduled: {formatDisplayDate(ann.scheduled_at)}</span>
                       </div>
@@ -538,7 +538,7 @@ export default function AnnouncementsPage() {
           <div className="space-y-4 text-xs">
             {/* Title */}
             <div>
-              <Label className="font-bold text-slate-700 dark:text-slate-300">
+              <Label className="font-semibold text-slate-700 dark:text-slate-300">
                 Title <span className="text-rose-500">*</span>
               </Label>
               <Input
@@ -551,7 +551,7 @@ export default function AnnouncementsPage() {
 
             {/* Category */}
             <div>
-              <Label className="font-bold text-slate-700 dark:text-slate-300">
+              <Label className="font-semibold text-slate-700 dark:text-slate-300">
                 Category <span className="text-rose-500">*</span>
               </Label>
               {isAddingCategory ? (
@@ -618,7 +618,7 @@ export default function AnnouncementsPage() {
 
             {/* Content */}
             <div>
-              <Label className="font-bold text-slate-700 dark:text-slate-300">
+              <Label className="font-semibold text-slate-700 dark:text-slate-300">
                 Content <span className="text-rose-500">*</span>
               </Label>
               <Textarea
@@ -633,7 +633,7 @@ export default function AnnouncementsPage() {
             {/* Banner Image */}
             {!editTarget && (
               <div>
-                <Label className="font-bold text-slate-700 dark:text-slate-300">
+                <Label className="font-semibold text-slate-700 dark:text-slate-300">
                   Banner Image <span className="text-slate-400 font-normal">(optional)</span>
                 </Label>
                 <input
@@ -648,7 +648,7 @@ export default function AnnouncementsPage() {
             {/* Dates */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="font-bold text-slate-700 dark:text-slate-300">
+                <Label className="font-semibold text-slate-700 dark:text-slate-300">
                   Schedule For <span className="text-slate-400 font-normal">(optional)</span>
                 </Label>
                 <Input
@@ -659,7 +659,7 @@ export default function AnnouncementsPage() {
                 />
               </div>
               <div>
-                <Label className="font-bold text-slate-700 dark:text-slate-300">
+                <Label className="font-semibold text-slate-700 dark:text-slate-300">
                   Expires At <span className="text-slate-400 font-normal">(optional)</span>
                 </Label>
                 <Input
@@ -680,7 +680,7 @@ export default function AnnouncementsPage() {
                 onChange={(e) => setIsPinned(e.target.checked)}
                 className="w-4 h-4 rounded text-[#56348f] focus:ring-[#56348f] cursor-pointer"
               />
-              <Label htmlFor="pinned" className="cursor-pointer font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+              <Label htmlFor="pinned" className="cursor-pointer font-semibold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
                 <Pin className="h-3.5 w-3.5 text-amber-600 fill-amber-500" />
                 Pin this announcement to the top & flash ticker
               </Label>
@@ -713,7 +713,7 @@ export default function AnnouncementsPage() {
                 lineHeight: "20px",
                 fontWeight: 600,
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
             >
               {actionLoading && (
                 <Loader2 className="h-4 w-4 animate-spin !text-white" />

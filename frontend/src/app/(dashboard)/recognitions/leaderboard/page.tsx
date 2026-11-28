@@ -39,8 +39,8 @@ function StatCard({ label, value, icon: Icon, color }: { label: string; value: s
         <Icon className="w-6 h-6" />
       </div>
       <div className="min-w-0">
-        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{label}</p>
-        <p className="text-xl font-black text-slate-900 dark:text-white truncate">{value || "—"}</p>
+        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</p>
+        <p className="text-xl font-semibold text-slate-900 dark:text-white truncate">{value || "—"}</p>
       </div>
     </div>
   );
@@ -64,7 +64,7 @@ function TopPerformerBox({
       <div className="bg-white dark:bg-slate-800 border border-violet-200 dark:border-violet-500/30 rounded-xl p-5 flex flex-col items-center justify-center text-center shadow-xs">
         <div className="flex items-center gap-1.5 text-violet-600 dark:text-violet-400 mb-2">
           <Crown className="w-4 h-4" />
-          <span className="text-[11px] font-bold uppercase tracking-wider">TOP PERFORMER</span>
+          <span className="text-xs font-semibold">TOP PERFORMER</span>
         </div>
         <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">No Top Performer Yet</p>
       </div>
@@ -76,12 +76,12 @@ function TopPerformerBox({
   return (
     <div
       onClick={onClick}
-      className="bg-white dark:bg-slate-800 border-2 border-violet-400/60 dark:border-violet-500/40 rounded-xl p-4 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xs hover:shadow-md cursor-pointer hover:border-violet-500 transition-all duration-200"
+      className="bg-white dark:bg-slate-800 border-2 border-violet-400/60 dark:border-violet-500/40 rounded-xl p-4 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xs hover:shadow-md cursor-pointer hover:border-violet-500 transition duration-200"
     >
       {/* Top Header Badge */}
       <div className="flex items-center gap-1.5 text-violet-600 dark:text-violet-400 mb-2.5">
         <Crown className="w-4 h-4" />
-        <span className="text-[11px] font-bold uppercase tracking-wider">TOP PERFORMER</span>
+        <span className="text-xs font-semibold">TOP PERFORMER</span>
       </div>
 
       {/* Center Avatar with Laurels */}
@@ -100,7 +100,7 @@ function TopPerformerBox({
 
       {/* Name and Designation */}
       <div className="mt-2 min-w-0 w-full px-2">
-        <h4 className="text-sm font-bold truncate leading-tight text-slate-900 dark:text-slate-100">
+        <h4 className="text-sm font-semibold truncate leading-tight text-slate-900 dark:text-slate-100">
           <RoyalName name={name} isTopAwardee={true} />
         </h4>
         <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{roleText || "Employee"}</p>
@@ -112,27 +112,27 @@ function TopPerformerBox({
 function RankMedal({ rank }: { rank: number }) {
   if (rank === 1) {
     return (
-      <div className="w-9 h-9 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-yellow-500 flex items-center justify-center text-slate-950 font-black text-sm shadow-md shadow-amber-500/25 ring-2 ring-amber-300/50 shrink-0">
+      <div className="w-9 h-9 rounded-full bg-amber-300 flex items-center justify-center text-slate-950 font-semibold text-sm shadow-md shadow-amber-500/25 ring-2 ring-amber-300/50 shrink-0">
         1
       </div>
     );
   }
   if (rank === 2) {
     return (
-      <div className="w-9 h-9 rounded-full bg-gradient-to-b from-slate-200 via-slate-300 to-slate-400 flex items-center justify-center text-slate-950 font-black text-sm shadow-md shadow-slate-400/25 ring-2 ring-slate-300/50 shrink-0">
+      <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-950 font-semibold text-sm shadow-md shadow-slate-400/25 ring-2 ring-slate-300/50 shrink-0">
         2
       </div>
     );
   }
   if (rank === 3) {
     return (
-      <div className="w-9 h-9 rounded-full bg-gradient-to-b from-amber-600 via-amber-700 to-amber-800 flex items-center justify-center text-white font-black text-sm shadow-md shadow-amber-700/25 ring-2 ring-amber-600/50 shrink-0">
+      <div className="w-9 h-9 rounded-full bg-amber-600 flex items-center justify-center text-white font-semibold text-sm shadow-md shadow-amber-700/25 ring-2 ring-amber-600/50 shrink-0">
         3
       </div>
     );
   }
   return (
-    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold flex items-center justify-center text-xs shrink-0 border border-slate-200 dark:border-slate-700">
+    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold flex items-center justify-center text-xs shrink-0 border border-slate-200 dark:border-slate-700">
       {rank}
     </div>
   );
@@ -198,7 +198,7 @@ export default function RecognitionLeaderboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2.5 text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-semibold flex items-center gap-2.5 text-slate-900 dark:text-white">
             <Trophy className="w-7 h-7 text-amber-500" />
             Recognition Leaderboard
           </h1>
@@ -213,7 +213,7 @@ export default function RecognitionLeaderboardPage() {
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-5 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition cursor-pointer ${
                 tab === t
                   ? "bg-amber-500 text-white shadow-xs font-bold"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -272,7 +272,7 @@ export default function RecognitionLeaderboardPage() {
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                 HALL OF FAME
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -293,7 +293,7 @@ export default function RecognitionLeaderboardPage() {
             return (
               <div className="text-center py-16 px-4">
                 <Trophy className="w-12 h-12 text-amber-400/40 mx-auto mb-3" />
-                <p className="text-slate-800 dark:text-white font-bold text-base">No achievements recorded yet</p>
+                <p className="text-slate-800 dark:text-white font-semibold text-base">No achievements recorded yet</p>
                 <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                   {tab === "week"
                     ? "No awards have been issued for this week."
@@ -307,7 +307,7 @@ export default function RecognitionLeaderboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px] text-sm text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700/60 bg-slate-50/80 dark:bg-slate-900/40 text-xs uppercase font-bold text-slate-600 dark:text-slate-400 tracking-wider">
+                  <tr className="border-b border-slate-200 dark:border-slate-700/60 bg-slate-50/80 dark:bg-slate-900/40 text-xs font-semibold text-slate-600 dark:text-slate-400">
                     <th className="px-4 py-3.5 w-24">RANK</th>
                     <th className="px-4 py-3.5">EMPLOYEE</th>
                     <th className="px-4 py-3.5">DESIGNATION</th>
@@ -346,7 +346,7 @@ export default function RecognitionLeaderboardPage() {
                               className="w-10 h-10 rounded-full"
                             />
                             <div>
-                              <div className="font-bold text-sm leading-snug text-slate-900 dark:text-slate-100">
+                              <div className="font-semibold text-sm leading-snug text-slate-900 dark:text-slate-100">
                                 <RoyalName
                                   name={entry.name}
                                   userId={entry.user_id}
@@ -375,7 +375,7 @@ export default function RecognitionLeaderboardPage() {
 
                         {/* Total Awards */}
                         <td className="px-4 py-3.5 text-center">
-                          <div className="inline-flex items-center gap-1.5 font-bold text-amber-600 dark:text-amber-300 text-sm">
+                          <div className="inline-flex items-center gap-1.5 font-semibold text-amber-600 dark:text-amber-300 text-sm">
                             <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
                             <span>{entry.total_achievements}</span>
                           </div>
@@ -431,13 +431,13 @@ export default function RecognitionLeaderboardPage() {
                 />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-bold truncate text-slate-900 dark:text-white">
+                    <h3 className="text-xl font-semibold truncate text-slate-900 dark:text-white">
                       <RoyalName
                         name={employeeDetails?.name || "Employee Awards"}
                         userId={employeeDetails?.id}
                       />
                     </h3>
-                    <span className="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 text-xs font-bold flex items-center gap-1">
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 text-xs font-semibold flex items-center gap-1">
                       <Star className="w-3 h-3 fill-amber-400" />
                       {employeeAwards.length} Award{employeeAwards.length !== 1 ? "s" : ""}
                     </span>
@@ -467,7 +467,7 @@ export default function RecognitionLeaderboardPage() {
               ) : employeeAwards.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
                   <Trophy className="w-16 h-16 text-slate-300 dark:text-slate-600 mb-3" />
-                  <h4 className="text-base font-bold text-slate-800 dark:text-white">No awards on record</h4>
+                  <h4 className="text-base font-semibold text-slate-800 dark:text-white">No awards on record</h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">This employee has not received any recognition awards yet.</p>
                 </div>
               ) : (

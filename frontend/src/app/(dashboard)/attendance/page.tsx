@@ -115,7 +115,7 @@ export default function MyAttendancePage() {
   }, [personId, tab, date, month, rangeStart, rangeEnd]);
 
   const tabClass = (t: Tab) =>
-    `px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+    `px-3 py-1.5 rounded-lg transition cursor-pointer ${
       tab === t
         ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-bold"
         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -128,7 +128,7 @@ export default function MyAttendancePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
             <Clock aria-hidden="true" /> Attendance
           </h1>
           <p className="text-slate-600 dark:text-slate-300">
@@ -174,13 +174,13 @@ export default function MyAttendancePage() {
         </div>
 
         {tab === "date" && (
-          <label className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <label className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
             Date:
             <input type="date" value={date} max={today()} onChange={(e) => setDate(e.target.value)} className={inputClass} />
           </label>
         )}
         {tab === "month" && (
-          <label className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <label className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
             Month:
             <input
               type="month"

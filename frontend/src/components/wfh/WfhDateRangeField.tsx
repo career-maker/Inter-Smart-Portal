@@ -54,7 +54,7 @@ function Segment({
         active ? "portal-accent-tint" : "hover:bg-black/5"
       }`}
     >
-      <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-400">{caption}</span>
+      <span className="text-xs font-semibold text-slate-400">{caption}</span>
       <span className="text-sm font-semibold text-slate-800 sm:text-[15px] dark:text-slate-100">{value}</span>
     </button>
   );
@@ -190,7 +190,7 @@ export function WfhDateRangeField({ mode, start, end, onChange, invalid = false 
                   type="button"
                   onClick={() => switchTarget(t)}
                   aria-pressed={target === t}
-                  className={`rounded-lg py-1.5 text-xs font-bold transition-colors cursor-pointer ${
+                  className={`rounded-lg py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                     target === t ? "portal-accent-solid shadow-sm" : "portal-accent-text hover:brightness-90"
                   }`}
                 >
@@ -209,7 +209,7 @@ export function WfhDateRangeField({ mode, start, end, onChange, invalid = false 
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="text-sm font-bold text-slate-900 dark:text-white">{format(month, "MMMM yyyy")}</span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-white">{format(month, "MMMM yyyy")}</span>
             <button
               type="button"
               onClick={() => setMonth((m) => addMonths(m, 1))}
@@ -222,7 +222,7 @@ export function WfhDateRangeField({ mode, start, end, onChange, invalid = false 
 
           <div className="grid grid-cols-7 text-center">
             {WEEKDAYS.map((d, i) => (
-              <div key={i} className="py-1 text-[11px] font-bold text-slate-400">
+              <div key={i} className="py-1 text-xs font-semibold text-slate-400">
                 {d}
               </div>
             ))}

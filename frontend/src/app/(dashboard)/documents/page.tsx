@@ -121,14 +121,14 @@ export default function DocumentsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
             <FileText className="w-7 h-7 text-amber-400" /> Document Requests
           </h1>
           <p className="text-slate-600 dark:text-slate-300 mt-1">Request official documents from HR.</p>
         </div>
         <button
           onClick={() => setShowRequestDialog(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-xl transition-colors"
         >
           <Plus className="h-4 w-4" /> Request Document
         </button>
@@ -177,11 +177,11 @@ export default function DocumentsPage() {
                       <td className="px-5 py-4 text-slate-500 dark:text-slate-400 text-xs">{fmtDate(req.created_at)}</td>
                       <td className="px-5 py-4">
                         {req.status === "Uploaded" ? (
-                          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400">
                             <CheckCircle className="h-3 w-3" /> Fulfilled
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
                             <Clock className="h-3 w-3" /> Pending
                           </span>
                         )}
@@ -240,12 +240,12 @@ export default function DocumentsPage() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowRequestDialog(false)} />
           <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-md shadow-2xl z-10">
             <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Request a Document</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Request a Document</h2>
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Select the document type you need from HR.</p>
             </div>
             <div className="px-6 py-5 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
                   Document Type *
                 </label>
                 <SelectCompat
@@ -261,7 +261,7 @@ export default function DocumentsPage() {
               </div>
               {docType === "Custom Request" && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
                     Subject *
                   </label>
                   <input
@@ -274,7 +274,7 @@ export default function DocumentsPage() {
                 </div>
               )}
               <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
                   Additional Notes <span className="text-slate-500 normal-case font-normal">(optional)</span>
                 </label>
                 <textarea
@@ -293,7 +293,7 @@ export default function DocumentsPage() {
               <button
                 onClick={submitRequest}
                 disabled={actionLoading || !docType || (docType === "Custom Request" && !subject)}
-                className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50"
               >
                 {actionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                 Submit Request
@@ -309,7 +309,7 @@ export default function DocumentsPage() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowUploadDialog(null)} />
           <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-md shadow-2xl z-10">
             <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Fulfill Document Request</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Fulfill Document Request</h2>
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
                 For: <span className="text-slate-900 dark:text-white font-medium">{showUploadDialog?.subject}</span>
               </p>
@@ -319,13 +319,13 @@ export default function DocumentsPage() {
               <div className="flex rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden bg-slate-700/50 p-1 gap-1">
                 <button
                   onClick={() => setFulfillMode("file")}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition-all ${fulfillMode === "file" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition ${fulfillMode === "file" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
                 >
                   <Upload className="w-4 h-4" /> Upload File
                 </button>
                 <button
                   onClick={() => setFulfillMode("url")}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition-all ${fulfillMode === "url" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition ${fulfillMode === "url" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
                 >
                   <Link2 className="w-4 h-4" /> Share URL
                 </button>
@@ -333,20 +333,20 @@ export default function DocumentsPage() {
 
               {fulfillMode === "file" ? (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
                     Document File *
                   </label>
                   <input
                     ref={uploadFileRef}
                     type="file"
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    className="w-full text-sm text-slate-600 dark:text-slate-300 bg-slate-700 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2.5 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-white hover:file:bg-amber-600 cursor-pointer"
+                    className="w-full text-sm text-slate-600 dark:text-slate-300 bg-slate-700 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2.5 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-white hover:file:bg-amber-600 cursor-pointer"
                   />
                   <p className="text-xs text-slate-500 mt-1.5">PDF, DOC, DOCX, JPG, PNG — max 10 MB</p>
                 </div>
               ) : (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
                     Document URL *
                   </label>
                   <input
@@ -361,7 +361,7 @@ export default function DocumentsPage() {
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
                   Comments <span className="text-slate-500 normal-case font-normal">(optional)</span>
                 </label>
                 <textarea
@@ -380,7 +380,7 @@ export default function DocumentsPage() {
               <button
                 onClick={fulfillDocument}
                 disabled={actionLoading}
-                className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50"
               >
                 {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (fulfillMode === "file" ? <Upload className="w-4 h-4" /> : <Link2 className="w-4 h-4" />)}
                 {fulfillMode === "file" ? "Upload & Fulfill" : "Save URL & Fulfill"}

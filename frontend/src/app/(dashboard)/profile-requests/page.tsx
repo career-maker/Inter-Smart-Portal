@@ -62,7 +62,7 @@ export default function ProfileRequestsPage() {
           <ClipboardEdit className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Profile Edit Approvals</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Profile Edit Approvals</h1>
           <p className="text-slate-600 dark:text-slate-300">Review and approve employee profile updates.</p>
         </div>
       </div>
@@ -71,7 +71,7 @@ export default function ProfileRequestsPage() {
         <Card className="shadow-sm border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <CheckCircle className="h-12 w-12 text-gray-300 mb-4" />
-            <p className="text-lg font-medium text-gray-900">All caught up!</p>
+            <p className="text-lg font-medium text-gray-900">All caught up</p>
             <p>No pending profile update requests.</p>
           </CardContent>
         </Card>
@@ -98,7 +98,7 @@ export default function ProfileRequestsPage() {
                 </div>
               </CardHeader>
               <CardContent className="pt-4">
-                <h4 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Requested Changes</h4>
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">Requested Changes</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6 mb-6">
                   {Object.entries(req.requested_data).map(([key, val]) => (
                     <div key={key} className="bg-white/5 p-3 rounded-lg border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300">

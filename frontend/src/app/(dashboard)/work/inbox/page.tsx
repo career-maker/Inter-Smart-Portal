@@ -24,7 +24,7 @@ export default function InboxPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"><Inbox className="h-7 w-7 text-amber-500" /> My inbox</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"><Inbox className="h-7 w-7 text-amber-500" /> My inbox</h1>
         <p className="text-slate-600 dark:text-slate-300">Late work comes first. Open a project to start, update or finish a task.</p>
       </div>
 

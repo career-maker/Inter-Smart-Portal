@@ -130,7 +130,7 @@ export default function ManageLeavesPage() {
       await api.delete(endpoint);
 
       // Show success message
-      setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} deleted successfully and balance restored!`);
+      setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} deleted successfully and balance restored`);
 
       // Refetch BOTH tabs to ensure consistency across all tabs
       await refreshBothTabs();
@@ -149,7 +149,7 @@ export default function ManageLeavesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Manage Approved Leaves & WFH</h1>
+        <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Manage Approved Leaves & WFH</h1>
         <p className="text-gray-400 mt-1">View and delete approved leaves/WFH requests. Deleting will restore leave balance.</p>
       </div>
 

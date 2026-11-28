@@ -107,7 +107,7 @@ export default function TAStatusPage() {
   const getStatusBadge = (status: string, isPaid: boolean) => {
     if (isPaid) {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
           <CheckCircle2 className="w-3.5 h-3.5" />
           Paid & Settled
         </span>
@@ -117,21 +117,21 @@ export default function TAStatusPage() {
     switch (status) {
       case "Approved":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
             <CheckCircle2 className="w-3.5 h-3.5" />
             Approved (Pending Payment)
           </span>
         );
       case "Rejected":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
             <XCircle className="w-3.5 h-3.5" />
             Rejected
           </span>
         );
       case "Cancelled":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
             <XCircle className="w-3.5 h-3.5" />
             Cancelled
           </span>
@@ -139,7 +139,7 @@ export default function TAStatusPage() {
       case "Applied":
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
             <Clock className="w-3.5 h-3.5" />
             Pending Approval
           </span>
@@ -184,7 +184,7 @@ export default function TAStatusPage() {
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
             Travel Allowance Status
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -198,7 +198,7 @@ export default function TAStatusPage() {
             backgroundColor: "#56348f",
             color: "rgb(255, 255, 255)",
           }}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] font-bold !text-white text-xs sm:text-sm shadow-md shadow-purple-900/20 transition-all hover:scale-[1.02] cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] font-semibold !text-white text-xs sm:text-sm shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4 !text-white" />
           <span>New TA Request</span>
@@ -211,7 +211,7 @@ export default function TAStatusPage() {
           <button
             key={option.value}
             onClick={() => setFilter(option.value)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
               filter === option.value
                 ? "bg-[#56348f] text-white shadow-sm"
                 : "bg-white dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/80"
@@ -231,7 +231,7 @@ export default function TAStatusPage() {
       ) : requests.length === 0 ? (
         <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
           <Receipt className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
+          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">
             No travel allowance claims found
           </h3>
           <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-sm mx-auto">
@@ -239,7 +239,7 @@ export default function TAStatusPage() {
           </p>
           <button
             onClick={() => setIsApplyDrawerOpen(true)}
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
+            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Apply Now
@@ -256,7 +256,7 @@ export default function TAStatusPage() {
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2.5 flex-wrap">
-                    <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                    <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
                       {request.reason}
                     </h2>
                     {getStatusBadge(request.status, request.is_paid)}
@@ -285,17 +285,17 @@ export default function TAStatusPage() {
                 <div className="text-left sm:text-right shrink-0">
                   <span className="text-xs text-slate-400 block font-medium">Claim Amount</span>
                   <div className="flex sm:flex-col items-baseline sm:items-end gap-1.5 sm:gap-0">
-                    <span className="text-xl sm:text-2xl font-bold text-[#56348f] dark:text-purple-300">
+                    <span className="text-xl sm:text-2xl font-semibold text-[#56348f] dark:text-purple-300">
                       ₹{formatCurrency(request.approved_amount || request.total_amount)}
                     </span>
                     {request.approved_amount && Number(request.approved_amount) !== Number(request.total_amount) && (
-                      <span className="text-[11px] text-slate-400 line-through">
+                      <span className="text-xs text-slate-400 line-through">
                         Claimed: ₹{formatCurrency(request.total_amount)}
                       </span>
                     )}
                   </div>
                   {request.receipt_number && (
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-purple-50 dark:bg-purple-950/70 text-[#56348f] dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/60">
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-purple-50 dark:bg-purple-950/70 text-[#56348f] dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/60">
                       {request.receipt_number}
                     </span>
                   )}
@@ -304,7 +304,7 @@ export default function TAStatusPage() {
 
               {/* Expense Breakdown List */}
               <div className="p-3.5 bg-slate-50 dark:bg-slate-850/60 rounded-xl border border-slate-200/60 dark:border-slate-800 space-y-2">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                <span className="text-xs font-semibold text-slate-400 block">
                   Itemized Expenses
                 </span>
                 <div className="space-y-1.5">
@@ -326,7 +326,7 @@ export default function TAStatusPage() {
                             </span>
                           )}
                         </div>
-                        <span className="font-bold text-slate-900 dark:text-white">
+                        <span className="font-semibold text-slate-900 dark:text-white">
                           ₹{formatCurrency(item.amount)}
                         </span>
                       </div>
@@ -343,7 +343,7 @@ export default function TAStatusPage() {
                     <button
                       type="button"
                       onClick={() => setViewingVoucher(request)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-[#56348f] dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/60 font-bold border border-purple-200/80 dark:border-purple-800/60 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-[#56348f] dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/60 font-semibold border border-purple-200/80 dark:border-purple-800/60 transition-colors cursor-pointer"
                       title="View and Download Generated Official Bill Receipt Image"
                     >
                       <Receipt className="w-3.5 h-3.5" />
@@ -397,7 +397,7 @@ export default function TAStatusPage() {
                       type="button"
                       onClick={() => handleCancelRequest(request.id)}
                       disabled={cancellingId === request.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>{cancellingId === request.id ? "Cancelling…" : "Cancel Request"}</span>

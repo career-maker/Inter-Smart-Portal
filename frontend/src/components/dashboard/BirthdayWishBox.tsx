@@ -72,7 +72,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
     <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6 space-y-6">
       <div className="flex items-center gap-2">
         <Heart className="w-5 h-5 text-pink-400" />
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Birthday Wishes</h2>
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Birthday Wishes</h2>
         <span className="text-xs text-pink-600 dark:text-pink-300 ml-auto">
           {wishes.length} wishes
         </span>
@@ -89,7 +89,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
         </Button>
       ) : (
         <div className="bg-white border border-slate-200 grid grid-cols-6 gap-2 rounded-xl p-4 text-sm">
-          <h1 className="text-center text-slate-900 text-lg font-bold col-span-6">Send Birthday Wish</h1>
+          <h1 className="text-center text-slate-900 text-lg font-semibold col-span-6">Send Birthday Wish</h1>
 
           <form onSubmit={handleSubmitWish} className="col-span-6 space-y-3">
             {/* Textarea */}
@@ -134,7 +134,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
                       handleEmojiClick(emoji);
                       setShowEmojiPicker(false);
                     }}
-                    className="text-xl p-2 rounded hover:bg-slate-200 transition-all duration-150 active:scale-90 flex items-center justify-center"
+                    className="text-xl p-2 rounded hover:bg-slate-200 transition duration-150 active:scale-90 flex items-center justify-center"
                   >
                     {emoji}
                   </button>

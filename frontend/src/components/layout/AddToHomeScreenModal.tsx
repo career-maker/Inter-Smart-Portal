@@ -126,7 +126,7 @@ export function AddToHomeScreenModal() {
         </div>
 
         {/* Centered Heading */}
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white text-center mb-6">
+        <h3 className="text-xl font-semibold text-slate-900 dark:text-white text-center mb-6">
           Add to Home Screen
         </h3>
 
@@ -135,42 +135,42 @@ export function AddToHomeScreenModal() {
           {isIOS ? (
             <>
               <li className="flex items-start">
-                <span className="text-[#f97316] font-bold mr-2 shrink-0">1.</span>
+                <span className="text-[#f97316] font-semibold mr-2 shrink-0">1.</span>
                 <span>
-                  Tap the <strong className="font-bold text-slate-900 dark:text-white">Share</strong> button in Safari&apos;s toolbar
+                  Tap the <strong className="font-semibold text-slate-900 dark:text-white">Share</strong> button in Safari&apos;s toolbar
                 </span>
               </li>
               <li className="flex items-start">
-                <span className="text-[#f97316] font-bold mr-2 shrink-0">2.</span>
+                <span className="text-[#f97316] font-semibold mr-2 shrink-0">2.</span>
                 <span>
-                  Scroll and tap <strong className="font-bold text-slate-900 dark:text-white">Add to Home Screen</strong>
+                  Scroll and tap <strong className="font-semibold text-slate-900 dark:text-white">Add to Home Screen</strong>
                 </span>
               </li>
               <li className="flex items-start">
-                <span className="text-[#f97316] font-bold mr-2 shrink-0">3.</span>
+                <span className="text-[#f97316] font-semibold mr-2 shrink-0">3.</span>
                 <span>
-                  Tap <strong className="font-bold text-slate-900 dark:text-white">Add</strong> to confirm
+                  Tap <strong className="font-semibold text-slate-900 dark:text-white">Add</strong> to confirm
                 </span>
               </li>
             </>
           ) : (
             <>
               <li className="flex items-start">
-                <span className="text-[#f97316] font-bold mr-2 shrink-0">1.</span>
+                <span className="text-[#f97316] font-semibold mr-2 shrink-0">1.</span>
                 <span>
-                  Tap the <strong className="font-bold text-slate-900 dark:text-white">Menu (⋮)</strong> in Chrome&apos;s toolbar
+                  Tap the <strong className="font-semibold text-slate-900 dark:text-white">Menu (⋮)</strong> in Chrome&apos;s toolbar
                 </span>
               </li>
               <li className="flex items-start">
-                <span className="text-[#f97316] font-bold mr-2 shrink-0">2.</span>
+                <span className="text-[#f97316] font-semibold mr-2 shrink-0">2.</span>
                 <span>
-                  Tap <strong className="font-bold text-slate-900 dark:text-white">Add to Home screen</strong> or <strong className="font-bold text-slate-900 dark:text-white">Install app</strong>
+                  Tap <strong className="font-semibold text-slate-900 dark:text-white">Add to Home screen</strong> or <strong className="font-semibold text-slate-900 dark:text-white">Install app</strong>
                 </span>
               </li>
               <li className="flex items-start">
-                <span className="text-[#f97316] font-bold mr-2 shrink-0">3.</span>
+                <span className="text-[#f97316] font-semibold mr-2 shrink-0">3.</span>
                 <span>
-                  Tap <strong className="font-bold text-slate-900 dark:text-white">Install</strong> to confirm
+                  Tap <strong className="font-semibold text-slate-900 dark:text-white">Install</strong> to confirm
                 </span>
               </li>
             </>
@@ -183,7 +183,7 @@ export function AddToHomeScreenModal() {
             <button
               type="button"
               onClick={handleNativeInstall}
-              className="w-full max-w-xs bg-[#f97316] hover:bg-orange-600 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 text-sm"
+              className="w-full max-w-xs bg-[#f97316] hover:bg-orange-600 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2 text-sm"
             >
               <Download className="w-4 h-4" />
               Install InterSmart App

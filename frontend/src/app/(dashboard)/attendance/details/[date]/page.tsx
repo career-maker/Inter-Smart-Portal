@@ -171,7 +171,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Attendance
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Attendance Details</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">Attendance Details</h1>
         <p className="text-slate-600 dark:text-slate-300">
           {data.employee && `${data.employee.first_name} ${data.employee.last_name} — `}
           {new Date(data.date).toLocaleDateString([], {
@@ -275,25 +275,25 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-200 dark:border-white/5">
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">First Punch In</p>
-                  <p className="text-xl font-bold text-emerald-400">
+                  <p className="text-xl font-semibold text-emerald-400">
                     {formatTime(data.first_in)}
                   </p>
                 </div>
                 <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-200 dark:border-white/5">
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Last Punch Out</p>
-                  <p className="text-xl font-bold text-rose-400">
+                  <p className="text-xl font-semibold text-rose-400">
                     {formatTime(data.last_out)}
                   </p>
                 </div>
                 <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-200 dark:border-white/5">
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Total Break</p>
-                  <p className="text-xl font-bold text-amber-400">
+                  <p className="text-xl font-semibold text-amber-400">
                     {formatMinutesToHours(data.total_completed_break_minutes)}
                   </p>
                 </div>
                 <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-200 dark:border-white/5">
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Effective Worked Time</p>
-                  <p className="text-xl font-bold text-blue-400">
+                  <p className="text-xl font-semibold text-blue-400">
                     {formatMinutesToHours(data.total_working_minutes)}
                   </p>
                 </div>
@@ -407,7 +407,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
                 <div key={idx} className="p-4 bg-slate-700/50 rounded border border-blue-500/20">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-blue-300">Session {idx + 1}</span>
-                    <span className="font-mono text-sm font-bold text-blue-400">
+                    <span className="font-mono text-sm font-semibold text-blue-400">
                       {formatMinutesToHours(session.minutes)}
                     </span>
                   </div>
@@ -449,7 +449,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
                 <div key={idx} className="p-4 bg-slate-700/50 rounded border border-amber-500/20">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-amber-300">Break {idx + 1}</span>
-                    <span className="font-mono text-sm font-bold text-amber-400">
+                    <span className="font-mono text-sm font-semibold text-amber-400">
                       {formatMinutesToHours(breakItem.minutes)}
                     </span>
                   </div>

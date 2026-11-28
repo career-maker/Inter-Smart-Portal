@@ -18,7 +18,7 @@ function Face({ item, on }: { item: RailItem; on: boolean }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="" referrerPolicy="no-referrer" loading="lazy" className={`h-10 w-10 rounded-full object-cover bg-slate-200`} />
       ) : (
-        <span style={{ ["--h" as any]: hue(item.key) }} className={`grid h-10 w-10 place-items-center rounded-full bg-[hsl(var(--h)_55%_42%)] text-sm font-bold text-white`}>{item.name[0]?.toUpperCase()}</span>
+        <span style={{ ["--h" as any]: hue(item.key) }} className={`grid h-10 w-10 place-items-center rounded-full bg-[hsl(var(--h)_55%_42%)] text-sm font-semibold text-white`}>{item.name[0]?.toUpperCase()}</span>
       )}
       {on && <span aria-hidden className="pointer-events-none absolute inset-0 rotate-[225deg] rounded-full border-[3px] border-transparent border-r-[#00806E] border-t-[#00806E]" />}
       {item.overdue > 0 && <span aria-hidden title="Overdue tasks" className="pointer-events-none absolute inset-0 rotate-45 rounded-full border-[3px] border-transparent border-r-rose-600 border-t-rose-600" />}
@@ -69,7 +69,7 @@ export function EmployeeRail({
                     <Face item={i} on={on} />
                     <span className="whitespace-nowrap pr-3">
                       <span className="block text-[13px] font-semibold leading-tight text-slate-900 dark:text-white">{i.name}</span>
-                      <span className="block text-[11px] leading-tight text-slate-500">{i.count} {i.count === 1 ? "task" : "tasks"}{i.overdue ? <span className="text-rose-600 font-semibold"> · {i.overdue} late</span> : null}</span>
+                      <span className="block text-xs leading-tight text-slate-500">{i.count} {i.count === 1 ? "task" : "tasks"}{i.overdue ? <span className="text-rose-600 font-semibold"> · {i.overdue} late</span> : null}</span>
                     </span>
                   </button>
                   {canMove && <ArrangeArrows label={i.name} className="pr-1 scale-75 origin-right" canBack={idx > 1} canFwd={idx < items.length} onMove={(d) => onMove!(i.key, d)} />}

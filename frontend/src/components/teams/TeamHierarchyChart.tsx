@@ -74,7 +74,7 @@ export function TeamHierarchyChart() {
     <div className="space-y-4">
       <div className="flex items-center gap-3 mb-6">
         <Building2 className="h-6 w-6 text-amber-400" />
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
           Department Hierarchy
         </h2>
       </div>
@@ -163,7 +163,7 @@ export function TeamHierarchyChart() {
                       <div className="flex-shrink-0">
                         {index === 0 && (
                           <div className="w-6 h-6 rounded-full bg-amber-400/20 border border-amber-400 flex items-center justify-center">
-                            <span className="text-xs font-bold text-amber-600">★</span>
+                            <span className="text-xs font-semibold text-amber-600">★</span>
                           </div>
                         )}
                         {index !== 0 && (
@@ -209,7 +209,7 @@ export function TeamHierarchyChart() {
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">
             Total Departments
           </p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+          <p className="text-2xl font-semibold text-slate-900 dark:text-white">
             {teams.length}
           </p>
         </div>
@@ -218,7 +218,7 @@ export function TeamHierarchyChart() {
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">
             Team Leads
           </p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+          <p className="text-2xl font-semibold text-slate-900 dark:text-white">
             {teams.filter((t) => t.team_lead).length}
           </p>
         </div>
@@ -227,7 +227,7 @@ export function TeamHierarchyChart() {
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">
             Total Members
           </p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+          <p className="text-2xl font-semibold text-slate-900 dark:text-white">
             {teams.reduce((sum, t) => sum + (t.members_count || 0), 0)}
           </p>
         </div>
@@ -236,7 +236,7 @@ export function TeamHierarchyChart() {
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">
             Avg Team Size
           </p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+          <p className="text-2xl font-semibold text-slate-900 dark:text-white">
             {teams.length > 0
               ? Math.round(
                   teams.reduce((sum, t) => sum + (t.members_count || 0), 0) /

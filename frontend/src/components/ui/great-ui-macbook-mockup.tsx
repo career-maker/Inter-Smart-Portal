@@ -180,7 +180,7 @@ const DEFAULT_MESSAGES: ChatMessage[] = [
     id: 1,
     sender: "Alex (Design Lead)",
     avatarInitial: "A",
-    text: "Hey team! 👋 The Whatsapp Macbook UI component is ready for Great UI!",
+    text: "Hey team! 👋 The Whatsapp Macbook UI component is ready for Great UI",
     isCurrentUser: false,
     timestamp: "10:41 AM",
   },
@@ -251,7 +251,7 @@ const SIDEBAR_CHATS: SidebarChatItem[] = [
     initial: "S",
     avatarUrl:
       "https://cdn.21st.dev/assets/mirror/9c/9ced1c5ef63093c20f8117d3e9608e51891415df51b82e616c5724ca7a11a197.jpg",
-    lastMsg: "Got the updated Figma file, thanks!",
+    lastMsg: "Got the updated Figma file, thanks",
     time: "9:40 AM",
   },
   {
@@ -375,7 +375,7 @@ export function MacbookMockup({
         <div className="relative isolate flex h-full w-full transform-gpu overflow-hidden rounded-t-[10px] bg-white text-neutral-900 transition-colors dark:bg-[#111b21] dark:text-neutral-100">
           <div className="flex w-[170px] shrink-0 flex-col bg-[#f0f2f5] transition-colors sm:w-[220px] md:w-[250px] dark:bg-[#111b21]">
             <div className="flex shrink-0 items-center justify-between bg-[#f0f2f5] px-3 py-2 dark:bg-[#202c33]">
-              <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-emerald-600 text-xs font-bold text-white dark:bg-emerald-700">
+              <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-emerald-600 text-xs font-semibold text-white dark:bg-emerald-700">
                 {userAvatarUrl ? (
                   <img
                     src={userAvatarUrl}
@@ -411,7 +411,7 @@ export function MacbookMockup({
             <div className="p-2">
               <div className="flex items-center gap-2 rounded-lg bg-white px-2.5 py-1 text-xs text-neutral-400 dark:bg-[#202c33]">
                 <SearchIcon className="h-3.5 w-3.5 shrink-0 text-neutral-500 dark:text-neutral-400" />
-                <span className="truncate text-[10.5px]">Search chat...</span>
+                <span className="truncate text-xs">Search chat...</span>
                 <FilterIcon className="ml-auto h-3 w-3 shrink-0 text-neutral-400" />
               </div>
             </div>
@@ -431,7 +431,7 @@ export function MacbookMockup({
                     <div className="absolute top-0 bottom-0 left-0 w-1 bg-[#00a884]" />
                   )}
 
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-700 text-xs font-bold text-white sm:h-8 sm:w-8 dark:bg-emerald-900">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-700 text-xs font-semibold text-white sm:h-8 sm:w-8 dark:bg-emerald-900">
                     {chat.avatarUrl ? (
                       <img
                         src={chat.avatarUrl}
@@ -445,20 +445,20 @@ export function MacbookMockup({
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="truncate text-[11px] font-semibold text-neutral-900 dark:text-neutral-100">
+                      <span className="truncate text-xs font-semibold text-neutral-900 dark:text-neutral-100">
                         {chat.name}
                       </span>
-                      <span className="shrink-0 text-[9px] text-neutral-400 dark:text-neutral-400">
+                      <span className="shrink-0 text-xs text-neutral-400 dark:text-neutral-400">
                         {chat.time}
                       </span>
                     </div>
-                    <p className="mt-0.5 truncate text-[10px] text-neutral-500 dark:text-neutral-400">
+                    <p className="mt-0.5 truncate text-xs text-neutral-500 dark:text-neutral-400">
                       {chat.lastMsg}
                     </p>
                   </div>
 
                   {chat.unreadCount && (
-                    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#00a884] text-[9px] font-bold text-white">
+                    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#00a884] text-xs font-semibold text-white">
                       {chat.unreadCount}
                     </span>
                   )}
@@ -470,7 +470,7 @@ export function MacbookMockup({
           <div className="relative flex min-w-0 flex-1 flex-col bg-[#efeae2] transition-colors dark:bg-[#0b141a]">
             <div className="z-10 flex shrink-0 items-center justify-between bg-[#f0f2f5] px-3.5 py-2 dark:bg-[#202c33]">
               <div className="flex min-w-0 items-center gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-700 text-xs font-bold text-white dark:bg-emerald-900">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-700 text-xs font-semibold text-white dark:bg-emerald-900">
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
@@ -485,7 +485,7 @@ export function MacbookMockup({
                   <span className="truncate text-xs leading-tight font-semibold text-neutral-900 dark:text-neutral-100">
                     {headerTitle}
                   </span>
-                  <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                     {headerSubtitle}
                   </span>
                 </div>
@@ -514,12 +514,12 @@ export function MacbookMockup({
                 </div>
               ) : (
                 <>
-                  <div className="mx-auto my-1 flex max-w-[90%] items-center justify-center gap-1 rounded-md bg-[#ffeebd] px-3 py-1 text-center text-[9.5px] text-amber-900 dark:bg-[#182229] dark:text-amber-200/80">
+                  <div className="mx-auto my-1 flex max-w-[90%] items-center justify-center gap-1 rounded-md bg-[#ffeebd] px-3 py-1 text-center text-xs text-amber-900 dark:bg-[#182229] dark:text-amber-200/80">
                     <LockIcon className="h-2.5 w-2.5 shrink-0 text-amber-700 dark:text-amber-400" />
                     <span>Messages and calls are end-to-end encrypted.</span>
                   </div>
 
-                  <div className="mx-auto my-0.5 rounded-md bg-white/80 px-2.5 py-0.5 text-[9px] font-semibold tracking-wider text-neutral-500 uppercase dark:bg-[#182229]/90 dark:text-neutral-400">
+                  <div className="mx-auto my-0.5 rounded-md bg-white/80 px-2.5 py-0.5 text-xs font-semibold text-neutral-500 dark:bg-[#182229]/90 dark:text-neutral-400">
                     TODAY
                   </div>
 
@@ -547,7 +547,7 @@ export function MacbookMockup({
                             )}
                           >
                             {!msg.isCurrentUser && (
-                              <p className="mb-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+                              <p className="mb-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                                 {msg.sender}
                               </p>
                             )}
@@ -576,13 +576,13 @@ export function MacbookMockup({
                                       />
                                     ))}
                                   </div>
-                                  <span className="text-[9px] text-neutral-500 dark:text-neutral-400">
+                                  <span className="text-xs text-neutral-500 dark:text-neutral-400">
                                     Audio note • {msg.audioDuration}
                                   </span>
                                 </div>
                               </div>
                             ) : (
-                              <p className="xs:text-xs text-[11.5px] leading-snug">
+                              <p className="xs:text-xs text-xs leading-snug">
                                 {msg.text}
                               </p>
                             )}
@@ -590,7 +590,7 @@ export function MacbookMockup({
                             <div className="mt-0.5 flex items-center justify-end gap-1">
                               <span
                                 className={cn(
-                                  "text-[9px]",
+                                  "text-xs",
                                   msg.isCurrentUser
                                     ? "text-emerald-800/70 dark:text-emerald-200/60"
                                     : "text-neutral-400 dark:text-neutral-400",
@@ -604,7 +604,7 @@ export function MacbookMockup({
                             </div>
 
                             {msg.reaction && (
-                              <div className="py-0.2 absolute right-2 -bottom-2 rounded-full bg-white px-1.5 text-[9px] dark:bg-[#182229]">
+                              <div className="py-0.2 absolute right-2 -bottom-2 rounded-full bg-white px-1.5 text-xs dark:bg-[#182229]">
                                 {msg.reaction}
                               </div>
                             )}
@@ -619,7 +619,7 @@ export function MacbookMockup({
                           className="flex items-center justify-start"
                         >
                           <div className="flex items-center gap-1.5 rounded-lg rounded-tl-none bg-white px-3 py-2 dark:bg-[#202c33]">
-                            <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                               typing
                             </span>
                             <div className="flex items-center gap-1">

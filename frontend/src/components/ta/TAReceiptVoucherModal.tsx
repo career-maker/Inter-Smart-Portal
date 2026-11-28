@@ -475,7 +475,7 @@ export function TAReceiptVoucherModal({
         <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Receipt className="w-4 h-4 text-teal-700 dark:text-teal-400" />
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
               Official Travel Allowance Bill Receipt
             </span>
           </div>
@@ -489,7 +489,7 @@ export function TAReceiptVoucherModal({
                 backgroundColor: "var(--portal-primary-color, #0F766E)",
                 color: "#ffffff",
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-xs transition cursor-pointer disabled:opacity-50"
             >
               {downloading ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -502,7 +502,7 @@ export function TAReceiptVoucherModal({
             <button
               type="button"
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-semibold transition cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Print</span>
@@ -533,28 +533,28 @@ export function TAReceiptVoucherModal({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b-2 border-slate-100">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-teal-700 text-white flex items-center justify-center font-black text-sm">
+                  <div className="w-8 h-8 rounded-lg bg-teal-700 text-white flex items-center justify-center font-semibold text-sm">
                     IS
                   </div>
                   <div>
-                    <h2 className="text-lg font-black tracking-tight text-teal-800">
+                    <h2 className="text-lg font-semibold tracking-tight text-teal-800">
                       INTER SMART
                     </h2>
-                    <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+                    <p className="text-xs text-slate-400 font-semibold">
                       Perfection At Its Finest
                     </p>
                   </div>
                 </div>
-                <p className="text-[11px] text-slate-500 pt-1">
+                <p className="text-xs text-slate-500 pt-1">
                   Inter Smart Workplace Portal • Travel Expense Reimbursement
                 </p>
               </div>
 
               <div className="sm:text-right space-y-1">
-                <span className="inline-block px-2.5 py-1 rounded-md bg-teal-50 text-teal-800 font-mono font-bold text-xs border border-teal-200">
+                <span className="inline-block px-2.5 py-1 rounded-md bg-teal-50 text-teal-800 font-mono font-semibold text-xs border border-teal-200">
                   {receiptNo}
                 </span>
-                <p className="text-[10px] text-slate-400 font-medium">
+                <p className="text-xs text-slate-400 font-medium">
                   Issued: {formattedIssueDate}
                 </p>
               </div>
@@ -562,7 +562,7 @@ export function TAReceiptVoucherModal({
 
             {/* Title Banner */}
             <div className="text-center py-2 bg-slate-50 rounded-xl border border-slate-100">
-              <h3 className="text-xs uppercase font-extrabold tracking-wider text-slate-700">
+              <h3 className="text-xs font-semibold text-slate-700">
                 Official Travel Allowance Reimbursement Receipt
               </h3>
             </div>
@@ -570,28 +570,28 @@ export function TAReceiptVoucherModal({
             {/* Employee & Travel Meta Info Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs bg-slate-50/70 p-4 rounded-xl border border-slate-100">
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                <span className="text-xs font-semibold text-slate-400 block">
                   Employee Name
                 </span>
-                <span className="font-bold text-slate-800 text-sm mt-0.5 block">
+                <span className="font-semibold text-slate-800 text-sm mt-0.5 block">
                   {empName}
                 </span>
-                <span className="text-[10px] text-slate-500 font-mono">
+                <span className="text-xs text-slate-500 font-mono">
                   {empCode} • {empDesignation}
                 </span>
               </div>
 
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                <span className="text-xs font-semibold text-slate-400 block">
                   Date Travelled
                 </span>
-                <span className="font-bold text-slate-800 text-sm mt-0.5 block">
+                <span className="font-semibold text-slate-800 text-sm mt-0.5 block">
                   {formattedTravelDate}
                 </span>
               </div>
 
               <div className="col-span-2 sm:col-span-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                <span className="text-xs font-semibold text-slate-400 block">
                   Claim Purpose
                 </span>
                 <span className="font-semibold text-slate-800 mt-0.5 block truncate" title={request.reason}>
@@ -602,14 +602,14 @@ export function TAReceiptVoucherModal({
 
             {/* Itemized Expenses Table */}
             <div className="space-y-2">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-slate-400 block">
                 Itemized Expenses Breakdown
               </span>
 
               <div className="border border-slate-200 rounded-xl overflow-hidden">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold text-xs">
                       <th className="py-2.5 px-4 w-12 text-center">#</th>
                       <th className="py-2.5 px-4">Category</th>
                       <th className="py-2.5 px-4">Description / Details</th>
@@ -622,20 +622,20 @@ export function TAReceiptVoucherModal({
                         <td className="py-2.5 px-4 text-center text-slate-400 font-mono">
                           {idx + 1}
                         </td>
-                        <td className="py-2.5 px-4 font-bold text-slate-800">
+                        <td className="py-2.5 px-4 font-semibold text-slate-800">
                           {item.category}
                         </td>
                         <td className="py-2.5 px-4 text-slate-600">
                           {item.description || "—"}
                         </td>
-                        <td className="py-2.5 px-4 text-right font-bold text-slate-900 font-mono">
+                        <td className="py-2.5 px-4 text-right font-semibold text-slate-900 font-mono">
                           ₹{Number(item.amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr className="bg-slate-50 border-t border-slate-200 font-bold">
+                    <tr className="bg-slate-50 border-t border-slate-200 font-semibold">
                       <td colSpan={3} className="py-2.5 px-4 text-right text-slate-600">
                         Total Claimed Amount:
                       </td>
@@ -651,14 +651,14 @@ export function TAReceiptVoucherModal({
             {/* Approved & Settlement Box */}
             <div className="p-4 rounded-xl bg-teal-50/70 border border-teal-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800 block">
+                <span className="text-xs font-semibold text-teal-800 block">
                   Final Approved Disbursement
                 </span>
-                <div className="text-2xl font-black text-teal-800 mt-0.5">
+                <div className="text-2xl font-semibold text-teal-800 mt-0.5">
                   ₹{approvedAmt.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 {request.approval_notes && (
-                  <p className="text-[11px] text-slate-600 mt-1">
+                  <p className="text-xs text-slate-600 mt-1">
                     <strong className="text-slate-700">Approval Note:</strong> {request.approval_notes}
                   </p>
                 )}
@@ -666,18 +666,18 @@ export function TAReceiptVoucherModal({
 
               <div className="sm:text-right space-y-1">
                 {request.is_paid || request.status === "Paid" ? (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Paid & Disbursed ({request.payment_mode || "Bank Transfer"})</span>
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-300">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 border border-purple-300">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Claim Approved</span>
                   </span>
                 )}
                 {request.approver && (
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-xs text-slate-400">
                     Approved by {request.approver.first_name} {request.approver.last_name}
                   </p>
                 )}
@@ -685,7 +685,7 @@ export function TAReceiptVoucherModal({
             </div>
 
             {/* Footer Sign-off */}
-            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between text-[10px] text-slate-400 gap-2">
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 gap-2">
               <div className="flex items-center gap-1.5">
                 <FileCheck2 className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Computer-generated official receipt voucher. No physical signature required.</span>

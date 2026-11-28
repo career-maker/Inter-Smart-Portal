@@ -147,7 +147,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen w-screen overflow-hidden relative bg-[#181d24]">
       {/* Base background layer to prevent any white flashes before video mounts or loads */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#181d24]" style={{ zIndex: 0 }}></div>
+      <div className="absolute inset-0 bg-[#0f172a]" style={{ zIndex: 0 }}></div>
 
       {/* Video background */}
       <video
@@ -187,7 +187,7 @@ export default function LoginPage() {
           />
         </div>
         <div>
-          <h1 className="text-5xl font-bold text-white leading-tight mb-4">
+          <h1 className="text-5xl font-semibold text-white leading-tight mb-4">
             {customizationSettings?.login_heading ? (
               <span className="whitespace-pre-line">{customizationSettings.login_heading}</span>
             ) : (
@@ -233,7 +233,7 @@ export default function LoginPage() {
             </div>
 
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-1">Welcome Back! Let&apos;s Get Started</h2>
+              <h2 className="text-2xl font-semibold text-white mb-1">Welcome Back! Let&apos;s Get Started</h2>
               <p className="text-slate-400 text-sm">Enter your official email and password to continue.</p>
             </div>
 
@@ -310,7 +310,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setRememberDevice(!rememberDevice)}
-                  className={`relative w-12 h-7 rounded-full transition-all duration-300 ${
+                  className={`relative w-12 h-7 rounded-full transition duration-300 ${
                     rememberDevice ? "bg-amber-500" : "bg-slate-600"
                   } flex items-center`}
                 >
@@ -321,7 +321,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-2 flex items-center justify-center gap-2 py-3 px-6 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-700 disabled:cursor-not-allowed text-slate-900 font-bold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+                className="w-full mt-2 flex items-center justify-center gap-2 py-3 px-6 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-700 disabled:cursor-not-allowed text-slate-900 font-semibold rounded-xl transition duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-slate-900"
               >
                 {isLoading ? (
                   <span className="inline-block h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

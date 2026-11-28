@@ -24,7 +24,7 @@ export default function GoLivePage() {
 
   if (unavailable) return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"><Server className="h-7 w-7 text-amber-500" /> Go-live requests</h1>
+      <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"><Server className="h-7 w-7 text-amber-500" /> Go-live requests</h1>
       <Card>
         <CardContent className="py-10 text-center space-y-1">
           <p className="font-semibold text-slate-900 dark:text-white">This page is not for your role</p>
@@ -38,7 +38,7 @@ export default function GoLivePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"><Server className="h-7 w-7 text-amber-500" /> Go-live requests</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"><Server className="h-7 w-7 text-amber-500" /> Go-live requests</h1>
         <p className="text-slate-600 dark:text-slate-300">Allocate a server, then mark the project live. Do not write passwords here.</p>
       </div>
       {rows.length === 0 && <p className="text-sm text-slate-500">No project is waiting for a server.</p>}

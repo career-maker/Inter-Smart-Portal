@@ -337,7 +337,7 @@ export default function HallFloor({ employees, visibleIds, selectedTeam, onSelec
           </div>
 
           {/* legend */}
-          <div className="absolute left-3 bottom-3 rounded-lg bg-white/95 dark:bg-slate-800/95 border border-slate-200 dark:border-slate-600 shadow-sm px-3 py-2 text-[11px] text-slate-700 dark:text-slate-200 space-y-1" onPointerDown={(e) => e.stopPropagation()}>
+          <div className="absolute left-3 bottom-3 rounded-lg bg-white/95 dark:bg-slate-800/95 border border-slate-200 dark:border-slate-600 shadow-sm px-3 py-2 text-xs text-slate-700 dark:text-slate-200 space-y-1" onPointerDown={(e) => e.stopPropagation()}>
             <div className="font-semibold text-slate-900 dark:text-white">Legend</div>
             <Legend swatch={<span className="h-3 w-3 rounded-full" style={{ background: CHAIR.working }} />} text="Working / Present" />
             <Legend swatch={<span className="h-3 w-3 rounded-full" style={{ background: CHAIR.wfh }} />} text="Work from home" />
@@ -360,7 +360,7 @@ export default function HallFloor({ employees, visibleIds, selectedTeam, onSelec
             <div className="absolute inset-0 grid place-items-center text-sm text-slate-500">No employees to seat.</div>
           )}
         </div>
-        <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
           Provisional layout: seats are generated automatically from teams. Actual desk positions can be set once the real seating plan is provided. Drag to pan, scroll or use the buttons to zoom.
         </p>
       </div>
@@ -373,7 +373,7 @@ export default function HallFloor({ employees, visibleIds, selectedTeam, onSelec
             <div className="rounded-xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-800 p-4 shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <span className="grid h-10 w-10 place-items-center rounded-full text-sm font-bold text-white" style={{ background: CHAIR[kindOf(live.status).kind] }}>{initials(live)}</span>
+                  <span className="grid h-10 w-10 place-items-center rounded-full text-sm font-semibold text-white" style={{ background: CHAIR[kindOf(live.status).kind] }}>{initials(live)}</span>
                   <div>
                     <div className="font-semibold text-slate-900 dark:text-white">{live.first_name} {live.last_name}</div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">{live.designation || "—"}</div>
@@ -396,7 +396,7 @@ export default function HallFloor({ employees, visibleIds, selectedTeam, onSelec
             <Stat label="WFH" value={totals.wfh} />
             <Stat label="On leave" value={totals.leave} />
           </div>
-          <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+          <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
             Updated {updatedAt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
           </div>
         </div>
@@ -412,7 +412,7 @@ export default function HallFloor({ employees, visibleIds, selectedTeam, onSelec
                 <button type="button" onClick={() => onSelectTeam(selectedTeam === s.name ? null : s.name)}
                   className={`w-full text-left px-4 py-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40 ${selectedTeam === s.name ? "bg-sky-50 dark:bg-sky-950/30" : ""}`}>
                   <div className="flex justify-between text-sm"><span className="font-medium text-slate-900 dark:text-white">{s.name}</span><span className="text-slate-500 dark:text-slate-400">{s.total}</span></div>
-                  <div className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                  <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                     <span className="text-green-600 dark:text-green-400">{s.present} present</span> · <span className="text-blue-600 dark:text-blue-400">{s.wfh} WFH</span> · <span className="text-red-600 dark:text-red-400">{s.leave} leave</span>
                     {s.holiday > 0 && <> · {s.holiday} holiday</>}
                   </div>
@@ -432,8 +432,8 @@ function Legend({ swatch, text }: { swatch: React.ReactNode; text: string }) {
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <div className="text-xl font-bold text-slate-900 dark:text-white">{value}</div>
-      <div className="text-[11px] text-slate-500 dark:text-slate-400">{label}</div>
+      <div className="text-xl font-semibold text-slate-900 dark:text-white">{value}</div>
+      <div className="text-xs text-slate-500 dark:text-slate-400">{label}</div>
     </div>
   );
 }

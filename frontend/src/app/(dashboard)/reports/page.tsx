@@ -55,7 +55,7 @@ function exportCSV(data: any[], filename: string, reportType?: string) {
 function SortableHeader({ label, col, sort, onSort }: { label: string; col: string; sort: { col: string; dir: "asc" | "desc" }; onSort: (c: string) => void }) {
   const active = sort.col === col;
   return (
-    <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer select-none hover:text-slate-900 dark:hover:text-white transition-colors break-words whitespace-normal leading-tight" onClick={() => onSort(col)}>
+    <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 cursor-pointer select-none hover:text-slate-900 dark:hover:text-white transition-colors break-words whitespace-normal leading-tight" onClick={() => onSort(col)}>
       <span className="flex items-center gap-1">{label} {active ? (sort.dir === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />) : <ChevronDown className="w-3 h-3 opacity-20" />}</span>
     </th>
   );
@@ -178,7 +178,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3"><FileText className="w-7 h-7 text-amber-400" /> Reports</h1>
+        <h1 className="text-3xl font-semibold text-slate-900 dark:text-white flex items-center gap-3"><FileText className="w-7 h-7 text-amber-400" /> Reports</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">Generate, filter, and export HR reports.</p>
       </div>
 
@@ -186,7 +186,7 @@ export default function ReportsPage() {
       <div className="flex gap-1 border-b border-slate-200 dark:border-white/10 overflow-x-auto scrollbar-hide whitespace-nowrap custom-scrollbar">
         {tabs.map(t => { const Icon = t.icon; return (
           <button key={t.key} onClick={() => setReportType(t.key)}
-            className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-t-xl border-b-2 transition-all ${reportType === t.key ? "border-amber-400 text-amber-300 bg-amber-500/10" : "border-transparent text-slate-400 hover:text-white"}`}>
+            className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-t-xl border-b-2 transition ${reportType === t.key ? "border-amber-400 text-amber-300 bg-amber-500/10" : "border-transparent text-slate-400 hover:text-white"}`}>
             <Icon className="w-4 h-4" />{t.label}
           </button>
         ); })}
@@ -195,7 +195,7 @@ export default function ReportsPage() {
       {/* Filters */}
       <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 flex flex-wrap gap-4 items-end">
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">Employee</label>
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">Employee</label>
           <SelectCompat value={selectedUserId} onChange={e => setSelectedUserId(e.target.value)}
             className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500">
             <option value="all">All Employees</option>
@@ -204,12 +204,12 @@ export default function ReportsPage() {
         </div>
         {(reportType === "leaves" || reportType === "attendance-summary") && <>
           <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">From Date</label>
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">From Date</label>
             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
               className="bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">To Date</label>
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">To Date</label>
             <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
               className="bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500" />
           </div>
@@ -316,9 +316,9 @@ export default function ReportsPage() {
                       <td className="px-3 py-3 text-slate-600 dark:text-slate-300">{row.designation || "—"}</td>
                       <td className="px-3 py-3 text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight">{row.team_lead || "—"}</td>
                       <td className="px-3 py-3 text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight">{row.joining_date ? format(new Date(row.joining_date), "dd MMM yyyy") : "—"}</td>
-                      <td className="px-3 py-3 break-words whitespace-normal leading-tight">{row.is_in_probation ? <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">{row.probation_end_date ? format(new Date(row.probation_end_date), "dd MMM yy") : "In Probation"}</span> : <span className="text-xs text-emerald-400">Done</span>}</td>
-                      <td className="px-3 py-3 text-center font-bold text-emerald-400">{row.casual_leave_balance}</td>
-                      <td className="px-3 py-3 text-center font-bold text-rose-400">{row.sick_leave_balance}</td>
+                      <td className="px-3 py-3 break-words whitespace-normal leading-tight">{row.is_in_probation ? <span className="text-xs font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">{row.probation_end_date ? format(new Date(row.probation_end_date), "dd MMM yy") : "In Probation"}</span> : <span className="text-xs text-emerald-400">Done</span>}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-emerald-400">{row.casual_leave_balance}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-rose-400">{row.sick_leave_balance}</td>
                       <td className="px-3 py-3 text-center text-slate-600 dark:text-slate-300">{row.leaves_taken_this_month}</td>
                       <td className="px-3 py-3 text-center text-slate-600 dark:text-slate-300">{row.wfh_this_month}</td>
                       <td className="px-3 py-3"><StatusBadge status={row.status} /></td>
@@ -336,7 +336,7 @@ export default function ReportsPage() {
                           if (day && typeof day === 'object') {
                             const status = String(day.status || '').trim();
                             if (status === 'P') {
-                              textColor = day.is_late ? "text-amber-400 font-bold" : "text-emerald-400 font-bold";
+                              textColor = day.is_late ? "text-amber-400 font-semibold" : "text-emerald-400 font-semibold";
                               displayText = day.is_late ? "L" : "P";
                             }
                             else if (status === 'A') {
@@ -344,15 +344,15 @@ export default function ReportsPage() {
                               displayText = "";
                             }
                             else if (status === 'W') {
-                              textColor = "text-blue-400 font-bold";
+                              textColor = "text-blue-400 font-semibold";
                               displayText = "WFH";
                             }
                             else if (status === 'H') {
-                              textColor = "text-amber-400 font-bold";
+                              textColor = "text-amber-400 font-semibold";
                               displayText = day.leave_type || "H";
                             }
                             else if (status === 'L') {
-                              textColor = "text-purple-400 font-bold";
+                              textColor = "text-purple-400 font-semibold";
                               displayText = day.leave_type || "LV";
                             }
                           }
@@ -363,26 +363,26 @@ export default function ReportsPage() {
                           return <td key={date} className="px-1.5 py-2 text-center text-xs">-</td>;
                         }
                       })}
-                      <td className="px-3 py-3 text-center font-bold text-emerald-400">{row.p_count || 0}</td>
-                      <td className="px-3 py-3 text-center font-bold text-amber-400">{row.l_count || 0}</td>
-                      <td className="px-3 py-3 text-center font-bold text-emerald-400">{row.cl_count || 0}</td>
-                      <td className="px-3 py-3 text-center font-bold text-rose-400">{row.sl_count || 0}</td>
-                      <td className="px-3 py-3 text-center font-bold text-red-500">{row.lop_count || 0}</td>
-                      <td className="px-3 py-3 text-center font-bold text-blue-400">{row.wfh_count || 0}</td>
-                      <td className="px-3 py-3 text-center font-bold text-indigo-400">{row.total_leaves || 0}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-emerald-400">{row.p_count || 0}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-amber-400">{row.l_count || 0}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-emerald-400">{row.cl_count || 0}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-rose-400">{row.sl_count || 0}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-red-500">{row.lop_count || 0}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-blue-400">{row.wfh_count || 0}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-indigo-400">{row.total_leaves || 0}</td>
                     </>}
                     {reportType === "leave-balances" && <>
                       <td className="px-3 py-3 font-mono text-xs text-slate-600 dark:text-slate-300">{row.employee_code}</td>
                       <td className="px-3 py-3 text-slate-900 dark:text-white font-semibold break-words whitespace-normal leading-tight">{row.full_name}</td>
                       <td className="px-3 py-3 text-slate-600 dark:text-slate-300">{row.team || "—"}</td>
-                      <td className="px-3 py-3 text-center font-bold text-emerald-400">{row.cl_balance}</td>
-                      <td className="px-3 py-3 text-center font-bold text-rose-400">{row.sl_balance}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-emerald-400">{row.cl_balance}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-rose-400">{row.sl_balance}</td>
                       <td className="px-3 py-3 text-center text-indigo-400">{row.cl_carry_forward}</td>
                       <td className="px-3 py-3 text-center text-slate-600 dark:text-slate-300">{row.cl_used}</td>
                       <td className="px-3 py-3 text-center text-slate-600 dark:text-slate-300">{row.sl_used}</td>
-                      <td className="px-3 py-3 text-center font-bold text-red-400">{row.lop_count}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-red-400">{row.lop_count}</td>
                       <td className="px-3 py-3 text-center text-cyan-400">{row.wfh_count}</td>
-                      <td className="px-3 py-3">{row.is_in_probation ? <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">In Probation</span> : <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Confirmed</span>}</td>
+                      <td className="px-3 py-3">{row.is_in_probation ? <span className="text-xs font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">In Probation</span> : <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Confirmed</span>}</td>
                     </>}
                   </tr>
                 ))}
@@ -413,7 +413,7 @@ function StatusBadge({ status }: { status?: string | null }) {
     Resigned: "bg-rose-500/20 text-rose-400"
   };
   const classes = m[statusStr] || "bg-white/10 text-slate-300";
-  return <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${classes}`}>{statusStr}</span>;
+  return <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${classes}`}>{statusStr}</span>;
 }
 
 function InfoRow({ label, value }: { label: string; value: any }) {
@@ -423,7 +423,7 @@ function InfoRow({ label, value }: { label: string; value: any }) {
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-start gap-1 border-b border-slate-200 dark:border-white/5 py-2.5">
-      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider sm:w-52 shrink-0">{label}</span>
+      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 sm:w-52 shrink-0">{label}</span>
       <span className="text-sm text-slate-900 dark:text-white">{displayValue}</span>
     </div>
   );
@@ -433,8 +433,8 @@ function StatBox({ label, value, color = "text-white" }: { label: string; value:
   const displayValue = typeof value === 'number' ? value : (value ?? 0);
   return (
     <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-4 text-center">
-      <p className={`text-2xl font-black ${color}`}>{isNaN(displayValue) ? 0 : displayValue}</p>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold uppercase tracking-wider leading-tight">{label}</p>
+      <p className={`text-2xl font-semibold ${color}`}>{isNaN(displayValue) ? 0 : displayValue}</p>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold leading-tight">{label}</p>
     </div>
   );
 }
@@ -444,7 +444,7 @@ function SingleEmployeeReport({ emp }: { emp: any }) {
   return (
     <div className="space-y-6">
       <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2"><Users className="w-5 h-5 text-amber-400" /> Employee Profile — {emp.full_name}</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2"><Users className="w-5 h-5 text-amber-400" /> Employee Profile — {emp.full_name}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
           <div>
             <InfoRow label="Employee Code" value={emp.employee_code} />
@@ -462,7 +462,7 @@ function SingleEmployeeReport({ emp }: { emp: any }) {
           <div>
             <InfoRow label="Joining Date" value={fmtDate(emp.joining_date)} />
             <InfoRow label="Probation End Date" value={fmtDate(emp.probation_end_date)} />
-            <InfoRow label="Probation Status" value={emp.is_in_probation ? <span className="text-amber-400 font-bold">In Probation</span> : <span className="text-emerald-400 font-bold">Completed</span>} />
+            <InfoRow label="Probation Status" value={emp.is_in_probation ? <span className="text-amber-400 font-semibold">In Probation</span> : <span className="text-emerald-400 font-semibold">Completed</span>} />
             <InfoRow label="Years with Company" value={`${emp.service_years} yr(s) • ${emp.service_days} days`} />
             <InfoRow label="Official Email" value={emp.email} />
             <InfoRow label="Personal Email" value={emp.personal_email} />
@@ -475,7 +475,7 @@ function SingleEmployeeReport({ emp }: { emp: any }) {
         </div>
       </div>
       <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2"><CalendarDays className="w-5 h-5 text-emerald-400" /> Leave Information</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-5 flex items-center gap-2"><CalendarDays className="w-5 h-5 text-emerald-400" /> Leave Information</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           <StatBox label="CL Balance" value={emp.casual_leave_balance} color="text-emerald-400" />
           <StatBox label="SL Balance" value={emp.sick_leave_balance} color="text-rose-400" />
@@ -500,9 +500,9 @@ function SingleLeaveBalanceReport({ emp }: { emp: any }) {
   const fmtDate = (v: any) => v ? format(new Date(v), "dd MMM yyyy") : "—";
   return (
     <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
-      <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-amber-400" /> Leave Balance — {emp.full_name}</h2>
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-5 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-amber-400" /> Leave Balance — {emp.full_name}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 mb-6">
-        <InfoRow label="Probation Status" value={emp.is_in_probation ? <span className="text-amber-400 font-bold">In Probation</span> : <span className="text-emerald-400 font-bold">Completed</span>} />
+        <InfoRow label="Probation Status" value={emp.is_in_probation ? <span className="text-amber-400 font-semibold">In Probation</span> : <span className="text-emerald-400 font-semibold">Completed</span>} />
         <InfoRow label="Probation End Date" value={fmtDate(emp.probation_end_date)} />
         <InfoRow label="Employment Status" value={<StatusBadge status={emp.status} />} />
       </div>

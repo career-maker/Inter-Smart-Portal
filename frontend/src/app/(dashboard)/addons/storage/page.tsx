@@ -77,7 +77,7 @@ export default function StorageRetentionAddonPage() {
       });
 
       if (res.data?.status === "success") {
-        setToastMessage({ type: "success", text: "Storage retention settings saved successfully!" });
+        setToastMessage({ type: "success", text: "Storage retention settings saved successfully" });
         fetchSettings();
       }
     } catch (err: any) {
@@ -104,7 +104,7 @@ export default function StorageRetentionAddonPage() {
         apiCache.clearPattern(/community|chat|storage/i);
         setToastMessage({
           type: "success",
-          text: res.data.message || "Manual cleanup completed successfully!",
+          text: res.data.message || "Manual cleanup completed successfully",
         });
         fetchSettings();
       }
@@ -123,7 +123,7 @@ export default function StorageRetentionAddonPage() {
     return (
       <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
         <ShieldAlert className="w-12 h-12 text-rose-500 mx-auto mb-3" />
-        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Access Denied</h2>
+        <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Access Denied</h2>
         <p className="text-xs text-slate-500 mt-1">
           This storage management tool is restricted to Super Admins.
         </p>
@@ -149,13 +149,13 @@ export default function StorageRetentionAddonPage() {
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">
                 Add-on Module
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
               <span className="text-xs text-slate-500 font-medium">Data Lifecycle</span>
             </div>
-            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mt-0.5 flex items-center gap-2">
+            <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 mt-0.5 flex items-center gap-2">
               <HardDrive className="w-5 h-5 text-[#56348f]" />
               Storage & Data Retention Policy
             </h1>
@@ -209,15 +209,15 @@ export default function StorageRetentionAddonPage() {
               <MessageSquare className="w-4 h-4 text-[#56348f]" />
               Chat Messages
             </span>
-            <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
+            <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">
               {stats?.total_chat_messages ?? 0}
             </span>
           </div>
-          <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">
+          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100 mt-2">
             {stats?.eligible_chat_messages ?? 0}{" "}
             <span className="text-xs font-normal text-rose-500">eligible for deletion</span>
           </p>
-          <p className="text-[10.5px] text-slate-400 mt-1 truncate">
+          <p className="text-xs text-slate-400 mt-1 truncate">
             Cutoff: Older than {stats?.chat_retention_cutoff ?? `${chatDays} days`}
           </p>
         </div>
@@ -228,15 +228,15 @@ export default function StorageRetentionAddonPage() {
             <span className="flex items-center gap-1.5">
               Community Posts
             </span>
-            <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
+            <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">
               {stats?.total_community_posts ?? 0}
             </span>
           </div>
-          <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">
+          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100 mt-2">
             {stats?.eligible_community_posts ?? 0}{" "}
             <span className="text-xs font-normal text-rose-500">eligible for deletion</span>
           </p>
-          <p className="text-[10.5px] text-slate-400 mt-1 truncate">
+          <p className="text-xs text-slate-400 mt-1 truncate">
             Cutoff: Older than {stats?.community_posts_cutoff ?? `${postDays} days`}
           </p>
         </div>
@@ -249,10 +249,10 @@ export default function StorageRetentionAddonPage() {
               Attached Media
             </span>
           </div>
-          <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">
+          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100 mt-2">
             {stats?.chat_attachments_size_mb ?? 0} <span className="text-xs font-normal text-slate-500">MB</span>
           </p>
-          <p className="text-[10.5px] text-slate-400 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Screenshots & document files on disk
           </p>
         </div>
@@ -265,10 +265,10 @@ export default function StorageRetentionAddonPage() {
               Last Cleanup Run
             </span>
           </div>
-          <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-2">
+          <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-2">
             {lastCleanupAt ? format(parseISO(lastCleanupAt), "dd MMM yyyy, h:mm a") : "Never run yet"}
           </p>
-          <p className="text-[10.5px] text-emerald-600 font-medium mt-1">
+          <p className="text-xs text-emerald-600 font-medium mt-1">
             {autoCleanup ? "Auto-cleanup active" : "Manual cleanup only"}
           </p>
         </div>
@@ -288,9 +288,9 @@ export default function StorageRetentionAddonPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-100 dark:border-slate-800">
           {/* Chat History Retention */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+            <label className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-between">
               <span>Direct Chat History Retention</span>
-              <span className="text-[11px] font-mono text-purple-600 font-bold bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded-md">
+              <span className="text-xs font-mono text-purple-600 font-semibold bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded-md">
                 {chatDays} Days
               </span>
             </label>
@@ -301,7 +301,7 @@ export default function StorageRetentionAddonPage() {
                 max="365"
                 value={chatDays}
                 onChange={(e) => setChatDays(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-28 p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-28 p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
               <span className="text-xs text-slate-500">
                 Messages and uploaded screenshots older than {chatDays} days will be deleted.
@@ -313,7 +313,7 @@ export default function StorageRetentionAddonPage() {
                   key={d}
                   type="button"
                   onClick={() => setChatDays(d)}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
+                  className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                     chatDays === d
                       ? "bg-[#56348f] text-white border-[#56348f]"
                       : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100"
@@ -327,9 +327,9 @@ export default function StorageRetentionAddonPage() {
 
           {/* Community Posts Retention */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+            <label className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-between">
               <span>Community Feed Posts Retention</span>
-              <span className="text-[11px] font-mono text-purple-600 font-bold bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded-md">
+              <span className="text-xs font-mono text-purple-600 font-semibold bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded-md">
                 {postDays} Days
               </span>
             </label>
@@ -340,7 +340,7 @@ export default function StorageRetentionAddonPage() {
                 max="365"
                 value={postDays}
                 onChange={(e) => setPostDays(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-28 p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-28 p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
               <span className="text-xs text-slate-500">
                 Community feed posts, comments, and media older than {postDays} days will be deleted.
@@ -352,7 +352,7 @@ export default function StorageRetentionAddonPage() {
                   key={d}
                   type="button"
                   onClick={() => setPostDays(d)}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
+                  className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                     postDays === d
                       ? "bg-[#56348f] text-white border-[#56348f]"
                       : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100"
@@ -372,7 +372,7 @@ export default function StorageRetentionAddonPage() {
               <FileCheck className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
+              <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                 Automated Daily Cleanup
               </p>
               <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">
@@ -389,7 +389,7 @@ export default function StorageRetentionAddonPage() {
               onChange={(e) => setAutoCleanup(e.target.checked)}
               className="w-4 h-4 text-[#56348f] rounded-md focus:ring-purple-500 border-slate-300"
             />
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
               Enable Auto-Cleanup
             </span>
           </label>
@@ -401,7 +401,7 @@ export default function StorageRetentionAddonPage() {
             type="button"
             onClick={() => setShowCleanupModal(true)}
             disabled={cleaning}
-            className="flex items-center gap-2 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 rounded-xl text-xs font-bold border border-rose-200 dark:border-rose-900/50 transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 rounded-xl text-xs font-semibold border border-rose-200 dark:border-rose-900/50 transition-colors cursor-pointer"
           >
             <Trash2 className="w-4 h-4" />
             <span>Clean Up Expired Data Now</span>
@@ -410,7 +410,7 @@ export default function StorageRetentionAddonPage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#56348f] hover:bg-[#452875] text-white rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer hover:shadow-md"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#56348f] hover:bg-[#452875] text-white rounded-xl text-xs font-semibold shadow-sm transition cursor-pointer hover:shadow-md"
           >
             <Save className="w-4 h-4" />
             <span>{saving ? "Saving Changes..." : "Save Retention Settings"}</span>
@@ -465,7 +465,7 @@ export default function StorageRetentionAddonPage() {
               <button
                 type="button"
                 onClick={() => setShowCleanupModal(false)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 rounded-xl text-xs font-bold cursor-pointer"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 rounded-xl text-xs font-semibold cursor-pointer"
               >
                 Cancel
               </button>
@@ -473,7 +473,7 @@ export default function StorageRetentionAddonPage() {
                 type="button"
                 onClick={handleCleanupNow}
                 disabled={cleaning}
-                className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-xs cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>{cleaning ? "Purging..." : "Confirm & Clean Up"}</span>

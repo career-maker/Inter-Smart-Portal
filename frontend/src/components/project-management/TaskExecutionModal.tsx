@@ -232,7 +232,7 @@ export function TaskExecutionModal({
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Edit Task & Execution</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Edit Task & Execution</h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Log real-time task progress, status transitions, QA bugs, and deviation tracking
                 </p>
@@ -402,11 +402,11 @@ export function TaskExecutionModal({
           {hasBugTrackerAddon && (
             <div className="p-4 rounded-xl bg-purple-50/50 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-purple-900 dark:text-purple-200 uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-xs font-semibold text-purple-900 dark:text-purple-200">
                   <Bug className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   <span>QA Bug Tracker Metrics</span>
                 </div>
-                <span className="text-[11px] font-semibold bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-700">
+                <span className="text-xs font-semibold bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-700">
                   Add-on Active
                 </span>
               </div>
@@ -450,9 +450,9 @@ export function TaskExecutionModal({
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Total Bugs (Auto)
                   </label>
-                  <div className="w-full px-3 py-1.5 rounded-xl bg-purple-100/70 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 text-purple-900 dark:text-purple-200 font-bold text-sm flex items-center justify-between">
+                  <div className="w-full px-3 py-1.5 rounded-xl bg-purple-100/70 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 text-purple-900 dark:text-purple-200 font-semibold text-sm flex items-center justify-between">
                     <span>{calculatedTotalBugs}</span>
-                    <span className="text-[10px] text-purple-600 dark:text-purple-400 font-normal">Calculated</span>
+                    <span className="text-xs text-purple-600 dark:text-purple-400 font-normal">Calculated</span>
                   </div>
                 </div>
               </div>
@@ -489,7 +489,7 @@ export function TaskExecutionModal({
                 <TrendingUp className="w-4 h-4" />
                 <span>Estimated Schedule Deviation:</span>
               </div>
-              <span className="font-bold text-sm">
+              <span className="font-semibold text-sm">
                 {deviation > 0 ? `+${deviation} days (Delayed)` : `${deviation} days (On Time)`}
               </span>
             </div>

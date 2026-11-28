@@ -313,7 +313,7 @@ export default function BugSmartProjectsPage() {
       {/* ── Top Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
             <FolderTree className="w-4 h-4 text-rose-600" />
             <span>BugSmart Projects & Components</span>
           </h2>
@@ -387,15 +387,15 @@ export default function BugSmartProjectsPage() {
               <div
                 key={proj.id}
                 onClick={() => handleOpenProjectDrawer(proj, "bugs")}
-                className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-4 hover:border-rose-300 dark:hover:border-rose-700/60 hover:shadow-md transition-all cursor-pointer group"
+                className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-4 hover:border-rose-300 dark:hover:border-rose-700/60 hover:shadow-md transition cursor-pointer group"
               >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
                         {proj.name}
                       </h3>
-                      <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                         <span>Project #{portalId}</span>
                         {proj.team && (
                           <>
@@ -417,7 +417,7 @@ export default function BugSmartProjectsPage() {
                   </p>
 
                   {/* Badges row: Tasks & Bugs counts */}
-                  <div className="flex items-center gap-2 pt-2 flex-wrap text-[11px]">
+                  <div className="flex items-center gap-2 pt-2 flex-wrap text-xs">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
                       <CheckSquare className="w-3 h-3 text-indigo-500" />
                       {proj.tasks_count || 0} Tasks
@@ -427,7 +427,7 @@ export default function BugSmartProjectsPage() {
                       {proj.bugs_count || 0} Bugs
                     </span>
                     {(proj.critical_bugs_count || 0) > 0 && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800 font-bold">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800 font-semibold">
                         {proj.critical_bugs_count} Critical
                       </span>
                     )}
@@ -482,12 +482,12 @@ export default function BugSmartProjectsPage() {
             <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-start justify-between gap-4 bg-slate-50/50 dark:bg-slate-800/30">
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                     {selectedProject.name}
                   </h3>
                   <ProjectStatusBadge status={selectedProject.status as any} />
                   {selectedProject.category && (
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                       {selectedProject.category}
                     </span>
                   )}
@@ -543,7 +543,7 @@ export default function BugSmartProjectsPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("bugs")}
-                className={`py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-colors cursor-pointer ${
+                className={`py-3 text-xs font-semibold border-b-2 flex items-center gap-2 transition-colors cursor-pointer ${
                   activeTab === "bugs"
                     ? "border-rose-600 text-rose-600 dark:text-rose-400"
                     : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
@@ -551,7 +551,7 @@ export default function BugSmartProjectsPage() {
               >
                 <Bug className="w-3.5 h-3.5" />
                 <span>Bugs / Defects</span>
-                <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-mono">
+                <span className="px-1.5 py-0.5 rounded-full text-xs bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-mono">
                   {projectBugs.length}
                 </span>
               </button>
@@ -559,7 +559,7 @@ export default function BugSmartProjectsPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("tasks")}
-                className={`py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-colors cursor-pointer ${
+                className={`py-3 text-xs font-semibold border-b-2 flex items-center gap-2 transition-colors cursor-pointer ${
                   activeTab === "tasks"
                     ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
                     : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
@@ -567,7 +567,7 @@ export default function BugSmartProjectsPage() {
               >
                 <CheckSquare className="w-3.5 h-3.5" />
                 <span>Tasks</span>
-                <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-mono">
+                <span className="px-1.5 py-0.5 rounded-full text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-mono">
                   {projectTasks.length}
                 </span>
               </button>
@@ -575,7 +575,7 @@ export default function BugSmartProjectsPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("components")}
-                className={`py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-colors cursor-pointer ${
+                className={`py-3 text-xs font-semibold border-b-2 flex items-center gap-2 transition-colors cursor-pointer ${
                   activeTab === "components"
                     ? "border-emerald-600 text-emerald-600 dark:text-emerald-400"
                     : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
@@ -583,7 +583,7 @@ export default function BugSmartProjectsPage() {
               >
                 <Layers className="w-3.5 h-3.5" />
                 <span>Components</span>
-                <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-mono">
+                <span className="px-1.5 py-0.5 rounded-full text-xs bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-mono">
                   {projectComponents.length}
                 </span>
               </button>
@@ -645,11 +645,11 @@ export default function BugSmartProjectsPage() {
                         <Link
                           key={b.id}
                           href={`/project-management/bugsmart/bugs/${b.id}`}
-                          className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 hover:border-rose-400 dark:hover:border-rose-700 flex flex-col gap-2 transition-all block group"
+                          className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 hover:border-rose-400 dark:hover:border-rose-700 flex flex-col gap-2 transition block group"
                         >
                           <div className="flex items-center justify-between gap-2 flex-wrap">
                             <div className="flex items-center gap-2">
-                              <span className="font-mono text-xs font-bold text-rose-600 dark:text-rose-400 group-hover:underline">
+                              <span className="font-mono text-xs font-semibold text-rose-600 dark:text-rose-400 group-hover:underline">
                                 {b.bug_number}
                               </span>
                               <BugzillaStatusBadge status={b.status} size="sm" />
@@ -657,7 +657,7 @@ export default function BugSmartProjectsPage() {
                               <BugzillaPriorityBadge priority={b.priority} />
                             </div>
 
-                            <span className="text-[10px] text-slate-400">
+                            <span className="text-xs text-slate-400">
                               {new Date(b.created_at).toLocaleDateString()}
                             </span>
                           </div>
@@ -666,10 +666,10 @@ export default function BugSmartProjectsPage() {
                             {b.summary}
                           </div>
 
-                          <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800/60">
+                          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800/60">
                             <div className="flex items-center gap-2">
                               {b.component && (
-                                <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px]">
+                                <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs">
                                   {b.component.name}
                                 </span>
                               )}
@@ -711,7 +711,7 @@ export default function BugSmartProjectsPage() {
                         <Link
                           key={t.id}
                           href={`/project-management/tasks/${t.id}`}
-                          className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 hover:border-indigo-400 dark:hover:border-indigo-700 flex flex-col gap-2 transition-all block group"
+                          className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 hover:border-indigo-400 dark:hover:border-indigo-700 flex flex-col gap-2 transition block group"
                         >
                           <div className="flex items-center justify-between gap-2 flex-wrap">
                             <div className="flex items-center gap-2">
@@ -721,7 +721,7 @@ export default function BugSmartProjectsPage() {
                             </div>
 
                             {t.due_date && (
-                              <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                              <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
                                 <Clock className="w-3 h-3 text-slate-400" />
                                 Due: {t.due_date}
                               </span>
@@ -732,7 +732,7 @@ export default function BugSmartProjectsPage() {
                             {t.title}
                           </div>
 
-                          <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800/60">
+                          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800/60">
                             <div className="flex items-center gap-1">
                               <Users className="w-3 h-3 text-slate-400" />
                               <span>
@@ -744,7 +744,7 @@ export default function BugSmartProjectsPage() {
 
                             <div className="flex items-center gap-2">
                               {(t.bugs_count || 0) > 0 && (
-                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-semibold">
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-rose-50 text-rose-700 border border-rose-200 text-xs font-semibold">
                                   <Bug className="w-2.5 h-2.5" />
                                   {t.bugs_count} defects
                                 </span>
@@ -757,7 +757,7 @@ export default function BugSmartProjectsPage() {
                                     e.stopPropagation();
                                     openReportBugDrawer(selectedProject.portal_project_id, t.id);
                                   }}
-                                  className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-[11px] font-semibold transition-colors cursor-pointer"
+                                  className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold transition-colors cursor-pointer"
                                   title="Report defect for this task"
                                 >
                                   <Plus className="w-3 h-3" />
@@ -776,8 +776,8 @@ export default function BugSmartProjectsPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Modular Components</h4>
-                      <p className="text-[11px] text-slate-500">
+                      <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200">Modular Components</h4>
+                      <p className="text-xs text-slate-500">
                         Classify defects into subsystem areas (e.g. Frontend, Auth, Checkout).
                       </p>
                     </div>
@@ -797,11 +797,11 @@ export default function BugSmartProjectsPage() {
                           <div>
                             <div className="font-semibold text-slate-800 dark:text-slate-200">{c.name}</div>
                             {c.description && (
-                              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                                 {c.description}
                               </div>
                             )}
-                            <div className="text-[10px] text-slate-400 mt-1">
+                            <div className="text-xs text-slate-400 mt-1">
                               {c.bugs_count || 0} defects linked
                             </div>
                           </div>
@@ -823,7 +823,7 @@ export default function BugSmartProjectsPage() {
 
                   {canDevelop && (
                     <form onSubmit={handleAddComponent} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 space-y-2">
-                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Add New Component</h4>
+                      <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200">Add New Component</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <input
                           type="text"

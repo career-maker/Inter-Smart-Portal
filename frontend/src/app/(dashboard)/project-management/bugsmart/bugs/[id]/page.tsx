@@ -333,7 +333,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
     return (
       <div className="p-8 text-center text-slate-500 space-y-3">
         <Bug className="w-12 h-12 mx-auto text-slate-300" />
-        <h3 className="font-bold">Defect Not Found</h3>
+        <h3 className="font-semibold">Defect Not Found</h3>
         <p className="text-xs text-slate-400">The requested bug does not exist or you lack authorization.</p>
         <Link
           href="/project-management/bugsmart/bugs"
@@ -361,7 +361,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-800">
+              <span className="font-mono text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-800">
                 {bug.bug_number}
               </span>
               <span className="text-xs text-slate-400">•</span>
@@ -385,7 +385,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                 </>
               )}
             </div>
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+            <h1 className="text-lg font-semibold text-slate-900 dark:text-white mt-1">
               {bug.summary}
             </h1>
           </div>
@@ -405,7 +405,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
             {isWatching ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
             <span>{isWatching ? "Watching" : "Watch"}</span>
             {bug.watchers && bug.watchers.length > 0 && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800 font-mono">
+              <span className="text-xs px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800 font-mono">
                 {bug.watchers.length}
               </span>
             )}
@@ -426,10 +426,10 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
       {canDevelop && (
         <div className="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Current State:</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Current State:</span>
             <BugzillaStatusBadge status={bug.status} />
             {bug.resolution && (
-              <span className="font-mono text-xs uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border border-slate-200 dark:border-slate-700">
+              <span className="font-mono text-xs uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700">
                 Resolution: {bug.resolution}
               </span>
             )}
@@ -572,7 +572,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
             <div className="space-y-4">
               {/* Description Box */}
               <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   Description
                 </h3>
                 <div className="text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">
@@ -583,7 +583,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
               {/* Reproduction Details (Editable by Reporter/Developer) */}
               <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                     Steps to Reproduce & Results
                   </h3>
                   {canEditReporterFields && !isEditingRepro && (
@@ -656,7 +656,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                 ) : (
                   <div className="space-y-4">
                     <div>
-                      <div className="text-[11px] font-semibold text-slate-500 mb-1">Steps:</div>
+                      <div className="text-xs font-semibold text-slate-500 mb-1">Steps:</div>
                       <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 font-mono text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap">
                         {bug.steps_to_reproduce || <span className="italic text-slate-400 font-sans">No reproduction steps given.</span>}
                       </div>
@@ -664,14 +664,14 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <div className="text-[11px] font-semibold text-slate-500 mb-1">Expected Result:</div>
+                        <div className="text-xs font-semibold text-slate-500 mb-1">Expected Result:</div>
                         <div className="p-3 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 text-xs text-slate-800 dark:text-slate-200">
                           {bug.expected_result || <span className="italic text-slate-400">Unspecified</span>}
                         </div>
                       </div>
 
                       <div>
-                        <div className="text-[11px] font-semibold text-slate-500 mb-1">Actual Result:</div>
+                        <div className="text-xs font-semibold text-slate-500 mb-1">Actual Result:</div>
                         <div className="p-3 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 text-xs text-slate-800 dark:text-slate-200">
                           {bug.actual_result || <span className="italic text-slate-400">Unspecified</span>}
                         </div>
@@ -683,24 +683,24 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
 
               {/* Environment Information */}
               <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   Target Environment & Hardware
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                   <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">OS / Environment</span>
+                    <span className="text-slate-400 block text-xs font-semibold">OS / Environment</span>
                     <span className="font-semibold text-slate-800 dark:text-slate-200">
                       {bug.environment || "Not specified"}
                     </span>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Browser</span>
+                    <span className="text-slate-400 block text-xs font-semibold">Browser</span>
                     <span className="font-semibold text-slate-800 dark:text-slate-200">
                       {bug.browser || "Not specified"}
                     </span>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Device</span>
+                    <span className="text-slate-400 block text-xs font-semibold">Device</span>
                     <span className="font-semibold text-slate-800 dark:text-slate-200">
                       {bug.device || "Not specified"}
                     </span>
@@ -717,7 +717,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
               {(canReport || canDevelop) && (
                 <form onSubmit={handleAddComment} className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 shadow-xs">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       Add Comment or Triage Note
                     </label>
                     <label className="flex items-center gap-1.5 text-xs text-slate-500 cursor-pointer">
@@ -764,7 +764,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                   comments.map((c) => (
                     <div
                       key={c.id}
-                      className={`p-4 rounded-2xl border transition-all ${
+                      className={`p-4 rounded-2xl border transition ${
                         c.is_private
                           ? "bg-amber-50/40 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/60"
                           : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
@@ -772,19 +772,19 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                          <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-semibold text-slate-700 dark:text-slate-300">
                             {c.user ? c.user.first_name[0] : "U"}
                           </div>
-                          <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          <span className="text-xs font-semibold text-slate-900 dark:text-white">
                             {c.user ? `${c.user.first_name} ${c.user.last_name}` : "Unknown"}
                           </span>
                           {c.is_private && (
-                            <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.2 rounded-full">
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.2 rounded-full">
                               <Lock className="w-2.5 h-2.5" /> Private
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-xs text-slate-400">
                           {new Date(c.created_at).toLocaleString()}
                         </span>
                       </div>
@@ -803,7 +803,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
             <div className="space-y-4">
               {(canReport || canDevelop) && (
                 <form onSubmit={handleAddUrlAttachment} className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 shadow-xs">
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                     <ExternalLink className="w-3.5 h-3.5 text-rose-600" />
                     <span>Add Attachment URL</span>
                   </h4>
@@ -867,7 +867,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                             <span className="truncate">{att.original_name || att.file_url || att.file_path}</span>
                             <ExternalLink className="w-3 h-3 shrink-0 opacity-70" />
                           </a>
-                          <div className="text-[10px] text-slate-400 flex items-center gap-2 truncate">
+                          <div className="text-xs text-slate-400 flex items-center gap-2 truncate">
                             <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono">
                               Link
                             </span>
@@ -905,7 +905,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
             <div className="space-y-4">
               {canDevelop && (
                 <form onSubmit={handleAddDependency} className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 shadow-xs">
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Link Bug Dependency
                   </h4>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -950,12 +950,12 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                       className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 text-xs"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                           {dep.relationship_type.replace("_", " ")}
                         </span>
                         <Link
                           href={`/project-management/bugsmart/bugs/${dep.depends_on_bug_id}`}
-                          className="font-mono font-bold text-rose-600 hover:underline"
+                          className="font-mono font-semibold text-rose-600 hover:underline"
                         >
                           {dep.depends_on_bug?.bug_number || `Bug #${dep.depends_on_bug_id}`}
                         </Link>
@@ -987,7 +987,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
           {/* Tab 5: History Audit */}
           {activeTab === "history" && (
             <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                 Complete Modification Audit Log
               </h3>
 
@@ -1007,15 +1007,15 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                           <span className="font-mono text-rose-600 dark:text-rose-400">{h.action}</span>
                           {h.field && <span className="text-slate-500">({h.field})</span>}
                         </div>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-xs text-slate-400">
                           {new Date(h.created_at).toLocaleString()}
                         </span>
                       </div>
                       {(h.old_value || h.new_value) && (
-                        <div className="text-[11px] font-mono text-slate-600 dark:text-slate-400 pt-1">
+                        <div className="text-xs font-mono text-slate-600 dark:text-slate-400 pt-1">
                           <span className="line-through text-red-500">{h.old_value || "null"}</span>
                           <span className="mx-1.5">→</span>
-                          <span className="text-emerald-500 font-bold">{h.new_value || "null"}</span>
+                          <span className="text-emerald-500 font-semibold">{h.new_value || "null"}</span>
                         </div>
                       )}
                     </div>
@@ -1029,13 +1029,13 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
         {/* ── Right Column: Triage Attributes Sidebar ── */}
         <div className="space-y-4">
           <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800 pb-2">
+            <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800 pb-2">
               Defect Attributes
             </h3>
 
             {/* Severity */}
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Severity</span>
+              <span className="text-xs font-semibold text-slate-400 block mb-1">Severity</span>
               {canDevelop ? (
                 <SelectCompat
                   value={bug.severity}
@@ -1056,7 +1056,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
 
             {/* Priority */}
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Priority</span>
+              <span className="text-xs font-semibold text-slate-400 block mb-1">Priority</span>
               {canDevelop ? (
                 <SelectCompat
                   value={bug.priority}
@@ -1076,7 +1076,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
 
             {/* Assignee */}
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Assignee</span>
+              <span className="text-xs font-semibold text-slate-400 block mb-1">Assignee</span>
               {canDevelop ? (
                 <SelectCompat
                   value={bug.assignee_id || ""}
@@ -1101,7 +1101,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
 
             {/* Component */}
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Component</span>
+              <span className="text-xs font-semibold text-slate-400 block mb-1">Component</span>
               {canDevelop ? (
                 <SelectCompat
                   value={bug.component_id || ""}
@@ -1126,14 +1126,14 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
 
             {/* Reporter (Read-only server invariant) */}
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Reporter</span>
+              <span className="text-xs font-semibold text-slate-400 block mb-1">Reporter</span>
               <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                 {bug.reporter ? `${bug.reporter.first_name} ${bug.reporter.last_name}` : "Unknown"}
               </div>
             </div>
 
             {/* Timestamps */}
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 space-y-1">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400 space-y-1">
               <div>
                 Reported: <strong className="text-slate-600 dark:text-slate-300">{new Date(bug.created_at).toLocaleString()}</strong>
               </div>
@@ -1154,7 +1154,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
       {resolveDialogOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 max-w-sm w-full space-y-4 shadow-xl">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Resolve Defect</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Resolve Defect</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Select the resolution code for {bug.bug_number}.
             </p>

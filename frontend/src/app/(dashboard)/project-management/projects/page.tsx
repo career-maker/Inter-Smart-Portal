@@ -189,7 +189,7 @@ export default function ProjectsListPage() {
             <ChevronRight className="w-3.5 h-3.5" />
             <span className="text-slate-900 dark:text-white">Projects</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight">
             Projects Directory
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -217,7 +217,7 @@ export default function ProjectsListPage() {
               onClick={handleImportHubstaff}
               disabled={importingHubstaff || loading}
               style={{ backgroundColor: "#ffffff", color: "#0f172a", fontFamily: 'Inter, sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 !text-slate-900 dark:!text-slate-100 text-[13px] leading-[20px] font-normal border border-slate-300 dark:border-slate-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 !text-slate-900 dark:!text-slate-100 text-[13px] leading-[20px] font-normal border border-slate-300 dark:border-slate-700 shadow-2xs transition disabled:opacity-50 cursor-pointer"
               title="Import all active projects from Hubstaff without duplicating"
             >
               <CloudDownload className={`w-4 h-4 text-sky-600 dark:text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
@@ -294,7 +294,7 @@ export default function ProjectsListPage() {
                   lineHeight: "20px",
                   fontWeight: 400,
                 }}
-                className={`px-3.5 py-1.5 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition cursor-pointer ${
                   isSelected
                     ? "bg-teal-700 !text-white shadow-sm"
                     : "bg-slate-100 dark:bg-slate-800 !text-slate-800 dark:!text-slate-200 hover:bg-teal-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700"
@@ -315,7 +315,7 @@ export default function ProjectsListPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search projects by name..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
             />
           </div>
 
@@ -354,7 +354,7 @@ export default function ProjectsListPage() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px] text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[12px] leading-[18px]">
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold text-[12px] leading-[18px]">
                 <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">PROJECT NAME</th>
                 <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">DEPARTMENT</th>
                 <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">COORDINATOR</th>
@@ -378,7 +378,7 @@ export default function ProjectsListPage() {
                     <p className="text-[13px] leading-[20px] font-semibold text-slate-700 dark:text-slate-300">
                       No projects found
                     </p>
-                    <p className="text-[11px] leading-[16px] text-slate-400 mt-1">
+                    <p className="text-xs leading-[16px] text-slate-400 mt-1">
                       Try adjusting your search criteria or create/import a project.
                     </p>
                   </td>
@@ -404,12 +404,12 @@ export default function ProjectsListPage() {
                       </Link>
                       <div className="flex items-center gap-2 mt-0.5">
                         {project.category && (
-                          <span className="text-[11px] leading-[16px] font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                          <span className="text-xs leading-[16px] font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                             {project.category}
                           </span>
                         )}
                         {project.project_type && (
-                          <span className="text-[11px] leading-[16px] text-slate-400 font-normal">
+                          <span className="text-xs leading-[16px] text-slate-400 font-normal">
                             • {project.project_type}
                           </span>
                         )}
@@ -428,7 +428,7 @@ export default function ProjectsListPage() {
                     <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 text-[13px] leading-[20px] font-normal">
                       {project.coordinator ? (
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold flex items-center justify-center border border-blue-500/20">
+                          <div className="w-6 h-6 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold flex items-center justify-center border border-blue-500/20">
                             {project.coordinator.first_name[0]}
                             {project.coordinator.last_name[0]}
                           </div>
@@ -457,7 +457,7 @@ export default function ProjectsListPage() {
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <ProjectStatusBadge status={project.status} />
                         {project.is_live && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             <Rocket className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
                             <span>Live</span>
                           </span>

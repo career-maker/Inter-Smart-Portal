@@ -31,7 +31,7 @@ export function BugzillaPriorityBadge({ priority, className = "" }: Props) {
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold font-mono border ${colors} ${className}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold font-mono border ${colors} ${className}`}
     >
       {p}
     </span>

@@ -157,7 +157,7 @@ export default function MyTasksPage() {
             <ChevronRight className="w-3.5 h-3.5" />
             <span className="text-slate-900 dark:text-white">My Tasks</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight">
             My Tasks
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -177,7 +177,7 @@ export default function MyTasksPage() {
                 fontSize: "12px",
                 fontWeight: 600,
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition cursor-pointer"
               title="Open All Team Tasks & Switcher"
             >
               <Layers className="w-4 h-4 !text-white" />
@@ -225,7 +225,7 @@ export default function MyTasksPage() {
                   lineHeight: "20px",
                   fontWeight: 400,
                 }}
-                className={`px-3 py-1 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3 py-1 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition cursor-pointer ${
                   isSelected
                     ? "bg-[#56348f] !text-white shadow-sm"
                     : "bg-slate-100 dark:bg-slate-800/60 !text-slate-800 dark:!text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700"
@@ -276,7 +276,7 @@ export default function MyTasksPage() {
       ) : filteredTasks.length === 0 ? (
         <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 py-16 text-center p-6 space-y-3">
           <CheckSquare className="w-10 h-10 mx-auto text-slate-400 opacity-50" />
-          <p className="text-base font-bold text-slate-800 dark:text-slate-200">No tasks assigned</p>
+          <p className="text-base font-semibold text-slate-800 dark:text-slate-200">No tasks assigned</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
             {statusFilter !== "Active" || search
               ? "No tasks match your selected filters."

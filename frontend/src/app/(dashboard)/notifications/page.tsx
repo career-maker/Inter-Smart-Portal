@@ -175,9 +175,9 @@ export default function NotificationsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Notifications</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">Notifications</h1>
             {unreadTotal > 0 && (
-              <span className="bg-[#56348f] text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
+              <span className="bg-[#56348f] text-white text-xs font-semibold px-2.5 py-0.5 rounded-full shadow-2xs">
                 {unreadTotal} unread
               </span>
             )}
@@ -188,7 +188,7 @@ export default function NotificationsPage() {
           <div className="bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-1 flex shadow-2xs">
             <button
               onClick={() => setFilter("all")}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
                 filter === "all" ? "bg-[#56348f] text-white shadow-2xs" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50"
               }`}
             >
@@ -196,13 +196,13 @@ export default function NotificationsPage() {
             </button>
             <button
               onClick={() => setFilter("unread")}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
                 filter === "unread" ? "bg-[#56348f] text-white shadow-2xs" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50"
               }`}
             >
               <span>Unread</span>
               {unreadTotal > 0 && (
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                <span className={`text-xs px-1.5 py-0.2 rounded-full font-semibold ${
                   filter === "unread" ? "bg-white/20 text-white" : "bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300"
                 }`}>
                   {unreadTotal}
@@ -227,7 +227,7 @@ export default function NotificationsPage() {
       <Card className="shadow-sm border-slate-200/90 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xs rounded-2xl overflow-hidden">
         <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/40">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800 dark:text-white">
+            <CardTitle className="text-base font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
               <div className="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/60 flex items-center justify-center text-[#56348f] dark:text-purple-300">
                 <Bell className="h-4 w-4" />
               </div>
@@ -250,7 +250,7 @@ export default function NotificationsPage() {
                 <Bell className="h-6 w-6 text-slate-400" />
               </div>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">No {filter === "unread" ? "unread " : ""}notifications found</p>
-              <p className="text-xs text-slate-400 mt-1">You're all caught up with your workplace activity!</p>
+              <p className="text-xs text-slate-400 mt-1">You're all caught up with your workplace activity</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -265,7 +265,7 @@ export default function NotificationsPage() {
                       if (!notif.read_at) handleMarkAsRead(notif.id);
                       router.push(resolveNotificationUrl(notif));
                     }}
-                    className={`group p-4 sm:px-5 rounded-xl border flex flex-col sm:flex-row gap-3.5 items-start sm:items-center justify-between transition-all duration-150 cursor-pointer ${
+                    className={`group p-4 sm:px-5 rounded-xl border flex flex-col sm:flex-row gap-3.5 items-start sm:items-center justify-between transition duration-150 cursor-pointer ${
                       isUnread
                         ? "bg-gradient-to-r from-violet-50/80 via-purple-50/40 to-white dark:from-violet-950/30 dark:via-slate-900/90 dark:to-slate-900/90 border-violet-200/90 dark:border-violet-800/60 shadow-xs hover:shadow-md hover:border-violet-400 dark:hover:border-violet-600 hover:bg-violet-100/70 dark:hover:bg-violet-900/35"
                         : "bg-white dark:bg-slate-900/70 border-slate-200/70 dark:border-slate-800/70 hover:bg-slate-50/90 dark:hover:bg-slate-800/70 hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs hover:shadow-xs"
@@ -273,7 +273,7 @@ export default function NotificationsPage() {
                   >
                     <div className="flex items-start gap-3.5 flex-1 min-w-0">
                       {/* Category Icon Badge */}
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 border ${cat.bg} shadow-2xs group-hover:scale-105 transition-transform`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 border ${cat.bg} shadow-2xs transition-transform`}>
                         {(() => { const Icon = CATEGORY_ICONS[cat.icon] || Bell; return <Icon className="w-4 h-4" />; })()}
                       </div>
 
@@ -288,11 +288,11 @@ export default function NotificationsPage() {
                             {notif.data?.title || "Update"}
                           </p>
                           {isUnread && (
-                            <Badge variant="secondary" className="bg-[#56348f]/10 text-[#56348f] dark:bg-purple-950 dark:text-purple-300 border-0 text-[10px] font-bold px-2 py-0.2">
+                            <Badge variant="secondary" className="bg-[#56348f]/10 text-[#56348f] dark:bg-purple-950 dark:text-purple-300 border-0 text-xs font-semibold px-2 py-0.2">
                               New
                             </Badge>
                           )}
-                          <span className="text-[10.5px] font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                          <span className="text-xs font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
                             {cat.label}
                           </span>
                         </div>
@@ -303,7 +303,7 @@ export default function NotificationsPage() {
                           {notif.data?.message || "You have a new notification regarding your account."}
                         </p>
 
-                        <p className="text-[11px] text-slate-400 dark:text-slate-500 pt-0.5 font-medium">
+                        <p className="text-xs text-slate-400 dark:text-slate-500 pt-0.5 font-medium">
                           {formatRelativeTime(notif.created_at)} • {new Date(notif.created_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
                         </p>
                       </div>

@@ -404,7 +404,7 @@ export default function DashboardPage() {
                     src={profile.profile_photo_path}
                     name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
                     className="w-full h-full object-cover"
-                    textClass="text-white text-xl font-black"
+                    textClass="text-white text-xl font-semibold"
                   />
                 </div>
               </div>
@@ -523,13 +523,13 @@ export default function DashboardPage() {
 
       {/* Employee Dashboard: Upcoming Holidays Banner */}
       {user?.role === "Employee" && data?.widgets?.upcoming_holidays && data.widgets.upcoming_holidays.length > 0 && (
-        <div className="bg-gradient-to-r from-rose-50 via-amber-50/60 to-purple-50 dark:from-rose-950/20 dark:via-amber-950/20 dark:to-purple-950/20 border border-rose-200/90 dark:border-rose-500/30 rounded-2xl p-4 flex items-center justify-between gap-4 animate-slideDown mb-6 shadow-xs">
+        <div className="bg-rose-50 dark:bg-rose-950/20 border border-rose-200/90 dark:border-rose-500/30 rounded-2xl p-4 flex items-center justify-between gap-4 animate-slideDown mb-6 shadow-xs">
           <div className="flex items-center gap-3 min-w-0">
             <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+              <p className="text-xs font-semibold text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
 Upcoming Celebration
               </p>
-              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+              <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                 {data.widgets.upcoming_holidays[0]?.name}
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 ml-2">
                   • {format(parseISO(data.widgets.upcoming_holidays[0]?.date), "EEEE, MMM d, yyyy")}
@@ -539,7 +539,7 @@ Upcoming Celebration
           </div>
           <Link
             href="/calendar"
-            className="flex-shrink-0 text-xs font-bold text-[#56348f] dark:text-purple-300 hover:underline px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-purple-200/80 dark:border-purple-800 rounded-xl shadow-2xs hover:bg-slate-50 transition-colors"
+            className="flex-shrink-0 text-xs font-semibold text-[#56348f] dark:text-purple-300 hover:underline px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-purple-200/80 dark:border-purple-800 rounded-xl shadow-2xs hover:bg-slate-50 transition-colors"
           >
             View Calendar →
           </Link>
@@ -548,11 +548,11 @@ Upcoming Celebration
 
       {/* Super Admin Dashboard: Critical Alerts Banner */}
       {user?.role === "Super Admin" && data?.widgets?.critical_alerts && Array.isArray(data.widgets.critical_alerts) && data.widgets.critical_alerts.length > 0 && (
-        <div className="bg-gradient-to-br from-red-900/30 to-rose-900/30 rounded-md p-4 border border-red-500/40 mb-6">
+        <div className="bg-red-900/30 rounded-md p-4 border border-red-500/40 mb-6">
           <div className="flex items-start gap-3">
             <ShieldAlert className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-red-300 mb-2">Critical Alerts</p>
+              <p className="text-sm font-semibold text-red-300 mb-2">Critical Alerts</p>
               <ul className="space-y-1">
                 {data.widgets.critical_alerts.slice(0, 3).map((alert: any, idx: number) => (
                   <li key={idx} className="text-xs text-red-200 flex items-start gap-2">
@@ -599,7 +599,7 @@ Upcoming Celebration
                         >
                           Team Status Today
                         </h2>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-tight">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-tight">
                           Daily attendance and availability breakdown
                         </p>
                       </div>
@@ -608,16 +608,16 @@ Upcoming Celebration
                     {/* Legend (hidden on holidays / weekends) */}
                     {!data?.widgets?.today_off?.is_off && (
                       <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-                        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                           <span className="w-2 h-2 rounded-full bg-[#10b981]" /> Present
                         </span>
-                        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                           <span className="w-2 h-2 rounded-full bg-[#ef4444]" /> Absent
                         </span>
-                        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                           <span className="w-2 h-2 rounded-full bg-[#3b82f6]" /> WFH
                         </span>
-                        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                           <span className="w-2 h-2 rounded-full bg-[#f59e0b]" /> Half Day
                         </span>
                       </div>
@@ -701,7 +701,7 @@ Upcoming Celebration
                                   className="group relative shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-white focus-visible:ring-offset-[6px]"
                                 >
                                   <span
-                                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-700 text-white text-xs font-bold flex items-center justify-center overflow-hidden transition-transform duration-150 group-hover:scale-105"
+                                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-700 text-white text-xs font-semibold flex items-center justify-center overflow-hidden transition-transform duration-150"
                                     style={{ outline: `2.5px solid ${ring}`, outlineOffset: "2px" }}
                                   >
                                     {member.profile_photo_path ? (
@@ -722,7 +722,7 @@ Upcoming Celebration
                                     className="pointer-events-none absolute bottom-full left-0 mb-2.5 z-20 hidden group-hover:block group-focus-visible:block w-max max-w-[200px] rounded-md bg-slate-900 px-2.5 py-1.5 text-left shadow-md"
                                   >
                                     <span className="block text-xs font-semibold text-white">{member.name}</span>
-                                    <span className="block text-[11px] text-slate-300">
+                                    <span className="block text-xs text-slate-300">
                                       {member.designation || "Team member"} · {statusLabel}
                                     </span>
                                   </span>
@@ -924,9 +924,9 @@ Upcoming Celebration
                             <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800">
                               <div>
                                 <p className="text-[13px] font-medium text-slate-900 dark:text-white">{a.name}</p>
-                                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
                               </div>
-                              <span className="text-[11px] font-semibold text-pink-700 dark:text-pink-300">
+                              <span className="text-xs font-semibold text-pink-700 dark:text-pink-300">
                                 {format(new Date(a.date), "MMM d")}
                               </span>
                             </div>
@@ -993,7 +993,7 @@ Upcoming Celebration
                           <div className="min-w-0 flex-1">
                             <p className="text-[13px] font-medium text-slate-900 dark:text-white leading-tight">{update.title}</p>
                             <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{update.content}</p>
-                            <p className="text-[11px] text-slate-400 mt-1.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
+                            <p className="text-xs text-slate-400 mt-1.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
                           </div>
                         </div>
                       ))
@@ -1075,8 +1075,8 @@ Upcoming Celebration
                     <div className="w-2 h-2 bg-[#56348f] rounded-full flex-shrink-0 mt-1.5"></div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-slate-900 dark:text-white truncate">{log.action || 'System Action'}</p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{log.description || log.user_name}</p>
-                      <p className="text-[10px] text-slate-400 mt-1">{log.created_at ? format(parseISO(log.created_at), "MMM d, h:mm a") : 'Unknown time'}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{log.description || log.user_name}</p>
+                      <p className="text-xs text-slate-400 mt-1">{log.created_at ? format(parseISO(log.created_at), "MMM d, h:mm a") : 'Unknown time'}</p>
                     </div>
                   </div>
                 ))}
@@ -1168,7 +1168,7 @@ Upcoming Celebration
                   {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
                     <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 mb-0.5">
                       <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-xs font-medium uppercase tracking-wider">Management Only</span>
+                      <span className="text-xs font-medium">Management Only</span>
                     </div>
                   )}
                   <h3
@@ -1208,7 +1208,7 @@ Upcoming Celebration
           
           {/* Left section: title and stats grid */}
           <div className="flex-1 space-y-5">
-            <h2 className="text-lg font-bold text-emerald-300 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-emerald-300 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Leave Summary
             </h2>
@@ -1216,41 +1216,41 @@ Upcoming Celebration
             {/* Probation notice */}
             {leave_metrics.is_in_probation && (
               <div className="bg-amber-500/10 border border-amber-500/30 rounded-md p-4 text-amber-300 text-sm space-y-1">
-                <p className="font-bold flex items-center gap-2">Currently Under Probation</p>
+                <p className="font-semibold flex items-center gap-2">Currently Under Probation</p>
                 <p className="text-amber-300/80 text-xs">Paid leave benefits will become active on <strong className="text-amber-200">{new Date(leave_metrics.probation_end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>. All leaves during probation are treated as Unpaid (LOP).</p>
               </div>
             )}
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Casual Leave Indicator */}
-              <div className="flex items-center justify-between p-4 rounded-md bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center justify-between p-4 rounded-md bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition duration-300">
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Casual Leaves</p>
-                  <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.casual_leave_balance)}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Casual Leaves</p>
+                  <p className="text-2xl font-semibold text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.casual_leave_balance)}</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 transition-transform">
                   <Palmtree className="w-5 h-5" />
                 </div>
               </div>
 
               {/* Sick Leave Indicator */}
-              <div className="flex items-center justify-between p-4 rounded-md bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center justify-between p-4 rounded-md bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition duration-300">
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sick Leaves</p>
-                  <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.sick_leave_balance)}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Sick Leaves</p>
+                  <p className="text-2xl font-semibold text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.sick_leave_balance)}</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 transition-transform">
                   <AlertCircle className="w-5 h-5" />
                 </div>
               </div>
 
               {/* Total Leaves Taken Indicator */}
-              <div className="flex items-center justify-between p-4 rounded-md bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center justify-between p-4 rounded-md bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition duration-300">
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Taken</p>
-                  <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.total_leaves_taken)}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Taken</p>
+                  <p className="text-2xl font-semibold text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.total_leaves_taken)}</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 transition-transform">
                   <CalendarDays className="w-5 h-5" />
                 </div>
               </div>
@@ -1268,7 +1268,7 @@ Upcoming Celebration
             
             <Link 
               href="/leaves/apply" 
-              className="w-full flex items-center justify-center gap-2 bg-[#00BDA1] hover:bg-[#00A58C] text-white font-semibold py-3.5 px-6 rounded-[9px] hover:shadow-xl transition-all duration-300 active:scale-95 whitespace-nowrap"
+              className="w-full flex items-center justify-center gap-2 bg-[#00BDA1] hover:bg-[#00A58C] text-white font-semibold py-3.5 px-6 rounded-[9px] hover:shadow-xl transition duration-300 active:scale-95 whitespace-nowrap"
             >
               <Palmtree className="w-5 h-5" />
               Apply for Leave
@@ -1282,7 +1282,7 @@ Upcoming Celebration
         <div className="fixed bottom-11 left-3 right-[4.75rem] z-40 md:hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
           <Link
             href="/leaves/apply"
-            className="w-full flex items-center justify-center gap-2 bg-[#00BDA1] hover:bg-[#00A58C] text-white font-semibold py-3.5 px-6 rounded-[9px] shadow-md active:scale-95 transition-all duration-150"
+            className="w-full flex items-center justify-center gap-2 bg-[#00BDA1] hover:bg-[#00A58C] text-white font-semibold py-3.5 px-6 rounded-[9px] shadow-md active:scale-95 transition duration-150"
           >
             <Plus className="w-5 h-5" />
             Apply Leave
@@ -1333,7 +1333,7 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
           <div className="gt-badge w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#d97706] flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
             <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white stroke-[2.2]" />
           </div>
-          <h4 className="gt-title text-xs sm:text-[13px] font-black uppercase tracking-wider text-amber-400 leading-tight truncate">
+          <h4 className="gt-title text-xs sm:text-[13px] font-semibold text-amber-400 leading-tight truncate">
             GROWING TOGETHER
           </h4>
         </div>
@@ -1359,10 +1359,10 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
               border border-white/10
               shadow-inner"
           >
-            <span className="gt-num text-sm sm:text-lg md:text-xl font-black leading-tight tracking-tight font-sans text-white">
+            <span className="gt-num text-sm sm:text-lg md:text-xl font-semibold leading-tight tracking-tight font-sans text-white">
               {box.value}
             </span>
-            <span className="gt-lbl text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider mt-1 sm:mt-1.5 leading-none text-slate-400">
+            <span className="gt-lbl text-xs sm:text-xs font-semibold mt-1 sm:mt-1.5 leading-none text-slate-400">
               {box.label}
             </span>
           </div>
@@ -1376,7 +1376,7 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
 function PhotoAvatar({ src, name, className = "", textClass = "" }: { src?: string|null; name: string; className?: string; textClass?: string }) {
   const initials = name.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
   return (
-    <div className={`relative overflow-hidden flex items-center justify-center font-bold ${className}`}>
+    <div className={`relative overflow-hidden flex items-center justify-center font-semibold ${className}`}>
       <span className={textClass}>{initials}</span>
       {src && (
         <img
@@ -1502,7 +1502,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     src={profile.profile_photo_path}
                     name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
                     className="w-full h-full object-cover"
-                    textClass="text-white text-xl font-black"
+                    textClass="text-white text-xl font-semibold"
                   />
                 </div>
               </div>
@@ -1551,14 +1551,14 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="z-10 shrink-0">
             <Link
               href="/leaves/approvals"
-              className="group flex flex-col justify-center bg-[#0b1220]/90 border border-amber-500/30 hover:border-amber-400/70 transition-all duration-300 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-md cursor-pointer min-w-[190px]"
+              className="group flex flex-col justify-center bg-[#0b1220]/90 border border-amber-500/30 hover:border-amber-400/70 transition duration-300 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-md cursor-pointer min-w-[190px]"
             >
-              <p className="text-xs font-black text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <p className="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1.5">
 
                 Pending Items
               </p>
               <div className="flex items-baseline gap-2">
-                <p className="text-3xl sm:text-4xl font-black text-white font-mono">
+                <p className="text-3xl sm:text-4xl font-semibold text-white font-mono">
                   {kpis.pending_requests}
                 </p>
                 <p className="text-xs text-slate-400 font-semibold">request{kpis.pending_requests !== 1 ? 's' : ''}</p>
@@ -1724,7 +1724,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               emptyMessage="No announcements yet"
               renderItem={(update) => (
                 <div className="space-y-3">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight break-words">{update.title}</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white leading-tight break-words">{update.title}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
                   <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
                     <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
@@ -1787,15 +1787,15 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               renderItem={(a) => (
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">{a.name}</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{a.name}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Inter Smart</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{format(new Date(a.date), "MMM d")}</span>
+                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{format(new Date(a.date), "MMM d")}</span>
                     {a.days_remaining === 0 ? (
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500 text-white px-2 py-0.5 rounded-lg">Today!</span>
+                      <span className="text-xs font-semibold bg-pink-500 text-white px-2 py-0.5 rounded-lg">Today</span>
                     ) : (
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-100 dark:bg-pink-500/30 text-pink-600 dark:text-pink-300 px-2 py-0.5 rounded-lg">In {Math.floor(a.days_remaining)} d</span>
+                      <span className="text-xs font-semibold bg-pink-100 dark:bg-pink-500/30 text-pink-600 dark:text-pink-300 px-2 py-0.5 rounded-lg">In {Math.floor(a.days_remaining)} d</span>
                     )}
                   </div>
                 </div>
@@ -1814,7 +1814,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
         {/* Manage Employees Widget */}
         <Link href="/employees" className="block h-full group">
-          <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+          <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-emerald-500/40 transition duration-300">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
@@ -1831,14 +1831,14 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             </div>
             <div className="pt-4 mt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Employee Directory</span>
-              <span className="text-xs font-bold text-emerald-400">Go to section →</span>
+              <span className="text-xs font-semibold text-emerald-400">Go to section →</span>
             </div>
           </div>
         </Link>
 
         {/* Attendance Management Widget */}
         <Link href="/attendance/management" className="block h-full group">
-          <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-blue-500/40 transition-all duration-300">
+          <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-blue-500/40 transition duration-300">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 style={{ fontFamily: 'var(--portal-font-family, Inter, sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
@@ -1855,7 +1855,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             </div>
             <div className="pt-4 mt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Live Attendance</span>
-              <span className="text-xs font-bold text-blue-400">Open Console →</span>
+              <span className="text-xs font-semibold text-blue-400">Open Console →</span>
             </div>
           </div>
         </Link>
@@ -1875,13 +1875,13 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
              
              <Link 
               href="/hall" 
-              className="lg:col-span-2 group relative overflow-hidden rounded-md p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
+              className="lg:col-span-2 group relative overflow-hidden rounded-md p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition duration-300 border border-slate-200 dark:border-slate-700/60"
             >
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="space-y-1">
-                  <span className="text-sm font-bold text-slate-900 dark:text-white relative z-10">View The Hall</span>
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white relative z-10">View The Hall</span>
                 </div>
-                <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center shadow-sm group-hover:scale-95 transition-transform">
+                <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center shadow-sm transition-transform">
                   <ArrowRight className="w-5 h-5" />
                 </div>
               </div>
@@ -1965,11 +1965,11 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <div className="space-y-4">
                <div className="flex justify-between items-center bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-md">
                  <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">Pending Requests</span>
-                 <span className="text-xl font-bold text-slate-900 dark:text-white">{kpis.pending_requests}</span>
+                 <span className="text-xl font-semibold text-slate-900 dark:text-white">{kpis.pending_requests}</span>
                </div>
                <div className="flex justify-between items-center bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-md">
                  <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">On Leave Today</span>
-                 <span className="text-xl font-bold text-slate-900 dark:text-white">{kpis.on_leave_today}</span>
+                 <span className="text-xl font-semibold text-slate-900 dark:text-white">{kpis.on_leave_today}</span>
                </div>
             </div>
           </div>
@@ -1988,7 +1988,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           {/* Header with Royal Purple gradient accent matching other drawers */}
           <div className="relative px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 via-purple-50/30 to-white dark:from-slate-850 dark:to-slate-900 shrink-0">
             <div className="flex items-center justify-between pr-8">
-              <DialogTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
+              <DialogTitle className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2.5">
                 <span>{leaveModalData?.title}</span>
                 <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300">
                   {leaveModalData?.list.length || 0}
@@ -2018,7 +2018,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     key={idx}
                     type="button"
                     onClick={() => handleSelectEmployee(item)}
-                    className="w-full flex items-center justify-between p-3.5 bg-white hover:bg-purple-50/50 dark:bg-slate-800/80 dark:hover:bg-slate-750 border border-slate-200/80 hover:border-[#56348f]/40 dark:border-slate-700/80 dark:hover:border-purple-500/50 rounded-xl transition-all group text-left cursor-pointer shadow-xs hover:shadow-sm"
+                    className="w-full flex items-center justify-between p-3.5 bg-white hover:bg-purple-50/50 dark:bg-slate-800/80 dark:hover:bg-slate-750 border border-slate-200/80 hover:border-[#56348f]/40 dark:border-slate-700/80 dark:hover:border-purple-500/50 rounded-xl transition group text-left cursor-pointer shadow-xs hover:shadow-sm"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <RoyalAvatar
@@ -2026,15 +2026,15 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                         name={empName}
                         userId={empId}
                         employeeCode={empCode}
-                        className="w-10 h-10 rounded-full shrink-0 border border-slate-200 dark:border-slate-700 text-xs font-bold"
+                        className="w-10 h-10 rounded-full shrink-0 border border-slate-200 dark:border-slate-700 text-xs font-semibold"
                       />
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors truncate">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors truncate">
                           <RoyalName
                             name={empName}
                             userId={empId}
                             employeeCode={empCode}
-                            className="font-bold"
+                            className="font-semibold"
                           />
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5 font-medium">
@@ -2043,7 +2043,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                         </p>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 group-hover:translate-x-0.5 transition shrink-0 ml-2" />
                   </button>
                 );
               })
@@ -2081,7 +2081,7 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
   const accent = accentMap[color] || accentMap['bg-blue-500'];
 
   const CardContent = (
-    <div className={`wave-card relative overflow-hidden h-full rounded-md p-5 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
+    <div className={`wave-card relative overflow-hidden h-full rounded-md p-5 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/60 transition duration-300 ${(href || onClick) ? 'cursor-pointer group hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
       <div className="flex justify-between items-start relative z-10">
         <div>
           <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{title}</p>
@@ -2131,12 +2131,12 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
 
   return (
     <Link href={href}>
-      <div className="bg-white dark:bg-slate-800 rounded-md p-5 h-full relative overflow-hidden shadow-sm dark:hover:bg-slate-700 hover:shadow-md border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group flex flex-col items-start gap-3">
-        <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
-        <div className={`w-10 h-10 rounded-md ${accent} flex items-center justify-center shadow-sm group-hover:scale-90 transition-transform duration-300 relative z-10`}>
+      <div className="bg-white dark:bg-slate-800 rounded-md p-5 h-full relative overflow-hidden shadow-sm dark:hover:bg-slate-700 hover:shadow-md border border-slate-200 dark:border-slate-700/60 transition duration-300 group flex flex-col items-start gap-3">
+        <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
+        <div className={`w-10 h-10 rounded-md ${accent} flex items-center justify-center shadow-sm transition-transform duration-300 relative z-10`}>
           <Icon className="w-5 h-5" />
         </div>
-        <span className="text-sm font-bold text-slate-900 dark:text-white relative z-10">{title}</span>
+        <span className="text-sm font-semibold text-slate-900 dark:text-white relative z-10">{title}</span>
       </div>
     </Link>
   );
@@ -2147,7 +2147,7 @@ function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/7
   const colorName = bg.replace('bg-', '').replace('-50/70', '');
   return (
     <div className={`wave-card group ${bg} rounded-md p-5 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-colors`} style={{ '--wave-color': `var(--tw-color-${colorName}-100, #ffedd5)` } as any}>
-      <h3 className={`font-bold ${colorClass.split(' ')[1]} text-sm flex items-center gap-2 mb-3 relative z-10`}>
+      <h3 className={`font-semibold ${colorClass.split(' ')[1]} text-sm flex items-center gap-2 mb-3 relative z-10`}>
         <Icon className="w-5 h-5" />
         {title}
       </h3>
@@ -2157,7 +2157,7 @@ function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/7
         <div className="space-y-3 relative z-10">
           {items.map((item: any, i: number) => (
             <div key={i} className="flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-900 dark:text-white">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
+              <span className="font-semibold text-slate-900 dark:text-white">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
               <span className="text-slate-600 dark:text-slate-300 bg-white/60 px-2 py-1 rounded-md shadow-sm font-semibold">{format(new Date(item.date), "MMM d")}</span>
             </div>
           ))}
@@ -2244,7 +2244,7 @@ function RotatingCard({
                     className="p-1.5 -m-1.5 cursor-pointer flex items-center justify-center"
                   >
                     <span
-                      className="block h-2 rounded-full transition-all duration-300"
+                      className="block h-2 rounded-full transition duration-300"
                       style={{ width: i === safeIdx ? '16px' : '8px', background: i === safeIdx ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)' }}
                     />
                   </div>
@@ -2281,16 +2281,16 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
               textClass="text-fuchsia-700 dark:text-fuchsia-300"
             />
             <div>
-              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{b.name}</p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white leading-tight">{b.name}</p>
               <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">{b.designation || 'Employee'} • {b.department}</p>
             </div>
           </div>
           <div className="flex flex-col items-end gap-1 shrink-0">
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{format(new Date(b.date), "MMM d")}</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{format(new Date(b.date), "MMM d")}</span>
             {b.days_remaining === 0 ? (
-              <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
+              <span className="text-xs font-semibold bg-fuchsia-500/80 text-white px-2 py-0.5 rounded-lg">Today</span>
             ) : (
-              <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/30 text-fuchsia-300 px-2 py-0.5 rounded-lg">In {Math.floor(b.days_remaining)} d</span>
+              <span className="text-xs font-semibold bg-fuchsia-500/30 text-fuchsia-300 px-2 py-0.5 rounded-lg">In {Math.floor(b.days_remaining)} d</span>
             )}
           </div>
         </div>
@@ -2426,7 +2426,7 @@ function CelebrationCard({ recognition, firstName }: { recognition: any; firstNa
 
           {/* Validity badge */}
           <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold"
             style={{
               background: 'rgba(255,255,255,0.08)',
               border: '1px solid rgba(255,255,255,0.15)',

@@ -147,7 +147,7 @@ export default function EditEmployeePage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Manage {employee.first_name}</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">Manage {employee.first_name}</h1>
             <p className="text-slate-600 dark:text-slate-300">{employee.employee_id} • {employee.designation}</p>
           </div>
         </div>
@@ -198,14 +198,14 @@ export default function EditEmployeePage() {
             <div className="flex rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100/90 dark:bg-slate-800/90 p-1 gap-1">
               <button
                 onClick={() => setPhotoMode("upload")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-xs font-semibold transition-all cursor-pointer ${photoMode === "upload" ? "bg-[#56348f] text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-xs font-semibold transition cursor-pointer ${photoMode === "upload" ? "bg-[#56348f] text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <Upload className="w-4 h-4" />
                 Upload File
               </button>
               <button
                 onClick={() => setPhotoMode("url")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-xs font-semibold transition-all cursor-pointer ${photoMode === "url" ? "bg-[#56348f] text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-xs font-semibold transition cursor-pointer ${photoMode === "url" ? "bg-[#56348f] text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <Link2 className="w-4 h-4" />
                 Paste URL
@@ -257,7 +257,7 @@ export default function EditEmployeePage() {
                       className="px-4 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold disabled:opacity-50 flex items-center gap-2 shrink-0 transition-colors"
                     >
                       {urlLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : urlSuccess ? <CheckCircle2 className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
-                      {urlLoading ? "Saving..." : urlSuccess ? "Saved!" : "Save"}
+                      {urlLoading ? "Saving..." : urlSuccess ? "Saved" : "Save"}
                     </button>
                   </div>
                   {urlSuccess && (

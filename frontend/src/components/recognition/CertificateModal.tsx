@@ -77,7 +77,7 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
           <div className="flex items-center gap-2">
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-sm px-4 py-2 rounded-xl transition-all"
+              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold text-sm px-4 py-2 rounded-xl transition"
             >
               <Download className="w-4 h-4" />
               Download PDF

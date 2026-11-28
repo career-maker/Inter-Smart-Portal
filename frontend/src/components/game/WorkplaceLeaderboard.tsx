@@ -45,7 +45,7 @@ export function WorkplaceLeaderboard({
   ];
 
   return (
-    <div className={`w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl overflow-hidden transition-all ${compact ? "p-4 sm:p-6" : "p-6 sm:p-8"}`}>
+    <div className={`w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl overflow-hidden transition ${compact ? "p-4 sm:p-6" : "p-6 sm:p-8"}`}>
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3">
@@ -53,9 +53,9 @@ export function WorkplaceLeaderboard({
             <Trophy className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+            <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
               <span>Workplace Champions & High Scores</span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold border border-amber-300/50">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-semibold border border-amber-300/50">
                 Live
               </span>
             </h3>
@@ -66,7 +66,7 @@ export function WorkplaceLeaderboard({
         </div>
 
         {/* Current User Rank Pill */}
-        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#56348f]/10 text-[#56348f] dark:bg-purple-500/15 dark:text-purple-300 border border-[#56348f]/25 dark:border-purple-500/30 shrink-0">
+        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#56348f]/10 text-[#56348f] dark:bg-purple-500/15 dark:text-purple-300 border border-[#56348f]/25 dark:border-purple-500/30 shrink-0">
           <Award className="w-4 h-4" />
           <span>Your Rank: #{currentRank}</span>
         </div>
@@ -82,7 +82,7 @@ export function WorkplaceLeaderboard({
             <button
               key={key}
               onClick={() => setSelectedGame(key)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer border shrink-0 ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition whitespace-nowrap cursor-pointer border shrink-0 ${
                 isSelected
                   ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-slate-900 dark:border-white shadow-md scale-102"
                   : "bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -96,21 +96,21 @@ export function WorkplaceLeaderboard({
       </div>
 
       {/* Active Game Comparison Banner */}
-      <div className="my-4 p-4 rounded-2xl bg-gradient-to-r from-slate-50 to-slate-100/70 dark:from-slate-800/60 dark:to-slate-800/30 border border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="my-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="text-2xl">{gameInfo.icon}</span>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-extrabold text-slate-900 dark:text-white">
+              <span className="text-sm font-semibold text-slate-900 dark:text-white">
                 {gameInfo.title}
               </span>
-              <span className="text-[11px] text-slate-400">
+              <span className="text-xs text-slate-400">
                 ({gameInfo.subtitle})
               </span>
             </div>
             <div className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
               {currentRank === 1 ? (
-                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
                   <Crown className="w-4 h-4 text-amber-500" />
                   Outstanding! You hold the #1 High Score on the team with {currentUserEntry?.score || 0} {gameInfo.scoreUnit}!
                 </span>
@@ -132,7 +132,7 @@ export function WorkplaceLeaderboard({
         {onLaunchGame && (
           <button
             onClick={() => onLaunchGame(selectedGame)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#472a77] text-white text-xs font-black shadow-md shadow-purple-900/20 transition-all active:scale-95 cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#472a77] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition active:scale-95 cursor-pointer shrink-0"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>Play {gameInfo.title}</span>
@@ -151,7 +151,7 @@ export function WorkplaceLeaderboard({
           return (
             <div
               key={player.id || `${player.name}-${idx}`}
-              className={`flex items-center justify-between px-3.5 sm:px-4 py-2.5 rounded-2xl transition-all ${
+              className={`flex items-center justify-between px-3.5 sm:px-4 py-2.5 rounded-2xl transition ${
                 isUser
                   ? "bg-purple-50 dark:bg-purple-950/40 border-2 border-[#56348f] dark:border-purple-600 shadow-sm"
                   : "bg-white dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -159,18 +159,18 @@ export function WorkplaceLeaderboard({
             >
               {/* Left Player Info */}
               <div className="flex items-center gap-3 min-w-0">
-                <span className="w-7 text-center text-sm font-extrabold text-slate-600 dark:text-slate-300">
+                <span className="w-7 text-center text-sm font-semibold text-slate-600 dark:text-slate-300">
                   {medal}
                 </span>
                 <div
-                  className={`w-8 h-8 rounded-full ${player.avatarBg || "bg-[#56348f]"} text-white text-xs font-bold flex items-center justify-center shrink-0 shadow-2xs`}
+                  className={`w-8 h-8 rounded-full ${player.avatarBg || "bg-[#56348f]"} text-white text-xs font-semibold flex items-center justify-center shrink-0 shadow-2xs`}
                 >
                   {player.avatarText || "IS"}
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`text-xs sm:text-sm font-bold truncate ${
+                      className={`text-xs sm:text-sm font-semibold truncate ${
                         isUser
                           ? "text-[#56348f] dark:text-purple-300 font-extrabold"
                           : "text-slate-900 dark:text-slate-100"
@@ -179,12 +179,12 @@ export function WorkplaceLeaderboard({
                       {player.name}
                     </span>
                     {isUser && (
-                      <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-[#56348f] text-white rounded-md tracking-wider shadow-2xs">
+                      <span className="text-xs font-semibold px-2 py-0.5 bg-[#56348f] text-white rounded-md shadow-2xs">
                         You
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
                     {player.role || "Team Member"}
                   </p>
                 </div>
@@ -192,17 +192,17 @@ export function WorkplaceLeaderboard({
 
               {/* Right Score */}
               <div className="text-right shrink-0 pl-3">
-                <span className="text-xs sm:text-sm font-mono font-black text-slate-900 dark:text-slate-100">
+                <span className="text-xs sm:text-sm font-mono font-semibold text-slate-900 dark:text-slate-100">
                   {player.formattedScore || `${player.score.toLocaleString()} ${gameInfo.scoreUnit}`}
                 </span>
                 {rank === 1 && (
-                  <p className="text-[10.5px] text-amber-600 dark:text-amber-400 font-bold flex items-center justify-end gap-1">
+                  <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold flex items-center justify-end gap-1">
                     <Crown className="w-3 h-3 text-amber-500" />
                     <span>#1 Leader</span>
                   </p>
                 )}
                 {isUser && higherScorers.length > 0 && rank !== 1 && (
-                  <p className="text-[10px] text-rose-500 dark:text-rose-400 font-medium">
+                  <p className="text-xs text-rose-500 dark:text-rose-400 font-medium">
                     -{leaderboard[0].score - player.score} from #1
                   </p>
                 )}

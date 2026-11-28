@@ -386,7 +386,7 @@ export function StickyNotesWidget() {
               onChange={handleTitleChange}
               placeholder="Sticky Note..."
               className={cn(
-                "w-full text-center bg-transparent border-none outline-none font-bold text-xs truncate focus:ring-0 select-text cursor-text",
+                "w-full text-center bg-transparent border-none outline-none font-semibold text-xs truncate focus:ring-0 select-text cursor-text",
                 activePalette.text
               )}
             />
@@ -398,7 +398,7 @@ export function StickyNotesWidget() {
               onClick={handleTogglePin}
               className={cn(
                 "p-1 rounded transition cursor-pointer",
-                draftPinned ? "text-amber-700 font-bold" : "opacity-50 hover:opacity-100 text-slate-700"
+                draftPinned ? "text-amber-700 font-semibold" : "opacity-50 hover:opacity-100 text-slate-700"
               )}
               title={draftPinned ? "Unpin Note" : "Pin Note to Top"}
             >
@@ -424,7 +424,7 @@ export function StickyNotesWidget() {
             {notes.length > 1 && (
               <div
                 className={cn(
-                  "px-3 py-1.5 flex items-center gap-1.5 overflow-x-auto border-b text-[11px] shrink-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+                  "px-3 py-1.5 flex items-center gap-1.5 overflow-x-auto border-b text-xs shrink-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
                   activePalette.headerBg,
                   activePalette.border
                 )}
@@ -439,7 +439,7 @@ export function StickyNotesWidget() {
                       className={cn(
                         "px-2 py-0.5 rounded-md font-semibold truncate max-w-[90px] transition cursor-pointer flex items-center gap-1",
                         isActive
-                          ? "bg-white/80 text-slate-900 shadow-2xs font-bold ring-1 ring-black/10"
+                          ? "bg-white/80 text-slate-900 shadow-2xs font-semibold ring-1 ring-black/10"
                           : "opacity-60 hover:opacity-100 text-slate-800"
                       )}
                     >
@@ -485,7 +485,7 @@ export function StickyNotesWidget() {
                       className={cn(
                         "w-3.5 h-3.5 rounded-full transition-transform cursor-pointer border border-black/15 shadow-2xs",
                         pal.dot,
-                        isSelected ? "scale-125 ring-1 ring-slate-800 ring-offset-1" : "hover:scale-110 opacity-70 hover:opacity-100"
+                        isSelected ? "scale-125 ring-1 ring-slate-800 ring-offset-1" : "opacity-70 hover:opacity-100"
                       )}
                       title={pal.name}
                     />
@@ -495,14 +495,14 @@ export function StickyNotesWidget() {
 
               {/* Status & Quick Clear */}
               <div className="flex items-center gap-2">
-                <span className={cn("text-[10.5px] font-semibold", activePalette.statusText)}>
+                <span className={cn("text-xs font-semibold", activePalette.statusText)}>
                   {isSaving ? "Saving..." : saveStatus}
                 </span>
 
                 {draftContent && (
                   <button
                     onClick={handleClearCurrentNote}
-                    className="text-[10.5px] font-medium opacity-60 hover:opacity-100 underline transition cursor-pointer"
+                    className="text-xs font-medium opacity-60 hover:opacity-100 underline transition cursor-pointer"
                     title="Clear content"
                   >
                     Clear

@@ -50,7 +50,7 @@ export default function AmcPage() {
   return (
     <div className="space-y-6 [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           <CalendarClock className="h-7 w-7 text-amber-500" /> AMC List
         </h1>
         <p className="text-slate-600 dark:text-slate-300">Annual maintenance contracts. Contracts past their end date show as Expired.</p>

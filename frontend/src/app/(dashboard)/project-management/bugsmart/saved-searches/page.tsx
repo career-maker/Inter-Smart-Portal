@@ -74,7 +74,7 @@ export default function BugzillaSavedSearchesPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
             <BookmarkCheck className="w-4 h-4 text-rose-600" />
             <span>Saved Search Queries</span>
           </h2>
@@ -128,13 +128,13 @@ export default function BugzillaSavedSearchesPage() {
           {searches.map((s) => (
             <div
               key={s.id}
-              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all"
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 dark:hover:border-slate-700 transition"
             >
               <div className="space-y-2">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">{s.name}</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{s.name}</h3>
                   {s.is_shared && (
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950 dark:text-purple-300">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950 dark:text-purple-300">
                       Shared
                     </span>
                   )}
@@ -144,9 +144,9 @@ export default function BugzillaSavedSearchesPage() {
                   {Object.entries(s.criteria || {}).map(([k, v]) => {
                     if (!v) return null;
                     return (
-                      <div key={k} className="flex items-center justify-between text-[11px]">
+                      <div key={k} className="flex items-center justify-between text-xs">
                         <span className="text-slate-400">{k}:</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-300">{String(v)}</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">{String(v)}</span>
                       </div>
                     );
                   })}

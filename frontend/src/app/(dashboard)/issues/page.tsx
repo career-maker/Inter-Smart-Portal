@@ -92,7 +92,7 @@ export default function IssuesPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
             Helpdesk Issues
           </h1>
           <p className="text-slate-600 dark:text-slate-300 text-sm">
@@ -147,7 +147,7 @@ export default function IssuesPage() {
               <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3 text-slate-400">
                 <AlertCircle className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                 No issues found
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-4">
@@ -174,14 +174,14 @@ export default function IssuesPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2.5 mb-1.5">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${getStatusColor(
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(
                             issue.status
                           )}`}
                         >
                           {issue.status}
                         </span>
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border ${getPriorityColor(
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${getPriorityColor(
                             issue.priority
                           )}`}
                         >
@@ -191,7 +191,7 @@ export default function IssuesPage() {
                           #{issue.id}
                         </span>
                       </div>
-                      <h4 className="text-base font-bold text-slate-900 dark:text-white truncate">
+                      <h4 className="text-base font-semibold text-slate-900 dark:text-white truncate">
                         {issue.title}
                       </h4>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 text-xs text-slate-500 dark:text-slate-400">
@@ -213,7 +213,7 @@ export default function IssuesPage() {
                         )}
                         {/* Assigned-to-me badge for non-admin */}
                         {user?.role !== "Super Admin" && issue.assigned_to === user?.id && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 border border-[#56348f]/20 dark:border-purple-800">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 border border-[#56348f]/20 dark:border-purple-800">
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                             Assigned to me
                           </span>

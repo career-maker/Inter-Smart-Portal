@@ -95,7 +95,7 @@ export function SearchableProjectSelect({
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`w-full text-left flex items-center justify-between gap-2 transition-all duration-300 cursor-pointer rounded-[6px] border ${
+        className={`w-full text-left flex items-center justify-between gap-2 transition duration-300 cursor-pointer rounded-[6px] border ${
           isSmall ? "px-3 py-2 text-xs" : "px-3.5 py-2.5 text-xs sm:text-sm"
         } ${
           disabled
@@ -115,7 +115,7 @@ export function SearchableProjectSelect({
                 {selectedProject.name}
               </span>
               {selectedProject.team?.name && (
-                <span className="text-[10px] font-medium px-1.5 py-0.2 rounded-[4px] bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 shrink-0">
+                <span className="text-xs font-medium px-1.5 py-0.2 rounded-[4px] bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 shrink-0">
                   {selectedProject.team.name}
                 </span>
               )}
@@ -177,7 +177,7 @@ export function SearchableProjectSelect({
                 </button>
               )}
             </div>
-            <div className="flex items-center justify-between px-1 text-[11px] text-slate-500 dark:text-slate-400">
+            <div className="flex items-center justify-between px-1 text-xs text-slate-500 dark:text-slate-400">
               <span>{filteredProjects.length} project{filteredProjects.length === 1 ? "" : "s"} found</span>
               {selectedProject && (
                 <button
@@ -252,7 +252,7 @@ export function SearchableProjectSelect({
                       color: isSelected ? "#ffffff" : undefined,
                       fontFamily: 'Inter, sans-serif',
                     }}
-                    className={`px-3 py-2 rounded-[5px] cursor-pointer flex items-center justify-between gap-3 text-xs transition-all duration-300 ${
+                    className={`px-3 py-2 rounded-[5px] cursor-pointer flex items-center justify-between gap-3 text-xs transition duration-300 ${
                       isSelected
                         ? "bg-teal-700 !text-white shadow-xs font-semibold"
                         : "hover:bg-[var(--portal-primary-color,#0F766E)]/10 hover:text-[var(--portal-primary-color,#0F766E)] dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
@@ -283,7 +283,7 @@ export function SearchableProjectSelect({
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-[10px]">
+                        <div className="flex items-center gap-2 text-xs">
                           {p.team?.name && (
                             <span
                               className={`truncate ${

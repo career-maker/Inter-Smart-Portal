@@ -161,7 +161,7 @@ export function AllEmployeesReportModal({
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
-              <DialogTitle className="text-xl font-bold text-slate-900 dark:text-white">
+              <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-white">
                 All Employees Attendance Report
               </DialogTitle>
               <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -175,7 +175,7 @@ export function AllEmployeesReportModal({
         <div className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 space-y-4 shrink-0">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+              <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                 Report Month
               </Label>
               <Input
@@ -186,7 +186,7 @@ export function AllEmployeesReportModal({
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+              <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                 From Date
               </Label>
               <Input
@@ -197,7 +197,7 @@ export function AllEmployeesReportModal({
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+              <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                 End Date
               </Label>
               <Input
@@ -236,12 +236,12 @@ export function AllEmployeesReportModal({
                 <button
                   type="button"
                   onClick={handleCopyAllReports}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer shadow-2xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition cursor-pointer shadow-2xs"
                 >
                   {copiedAll ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-500" />
-                      <span>All Copied!</span>
+                      <span>All Copied</span>
                     </>
                   ) : (
                     <>
@@ -300,7 +300,7 @@ export function AllEmployeesReportModal({
                   placeholder="Search employee by name, code, designation..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#56348f]/40 dark:focus:ring-purple-400/40 transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#56348f]/40 dark:focus:ring-purple-400/40 transition"
                 />
               </div>
 
@@ -344,7 +344,7 @@ export function AllEmployeesReportModal({
                                     employeeCode={emp.employee_code}
                                     className="font-semibold text-slate-900 dark:text-white text-sm truncate"
                                   />
-                                  <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">
+                                  <span className="font-mono text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">
                                     ID: {emp.employee_code || "—"}
                                   </span>
                                 </div>
@@ -361,7 +361,7 @@ export function AllEmployeesReportModal({
                               <button
                                 type="button"
                                 onClick={() => handleCopyReport(emp)}
-                                className={`inline-flex items-center justify-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-lg text-xs font-semibold border transition-all cursor-pointer shadow-2xs shrink-0 ${
+                                className={`inline-flex items-center justify-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-lg text-xs font-semibold border transition cursor-pointer shadow-2xs shrink-0 ${
                                   copiedId === emp.id
                                     ? "bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700"
                                     : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600"
@@ -371,7 +371,7 @@ export function AllEmployeesReportModal({
                                 {copiedId === emp.id ? (
                                   <>
                                     <Check className="w-3.5 h-3.5 text-white" />
-                                    <span>Copied!</span>
+                                    <span>Copied</span>
                                   </>
                                 ) : (
                                   <>
@@ -383,7 +383,7 @@ export function AllEmployeesReportModal({
                               <button
                                 type="button"
                                 onClick={() => handleWhatsAppReport(emp)}
-                                className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-lg text-xs font-semibold bg-[#25D366] hover:bg-[#20ba5a] active:bg-[#1da851] text-white shadow-2xs transition-all cursor-pointer border-none shrink-0"
+                                className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-lg text-xs font-semibold bg-[#25D366] hover:bg-[#20ba5a] active:bg-[#1da851] text-white shadow-2xs transition cursor-pointer border-none shrink-0"
                                 title={
                                   emp.phone || emp.contact_number
                                     ? `Send via WhatsApp to ${emp.phone || emp.contact_number}`

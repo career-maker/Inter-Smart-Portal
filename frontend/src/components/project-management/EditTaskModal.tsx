@@ -55,7 +55,7 @@ export function EditTaskModal({ isOpen, onClose, task, onSuccess }: { isOpen: bo
       <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
         <div onClick={onClose} className="fixed inset-0 bg-slate-950/70" />
         <form onSubmit={save} className="relative w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 p-5 space-y-3 shadow-xl max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between"><h2 className="font-bold text-lg text-slate-900 dark:text-white">Edit task</h2>
+          <div className="flex items-center justify-between"><h2 className="font-semibold text-lg text-slate-900 dark:text-white">Edit task</h2>
             <button type="button" onClick={onClose} aria-label="Close"><X className="h-5 w-5" /></button></div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <label className="block text-xs font-semibold text-slate-500">Title<input required className={field} value={f.title || ""} onChange={(e) => setF({ ...f, title: e.target.value })} /></label>

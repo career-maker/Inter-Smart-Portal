@@ -54,7 +54,7 @@ export default function ActivitiesPage() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3 text-slate-900 dark:text-white">
+          <h1 className="text-3xl font-semibold tracking-tight flex items-center gap-3 text-slate-900 dark:text-white">
             <Activity className="w-8 h-8 text-cyan-600" />
             All Activities
           </h1>

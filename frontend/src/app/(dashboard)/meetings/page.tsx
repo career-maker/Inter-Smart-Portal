@@ -29,7 +29,7 @@ export default function MeetingsPage() {
       <Section title="Scheduled meetings" count={rows.length}>
         <Panel className="p-0 overflow-hidden">
           {rows.length > 0 && (
-            <div className={`${COLS} hidden md:grid items-center gap-4 px-4 h-10 bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-xs font-medium uppercase tracking-wide text-slate-500`}>
+            <div className={`${COLS} hidden md:grid items-center gap-4 px-4 h-10 bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-xs font-medium text-slate-500`}>
               <span>Meeting</span><span>Project</span><span>Type</span><span>When (IST)</span><span>Status</span><span />
             </div>
           )}

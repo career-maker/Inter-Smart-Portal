@@ -25,7 +25,7 @@ export function ProjectStatusBadge({ status, className = "" }: ProjectStatusBadg
 
   return (
     <span
-      className={`inline-flex items-center text-xs font-bold px-2.5 py-0.5 rounded-full border ${getBadgeStyle(
+      className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full border ${getBadgeStyle(
         status
       )} ${className}`}
     >

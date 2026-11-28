@@ -40,7 +40,7 @@ const LEGEND = [
 export function EventTypesCard() {
   return (
     <div className={cardClass}>
-      <h3 className="text-base font-extrabold text-[#0B1F4B] dark:text-white">Event Types</h3>
+      <h3 className="text-base font-semibold text-[#0B1F4B] dark:text-white">Event Types</h3>
       <ul className="mt-4 space-y-3">
         {LEGEND.map((item) => (
           <li key={item.label} className="flex items-center gap-3">
@@ -65,7 +65,7 @@ const PILL: Record<UpcomingItem["kind"], { label: string; className: string }> =
 export function UpcomingCard({ days }: { days: UpcomingDay[] }) {
   return (
     <div className={cardClass}>
-      <h3 className="flex items-center gap-2 text-base font-extrabold text-[#0B1F4B] dark:text-white">
+      <h3 className="flex items-center gap-2 text-base font-semibold text-[#0B1F4B] dark:text-white">
         <CalendarIcon className="portal-accent-text h-4 w-4" />
         Upcoming (Next 7 Days)
       </h3>
@@ -87,8 +87,8 @@ export function UpcomingCard({ days }: { days: UpcomingDay[] }) {
                       : "portal-accent-tint portal-accent-border portal-accent-text"
                   }`}
                 >
-                  <div className="text-lg font-extrabold leading-none">{format(date, "d")}</div>
-                  <div className="mt-0.5 text-[10px] font-semibold opacity-80">{format(date, "MMM")}</div>
+                  <div className="text-lg font-semibold leading-none">{format(date, "d")}</div>
+                  <div className="mt-0.5 text-xs font-semibold opacity-80">{format(date, "MMM")}</div>
                 </div>
                 <div className="min-w-0 flex-1 space-y-1.5 pt-0.5">
                   {items.map((item) => (
@@ -96,10 +96,10 @@ export function UpcomingCard({ days }: { days: UpcomingDay[] }) {
                       <span className="truncate text-sm font-semibold text-slate-800 dark:text-slate-200">
                         {item.label}
                         {isToday(date) && item === items[0] && (
-                          <span className="portal-accent-text ml-1.5 text-[10px] font-bold uppercase">Today</span>
+                          <span className="portal-accent-text ml-1.5 text-xs font-semibold">Today</span>
                         )}
                       </span>
-                      <span className={`shrink-0 rounded-md px-2 py-0.5 text-[11px] font-bold ${PILL[item.kind].className}`}>
+                      <span className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold ${PILL[item.kind].className}`}>
                         {PILL[item.kind].label}
                       </span>
                     </div>
@@ -114,7 +114,7 @@ export function UpcomingCard({ days }: { days: UpcomingDay[] }) {
 
       <Link
         href="/leaves"
-        className="portal-accent-tint portal-accent-border portal-accent-text portal-focus mt-5 flex items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-bold transition-colors hover:brightness-95"
+        className="portal-accent-tint portal-accent-border portal-accent-text portal-focus mt-5 flex items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-semibold transition-colors hover:brightness-95"
       >
         View Full Leave List
         <ArrowRight className="h-4 w-4" />
@@ -151,12 +151,12 @@ export function DayDetailsCard({
   return (
     <div className={`${cardClass} space-y-4`}>
       <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-        <h3 className="flex items-center gap-2 text-base font-extrabold text-[#0B1F4B] dark:text-white">
+        <h3 className="flex items-center gap-2 text-base font-semibold text-[#0B1F4B] dark:text-white">
           <CalendarIcon className="portal-accent-text h-5 w-5" />
           Events on {format(date, "EEEE, dd MMMM yyyy")}
         </h3>
         {isToday(date) && (
-          <span className="portal-accent-tint-strong portal-accent-text rounded-full px-2.5 py-0.5 text-xs font-bold">
+          <span className="portal-accent-tint-strong portal-accent-text rounded-full px-2.5 py-0.5 text-xs font-semibold">
             Today
           </span>
         )}
@@ -191,7 +191,7 @@ export function DayDetailsCard({
                     </div>
                   )}
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                    <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
                       {person ? `${person.name}${person.is_self ? " (You)" : ""}` : title}
                     </p>
                     {person && (
@@ -205,7 +205,7 @@ export function DayDetailsCard({
                     )}
                   </div>
                 </div>
-                <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-bold ${badge.className}`}>
+                <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${badge.className}`}>
                   {badge.label}
                 </span>
               </div>
@@ -227,7 +227,7 @@ export function ApplyLeaveBanner() {
           <Info className="h-5 w-5" />
         </div>
         <div>
-          <p className="portal-accent-text text-sm font-extrabold">Need to apply for leave?</p>
+          <p className="portal-accent-text text-sm font-semibold">Need to apply for leave?</p>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Go to Leaves &amp; WFH to submit a new request.
           </p>
@@ -235,7 +235,7 @@ export function ApplyLeaveBanner() {
       </div>
       <Link
         href="/leaves/apply"
-        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-700"
+        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
       >
         <Plus className="h-4 w-4" />
         Apply Leave

@@ -269,9 +269,9 @@ export default function CompletedTasksPage() {
             <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Completed Tasks</span>
           </div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
               <span>Completed Tasks</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
                 {completedTasks.length}
               </span>
             </h1>
@@ -297,7 +297,7 @@ export default function CompletedTasksPage() {
               <button
                 type="button"
                 onClick={() => setViewMode("grouped")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "grouped"
                     ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -309,7 +309,7 @@ export default function CompletedTasksPage() {
               <button
                 type="button"
                 onClick={() => setViewMode("flat")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "flat"
                     ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -354,7 +354,7 @@ export default function CompletedTasksPage() {
       ) : completedTasks.length === 0 ? (
         <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 py-16 text-center p-6 space-y-3">
           <CheckCircle2 className="w-10 h-10 mx-auto text-slate-400 opacity-50" />
-          <p className="text-base font-bold text-slate-800 dark:text-slate-200">No completed tasks yet</p>
+          <p className="text-base font-semibold text-slate-800 dark:text-slate-200">No completed tasks yet</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
             Tasks marked with &ldquo;Completed&rdquo; status will appear in this archive.
           </p>
@@ -373,21 +373,21 @@ export default function CompletedTasksPage() {
                 {/* Employee Header */}
                 <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200/90 dark:border-slate-800">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold text-xs flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
                       {initial}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slate-900 dark:text-white">
+                        <span className="font-semibold text-sm text-slate-900 dark:text-white">
                           {group.member.name}
                         </span>
                         {group.member.employee_code && (
-                          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-slate-700/60 px-1.5 py-0.5 rounded">
+                          <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-slate-700/60 px-1.5 py-0.5 rounded">
                             {group.member.employee_code}
                           </span>
                         )}
                         {group.member.designation && (
-                          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <span className="text-xs text-slate-500 dark:text-slate-400">
                             • {group.member.designation}
                           </span>
                         )}
@@ -419,7 +419,7 @@ export default function CompletedTasksPage() {
           {unassignedCompleted.length > 0 && (
             <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
               <div className="flex items-center justify-between px-5 py-3.5 bg-slate-100/60 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800">
-                <div className="flex items-center gap-2 text-slate-800 dark:text-slate-300 font-bold text-sm">
+                <div className="flex items-center gap-2 text-slate-800 dark:text-slate-300 font-semibold text-sm">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Unassigned Completed Tasks ({unassignedCompleted.length})</span>
                 </div>

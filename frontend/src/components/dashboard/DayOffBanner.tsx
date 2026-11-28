@@ -104,7 +104,7 @@ export function DayOffBanner({ type, name }: DayOffBannerProps) {
   // because the card is only 2/3 wide on desktop layouts.
   return (
     <div className="@container">
-      <div className="relative overflow-hidden flex items-center gap-3 @md:gap-6 rounded-2xl bg-gradient-to-r from-[#dceafc] via-[#e3e9fb] to-[#e8e4fa] dark:from-[#1b2745] dark:via-[#202849] dark:to-[#2a2650] px-3 @md:px-6 py-4 @md:py-5 min-h-[120px] @md:min-h-[150px]">
+      <div className="relative overflow-hidden flex items-center gap-3 @md:gap-6 rounded-2xl bg-[#dceafc] dark:bg-[#1b2745] px-3 @md:px-6 py-4 @md:py-5 min-h-[120px] @md:min-h-[150px]">
         {/* Soft diagonal highlight on the right */}
         <div
           aria-hidden
@@ -116,7 +116,7 @@ export function DayOffBanner({ type, name }: DayOffBannerProps) {
         </div>
 
         <div className="relative min-w-0 flex-1">
-          <h3 className="text-xl @md:text-3xl font-extrabold tracking-tight text-[#0f1f5c] dark:text-white leading-tight">
+          <h3 className="text-xl @md:text-3xl font-semibold tracking-tight text-[#0f1f5c] dark:text-white leading-tight">
             {title}
           </h3>
           <p className="mt-1.5 @md:mt-2 text-xs @md:text-sm font-medium text-slate-700 dark:text-slate-300 leading-relaxed max-w-md">

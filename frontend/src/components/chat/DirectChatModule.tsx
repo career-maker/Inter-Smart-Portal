@@ -1329,7 +1329,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
           <div className="w-16 h-16 rounded-full bg-[#0b57d0] text-white flex items-center justify-center mb-3 shadow-lg animate-bounce">
             <UploadCloud className="w-8 h-8" />
           </div>
-          <h3 className="text-base font-bold text-[#0b57d0] dark:text-emerald-300">
+          <h3 className="text-base font-semibold text-[#0b57d0] dark:text-emerald-300">
             Drop files or screenshots here
           </h3>
           <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium">
@@ -1358,17 +1358,17 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
           WHATSAPP-STYLE CHATS LIST (Left on desktop, Full screen on mobile)
       ───────────────────────────────────────────────────────────── */}
       <div
-        className={`w-full md:w-80 lg:w-92 border-r border-slate-200/90 dark:border-slate-800 flex flex-col shrink-0 bg-white dark:bg-[#111b21] overflow-x-hidden transition-all ${
+        className={`w-full md:w-80 lg:w-92 border-r border-slate-200/90 dark:border-slate-800 flex flex-col shrink-0 bg-white dark:bg-[#111b21] overflow-x-hidden transition ${
           activeConversationId ? "hidden md:flex" : "flex"
         }`}
       >
         <div className="p-3.5 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-[#f0f2f5] dark:bg-[#202c33] shrink-0">
           <div className="flex items-center gap-2.5">
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 leading-tight">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 leading-tight">
                 Chats
               </h2>
-              <p className="text-[11px] text-slate-500 font-medium">
+              <p className="text-xs text-slate-500 font-medium">
                 {conversations.length} conversation{conversations.length === 1 ? "" : "s"}
               </p>
             </div>
@@ -1406,14 +1406,14 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
         </div>
 
         {/* Mobile Push Notification Alert Status (Mobile Only, Test Button Hidden) */}
-        <div className="md:hidden px-3.5 py-2 bg-gradient-to-r from-emerald-50 via-emerald-50 to-emerald-50 dark:from-emerald-950/40 dark:via-slate-800 dark:to-emerald-950/40 border-b border-emerald-100 dark:border-emerald-900/40 flex items-center justify-between gap-2 shrink-0">
+        <div className="md:hidden px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-100 dark:border-emerald-900/40 flex items-center justify-between gap-2 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <Bell className="w-5 h-5 shrink-0 text-emerald-700 dark:text-emerald-300" />
             <div className="min-w-0">
-              <p className="text-[11.5px] font-bold text-emerald-950 dark:text-emerald-200 leading-tight truncate">
+              <p className="text-xs font-semibold text-emerald-950 dark:text-emerald-200 leading-tight truncate">
                 Mobile Push Alerts
               </p>
-              <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium truncate">
+              <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium truncate">
                 {permissionStatus === "granted"
                   ? "Active • Ready on your phone"
                   : permissionStatus === "denied"
@@ -1428,7 +1428,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
             <button
               type="button"
               onClick={requestNotificationPermission}
-              className="px-3 py-1 rounded-full text-[11px] font-bold shrink-0 transition-all shadow-xs cursor-pointer active:scale-95 bg-amber-400 hover:bg-amber-300 text-slate-950"
+              className="px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition shadow-xs cursor-pointer active:scale-95 bg-amber-400 hover:bg-amber-300 text-slate-950"
             >
               Turn On
             </button>
@@ -1467,10 +1467,10 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                 <User className="w-6 h-6" />
               </div>
               <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">No chats found</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Start messaging any colleague in your team.</p>
+              <p className="text-xs text-slate-400 mt-0.5">Start messaging any colleague in your team.</p>
               <button
                 onClick={() => setShowNewChatModal(true)}
-                className="mt-3 px-4 py-2 bg-[#00a884] hover:bg-[#008f72] text-white rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                className="mt-3 px-4 py-2 bg-[#00a884] hover:bg-[#008f72] text-white rounded-full text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition"
               >
                 <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                 <span>Start a conversation</span>
@@ -1511,7 +1511,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                 >
                     <div className="relative shrink-0">
                       {conv.type === "group" ? (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#00a884] to-emerald-400 text-white flex items-center justify-center shadow-2xs">
+                        <div className="w-12 h-12 rounded-full bg-[#00a884] text-white flex items-center justify-center shadow-2xs">
                           <Users className="w-6 h-6" />
                         </div>
                       ) : (
@@ -1541,7 +1541,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                       />
                       {timeStr && (
                         <span
-                          className={`text-[11px] shrink-0 font-normal ${
+                          className={`text-xs shrink-0 font-normal ${
                             hasUnread ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-slate-400"
                           }`}
                         >
@@ -1570,7 +1570,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                       </p>
 
                       {hasUnread && (
-                        <span className="shrink-0 bg-emerald-500 text-white text-[10.5px] font-bold px-1.5 py-0.5 rounded-full min-w-[19px] text-center shadow-xs">
+                        <span className="shrink-0 bg-emerald-500 text-white text-xs font-semibold px-1.5 py-0.5 rounded-full min-w-[19px] text-center shadow-xs">
                           {conv.unread_count}
                         </span>
                       )}
@@ -1619,7 +1619,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                     <button
                       type="button"
                       onClick={() => setShowGroupInfo(true)}
-                      className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00a884] to-emerald-400 text-white flex items-center justify-center shadow-2xs cursor-pointer"
+                      className="w-10 h-10 rounded-full bg-[#00a884] text-white flex items-center justify-center shadow-2xs cursor-pointer"
                       aria-label="Group info"
                     >
                       <Users className="w-5 h-5" />
@@ -1646,15 +1646,15 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                   <RoyalName
                     name={activeConversation.other_user?.name || activeConversation.title}
                     userId={activeConversation.other_user?.id}
-                    className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate block leading-tight"
+                    className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate block leading-tight"
                   />
                   {activeConversation.type === "group" ? (
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
                       {activeConversation.participants.length} members
                       {activeConversation.my_role === "admin" ? " • You are an admin" : ""}
                     </p>
                   ) : (
-                  <div className="flex items-center gap-1.5 text-[11px] truncate mt-0.5">
+                  <div className="flex items-center gap-1.5 text-xs truncate mt-0.5">
                     {activeConversation.other_user?.is_online ? (
                       <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -1727,7 +1727,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center p-6">
-                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                     Chat with {activeConversation.other_user?.first_name || "colleague"}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mt-1">
@@ -1771,7 +1771,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                         }`}
                       >
                         {activeConversation.type === "group" && !isMe && msg.sender && (
-                          <p className="text-[11px] font-bold text-[#00a884] dark:text-emerald-300 mb-0.5">{msg.sender.name}</p>
+                          <p className="text-xs font-semibold text-[#00a884] dark:text-emerald-300 mb-0.5">{msg.sender.name}</p>
                         )}
 
                         {msg.message_type === "sticker" && <StickerView id={msg.message} />}
@@ -1833,7 +1833,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                                   <FileText className="w-4 h-4 text-[#00a884] shrink-0" />
                                   <div className="min-w-0 flex-1">
                                     <p className="truncate font-semibold text-xs">{att.original_name ?? ""}</p>
-                                    <p className="text-[10px] opacity-70">{formatFileSize(att.file_size)}</p>
+                                    <p className="text-xs opacity-70">{formatFileSize(att.file_size)}</p>
                                   </div>
                                   <Download className="w-3.5 h-3.5 opacity-60 shrink-0" />
                                 </a>
@@ -1843,7 +1843,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                         )}
 
                         {/* Timestamp & Status ticks at bottom right */}
-                        <div className="flex items-center justify-end gap-1 mt-1 -mb-0.5 text-[10px] opacity-60 select-none">
+                        <div className="flex items-center justify-end gap-1 mt-1 -mb-0.5 text-xs opacity-60 select-none">
                           <span>{msgTime}</span>
                           {isMe && (
                             <span>
@@ -1852,7 +1852,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                               ) : isError ? (
                                 <button
                                   onClick={() => handleSendMessage(msg)}
-                                  className="text-rose-600 font-bold hover:underline cursor-pointer flex items-center gap-0.5"
+                                  className="text-rose-600 font-semibold hover:underline cursor-pointer flex items-center gap-0.5"
                                 >
                                   Retry <RotateCw className="w-2.5 h-2.5" />
                                 </button>
@@ -1954,7 +1954,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                         <button
                           type="button"
                           onClick={() => setActiveEmojiCategory("recent")}
-                          className={`px-1.5 py-0.5 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 ${
+                          className={`px-1.5 py-0.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 ${
                             activeEmojiCategory === "recent"
                               ? "bg-emerald-100 dark:bg-emerald-950/60 text-[#00a884] dark:text-emerald-300"
                               : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -1969,7 +1969,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                           key={cat.id}
                           type="button"
                           onClick={() => setActiveEmojiCategory(cat.id)}
-                          className={`px-1.5 py-0.5 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 ${
+                          className={`px-1.5 py-0.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 ${
                             activeEmojiCategory === cat.id
                               ? "bg-emerald-100 dark:bg-emerald-950/60 text-[#00a884] dark:text-emerald-300"
                               : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -1991,7 +1991,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                             key={idx}
                             type="button"
                             onClick={() => handleInsertEmoji(emoji)}
-                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-base sm:text-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 hover:scale-115 active:scale-95 transition-all cursor-pointer select-none"
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-base sm:text-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 active:scale-95 transition cursor-pointer select-none"
                             title={EMOJI_KEYWORD_MAP[emoji] || emoji}
                           >
                             {emoji}
@@ -2077,7 +2077,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                   <button
                     type="button"
                     onClick={() => handleSendMessage()}
-                    className="w-9 h-9 bg-[#00a884] hover:bg-[#008f72] text-white rounded-full flex items-center justify-center shadow-xs transition-all shrink-0 cursor-pointer active:scale-95 mb-0.5"
+                    className="w-9 h-9 bg-[#00a884] hover:bg-[#008f72] text-white rounded-full flex items-center justify-center shadow-xs transition shrink-0 cursor-pointer active:scale-95 mb-0.5"
                     title="Send message (Enter)"
                   >
                     <Send className="w-4 h-4 ml-0.5" />
@@ -2109,7 +2109,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
               {/* Front Main Chat Bubble */}
               </div>
 
-            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 relative z-10">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-100 relative z-10">
               InterSmart Direct Chat
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1.5 leading-relaxed relative z-10">
@@ -2117,7 +2117,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
             </p>
             <button
               onClick={() => setShowNewChatModal(true)}
-              className="mt-5 px-6 py-2.5 bg-[#00a884] hover:bg-[#008f72] text-white rounded-full text-xs font-bold shadow-md shadow-[#00a884]/20 transition-all hover:scale-105 active:scale-95 cursor-pointer inline-flex items-center gap-2 relative z-10"
+              className="mt-5 px-6 py-2.5 bg-[#00a884] hover:bg-[#008f72] text-white rounded-full text-xs font-semibold shadow-md shadow-[#00a884]/20 transition active:scale-95 cursor-pointer inline-flex items-center gap-2 relative z-10"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Start New Chat</span>
@@ -2169,14 +2169,14 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
             >
               <div className="p-4 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[#00a884]/10 text-[#00a884] dark:bg-emerald-900/40 dark:text-emerald-300 flex items-center justify-center font-bold">
+                  <div className="w-8 h-8 rounded-full bg-[#00a884]/10 text-[#00a884] dark:bg-emerald-900/40 dark:text-emerald-300 flex items-center justify-center font-semibold">
                     <User className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                       New Chat
                     </h3>
-                    <p className="text-[11px] text-slate-400">Select an employee to message</p>
+                    <p className="text-xs text-slate-400">Select an employee to message</p>
                   </div>
                 </div>
                 <button
@@ -2234,9 +2234,9 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                           <RoyalName
                             name={usr.name}
                             userId={usr.id}
-                            className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate block group-hover:text-[#00a884] transition-colors"
+                            className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate block group-hover:text-[#00a884] transition-colors"
                           />
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                             {usr.designation || "Employee"} • {usr.department || usr.email}
                           </p>
                         </div>

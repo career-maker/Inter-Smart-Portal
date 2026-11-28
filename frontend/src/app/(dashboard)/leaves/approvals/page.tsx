@@ -77,7 +77,7 @@ function DurationBadge({ type }: { type: string }) {
     "Half-Afternoon": "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800",
   };
   return (
-    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${map[type] ?? "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"}`}>
+    <span className={`text-xs font-semibold px-1.5 py-0.5 rounded border ${map[type] ?? "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"}`}>
       {type === "Full" ? "Full" : type === "Half-Morning" ? "AM" : "PM"}
     </span>
   );
@@ -354,7 +354,7 @@ export default function ApprovalsPage() {
       if (response.data?.message) {
         setSuccessMessage(response.data.message);
       } else {
-        setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request approved successfully!`);
+        setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request approved successfully`);
       }
 
       // Optimistic update — merge API response on top of local item so the
@@ -414,7 +414,7 @@ export default function ApprovalsPage() {
         status: "Rejected",
         ...(type === "leave" ? { rejection_reason: rejectReason } : { remarks: rejectReason }),
       });
-      setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request rejected successfully!`);
+      setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request rejected successfully`);
       setRejectDialog(null);
       setRejectReason("");
 
@@ -476,11 +476,11 @@ export default function ApprovalsPage() {
       if (isRejected) {
         const endpoint = type === "leave" ? `/leave-requests/${id}` : `/wfh-requests/${id}`;
         await api.delete(endpoint);
-        setSuccessMessage(`Rejected ${type.toUpperCase()} request deleted successfully!`);
+        setSuccessMessage(`Rejected ${type.toUpperCase()} request deleted successfully`);
       } else {
         const endpoint = type === "leave" ? `/leave-requests/${id}/cancel` : `/wfh-requests/${id}/cancel`;
         await api.post(endpoint);
-        setSuccessMessage(isApproved ? `Approved ${type.toUpperCase()} request deleted successfully!` : `${type === "leave" ? "Leave" : "WFH"} request cancelled successfully!`);
+        setSuccessMessage(isApproved ? `Approved ${type.toUpperCase()} request deleted successfully` : `${type === "leave" ? "Leave" : "WFH"} request cancelled successfully`);
       }
       
       // Optimistic update
@@ -585,7 +585,7 @@ export default function ApprovalsPage() {
         lop_days: overrideFields.lop_days,
         remarks: overrideFields.remarks,
       });
-      setSuccessMessage("Leave request override applied and approved successfully!");
+      setSuccessMessage("Leave request override applied and approved successfully");
       setOverrideDialog(null);
       fetchRequests(true);
       setTimeout(() => setSuccessMessage(null), 4000);
@@ -672,7 +672,7 @@ export default function ApprovalsPage() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
         <div className="space-y-3">
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
               Approvals Queue
             </h1>
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
@@ -704,7 +704,7 @@ export default function ApprovalsPage() {
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
                     isActive
                       ? "bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-300 font-bold shadow-sm"
                       : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 border border-slate-200 dark:border-slate-700"
@@ -717,7 +717,7 @@ export default function ApprovalsPage() {
                   {status === "All" && <History className="w-3.5 h-3.5 text-slate-500" />}
                   <span>{status}</span>
                   <span
-                    className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                    className={`px-1.5 py-0.5 rounded-md text-xs font-semibold ${
                       isActive ? "bg-amber-500 text-white dark:text-slate-950" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                     }`}
                   >
@@ -747,7 +747,7 @@ export default function ApprovalsPage() {
                   <button
                     key={t}
                     onClick={() => handleTabChange(t)}
-                    className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-lg transition-all whitespace-nowrap cursor-pointer ${
+                    className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-lg transition whitespace-nowrap cursor-pointer ${
                       isActive
                         ? "bg-[#56348f] text-white font-bold shadow-sm"
                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold"
@@ -763,7 +763,7 @@ export default function ApprovalsPage() {
             {isSuperAdmin && (
               <button
                 onClick={() => setIsDirectModalOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-xl font-bold bg-[#56348f] hover:bg-[#452875] text-white shadow-xs transition-colors cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-xl font-semibold bg-[#56348f] hover:bg-[#452875] text-white shadow-xs transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Leave / WFH</span>
@@ -820,7 +820,7 @@ export default function ApprovalsPage() {
               )}
             </colgroup>
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-xs font-semibold text-slate-600 dark:text-slate-400">
                 <th className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800">Employee</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Type</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Duration</th>
@@ -850,17 +850,17 @@ export default function ApprovalsPage() {
                           name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
                           userId={req.user_id || req.user?.id}
                           employeeCode={req.user?.employee_code}
-                          className="w-7 h-7 rounded-full text-[10px] font-bold bg-amber-600 text-white shrink-0"
+                          className="w-7 h-7 rounded-full text-xs font-semibold bg-amber-600 text-white shrink-0"
                         />
                         <div className="min-w-0 truncate">
-                          <h3 className="font-bold text-[12px] text-slate-900 dark:text-white leading-tight truncate">
+                          <h3 className="font-semibold text-[12px] text-slate-900 dark:text-white leading-tight truncate">
                             <RoyalName
                               name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
                               userId={req.user_id || req.user?.id}
                               employeeCode={req.user?.employee_code}
                             />
                           </h3>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                             {req.user?.designation || req.user?.role || "Employee"}
                             {req.user?.employee_code && ` • ${req.user.employee_code}`}
                           </p>
@@ -872,14 +872,14 @@ export default function ApprovalsPage() {
                     <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60">
                       <div className="flex items-center gap-1.5 truncate">
                         <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
-                        <span className="text-[11px] font-medium text-slate-800 dark:text-slate-200 truncate" title={req.leave_type?.name}>
+                        <span className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate" title={req.leave_type?.name}>
                           {req.leave_type?.name || "Leave"}
                         </span>
                       </div>
                     </td>
 
                     {/* Column 3: Duration */}
-                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight text-[11px] text-slate-800 dark:text-slate-200">
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight text-xs text-slate-800 dark:text-slate-200">
                       <span className="font-medium">{fmtDate(req.start_date)}</span>
                       {req.end_date && req.end_date !== req.start_date && (
                         <span className="text-slate-500 dark:text-slate-400"> - {fmtDate(req.end_date)}</span>
@@ -887,13 +887,13 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Column 4: Days */}
-                    <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight font-bold text-slate-900 dark:text-white text-xs">
+                    <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight font-semibold text-slate-900 dark:text-white text-xs">
                       {Number(req.days_taken ?? req.days ?? 0).toFixed(1)}
                     </td>
 
                     {/* Column 5: Reason */}
                     <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60">
-                      <p className="text-[11px] text-slate-700 dark:text-slate-300 truncate" title={req.reason || ""}>
+                      <p className="text-xs text-slate-700 dark:text-slate-300 truncate" title={req.reason || ""}>
                         {req.reason || "—"}
                       </p>
                       {req.attachment_link && (
@@ -901,7 +901,7 @@ export default function ApprovalsPage() {
                           href={req.attachment_link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-0.5 text-[10px] text-purple-600 dark:text-purple-400 hover:underline"
+                          className="inline-flex items-center gap-0.5 text-xs text-purple-600 dark:text-purple-400 hover:underline"
                         >
                           <Link2 className="w-2.5 h-2.5" /> File
                         </a>
@@ -912,30 +912,30 @@ export default function ApprovalsPage() {
                     <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60">
                       <div className="space-y-1">
                         {req.pending_lop_conversion ? (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
                             <AlertTriangle className="w-2.5 h-2.5 text-rose-500" /> Pending LOP
                           </span>
                         ) : req.status === "Approved" ? (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             <CheckCircle className="w-2.5 h-2.5 text-emerald-500" /> Approved
                           </span>
                         ) : req.status === "Rejected" ? (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
                             <XCircle className="w-2.5 h-2.5 text-rose-500" /> Rejected
                           </span>
                         ) : req.status === "Cancelled" ? (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
                             <XCircle className="w-2.5 h-2.5 text-slate-500" /> Cancelled
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                             <Clock className="w-2.5 h-2.5 text-amber-500" /> Pending
                           </span>
                         )}
 
                         {!!req.is_unpaid && (
                           <span
-                            className="block text-[9px] font-bold text-rose-600 dark:text-rose-400 truncate cursor-help"
+                            className="block text-xs font-semibold text-rose-600 dark:text-rose-400 truncate cursor-help"
                             title={req.unpaid_reason || "Marked as Unpaid (LOP) due to exhausted leave balance."}
                           >
                             Unpaid (LOP)
@@ -953,14 +953,14 @@ export default function ApprovalsPage() {
                             <button
                               onClick={() => handleLopConversion(req.id, "confirm")}
                               disabled={actionLoading}
-                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition disabled:opacity-50 cursor-pointer"
+                              className="px-2 py-0.5 rounded text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition disabled:opacity-50 cursor-pointer"
                             >
                               Confirm
                             </button>
                             <button
                               onClick={() => handleLopConversion(req.id, "reject")}
                               disabled={actionLoading}
-                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 transition disabled:opacity-50 cursor-pointer"
+                              className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 transition disabled:opacity-50 cursor-pointer"
                             >
                               Decline
                             </button>
@@ -984,7 +984,7 @@ export default function ApprovalsPage() {
                                 }}
                                 disabled={actionLoading}
                                 title="Reject"
-                                className="px-2 py-1.5 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1"
+                                className="px-2 py-1.5 rounded-md text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1"
                               >
                                 <XCircle className="w-3.5 h-3.5 text-rose-500" />
                                 Reject
@@ -1005,7 +1005,7 @@ export default function ApprovalsPage() {
                             onClick={() => cancelRequest("leave", req.id)}
                             disabled={actionLoading}
                             title={req.status === "Approved" ? "Delete Approved Leave Request (Refunds Balance)" : "Delete Rejected Leave Request"}
-                            className="px-2.5 py-1 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1 shadow-sm"
+                            className="px-2.5 py-1 rounded-md text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1 shadow-sm"
                           >
                             <Trash2 className="w-3.5 h-3.5 text-rose-500" />
                             Delete
@@ -1049,7 +1049,7 @@ export default function ApprovalsPage() {
               )}
             </colgroup>
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-xs font-semibold text-slate-600 dark:text-slate-400">
                 <th className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800">Employee</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Type</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Duration</th>
@@ -1079,17 +1079,17 @@ export default function ApprovalsPage() {
                           name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
                           userId={req.user_id || req.user?.id}
                           employeeCode={req.user?.employee_code}
-                          className="w-7 h-7 rounded-full text-[10px] font-bold bg-indigo-600 text-white shrink-0"
+                          className="w-7 h-7 rounded-full text-xs font-semibold bg-indigo-600 text-white shrink-0"
                         />
                         <div className="min-w-0 truncate">
-                          <h3 className="font-bold text-[12px] text-slate-900 dark:text-white leading-tight truncate">
+                          <h3 className="font-semibold text-[12px] text-slate-900 dark:text-white leading-tight truncate">
                             <RoyalName
                               name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
                               userId={req.user_id || req.user?.id}
                               employeeCode={req.user?.employee_code}
                             />
                           </h3>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                             {req.user?.designation || req.user?.role || "Employee"}
                             {req.user?.employee_code && ` • ${req.user.employee_code}`}
                           </p>
@@ -1100,25 +1100,25 @@ export default function ApprovalsPage() {
                     {/* Type */}
                     <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                       <div className="flex items-center gap-1">
-                        <span className="text-[11px] font-medium text-slate-800 dark:text-slate-200">WFH</span>
+                        <span className="text-xs font-medium text-slate-800 dark:text-slate-200">WFH</span>
                         {req.duration_type && <DurationBadge type={req.duration_type} />}
                       </div>
                     </td>
 
                     {/* Duration */}
-                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight text-[11px] text-slate-800 dark:text-slate-200">
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight text-xs text-slate-800 dark:text-slate-200">
                       <span className="font-medium">{fmtDate(req.start_date)}</span>
                       {req.end_date && req.end_date !== req.start_date && (
                         <span className="text-slate-500 dark:text-slate-400"> - {fmtDate(req.end_date)}</span>
                       )}
-                      <span className="ml-1 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                      <span className="ml-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
                         ({calcWfhDays(req)} {Number(calcWfhDays(req)) === 1 ? "day" : "days"})
                       </span>
                     </td>
 
                     {/* TL Status */}
                     <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
-                      <span className={`text-[10px] font-bold ${
+                      <span className={`text-xs font-semibold ${
                         (req.tl_status || "").toLowerCase() === "approved"
                           ? "text-emerald-600 dark:text-emerald-400"
                           : (req.tl_status || "").toLowerCase() === "rejected"
@@ -1133,25 +1133,25 @@ export default function ApprovalsPage() {
 
                     {/* Reason */}
                     <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60">
-                      <p className="text-[11px] text-slate-700 dark:text-slate-300 truncate" title={req.reason || ""}>{req.reason || "—"}</p>
+                      <p className="text-xs text-slate-700 dark:text-slate-300 truncate" title={req.reason || ""}>{req.reason || "—"}</p>
                     </td>
 
                     {/* Status */}
                     <td className="py-2.5 px-2 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                       {req.status === "Approved" ? (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                           <CheckCircle className="w-2.5 h-2.5 text-emerald-500" /> Approved
                         </span>
                       ) : req.status === "Rejected" ? (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
                           <XCircle className="w-2.5 h-2.5 text-rose-500" /> Rejected
                         </span>
                       ) : req.status === "Cancelled" ? (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
                           <XCircle className="w-2.5 h-2.5 text-slate-500" /> Cancelled
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                           <Clock className="w-2.5 h-2.5 text-amber-500" /> {
                             (req.tl_status || "").toLowerCase() === "approved" || (req.tl_status || "").toLowerCase() === "not required"
                               ? "Pending Admin"
@@ -1184,7 +1184,7 @@ export default function ApprovalsPage() {
                                 }}
                                 disabled={actionLoading}
                                 title="Reject WFH"
-                                className="px-2 py-1.5 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1"
+                                className="px-2 py-1.5 rounded-md text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1"
                               >
                                 <XCircle className="w-3.5 h-3.5 text-rose-500" />
                                 Reject
@@ -1205,7 +1205,7 @@ export default function ApprovalsPage() {
                               onClick={() => cancelRequest("wfh", req.id)}
                               disabled={actionLoading}
                               title={req.status === "Approved" ? "Delete Approved WFH Request" : "Delete Rejected WFH Request"}
-                              className="px-2.5 py-1 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1 shadow-sm"
+                              className="px-2.5 py-1 rounded-md text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1 shadow-sm"
                             >
                               <Trash2 className="w-3.5 h-3.5 text-rose-500" />
                               Delete
@@ -1230,7 +1230,7 @@ export default function ApprovalsPage() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setRejectDialog(null)} />
           <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Reject Request</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Reject Request</h2>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Provide a reason — this will be sent to the employee.</p>
             </div>
             <div className="px-6 py-5">
@@ -1253,7 +1253,7 @@ export default function ApprovalsPage() {
               <button
                 onClick={submitReject}
                 disabled={actionLoading || !rejectReason.trim()}
-                className="flex items-center gap-2 px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 Confirm Rejection
@@ -1282,7 +1282,7 @@ export default function ApprovalsPage() {
             >
               <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Override Leave Request</h2>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Override Leave Request</h2>
                   <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Customize dates and manually split paid leaves and LOP.</p>
                 </div>
                 <button
@@ -1300,7 +1300,7 @@ export default function ApprovalsPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Start Date</label>
+                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Start Date</label>
                         <input
                           type="date"
                           value={overrideFields.start_date}
@@ -1309,7 +1309,7 @@ export default function ApprovalsPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">End Date</label>
+                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">End Date</label>
                         <input
                           type="date"
                           value={overrideFields.end_date}
@@ -1320,8 +1320,8 @@ export default function ApprovalsPage() {
                     </div>
 
                     <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
-                      <h3 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Custom Allocation Split</h3>
-                      <p className="text-xs text-slate-500 mb-4">Original auto-calculated total: <span className="font-bold text-slate-900 dark:text-white">{autoTotalDays} day(s)</span></p>
+                      <h3 className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Custom Allocation Split</h3>
+                      <p className="text-xs text-slate-500 mb-4">Original auto-calculated total: <span className="font-semibold text-slate-900 dark:text-white">{autoTotalDays} day(s)</span></p>
 
                       <div className="space-y-3">
                         <div className="flex items-center justify-between gap-4">
@@ -1361,7 +1361,7 @@ export default function ApprovalsPage() {
                     </div>
 
                     <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
-                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Reason for Override *</label>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Reason for Override *</label>
                       <textarea
                         rows={2}
                         value={overrideFields.remarks}
@@ -1374,7 +1374,7 @@ export default function ApprovalsPage() {
 
                   {/* Right Column: Before-and-After Summary Panel */}
                   <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-4">
-                    <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Before-and-After Summary</h3>
+                    <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300">Before-and-After Summary</h3>
 
                     {recalcLoading ? (
                       <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -1385,14 +1385,14 @@ export default function ApprovalsPage() {
                       <div className="space-y-4 text-xs">
                         {/* Original Calculation */}
                         <div className="space-y-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5">
-                          <p className="font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1 text-[10px]">Original Calculation</p>
+                          <p className="font-semibold text-amber-700 dark:text-amber-400 mb-1 text-xs">Original Calculation</p>
                           <div className="flex justify-between">
                             <span className="text-slate-500 dark:text-slate-400">Dates:</span>
                             <span className="text-slate-800 dark:text-slate-200 font-medium">{fmtDate(overrideDialog.original_start_date)} – {fmtDate(overrideDialog.original_end_date)}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-slate-500 dark:text-slate-400">Total Leave:</span>
-                            <span className="text-slate-900 dark:text-white font-bold">{overrideDialog.original_days} day(s)</span>
+                            <span className="text-slate-900 dark:text-white font-semibold">{overrideDialog.original_days} day(s)</span>
                           </div>
                           <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700">
                             <span>Paid Casual Leave:</span>
@@ -1410,14 +1410,14 @@ export default function ApprovalsPage() {
 
                         {/* Override Calculation */}
                         <div className="space-y-2 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-xl p-3.5">
-                          <p className="font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider mb-1 text-[10px]">Override Calculation</p>
+                          <p className="font-semibold text-purple-700 dark:text-purple-300 mb-1 text-xs">Override Calculation</p>
                           <div className="flex justify-between">
                             <span className="text-slate-600 dark:text-slate-400">Dates:</span>
                             <span className="text-slate-900 dark:text-white font-medium">{fmtDate(overrideFields.start_date)} – {fmtDate(overrideFields.end_date)}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-slate-600 dark:text-slate-400">Total Leave:</span>
-                            <span className="text-purple-700 dark:text-purple-300 font-bold">{overrideTotalDays} day(s)</span>
+                            <span className="text-purple-700 dark:text-purple-300 font-semibold">{overrideTotalDays} day(s)</span>
                           </div>
                           <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-purple-200 dark:border-purple-800">
                             <span>Paid Casual Leave:</span>
@@ -1435,23 +1435,23 @@ export default function ApprovalsPage() {
 
                         {/* Impact on Balances */}
                         <div className="space-y-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5">
-                          <p className="font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1 text-[10px]">Leave Balances Impact</p>
+                          <p className="font-semibold text-slate-600 dark:text-slate-400 mb-1 text-xs">Leave Balances Impact</p>
                           <div className="grid grid-cols-2 gap-3 pt-1">
                             <div>
-                              <p className="text-[10px] text-slate-500 uppercase">Casual Leave Balance</p>
+                              <p className="text-xs text-slate-500">Casual Leave Balance</p>
                               <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
-                                {currentBalances.cl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.cl - overrideFields.paid_casual_leave)}</span>
+                                {currentBalances.cl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-semibold">{Math.max(0, currentBalances.cl - overrideFields.paid_casual_leave)}</span>
                               </p>
                               {currentBalances.cf > 0 && (
-                                <p className="text-[10px] text-slate-400 mt-0.5">
+                                <p className="text-xs text-slate-400 mt-0.5">
                                   ({currentBalances.reg_cl} Reg + {currentBalances.cf} Carry-Fwd)
                                 </p>
                               )}
                             </div>
                             <div>
-                              <p className="text-[10px] text-slate-500 uppercase">Sick Leave Balance</p>
+                              <p className="text-xs text-slate-500">Sick Leave Balance</p>
                               <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
-                                {currentBalances.sl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.sl - overrideFields.paid_sick_leave)}</span>
+                                {currentBalances.sl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-semibold">{Math.max(0, currentBalances.sl - overrideFields.paid_sick_leave)}</span>
                               </p>
                             </div>
                           </div>
@@ -1479,7 +1479,7 @@ export default function ApprovalsPage() {
                 <button
                   onClick={submitOverride}
                   disabled={actionLoading || recalcLoading || !overrideFields.remarks.trim() || overrideTotalDays > autoTotalDays}
-                  className="flex items-center gap-2 px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Apply Override & Approve

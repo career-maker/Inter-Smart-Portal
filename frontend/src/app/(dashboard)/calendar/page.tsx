@@ -249,7 +249,7 @@ export default function CalendarPage() {
             <ChevronRight className="h-3.5 w-3.5" />
             <span className="font-semibold text-slate-700 dark:text-slate-200">Calendar</span>
           </nav>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#0B1F4B] dark:text-white">Leave Calendar</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#0B1F4B] dark:text-white">Leave Calendar</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>
         </div>
       </div>

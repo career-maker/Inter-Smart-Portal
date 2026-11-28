@@ -225,7 +225,7 @@ export default function EmailManagementPage() {
         from_address: smtp.from_address,
         from_name: smtp.from_name,
       });
-      setTestResult({ success: true, message: res.message || "Test email sent successfully!" });
+      setTestResult({ success: true, message: res.message || "Test email sent successfully" });
     } catch (err: any) {
       setTestResult({
         success: false,
@@ -450,7 +450,7 @@ export default function EmailManagementPage() {
       <div className="">
         <div className="p-8 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-center space-y-3">
           <ShieldCheck className="w-12 h-12 mx-auto text-amber-600 dark:text-amber-400" />
-          <h2 className="text-lg font-bold">Super Admin Access Required</h2>
+          <h2 className="text-lg font-semibold">Super Admin Access Required</h2>
           <p className="text-xs">Only Super Administrators can view and adjust email server settings and notification routing.</p>
         </div>
       </div>
@@ -483,7 +483,7 @@ export default function EmailManagementPage() {
             <span>/</span>
             <span className="text-slate-900 dark:text-white">Email Management</span>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+          <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
               <Mail className="w-5 h-5" />
             </div>
@@ -532,7 +532,7 @@ export default function EmailManagementPage() {
       <div className="flex gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 overflow-x-auto [scrollbar-width:none]">
         <button
           onClick={() => setActiveTab("smtp")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
             activeTab === "smtp"
               ? "bg-[#56348f] text-white shadow-sm"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -544,7 +544,7 @@ export default function EmailManagementPage() {
 
         <button
           onClick={() => setActiveTab("routing")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
             activeTab === "routing"
               ? "bg-[#56348f] text-white shadow-sm"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -556,7 +556,7 @@ export default function EmailManagementPage() {
 
         <button
           onClick={() => setActiveTab("approval_workflow")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
             activeTab === "approval_workflow"
               ? "bg-[#56348f] text-white shadow-sm"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -595,7 +595,7 @@ export default function EmailManagementPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Sender Email */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                         Sender Email Address (Username) <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -616,7 +616,7 @@ export default function EmailManagementPage() {
 
                     {/* Sender Name */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                         Sender Display Name <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -632,13 +632,13 @@ export default function EmailManagementPage() {
                     {/* Google App Password */}
                     <div className="space-y-1.5 sm:col-span-2">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                           Google App Password / SMTP Password
                           {!smtp.has_password && (
                             <span className="text-rose-500">*</span>
                           )}
                         </label>
-                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                           smtp.has_password
                             ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400"
                             : "bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400"
@@ -652,7 +652,7 @@ export default function EmailManagementPage() {
                         <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50">
                           <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
                           <div className="text-xs text-rose-700 dark:text-rose-400">
-                            <span className="font-bold">No App Password is configured.</span> Emails will not send until you enter a valid Google App Password below and save.
+                            <span className="font-semibold">No App Password is configured.</span> Emails will not send until you enter a valid Google App Password below and save.
                           </div>
                         </div>
                       )}
@@ -687,7 +687,7 @@ export default function EmailManagementPage() {
 
                     {/* Host */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                         SMTP Host Server <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -703,7 +703,7 @@ export default function EmailManagementPage() {
                     {/* Port & Encryption */}
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                           Port <span className="text-rose-500">*</span>
                         </label>
                         <input
@@ -717,7 +717,7 @@ export default function EmailManagementPage() {
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                           Encryption <span className="text-rose-500">*</span>
                         </label>
                         <SelectCompat
@@ -737,7 +737,7 @@ export default function EmailManagementPage() {
                     <button
                       type="submit"
                       disabled={saving}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all hover:scale-[1.02] cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer disabled:opacity-50"
                     >
                       {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                       <span>Save SMTP Settings</span>
@@ -749,7 +749,7 @@ export default function EmailManagementPage() {
               {/* Send Test Email Tool Card */}
               <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-5 h-fit">
                 <div className="space-y-1">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                     <Send className="w-4 h-4 text-[#56348f]" />
                     <span>Send Test Email</span>
                   </h3>
@@ -760,7 +760,7 @@ export default function EmailManagementPage() {
 
                 <div className="space-y-3">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       Destination Email Address
                     </label>
                     <input
@@ -776,7 +776,7 @@ export default function EmailManagementPage() {
                     type="button"
                     onClick={handleSendTest}
                     disabled={sendingTest}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-100 hover:bg-purple-200 dark:bg-purple-950/70 dark:hover:bg-purple-900/80 text-[#56348f] dark:text-purple-300 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-100 hover:bg-purple-200 dark:bg-purple-950/70 dark:hover:bg-purple-900/80 text-[#56348f] dark:text-purple-300 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
                   >
                     {sendingTest ? (
                       <>
@@ -810,7 +810,7 @@ export default function EmailManagementPage() {
                 )}
 
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 space-y-1 text-[13px] text-slate-500 dark:text-slate-400">
-                  <div className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                  <div className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
                     <Info className="w-3.5 h-3.5 text-purple-600" />
                     <span>Gmail App Password Tip</span>
                   </div>
@@ -841,7 +841,7 @@ export default function EmailManagementPage() {
                   type="button"
                   onClick={handleSaveRouting}
                   disabled={saving}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all hover:scale-[1.02] cursor-pointer disabled:opacity-50 shrink-0"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer disabled:opacity-50 shrink-0"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   <span>Save Routing Rules</span>
@@ -874,7 +874,7 @@ export default function EmailManagementPage() {
                             <IconComp className="w-5 h-5" />
                           </div>
                           <div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                               {def.label}
                             </h3>
                             <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
@@ -896,7 +896,7 @@ export default function EmailManagementPage() {
                             }
                             className="sr-only peer"
                           />
-                          <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#56348f]"></div>
+                          <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition peer-checked:bg-[#56348f]"></div>
                         </label>
                       </div>
 
@@ -977,7 +977,7 @@ export default function EmailManagementPage() {
 
                       {/* Custom TO Input Chips */}
                       <div className="space-y-2">
-                        <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider">
+                        <span className="text-xs font-semibold text-slate-400">
                           Additional Custom TO Addresses
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -1016,7 +1016,7 @@ export default function EmailManagementPage() {
                           <button
                             type="button"
                             onClick={() => handleAddGlobalTo(actionKey)}
-                            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300"
+                            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300"
                           >
                             + Add
                           </button>
@@ -1025,7 +1025,7 @@ export default function EmailManagementPage() {
 
                       {/* Custom CC Input Chips */}
                       <div className="space-y-2">
-                        <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider">
+                        <span className="text-xs font-semibold text-slate-400">
                           Additional Custom CC Addresses
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -1064,7 +1064,7 @@ export default function EmailManagementPage() {
                           <button
                             type="button"
                             onClick={() => handleAddGlobalCc(actionKey)}
-                            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300"
+                            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300"
                           >
                             + Add
                           </button>
@@ -1103,7 +1103,7 @@ export default function EmailManagementPage() {
                 <button
                   type="button"
                   onClick={openNewOverride}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all hover:scale-[1.02] cursor-pointer shrink-0"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Employee Override</span>
@@ -1126,7 +1126,7 @@ export default function EmailManagementPage() {
               {filteredOverrides.length === 0 ? (
                 <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
                   <UserCheck className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600" />
-                  <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
+                  <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">
                     No custom employee email overrides
                   </h3>
                   <p className="text-xs text-slate-400 max-w-md mx-auto">
@@ -1134,7 +1134,7 @@ export default function EmailManagementPage() {
                   </p>
                   <button
                     onClick={openNewOverride}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Create Override</span>
@@ -1153,7 +1153,7 @@ export default function EmailManagementPage() {
                     return (
                       <div
                         key={idx}
-                        className={`p-5 rounded-2xl bg-white dark:bg-slate-900 border transition-all shadow-sm space-y-3 ${
+                        className={`p-5 rounded-2xl bg-white dark:bg-slate-900 border transition shadow-sm space-y-3 ${
                           item.enabled
                             ? "border-purple-200/80 dark:border-purple-800/60"
                             : "border-slate-200 dark:border-slate-800 opacity-60"
@@ -1163,11 +1163,11 @@ export default function EmailManagementPage() {
                         <div className="flex items-start justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
                           <div>
                             <div className="flex items-center gap-2">
-                              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                                 {item.user_name || `Employee #${item.user_id}`}
                               </h3>
                               {item.employee_code && (
-                                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                <span className="px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                                   {item.employee_code}
                                 </span>
                               )}
@@ -1181,7 +1181,7 @@ export default function EmailManagementPage() {
                             <button
                               type="button"
                               onClick={() => handleToggleOverrideStatus(idx)}
-                              className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase cursor-pointer border ${
+                              className={`px-2.5 py-1 rounded-full text-xs font-semibold cursor-pointer border ${
                                 item.enabled
                                   ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300"
                                   : "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400"
@@ -1193,7 +1193,7 @@ export default function EmailManagementPage() {
                               type="button"
                               onClick={() => handleRevertToNormal(idx)}
                               title="Revert to Normal (General Routing)"
-                              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-950/60 text-amber-700 dark:text-amber-400 text-[11px] font-semibold border border-amber-200/60 dark:border-amber-800/60 transition-colors cursor-pointer"
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-950/60 text-amber-700 dark:text-amber-400 text-xs font-semibold border border-amber-200/60 dark:border-amber-800/60 transition-colors cursor-pointer"
                             >
                               <RotateCcw className="w-3 h-3" />
                               <span>Revert to Normal</span>
@@ -1268,7 +1268,7 @@ export default function EmailManagementPage() {
                                 {item.custom_cc.map((cc) => (
                                   <span
                                     key={cc}
-                                    className="px-2 py-0.5 rounded-md text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono"
+                                    className="px-2 py-0.5 rounded-md text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono"
                                   >
                                     {cc}
                                   </span>
@@ -1314,7 +1314,7 @@ export default function EmailManagementPage() {
             {/* Header */}
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 to-white dark:from-slate-850 dark:to-slate-900 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                   <UserCheck className="w-5 h-5 text-[#56348f]" />
                   <span>{editingIndex !== null ? "Edit Employee Override" : "New Employee Email Override"}</span>
                 </h3>
@@ -1335,7 +1335,7 @@ export default function EmailManagementPage() {
             <div className="p-6 overflow-y-auto space-y-4 flex-1">
               {/* Employee Selector */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Select Employee <span className="text-rose-500">*</span>
                 </label>
                 <SelectCompat
@@ -1354,7 +1354,7 @@ export default function EmailManagementPage() {
 
               {/* Action / Trigger Selector */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Trigger Event / Action <span className="text-rose-500">*</span>
                 </label>
                 <SelectCompat
@@ -1373,9 +1373,9 @@ export default function EmailManagementPage() {
               {/* ── Primary Approver / TO Account ── */}
               <div className="p-3.5 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/40 space-y-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-purple-900 dark:text-purple-300 flex items-center justify-between">
+                  <label className="text-xs font-semibold text-purple-900 dark:text-purple-300 flex items-center justify-between">
                     <span>1. Primary Custom Approver / Manager Account (Optional)</span>
-                    <span className="text-[10px] font-normal text-purple-600 dark:text-purple-400">Transfers approval rights</span>
+                    <span className="text-xs font-normal text-purple-600 dark:text-purple-400">Transfers approval rights</span>
                   </label>
                   <SelectCompat
                     value={modalForm.approver_user_id}
@@ -1400,7 +1400,7 @@ export default function EmailManagementPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Primary Custom TO Recipient Email (Overrides Team Lead)
                   </label>
                   <input
@@ -1416,9 +1416,9 @@ export default function EmailManagementPage() {
               {/* ── Second Approver / Multi-Approval TO Account ── */}
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-between">
                     <span>2. Second Approver / Multi-Approval Account (Optional)</span>
-                    <span className="text-[10px] font-normal text-slate-400">Multi-manager routing</span>
+                    <span className="text-xs font-normal text-slate-400">Multi-manager routing</span>
                   </label>
                   <SelectCompat
                     value={modalForm.approver_user_id_2}
@@ -1443,7 +1443,7 @@ export default function EmailManagementPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Second Custom TO Recipient Email (Optional)
                   </label>
                   <input
@@ -1458,7 +1458,7 @@ export default function EmailManagementPage() {
 
               {/* Custom CC List Chips */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Custom CC Emails (Dedicated for this employee)
                 </label>
                 <div className="flex flex-wrap gap-1.5">
@@ -1528,7 +1528,7 @@ export default function EmailManagementPage() {
                         alert("Please enter a valid email address with domain.");
                       }
                     }}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 cursor-pointer"
                   >
                     + Add CC
                   </button>
@@ -1537,7 +1537,7 @@ export default function EmailManagementPage() {
 
               {/* Notes */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Notes / Internal Reason
                 </label>
                 <input
@@ -1557,7 +1557,7 @@ export default function EmailManagementPage() {
                   onChange={(e) => setModalForm({ ...modalForm, enabled: e.target.checked })}
                   className="rounded text-[#56348f] focus:ring-[#56348f]"
                 />
-                <span className="font-bold text-slate-800 dark:text-slate-200">
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
                   Enable this override immediately
                 </span>
               </label>
@@ -1569,7 +1569,7 @@ export default function EmailManagementPage() {
                 <button
                   type="button"
                   onClick={() => handleRevertToNormal(editingIndex)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/80 dark:hover:bg-amber-900 border border-amber-300 dark:border-amber-700 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-amber-800 dark:text-amber-300 bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/80 dark:hover:bg-amber-900 border border-amber-300 dark:border-amber-700 transition-colors cursor-pointer"
                   title="Remove this override and restore general global routing"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -1604,7 +1604,7 @@ export default function EmailManagementPage() {
                 <button
                   type="button"
                   onClick={handleSaveModalOverride}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all hover:scale-[1.02] cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
                   <span>Save Override</span>

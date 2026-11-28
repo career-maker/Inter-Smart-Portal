@@ -32,7 +32,7 @@ export default function CreateEmployeePage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Add Employee</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">Add Employee</h1>
           <p className="text-slate-600 dark:text-slate-300">Create a new employee profile in the system.</p>
         </div>
       </div>
@@ -52,7 +52,7 @@ export default function CreateEmployeePage() {
 
       {/* Single Employee Form */}
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Create Single Employee</h2>
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Create Single Employee</h2>
         <p className="text-slate-500 dark:text-slate-400 mb-6">Fill in the form below to add an employee manually</p>
         <EmployeeForm isEdit={false} />
       </div>

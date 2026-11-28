@@ -147,7 +147,7 @@ function NotificationItem({
                     <button
                       type="button"
                       onClick={(e) => onMarkAsRead(notification.id, e)}
-                      className="text-[10px] font-semibold text-primary hover:text-primary/80 hover:bg-primary/10 px-1.5 py-0.5 rounded transition-colors shrink-0"
+                      className="text-xs font-semibold text-primary hover:text-primary/80 hover:bg-primary/10 px-1.5 py-0.5 rounded transition-colors shrink-0"
                     >
                       Mark read
                     </button>
@@ -356,7 +356,7 @@ export function NotificationDropdown() {
                 <div className="flex items-center gap-2 min-w-0">
                   <Bell className="w-4 h-4 shrink-0 text-muted-foreground" />
                   <div className="min-w-0">
-                    <p className="text-[11px] font-medium leading-tight">
+                    <p className="text-xs font-medium leading-tight">
                       Enable push notifications
                     </p>
                   </div>

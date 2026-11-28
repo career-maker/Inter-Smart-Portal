@@ -165,7 +165,7 @@ export function RaiseIssueDrawer({
   };
 
   const inputCls =
-    "w-full bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] dark:focus:border-purple-400 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-xs";
+    "w-full bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] dark:focus:border-purple-400 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition shadow-xs";
 
   if (!isOpen) return null;
 
@@ -195,7 +195,7 @@ export function RaiseIssueDrawer({
               <LifeBuoy className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                 Raise an Issue
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -213,11 +213,11 @@ export function RaiseIssueDrawer({
               <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 shadow-sm">
                 <CheckCircle2 className="w-9 h-9" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
                 Issue Raised Successfully!
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-300 max-w-sm mb-6">
-                Ticket <span className="font-bold text-[#56348f] dark:text-purple-300">#{successIssue.id}</span> has been created. The team will review and update you on the progress.
+                Ticket <span className="font-semibold text-[#56348f] dark:text-purple-300">#{successIssue.id}</span> has been created. The team will review and update you on the progress.
               </p>
 
               <div className="flex items-center gap-3">
@@ -232,7 +232,7 @@ export function RaiseIssueDrawer({
                     handleClose();
                     router.push(`/issues/${successIssue.id}`);
                   }}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white bg-[#56348f] hover:bg-[#472a77] transition-colors shadow-sm cursor-pointer"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[#56348f] hover:bg-[#472a77] transition-colors shadow-sm cursor-pointer"
                 >
                   View Ticket <ArrowRight className="w-4 h-4" />
                 </button>
@@ -250,7 +250,7 @@ export function RaiseIssueDrawer({
 
               {/* Title */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Issue Title <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -266,7 +266,7 @@ export function RaiseIssueDrawer({
               {/* Category & Priority */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Category <span className="text-rose-500">*</span>
                   </label>
                   <SelectCompat
@@ -288,7 +288,7 @@ export function RaiseIssueDrawer({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Priority <span className="text-rose-500">*</span>
                   </label>
                   <SelectCompat
@@ -309,7 +309,7 @@ export function RaiseIssueDrawer({
 
               {/* Related Module */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Related Module <span className="text-xs font-normal text-slate-400 lowercase">(optional)</span>
                 </label>
                 <SelectCompat
@@ -329,7 +329,7 @@ export function RaiseIssueDrawer({
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Description <span className="text-rose-500">*</span>
                 </label>
                 <textarea
@@ -346,14 +346,14 @@ export function RaiseIssueDrawer({
               {/* Attachment Mode */}
               <div className="pt-1">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Attachment <span className="text-xs font-normal text-slate-400 lowercase">(optional)</span>
                   </label>
                   <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700 text-xs font-medium">
                     <button
                       type="button"
                       onClick={() => setAttachMode("url")}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition cursor-pointer ${
                         attachMode === "url"
                           ? "bg-[#56348f] text-white shadow-xs font-semibold"
                           : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -364,7 +364,7 @@ export function RaiseIssueDrawer({
                     <button
                       type="button"
                       onClick={() => setAttachMode("file")}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition cursor-pointer ${
                         attachMode === "file"
                           ? "bg-[#56348f] text-white shadow-xs font-semibold"
                           : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -384,7 +384,7 @@ export function RaiseIssueDrawer({
                       placeholder="Paste link to screenshot, video, Google Drive, or Loom..."
                       className={inputCls}
                     />
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                       Ensure link permissions are set so admins can view it.
                     </p>
                   </div>
@@ -395,7 +395,7 @@ export function RaiseIssueDrawer({
                       <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                         Click to upload screenshots or logs
                       </p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <p className="text-xs text-slate-400 mt-0.5">
                         PNG, JPG, PDF, TXT or DOC up to 10MB
                       </p>
                       <input
@@ -418,7 +418,7 @@ export function RaiseIssueDrawer({
                               <span className="font-medium text-slate-700 dark:text-slate-200 truncate">
                                 {file.name}
                               </span>
-                              <span className="text-[10px] text-slate-400 shrink-0">
+                              <span className="text-xs text-slate-400 shrink-0">
                                 ({(file.size / 1024).toFixed(1)} KB)
                               </span>
                             </div>
@@ -455,7 +455,7 @@ export function RaiseIssueDrawer({
               type="submit"
               form="raise-issue-form"
               disabled={loading}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#56348f] hover:bg-[#472a77] disabled:opacity-50 transition-all shadow-sm cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-[#56348f] hover:bg-[#472a77] disabled:opacity-50 transition shadow-sm cursor-pointer"
             >
               {loading ? (
                 <>

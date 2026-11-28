@@ -63,7 +63,7 @@ export function AttendanceWidget({
       setPunchError(null);
       setPunchMessage(null);
       await api.post("/attendance/check-in");
-      setPunchMessage("Clocked in successfully!");
+      setPunchMessage("Clocked in successfully");
       await fetchData();
       await fetchTimelineData(todayStr);
       setTimeout(() => setPunchMessage(null), 3000);
@@ -81,7 +81,7 @@ export function AttendanceWidget({
       setPunchError(null);
       setPunchMessage(null);
       await api.post("/attendance/check-out");
-      setPunchMessage("Clocked out successfully!");
+      setPunchMessage("Clocked out successfully");
       await fetchData();
       await fetchTimelineData(todayStr);
       setTimeout(() => setPunchMessage(null), 3000);
@@ -433,14 +433,14 @@ export function AttendanceWidget({
 
         {/* WFH Manual Action Banner - Strictly shown only for employees with approved WFH today */}
         {data?.has_approved_wfh_today && (
-          <div className="mb-4 p-3 rounded-lg bg-gradient-to-r from-purple-50 via-indigo-50/50 to-purple-50 dark:from-purple-950/40 dark:via-slate-800 dark:to-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10 shadow-2xs">
+          <div className="mb-4 p-3 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10 shadow-2xs">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center shrink-0">
                 <CalendarCheck className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">
+                  <span className="text-xs font-semibold text-slate-900 dark:text-white">
                     {data?.wfh_duration_type === "Half-Afternoon"
                       ? data?.is_wfh_session_active
                         ? "Afternoon Work From Home (WFH) Active"
@@ -449,7 +449,7 @@ export function AttendanceWidget({
                       ? "Morning Work From Home (WFH)"
                       : "Work From Home (WFH) Approved"}
                   </span>
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-semibold ${
                     data?.is_wfh_session_active
                       ? "bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300"
                       : "bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300"
@@ -457,7 +457,7 @@ export function AttendanceWidget({
                     {data?.is_wfh_session_active ? "Manual Mode Active" : "Office Session Active"}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   {!data?.is_wfh_session_active
                     ? data?.wfh_session_message || "Morning office shift is tracked via biometric punch. Manual entries enable when your WFH session starts."
                     : data?.status === "Checked Out"
@@ -475,7 +475,7 @@ export function AttendanceWidget({
                     type="button"
                     onClick={handleManualClockIn}
                     disabled={isPunching}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition cursor-pointer disabled:opacity-50"
                     title="Manually clock in for today's WFH"
                   >
                     <LogIn className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
@@ -488,7 +488,7 @@ export function AttendanceWidget({
                     type="button"
                     onClick={handleManualClockOut}
                     disabled={isPunching}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition cursor-pointer disabled:opacity-50"
                     title="Manually clock out for today's WFH"
                   >
                     <LogOut className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
@@ -502,7 +502,7 @@ export function AttendanceWidget({
                       type="button"
                       onClick={handleManualClockIn}
                       disabled={isPunching}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition cursor-pointer disabled:opacity-50"
                       title="Resume work / Clock back in for WFH shift"
                     >
                       <LogIn className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
@@ -631,7 +631,7 @@ export function AttendanceWidget({
                       name={selectedMember.name || `${selectedMember.first_name || ""} ${selectedMember.last_name || ""}`.trim()}
                       userId={selectedMember.id}
                       className="w-10 h-10 rounded-full shrink-0"
-                      textClass="text-xs font-bold"
+                      textClass="text-xs font-semibold"
                     />
                   </div>
                 ) : (
@@ -662,7 +662,7 @@ export function AttendanceWidget({
                       {selectedDate === todayStr ? "Today" : format(parseISO(selectedDate), "d MMM yyyy")}
                     </span>
                     {selectedDate === todayStr && (
-                      <span className="text-emerald-700 dark:text-emerald-300 text-[10px] font-bold uppercase tracking-wider">
+                      <span className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
                         Live
                       </span>
                     )}
@@ -812,8 +812,8 @@ export function AttendanceWidget({
                   {/* Summary Ribbon */}
                   <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
                     <div className="bg-slate-50 dark:bg-slate-800/80 p-2.5 sm:p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60 min-w-0">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">First Punch In</p>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate">
+                      <p className="text-xs font-semibold text-slate-400 truncate">First Punch In</p>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5 truncate">
                         {formatTime(
                           selectedMember 
                             ? timelineData?.first_in 
@@ -823,8 +823,8 @@ export function AttendanceWidget({
                     </div>
 
                     <div className="bg-slate-50 dark:bg-slate-800/80 p-2.5 sm:p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60 min-w-0">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">Last Punch Out</p>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate">
+                      <p className="text-xs font-semibold text-slate-400 truncate">Last Punch Out</p>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5 truncate">
                         {timelineData?.last_out ? (
                           formatTime(timelineData.last_out)
                         ) : timelineData?.is_currently_working ? (
@@ -843,10 +843,10 @@ export function AttendanceWidget({
                     </div>
 
                     <div className="bg-slate-50 dark:bg-slate-800/80 p-2.5 sm:p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60 min-w-0">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate" title="Total Work Hours">
+                      <p className="text-xs font-semibold text-slate-400 truncate" title="Total Work Hours">
                         Total Work Hours
                       </p>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate flex items-center gap-1">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5 truncate flex items-center gap-1">
                         {timelineData?.is_currently_working && (
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block shrink-0" />
                         )}
@@ -921,7 +921,7 @@ export function AttendanceWidget({
 
                                     <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/60 dark:border-slate-800 text-xs">
                                       <div>
-                                        <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">
+                                        <span className="text-xs font-semibold text-slate-400 block mb-0.5">
                                           Check In
                                         </span>
                                         <span className="font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
@@ -930,7 +930,7 @@ export function AttendanceWidget({
                                         </span>
                                       </div>
                                       <div>
-                                        <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">
+                                        <span className="text-xs font-semibold text-slate-400 block mb-0.5">
                                           Check Out
                                         </span>
                                         {isOngoing ? (
@@ -969,11 +969,11 @@ export function AttendanceWidget({
                                   : "Biometric scanner log"}
                               </h3>
                               {isHybrid ? (
-                                <span className="text-[10px] font-semibold text-blue-700 dark:text-blue-300 whitespace-nowrap shrink-0">
+                                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 whitespace-nowrap shrink-0">
                                   Hybrid Day
                                 </span>
                               ) : isWfhManual ? (
-                                <span className="text-[10px] font-semibold text-purple-700 dark:text-purple-300 whitespace-nowrap shrink-0">
+                                <span className="text-xs font-semibold text-purple-700 dark:text-purple-300 whitespace-nowrap shrink-0">
                                   Manual Mode
                                 </span>
                               ) : null}
@@ -1004,7 +1004,7 @@ export function AttendanceWidget({
                                   >
                                     <div className="flex items-center gap-2.5">
                                       <span
-                                        className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
+                                        className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-semibold shrink-0 ${
                                           isPunchIn
                                             ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
                                             : isPunchOut
@@ -1024,16 +1024,16 @@ export function AttendanceWidget({
                                         <p className="text-xs font-semibold text-slate-900 dark:text-white flex items-baseline gap-1.5">
                                           <span>{isPunchIn ? "Punch IN" : isPunchOut ? "Punch OUT" : typeUpper}</span>
                                           {isPunchManual ? (
-                                            <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                                            <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
                                               WFH
                                             </span>
                                           ) : (
-                                            <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                                            <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
                                               Office
                                             </span>
                                           )}
                                         </p>
-                                        <p className="text-[11px] text-slate-400">
+                                        <p className="text-xs text-slate-400">
                                           {isPunchManual
                                             ? `Entry #${idx + 1} • Manual WFH Entry`
                                             : `Punch #${idx + 1} • Scanner Verified`}
@@ -1054,7 +1054,7 @@ export function AttendanceWidget({
                               <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                                 No punches registered on this date
                               </p>
-                              <p className="text-[11px] text-slate-400 mt-1">
+                              <p className="text-xs text-slate-400 mt-1">
                                 Select another date or employee above to view logs.
                               </p>
                             </div>
@@ -1063,7 +1063,7 @@ export function AttendanceWidget({
 
                         {/* Security / WFH Notice */}
                         <div className="px-1 text-center">
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             {isHybrid
                               ? "Morning office shift verified via biometric scanner. Afternoon shift tracked via approved Work From Home (WFH)."
                               : isWfhManual
@@ -1082,7 +1082,7 @@ export function AttendanceWidget({
             <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between shrink-0">
               <button
                 onClick={handleCloseDrawer}
-                className="w-full py-2.5 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
+                className="w-full py-2.5 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition cursor-pointer"
               >
                 Close Timeline
               </button>

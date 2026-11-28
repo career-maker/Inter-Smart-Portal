@@ -37,7 +37,7 @@ function EventChip({ ev, label }: { ev: CalendarEvent; label: string }) {
   return (
     <div
       title={`${ev.user?.name ? `${ev.user.name} — ` : ""}${ev.title} (${ev.status || "Pending"})`}
-      className={`flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-bold shadow-2xs ${chipClass(ev)}`}
+      className={`flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs font-semibold shadow-2xs ${chipClass(ev)}`}
     >
       {isWfhEvent(ev) && <Laptop className="h-3 w-3 shrink-0" />}
       <span className="truncate">{label}</span>
@@ -53,11 +53,11 @@ function WeekEventChip({ ev, isTeamView }: { ev: CalendarEvent; isTeamView: bool
       title={`${ev.user?.name ? `${ev.user.name} — ` : ""}${ev.title} (${ev.status || "Pending"})`}
       className={`rounded-md border px-2 py-1 shadow-2xs ${chipClass(ev)}`}
     >
-      <div className="flex items-center gap-1 text-[11px] font-bold">
+      <div className="flex items-center gap-1 text-xs font-semibold">
         {isWfhEvent(ev) && <Laptop className="h-3 w-3 shrink-0" />}
         <span className="truncate">{headline}</span>
       </div>
-      {isTeamView && <div className="truncate text-[10.5px] font-semibold opacity-80">{ev.title}</div>}
+      {isTeamView && <div className="truncate text-xs font-semibold opacity-80">{ev.title}</div>}
     </div>
   );
 }
@@ -66,7 +66,7 @@ function HolidayChip({ ev }: { ev: CalendarEvent }) {
   return (
     <div
       title={ev.title}
-      className="flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700 shadow-2xs dark:border-rose-800/60 dark:bg-rose-900/50 dark:text-rose-200"
+      className="flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-100 px-2 py-1 text-xs font-semibold text-rose-700 shadow-2xs dark:border-rose-800/60 dark:bg-rose-900/50 dark:text-rose-200"
     >
       <Gift className="h-3.5 w-3.5 shrink-0" />
       <span className="truncate">{ev.title}</span>
@@ -76,14 +76,14 @@ function HolidayChip({ ev }: { ev: CalendarEvent }) {
 
 const WeekendPill = ({ className = "" }: { className?: string }) => (
   <span
-    className={`rounded-md bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-600 dark:bg-rose-900/40 dark:text-rose-300 ${className}`}
+    className={`rounded-md bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-600 dark:bg-rose-900/40 dark:text-rose-300 ${className}`}
   >
     Weekend
   </span>
 );
 
 const TodayMark = () => (
-  <span className="portal-accent-text flex items-center gap-1 text-[11px] font-bold">
+  <span className="portal-accent-text flex items-center gap-1 text-xs font-semibold">
     <span className="portal-accent-solid h-1.5 w-1.5 rounded-full" />
     Today
   </span>
@@ -105,7 +105,7 @@ export function MonthView({ days, currentDate, selectedDate, events, isTeamView,
     <div>
       <div className="grid grid-cols-7 border-y border-slate-200/70 bg-slate-100/70 dark:border-slate-800 dark:bg-slate-800/50">
         {WEEKDAYS.map((d) => (
-          <div key={d} className="py-2.5 text-center text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400">
+          <div key={d} className="py-2.5 text-center text-xs font-semibold text-slate-500 dark:text-slate-400">
             {d}
           </div>
         ))}
@@ -154,7 +154,7 @@ export function MonthView({ days, currentDate, selectedDate, events, isTeamView,
               }`}
             >
               <div className="flex flex-col items-end gap-1">
-                <span className={`text-[15px] font-bold leading-none ${numberColor}`}>{format(day, "d")}</span>
+                <span className={`text-[15px] font-semibold leading-none ${numberColor}`}>{format(day, "d")}</span>
                 {today && <TodayMark />}
                 {inMonth && weekend && <WeekendPill className="hidden sm:inline-flex" />}
               </div>
@@ -176,7 +176,7 @@ export function MonthView({ days, currentDate, selectedDate, events, isTeamView,
                       <EventChip key={ev.id} ev={ev} label={isTeamView ? personLabel(ev) : ev.title || "Leave"} />
                     ))}
                     {isTeamView && people.length > MAX_TEAM_CHIPS && (
-                      <div className="text-center text-[10.5px] font-bold text-slate-500 dark:text-slate-400">
+                      <div className="text-center text-xs font-semibold text-slate-500 dark:text-slate-400">
                         +{people.length - MAX_TEAM_CHIPS} more
                       </div>
                     )}
@@ -239,11 +239,11 @@ export function WeekView({ days, selectedDate, events, isTeamView, onSelect }: W
             }`}
           >
             <div className="flex items-center gap-2 md:flex-col md:items-start md:gap-1.5">
-              <span className="text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                 {format(day, "EEE").toUpperCase()}
               </span>
               <span
-                className={`flex h-8 min-w-8 items-center justify-center rounded-full text-lg font-extrabold ${
+                className={`flex h-8 min-w-8 items-center justify-center rounded-full text-lg font-semibold ${
                   today
                     ? "portal-accent-solid px-1"
                     : nonWorking
@@ -311,7 +311,7 @@ export function ListView({ events, month, filter, onFilterChange, isTeamView }: 
             type="button"
             onClick={() => onFilterChange(f.id)}
             aria-pressed={filter === f.id}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors cursor-pointer ${
+            className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
               filter === f.id
                 ? "bg-blue-600 text-white shadow-sm"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
@@ -341,9 +341,9 @@ export function ListView({ events, month, filter, onFilterChange, isTeamView }: 
                       : "portal-accent-tint portal-accent-border portal-accent-text"
                   }`}
                 >
-                  <div className="text-[10px] font-bold uppercase tracking-wide opacity-80">{format(date, "EEE")}</div>
-                  <div className="text-xl font-extrabold leading-none">{format(date, "d")}</div>
-                  <div className="text-[10px] font-semibold opacity-80">{format(date, "MMM")}</div>
+                  <div className="text-xs font-semibold opacity-80">{format(date, "EEE")}</div>
+                  <div className="text-xl font-semibold leading-none">{format(date, "d")}</div>
+                  <div className="text-xs font-semibold opacity-80">{format(date, "MMM")}</div>
                 </div>
 
                 <div className="min-w-0 flex-1 space-y-2">
@@ -364,7 +364,7 @@ export function ListView({ events, month, filter, onFilterChange, isTeamView }: 
                             {rowIcon(ev)}
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-bold text-slate-900 dark:text-white">{title}</p>
+                            <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">{title}</p>
                             {isPeopleEvent(ev) && (
                               <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                                 {formatEventRange(ev)}
@@ -372,7 +372,7 @@ export function ListView({ events, month, filter, onFilterChange, isTeamView }: 
                             )}
                           </div>
                         </div>
-                        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-bold ${badge.className}`}>
+                        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${badge.className}`}>
                           {badge.label}
                         </span>
                       </div>

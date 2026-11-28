@@ -50,7 +50,7 @@ export default function MyWorkPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-xs font-medium uppercase tracking-wide text-slate-500">
+                <tr className="text-left bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-xs font-medium text-slate-500">
                   <th className="px-4 h-10">Project</th>
                   <th className="px-4 h-10">Status</th>
                   <th className="px-4 h-10">UI pages</th>

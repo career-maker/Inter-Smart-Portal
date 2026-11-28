@@ -205,7 +205,7 @@ export function EmployeeIdCardDrawer({
             {selectedId ? (
               <button
                 onClick={() => setSelectedId(null)}
-                className="text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 transition cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+                className="text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 transition cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
                 title="Search Another Colleague"
               >
                 <ArrowLeft className="w-4 h-4 text-slate-500" />
@@ -215,7 +215,7 @@ export function EmployeeIdCardDrawer({
               <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
             )}
             <span className="text-slate-300 dark:text-slate-700 font-light mx-1">|</span>
-            <span className="text-xs font-black uppercase tracking-wider text-[#1E1B4B] dark:text-white">
+            <span className="text-xs font-semibold text-[#1E1B4B] dark:text-white">
               {selectedId ? "EMPLOYEE ID CARD" : "SEARCH EMPLOYEE DIRECTORY"}
             </span>
           </div>
@@ -245,7 +245,7 @@ export function EmployeeIdCardDrawer({
                 />
               </div>
 
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1">
+              <p className="text-xs font-semibold text-slate-400 px-1">
                 Select colleague to view ID card
               </p>
 
@@ -264,7 +264,7 @@ export function EmployeeIdCardDrawer({
                     <button
                       key={emp.id}
                       onClick={() => setSelectedId(emp.id)}
-                      className="w-full p-3 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/60 hover:border-purple-200 dark:hover:border-purple-800/50 hover:bg-purple-50/30 dark:hover:bg-purple-950/20 transition-all flex items-center justify-between text-left group cursor-pointer shadow-2xs"
+                      className="w-full p-3 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/60 hover:border-purple-200 dark:hover:border-purple-800/50 hover:bg-purple-50/30 dark:hover:bg-purple-950/20 transition flex items-center justify-between text-left group cursor-pointer shadow-2xs"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <RoyalAvatar
@@ -274,15 +274,15 @@ export function EmployeeIdCardDrawer({
                           className="w-10 h-10 rounded-xl object-cover shrink-0"
                         />
                         <div className="min-w-0">
-                          <div className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors">
+                          <div className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors">
                             <RoyalName name={emp.name || `${emp.first_name} ${emp.last_name}`} userId={emp.id} showCrownIcon={false} />
                             {emp.employee_code && (
-                              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-200/80 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                              <span className="text-xs font-mono px-1.5 py-0.2 rounded bg-slate-200/80 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                                 #{emp.employee_code}
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                          <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
                             {emp.designation || emp.role || "Team Member"} • {emp.email}
                           </div>
                         </div>
@@ -296,10 +296,10 @@ export function EmployeeIdCardDrawer({
 
             {/* Directory Footer */}
             <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850/50 flex items-center justify-between shrink-0">
-              <span className="text-[11px] text-slate-400">Inter Smart Workforce Directory</span>
+              <span className="text-xs text-slate-400">Inter Smart Workforce Directory</span>
               <button
                 onClick={onClose}
-                className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold hover:opacity-90 transition cursor-pointer"
+                className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-semibold hover:opacity-90 transition cursor-pointer"
               >
                 Done
               </button>
@@ -317,7 +317,7 @@ export function EmployeeIdCardDrawer({
               <>
                 {/* Top Section: Corporate ID Badge Card */}
                 <div className="space-y-4">
-                  <div className="relative rounded-[28px] overflow-hidden bg-gradient-to-br from-[#FFFBEB] via-[#FEF3C7]/70 to-[#FFF7D6] border border-amber-200/70 dark:border-amber-700/30 p-5 sm:p-6 shadow-sm">
+                  <div className="relative rounded-[28px] overflow-hidden bg-[#FFFBEB] border border-amber-200/70 dark:border-amber-700/30 p-5 sm:p-6 shadow-sm">
                     {/* Organic Warm Golden Waves in Background (Right side swoop matching mockup) */}
                     <svg
                       className="absolute right-0 top-0 h-full w-[55%] pointer-events-none select-none opacity-80"
@@ -339,7 +339,7 @@ export function EmployeeIdCardDrawer({
 
                     {/* Top-Right Employee Code Pill */}
                     {data.employee_code && (
-                      <div className="absolute top-4 sm:top-5 right-4 sm:right-5 px-3 py-1 rounded-full bg-[#FEE082] text-xs font-black text-slate-900 shadow-2xs z-10 font-mono tracking-tight">
+                      <div className="absolute top-4 sm:top-5 right-4 sm:right-5 px-3 py-1 rounded-full bg-[#FEE082] text-xs font-semibold text-slate-900 shadow-2xs z-10 font-mono tracking-tight">
                         #{data.employee_code}
                       </div>
                     )}
@@ -362,13 +362,13 @@ export function EmployeeIdCardDrawer({
                       {/* Right Details */}
                       <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                         <div>
-                          <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight leading-tight truncate">
+                          <h2 className="text-xl sm:text-2xl font-semibold text-[#0F172A] tracking-tight leading-tight truncate">
                             <RoyalName name={fullName} userId={data.id} showCrownIcon={false} />
                           </h2>
 
                           {/* Designation Pill Badge (Real DB designation or role) */}
                           {(data.designation || data.role) && (
-                            <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#EEF2FF] text-[#4F46E5] text-xs font-bold shadow-2xs max-w-full">
+                            <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#EEF2FF] text-[#4F46E5] text-xs font-semibold shadow-2xs max-w-full">
                               <Briefcase className="w-3.5 h-3.5 text-[#4F46E5] shrink-0" />
                               <span className="truncate">{data.designation || data.role}</span>
                             </div>
@@ -398,11 +398,11 @@ export function EmployeeIdCardDrawer({
                         {/* Tenure section bottom right (Real tenure from joining date) */}
                         {(data.tenure_text || data.tenure_years) ? (
                           <div className="mt-2.5 flex flex-col items-end">
-                            <span className="text-[9px] font-extrabold uppercase tracking-widest text-[#B45309]/80 mb-0.5 pr-2">
+                            <span className="text-xs font-semibold text-[#B45309]/80 mb-0.5 pr-2">
                               TENURE
                             </span>
                             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border border-[#FDE68A] shadow-2xs">
-                              <span className="text-xs font-black text-[#78350F]">
+                              <span className="text-xs font-semibold text-[#78350F]">
                                 {data.tenure_text || `${data.tenure_years} Years`}
                               </span>
                             </div>
@@ -420,10 +420,10 @@ export function EmployeeIdCardDrawer({
                         <User className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block leading-none">
+                        <span className="text-xs sm:text-xs font-semibold text-slate-400 block leading-none">
                           EMPLOYEE CODE
                         </span>
-                        <p className="text-base sm:text-lg font-black text-slate-900 font-mono mt-1 leading-none">
+                        <p className="text-base sm:text-lg font-semibold text-slate-900 font-mono mt-1 leading-none">
                           {data.employee_code || "—"}
                         </p>
                       </div>
@@ -435,10 +435,10 @@ export function EmployeeIdCardDrawer({
                         <Calendar className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block leading-none">
+                        <span className="text-xs sm:text-xs font-semibold text-slate-400 block leading-none">
                           JOINED DATE
                         </span>
-                        <p className="text-xs sm:text-sm font-black text-slate-900 mt-1 leading-none truncate">
+                        <p className="text-xs sm:text-sm font-semibold text-slate-900 mt-1 leading-none truncate">
                           {data.joining_date ? formatDateString(data.joining_date) : "—"}
                         </p>
                       </div>
@@ -450,10 +450,10 @@ export function EmployeeIdCardDrawer({
                         <Clock className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block leading-none">
+                        <span className="text-xs sm:text-xs font-semibold text-slate-400 block leading-none">
                           EXPERIENCE
                         </span>
-                        <p className="text-xs sm:text-sm font-black text-slate-900 mt-1 leading-none truncate">
+                        <p className="text-xs sm:text-sm font-semibold text-slate-900 mt-1 leading-none truncate">
                           {data.tenure_text || (data.tenure_years ? `${data.tenure_years} Years` : (data.joining_date ? "Recently Joined" : "—"))}
                         </p>
                       </div>
@@ -468,10 +468,10 @@ export function EmployeeIdCardDrawer({
                         <Users className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block leading-none">
+                        <span className="text-xs sm:text-xs font-semibold text-slate-400 block leading-none">
                           BLOOD GROUP
                         </span>
-                        <p className="text-base sm:text-lg font-black text-slate-900 mt-1 leading-none">
+                        <p className="text-base sm:text-lg font-semibold text-slate-900 mt-1 leading-none">
                           {data.blood_group || "—"}
                         </p>
                       </div>
@@ -480,10 +480,10 @@ export function EmployeeIdCardDrawer({
                     {/* Motivational Illustration matching mockup */}
                     <div className="flex-1 flex flex-col items-center justify-center relative select-none pointer-events-none py-2">
                       <div className="relative text-center pr-2">
-                        <p className="italic text-slate-400 text-xs sm:text-sm font-bold tracking-wide leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
+                        <p className="italic text-slate-400 text-xs sm:text-sm font-semibold leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
                           Great People
                         </p>
-                        <p className="italic text-slate-500 text-xs sm:text-sm font-extrabold tracking-wide leading-tight mt-0.5" style={{ fontFamily: 'Georgia, serif' }}>
+                        <p className="italic text-slate-500 text-xs sm:text-sm font-semibold leading-tight mt-0.5" style={{ fontFamily: 'Georgia, serif' }}>
                           Build Great Things
                         </p>
                         <svg className="w-24 h-2 mx-auto mt-1 text-slate-300" viewBox="0 0 100 8" fill="none">
@@ -501,7 +501,7 @@ export function EmployeeIdCardDrawer({
                 <div className="pt-4 flex items-center justify-between shrink-0">
                   <button
                     onClick={() => setSelectedId(null)}
-                    className="text-xs sm:text-sm text-[#7C3AED] hover:text-purple-800 font-bold hover:underline cursor-pointer flex items-center gap-1.5 transition-colors"
+                    className="text-xs sm:text-sm text-[#7C3AED] hover:text-purple-800 font-semibold hover:underline cursor-pointer flex items-center gap-1.5 transition-colors"
                   >
                     ← Search another colleague
                   </button>

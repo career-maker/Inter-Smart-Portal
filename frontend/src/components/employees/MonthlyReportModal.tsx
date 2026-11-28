@@ -201,11 +201,11 @@ export function MonthlyReportModal({ employee, isOpen, onClose }: MonthlyReportM
                 <button 
                   type="button"
                   onClick={handleCopy} 
-                  className="w-full h-10 inline-flex items-center justify-center font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs gap-2" 
+                  className="w-full h-10 inline-flex items-center justify-center font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs gap-2" 
                   disabled={!reportText}
                 >
                   {isCopied ? (
-                    <><Check className="h-4 w-4 text-emerald-500" /> Copied!</>
+                    <><Check className="h-4 w-4 text-emerald-500" /> Copied</>
                   ) : (
                     <><Copy className="h-4 w-4 text-slate-500 dark:text-slate-400" /> Copy Report</>
                   )}
@@ -213,7 +213,7 @@ export function MonthlyReportModal({ employee, isOpen, onClose }: MonthlyReportM
                 <button 
                   type="button"
                   onClick={handleWhatsApp} 
-                  className="w-full h-10 inline-flex items-center justify-center bg-[#25D366] hover:bg-[#20ba5a] active:bg-[#1da851] text-white font-semibold rounded-xl gap-2 border-none shadow-2xs cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+                  className="w-full h-10 inline-flex items-center justify-center bg-[#25D366] hover:bg-[#20ba5a] active:bg-[#1da851] text-white font-semibold rounded-xl gap-2 border-none shadow-2xs cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed" 
                   disabled={!reportText}
                 >
                   <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" /> Send via WhatsApp

@@ -210,7 +210,7 @@ export default function BugzillaBugsListPage() {
         criteria,
       });
 
-      setSearchSuccess("Search query saved successfully!");
+      setSearchSuccess("Search query saved successfully");
       setSavedSearchName("");
       setTimeout(() => {
         setSaveSearchModalOpen(false);
@@ -272,7 +272,7 @@ export default function BugzillaBugsListPage() {
       {/* ── Top Bar ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
             <span>Bug Reports & Defect Registry</span>
             <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
               {totalCount} defects
@@ -464,13 +464,13 @@ export default function BugzillaBugsListPage() {
       {selectedBugIds.length > 0 && canDevelop && (
         <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-200 dark:border-indigo-800/80 flex flex-wrap items-center justify-between gap-3 shadow-xs animate-in fade-in duration-200">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200">
+            <span className="text-xs font-semibold text-indigo-900 dark:text-indigo-200">
               {selectedBugIds.length} bug{selectedBugIds.length === 1 ? "" : "s"} selected
             </span>
             <button
               type="button"
               onClick={() => setSelectedBugIds([])}
-              className="text-[11px] text-indigo-600 dark:text-indigo-400 underline cursor-pointer"
+              className="text-xs text-indigo-600 dark:text-indigo-400 underline cursor-pointer"
             >
               Clear selection
             </button>
@@ -563,7 +563,7 @@ export default function BugzillaBugsListPage() {
                     <div className="max-w-xs mx-auto space-y-2">
                       <Bug className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600" />
                       <div className="font-semibold text-slate-700 dark:text-slate-300">No defects found</div>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-xs text-slate-400">
                         Try modifying your search or filters to see more results.
                       </p>
                       {canReport && (
@@ -607,7 +607,7 @@ export default function BugzillaBugsListPage() {
                       <td className="py-3 px-3 whitespace-nowrap">
                         <Link
                           href={`/project-management/bugsmart/bugs/${bug.id}`}
-                          className="font-mono font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 underline decoration-dotted"
+                          className="font-mono font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 underline decoration-dotted"
                         >
                           {bug.bug_number}
                         </Link>
@@ -625,7 +625,7 @@ export default function BugzillaBugsListPage() {
                             {bug.labels.map((l) => (
                               <span
                                 key={l.id}
-                                className="text-[9px] px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono"
+                                className="text-xs px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono"
                               >
                                 #{l.name}
                               </span>
@@ -638,9 +638,9 @@ export default function BugzillaBugsListPage() {
                           {bug.project?.name}
                         </div>
                         {bug.component ? (
-                          <div className="text-[11px] text-slate-400">{bug.component.name}</div>
+                          <div className="text-xs text-slate-400">{bug.component.name}</div>
                         ) : (
-                          <div className="text-[11px] text-slate-400 italic">No component</div>
+                          <div className="text-xs text-slate-400 italic">No component</div>
                         )}
                       </td>
                       <td className="py-3 px-3 whitespace-nowrap">
@@ -648,7 +648,7 @@ export default function BugzillaBugsListPage() {
                       </td>
                       <td className="py-3 px-3 whitespace-nowrap">
                         {bug.resolution ? (
-                          <span className="font-mono text-[11px] uppercase font-semibold text-slate-700 dark:text-slate-300">
+                          <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
                             {bug.resolution}
                           </span>
                         ) : (
@@ -673,7 +673,7 @@ export default function BugzillaBugsListPage() {
                       <td className="py-3 px-3 whitespace-nowrap text-slate-600 dark:text-slate-400">
                         {bug.reporter ? `${bug.reporter.first_name} ${bug.reporter.last_name}` : "—"}
                       </td>
-                      <td className="py-3 px-3 whitespace-nowrap text-slate-400 text-[11px]">
+                      <td className="py-3 px-3 whitespace-nowrap text-slate-400 text-xs">
                         {new Date(bug.updated_at).toLocaleDateString()}
                       </td>
                     </tr>
@@ -717,7 +717,7 @@ export default function BugzillaBugsListPage() {
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 max-w-md w-full space-y-4 shadow-xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Save Current Search Query</h3>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Save Current Search Query</h3>
               <button
                 type="button"
                 onClick={() => setSaveSearchModalOpen(false)}

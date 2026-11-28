@@ -206,7 +206,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 <FolderPlus className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Create New Project</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Create New Project</h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Initialize a new project deliverable and assign coordinator
                 </p>
@@ -242,7 +242,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                   type="button"
                   onClick={handleImportAllHubstaff}
                   disabled={importingAll || loadingHubstaff}
-                  className="px-2.5 py-1 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 text-[11px] font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                  className="px-2.5 py-1 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                   title="Import all active projects from Hubstaff at once without duplicating"
                 >
                   <CloudDownload className={`w-3.5 h-3.5 text-sky-400 ${importingAll ? "animate-spin" : ""}`} />
@@ -252,7 +252,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                   <button
                     type="button"
                     onClick={() => handleChange("hubstaff_project_id", null)}
-                    className="text-[11px] text-slate-400 hover:text-rose-500 font-medium inline-flex items-center gap-1 transition-colors"
+                    className="text-xs text-slate-400 hover:text-rose-500 font-medium inline-flex items-center gap-1 transition-colors"
                   >
                     <Unlink className="w-3 h-3" />
                     <span>Unlink</span>
@@ -285,13 +285,13 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                   ))}
                 </SelectCompat>
                 {formData.hubstaff_project_id && (
-                  <p className="text-[11px] text-blue-600 dark:text-blue-400 font-medium">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                     ✓ Authoritative Hubstaff project linked (ID: {formData.hubstaff_project_id})
                   </p>
                 )}
               </div>
             ) : (
-              <div className="flex items-center justify-between gap-2 text-[11px] text-slate-400 dark:text-slate-400 bg-slate-900/30 p-2.5 rounded-lg border border-slate-800">
+              <div className="flex items-center justify-between gap-2 text-xs text-slate-400 dark:text-slate-400 bg-slate-900/30 p-2.5 rounded-lg border border-slate-800">
                 <span>Hubstaff projects ready. Select manual entry or refresh to load Hubstaff list.</span>
                 <button
                   type="button"

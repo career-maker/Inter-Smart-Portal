@@ -248,7 +248,7 @@ export default function PermissionsManagementPage() {
               Team & Role Permissions
             </span>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+          <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
             <Shield className="w-5 h-5 text-[#56348f] dark:text-purple-400" />
             <span>Team & Role Permissions Management</span>
           </h1>
@@ -284,7 +284,7 @@ export default function PermissionsManagementPage() {
               fontSize: "12px",
               fontWeight: 600,
             }}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
           >
             {saving ? (
               <RefreshCw className="w-4 h-4 animate-spin !text-white" />
@@ -324,22 +324,22 @@ export default function PermissionsManagementPage() {
         <div className="flex items-start gap-2.5">
           <Info className="w-4 h-4 text-[#56348f] dark:text-purple-400 shrink-0 mt-0.5" />
           <div className="space-y-0.5">
-            <span className="font-bold">How Permission Scoping Works:</span>
-            <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80">
+            <span className="font-semibold">How Permission Scoping Works:</span>
+            <p className="text-xs text-purple-800/80 dark:text-purple-300/80">
               Super Admins have universal access to all modules. Assigning permissions here extends cross-team capabilities to delivery teams or specifically to their designated Team Leads.
             </p>
           </div>
         </div>
 
         {/* Legend Pills */}
-        <div className="flex items-center gap-2 text-[11px] shrink-0">
+        <div className="flex items-center gap-2 text-xs shrink-0">
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold text-slate-500">
             Off (No Access)
           </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-300 text-amber-800 dark:text-amber-300 font-bold">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-300 text-amber-800 dark:text-amber-300 font-semibold">
             <Crown className="w-3 h-3 text-amber-500" /> Leads Only
           </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#56348f] text-white font-bold shadow-2xs">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#56348f] text-white font-semibold shadow-2xs">
             <Users className="w-3 h-3 text-white" /> All Members
           </span>
         </div>
@@ -366,7 +366,7 @@ export default function PermissionsManagementPage() {
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer capitalize ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer capitalize ${
                 selectedCategory === cat
                   ? "bg-[#56348f] text-white border-[#56348f]"
                   : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
@@ -387,7 +387,7 @@ export default function PermissionsManagementPage() {
           return (
             <div
               key={def.key}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-all"
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition"
             >
               {/* Permission Header */}
               <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-800/30">
@@ -400,7 +400,7 @@ export default function PermissionsManagementPage() {
                       <h3 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
                         {def.name}
                       </h3>
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-50 text-[#56348f] dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-[#56348f] dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                         {def.category}
                       </span>
                       <span className="text-[13px] text-slate-400 font-medium">
@@ -421,14 +421,14 @@ export default function PermissionsManagementPage() {
                   <button
                     type="button"
                     onClick={() => handleBulkSetPermission(def.key, null)}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition cursor-pointer"
                   >
                     Clear All
                   </button>
                   <button
                     type="button"
                     onClick={() => handleBulkSetPermission(def.key, "leads_only")}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/50 border border-amber-200 text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition cursor-pointer flex items-center gap-1"
+                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 dark:bg-amber-950/50 border border-amber-200 text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition cursor-pointer flex items-center gap-1"
                   >
                     <Crown className="w-3 h-3 text-amber-500" />
                     All Leads
@@ -436,7 +436,7 @@ export default function PermissionsManagementPage() {
                   <button
                     type="button"
                     onClick={() => handleBulkSetPermission(def.key, "all_members")}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-50 dark:bg-purple-950/50 border border-purple-200 text-purple-700 dark:text-purple-300 hover:bg-purple-100 transition cursor-pointer flex items-center gap-1"
+                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 dark:bg-purple-950/50 border border-purple-200 text-purple-700 dark:text-purple-300 hover:bg-purple-100 transition cursor-pointer flex items-center gap-1"
                   >
                     <Users className="w-3 h-3 text-purple-500" />
                     All Members
@@ -452,7 +452,7 @@ export default function PermissionsManagementPage() {
                   return (
                     <div
                       key={team.id}
-                      className={`p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3 ${
+                      className={`p-3.5 rounded-xl border transition flex flex-col justify-between gap-3 ${
                         currentScope === "all_members"
                           ? "bg-purple-50/40 dark:bg-purple-950/20 border-purple-300 dark:border-purple-800 shadow-2xs"
                           : currentScope === "leads_only"
@@ -463,7 +463,7 @@ export default function PermissionsManagementPage() {
                       {/* Team Header */}
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          <h4 className="text-xs font-semibold text-slate-900 dark:text-white truncate">
                             {team.name}
                           </h4>
                           <p className="text-[13px] text-slate-400 truncate">
@@ -487,7 +487,7 @@ export default function PermissionsManagementPage() {
                       </div>
 
                       {/* 3-State Scope Selector */}
-                      <div className="grid grid-cols-3 gap-1 bg-white dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700 text-[11px] font-semibold">
+                      <div className="grid grid-cols-3 gap-1 bg-white dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold">
                         <button
                           type="button"
                           onClick={() => handleSetScope(def.key, team.id, null)}
@@ -546,7 +546,7 @@ export default function PermissionsManagementPage() {
                   : [];
                 return (
                   <div className="px-5 pb-5 space-y-2">
-                    <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <div className="text-xs font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                       <Users className="w-3.5 h-3.5 text-[#56348f]" />
                       Individual Members
                       <span className="text-[13px] text-slate-400 font-medium">({selectedIds.length} added)</span>
@@ -557,7 +557,7 @@ export default function PermissionsManagementPage() {
                         return (
                           <span
                             key={id}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 text-purple-800 dark:text-purple-200"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 text-purple-800 dark:text-purple-200"
                           >
                             {u ? userName(u) : `User #${id}`}
                             <button
@@ -628,7 +628,7 @@ export default function PermissionsManagementPage() {
             fontSize: "13px",
             fontWeight: 600,
           }}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-md transition-all disabled:opacity-50 cursor-pointer shrink-0"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-md transition disabled:opacity-50 cursor-pointer shrink-0"
         >
           {saving ? (
             <RefreshCw className="w-4 h-4 animate-spin !text-white" />

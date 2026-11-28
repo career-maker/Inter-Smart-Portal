@@ -295,8 +295,8 @@ function ThreeCardsEditor({
               {icon}
             </div>
             <div>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-white">{title}</h4>
-              <span className="text-[11px] text-slate-400">{subtitle}</span>
+              <h4 className="text-xs font-semibold text-slate-900 dark:text-white">{title}</h4>
+              <span className="text-xs text-slate-400">{subtitle}</span>
             </div>
           </div>
 
@@ -307,16 +307,16 @@ function ThreeCardsEditor({
               onChange={(e) => updater({ ...rule, enabled: e.target.checked })}
               className="sr-only peer"
             />
-            <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#56348f]"></div>
+            <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition peer-checked:bg-[#56348f]"></div>
           </label>
         </div>
 
         {/* Approval Level Toggle */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
             <span>Approval Level</span>
             <span
-              className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+              className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
                 isMulti
                   ? "bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300"
                   : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
@@ -336,7 +336,7 @@ function ThreeCardsEditor({
                   to_email_2: rule.to_email_2 || "admin@intersmart.in",
                 })
               }
-              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition-all cursor-pointer ${
+              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition cursor-pointer ${
                 isMulti
                   ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
@@ -347,7 +347,7 @@ function ThreeCardsEditor({
             <button
               type="button"
               onClick={() => updater({ ...rule, approval_level: "single" })}
-              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition-all cursor-pointer ${
+              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition cursor-pointer ${
                 !isMulti
                   ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
@@ -360,7 +360,7 @@ function ThreeCardsEditor({
 
         {/* Primary TO Account (Level 1 Approver) */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Primary Approver {isMulti ? "(Level 1)" : ""}
           </label>
           <SelectCompat
@@ -381,10 +381,10 @@ function ThreeCardsEditor({
         {isMulti && (
           <div className="space-y-1.5 p-2.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/70 dark:border-purple-800/50">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+              <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                 Second Approver (Level 2)
               </label>
-              <span className="text-[10px] font-semibold text-[#56348f] dark:text-purple-300">
+              <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300">
                 Default: Super Admin
               </span>
             </div>
@@ -406,7 +406,7 @@ function ThreeCardsEditor({
         {/* CC Accounts */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
               CC Accounts ({getCcCount(rule)})
             </label>
             {(rule.cc_user_ids?.length > 0 || (rule.cc_emails?.length || 0) > 0) && (
@@ -419,7 +419,7 @@ function ThreeCardsEditor({
                     cc_emails: [],
                   })
                 }
-                className="text-[10px] text-rose-500 hover:underline cursor-pointer"
+                className="text-xs text-rose-500 hover:underline cursor-pointer"
               >
                 Clear
               </button>
@@ -447,7 +447,7 @@ function ThreeCardsEditor({
                 <div
                   key={u.id}
                   onClick={() => toggleCc(rule, updater, u)}
-                  className={`flex items-center gap-2 text-[11px] p-1.5 rounded-lg cursor-pointer select-none transition-colors ${
+                  className={`flex items-center gap-2 text-xs p-1.5 rounded-lg cursor-pointer select-none transition-colors ${
                     isChecked
                       ? "bg-purple-100/70 text-[#56348f] dark:bg-purple-950/60 dark:text-purple-300 font-semibold"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50"
@@ -567,13 +567,13 @@ function MultiSelectUserPicker({
   return (
     <div className="space-y-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
       <div className="flex items-center justify-between gap-2">
-        <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
           <span>{title}</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
+          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
             {selectedIds.length} selected
           </span>
         </label>
-        <div className="flex items-center gap-2 text-[11px]">
+        <div className="flex items-center gap-2 text-xs">
           <button
             type="button"
             onClick={selectAll}
@@ -639,15 +639,15 @@ function MultiSelectUserPicker({
                       {u.first_name} {u.last_name}
                     </span>
                     {u.employee_code && (
-                      <span className="ml-1.5 px-1.5 py-0.2 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                      <span className="ml-1.5 px-1.5 py-0.2 rounded text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                         {u.employee_code}
                       </span>
                     )}
-                    <span className="block text-[11px] text-slate-400 truncate">{u.email}</span>
+                    <span className="block text-xs text-slate-400 truncate">{u.email}</span>
                   </div>
                 </div>
                 {u.designation && (
-                  <span className="text-[10px] text-slate-400 shrink-0 ml-2 hidden sm:inline">
+                  <span className="text-xs text-slate-400 shrink-0 ml-2 hidden sm:inline">
                     {u.designation}
                   </span>
                 )}
@@ -1204,12 +1204,12 @@ export default function ApprovalRoutingTab() {
       )}
 
       {/* Global Fallback Notice */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/80 to-indigo-50/60 dark:from-blue-950/40 dark:to-indigo-950/30 border border-blue-200/80 dark:border-blue-800/60 flex items-start gap-3 shadow-sm">
+      <div className="p-4 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 flex items-start gap-3 shadow-sm">
         <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 shrink-0">
           <ShieldCheck className="w-5 h-5" />
         </div>
         <div className="space-y-0.5">
-          <h4 className="text-xs font-bold text-blue-900 dark:text-blue-200">
+          <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-200">
             System Routing Invariant
           </h4>
           <p className="text-xs text-blue-700/90 dark:text-blue-300/80 leading-relaxed">
@@ -1224,7 +1224,7 @@ export default function ApprovalRoutingTab() {
           <button
             type="button"
             onClick={() => setSubTab("role")}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
               subTab === "role"
                 ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -1233,7 +1233,7 @@ export default function ApprovalRoutingTab() {
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Role-Wise (Team Leads)</span>
             {(rules.team_lead_rules?.length || 0) > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
+              <span className="px-1.5 py-0.2 rounded-full text-xs bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
                 {rules.team_lead_rules?.length} custom
               </span>
             )}
@@ -1242,7 +1242,7 @@ export default function ApprovalRoutingTab() {
           <button
             type="button"
             onClick={() => setSubTab("department")}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
               subTab === "department"
                 ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -1251,7 +1251,7 @@ export default function ApprovalRoutingTab() {
             <Building2 className="w-3.5 h-3.5" />
             <span>Department-Wise Routing</span>
             {deptRules.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
+              <span className="px-1.5 py-0.2 rounded-full text-xs bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
                 {deptRules.length}
               </span>
             )}
@@ -1260,7 +1260,7 @@ export default function ApprovalRoutingTab() {
           <button
             type="button"
             onClick={() => setSubTab("employee")}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
               subTab === "employee"
                 ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -1269,7 +1269,7 @@ export default function ApprovalRoutingTab() {
             <UserCheck className="w-3.5 h-3.5" />
             <span>Employee-Wise Routing</span>
             {(rules.employee_rules?.length || 0) > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
+              <span className="px-1.5 py-0.2 rounded-full text-xs bg-purple-100 text-[#56348f] dark:bg-purple-900/60 dark:text-purple-300">
                 {rules.employee_rules?.length}
               </span>
             )}
@@ -1280,7 +1280,7 @@ export default function ApprovalRoutingTab() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all cursor-pointer disabled:opacity-50 shrink-0"
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer disabled:opacity-50 shrink-0"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           <span>Save Changes</span>
@@ -1295,7 +1295,7 @@ export default function ApprovalRoutingTab() {
           {/* Header & Add Rule Action */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#56348f]" />
                 <span>Team Leads Approval & Mail Routing</span>
               </h3>
@@ -1307,7 +1307,7 @@ export default function ApprovalRoutingTab() {
             <button
               type="button"
               onClick={openNewTlRuleModal}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all cursor-pointer shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Create Separate Rule for Team Leads</span>
@@ -1318,7 +1318,7 @@ export default function ApprovalRoutingTab() {
           {(rules.team_lead_rules || []).length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <span>Custom Team Lead Routing Rules ({rules.team_lead_rules?.length})</span>
                 </h4>
               </div>
@@ -1336,20 +1336,20 @@ export default function ApprovalRoutingTab() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300">
                               Rule #{idx + 1}
                             </span>
-                            <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                            <h4 className="text-xs font-semibold text-slate-900 dark:text-white">
                               {rule.name || `Custom Routing for ${selectedLeads.length} Lead(s)`}
                             </h4>
                           </div>
 
                           <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                            <span className="text-[11px] text-slate-400 font-medium">Assigned Leads:</span>
+                            <span className="text-xs text-slate-400 font-medium">Assigned Leads:</span>
                             {selectedLeads.map((tl) => (
                               <span
                                 key={tl.id}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
                               >
                                 <UserCheck2 className="w-3 h-3 text-[#56348f]" />
                                 <span>
@@ -1385,12 +1385,12 @@ export default function ApprovalRoutingTab() {
                         {/* 1-Day WFH Summary */}
                         <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                               <Home className="w-3.5 h-3.5 text-purple-600" />
                               <span>1-Day WFH</span>
                             </span>
                             <span
-                              className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                              className={`text-xs font-semibold px-1.5 py-0.2 rounded ${
                                 rule.wfh?.enabled
                                   ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                   : "bg-slate-200 text-slate-600 dark:bg-slate-700"
@@ -1399,7 +1399,7 @@ export default function ApprovalRoutingTab() {
                               {rule.wfh?.enabled ? "Enabled" : "Disabled"}
                             </span>
                           </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
                             Approver:{" "}
                             <strong className="text-slate-800 dark:text-slate-200">
                               {users.find((u) => u.id === rule.wfh?.to_user_id)?.first_name ||
@@ -1412,7 +1412,7 @@ export default function ApprovalRoutingTab() {
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-slate-400">
+                          <div className="text-xs text-slate-400">
                             {rule.wfh?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
                             {getCcCount(rule.wfh, users)} CC(s)
                           </div>
@@ -1421,12 +1421,12 @@ export default function ApprovalRoutingTab() {
                         {/* Multi-Day WFH Summary */}
                         <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                               <Building2 className="w-3.5 h-3.5 text-indigo-600" />
                               <span>Multi-Day WFH</span>
                             </span>
                             <span
-                              className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                              className={`text-xs font-semibold px-1.5 py-0.2 rounded ${
                                 (rule.wfh_multi_day || rule.wfh)?.enabled
                                   ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                   : "bg-slate-200 text-slate-600 dark:bg-slate-700"
@@ -1435,7 +1435,7 @@ export default function ApprovalRoutingTab() {
                               {(rule.wfh_multi_day || rule.wfh)?.enabled ? "Enabled" : "Disabled"}
                             </span>
                           </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
                             Approver:{" "}
                             <strong className="text-slate-800 dark:text-slate-200">
                               {users.find((u) => u.id === (rule.wfh_multi_day || rule.wfh)?.to_user_id)?.first_name ||
@@ -1448,7 +1448,7 @@ export default function ApprovalRoutingTab() {
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-slate-400">
+                          <div className="text-xs text-slate-400">
                             {(rule.wfh_multi_day || rule.wfh)?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
                             {getCcCount(rule.wfh_multi_day || rule.wfh, users)} CC(s)
                           </div>
@@ -1457,12 +1457,12 @@ export default function ApprovalRoutingTab() {
                         {/* 1-Day Leave Summary */}
                         <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                               <Calendar className="w-3.5 h-3.5 text-emerald-600" />
                               <span>1-Day Leave</span>
                             </span>
                             <span
-                              className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                              className={`text-xs font-semibold px-1.5 py-0.2 rounded ${
                                 rule.leave_single_day?.enabled
                                   ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                   : "bg-slate-200 text-slate-600 dark:bg-slate-700"
@@ -1471,7 +1471,7 @@ export default function ApprovalRoutingTab() {
                               {rule.leave_single_day?.enabled ? "Enabled" : "Disabled"}
                             </span>
                           </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
                             Approver:{" "}
                             <strong className="text-slate-800 dark:text-slate-200">
                               {users.find((u) => u.id === rule.leave_single_day?.to_user_id)
@@ -1485,7 +1485,7 @@ export default function ApprovalRoutingTab() {
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-slate-400">
+                          <div className="text-xs text-slate-400">
                             {rule.leave_single_day?.approval_level === "multi"
                               ? "Multi-Level"
                               : "Single-Level"}{" "}
@@ -1496,12 +1496,12 @@ export default function ApprovalRoutingTab() {
                         {/* Multi-Day Leave Summary */}
                         <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                               <Layers className="w-3.5 h-3.5 text-amber-600" />
                               <span>Multi-Day Leave</span>
                             </span>
                             <span
-                              className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                              className={`text-xs font-semibold px-1.5 py-0.2 rounded ${
                                 rule.leave_multi_day?.enabled
                                   ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                   : "bg-slate-200 text-slate-600 dark:bg-slate-700"
@@ -1510,7 +1510,7 @@ export default function ApprovalRoutingTab() {
                               {rule.leave_multi_day?.enabled ? "Enabled" : "Disabled"}
                             </span>
                           </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
                             Approver:{" "}
                             <strong className="text-slate-800 dark:text-slate-200">
                               {users.find((u) => u.id === rule.leave_multi_day?.to_user_id)
@@ -1524,7 +1524,7 @@ export default function ApprovalRoutingTab() {
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-slate-400">
+                          <div className="text-xs text-slate-400">
                             {rule.leave_multi_day?.approval_level === "multi"
                               ? "Multi-Level"
                               : "Single-Level"}{" "}
@@ -1542,7 +1542,7 @@ export default function ApprovalRoutingTab() {
           {/* Section: Default Team Leads Routing (Fallback for all remaining leads) */}
           <div className="space-y-3 pt-2">
             <div className="p-4 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/60 dark:border-purple-800/40 space-y-1">
-              <h4 className="text-xs font-bold text-purple-900 dark:text-purple-200 flex items-center gap-2">
+              <h4 className="text-xs font-semibold text-purple-900 dark:text-purple-200 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#56348f]" />
                 <span>Default Team Lead Routing (Fallback)</span>
               </h4>
@@ -1573,7 +1573,7 @@ export default function ApprovalRoutingTab() {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <UserCheck className="w-4 h-4 text-[#56348f]" />
                 <span>Employee-Wise Approval & Mail Routing</span>
               </h3>
@@ -1585,7 +1585,7 @@ export default function ApprovalRoutingTab() {
             <button
               type="button"
               onClick={openNewEmpRuleModal}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all cursor-pointer shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Add Employee Rule</span>
@@ -1595,7 +1595,7 @@ export default function ApprovalRoutingTab() {
           {(rules.employee_rules || []).length === 0 ? (
             <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
               <UserCheck className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600" />
-              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+              <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                 No Employee Overrides Configured
               </h4>
               <p className="text-xs text-slate-400 max-w-md mx-auto">
@@ -1603,7 +1603,7 @@ export default function ApprovalRoutingTab() {
               </p>
               <button
                 onClick={openNewEmpRuleModal}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create Employee Rule</span>
@@ -1623,20 +1623,20 @@ export default function ApprovalRoutingTab() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300">
                             Rule #{idx + 1}
                           </span>
-                          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                          <h4 className="text-xs font-semibold text-slate-900 dark:text-white">
                             {rule.name || `Routing for ${selectedEmps.length} Employee(s)`}
                           </h4>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                          <span className="text-[11px] text-slate-400 font-medium">Employees:</span>
+                          <span className="text-xs text-slate-400 font-medium">Employees:</span>
                           {selectedEmps.map((emp) => (
                             <span
                               key={emp.id}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
                             >
                               <UserCheck className="w-3 h-3 text-[#56348f]" />
                               <span>
@@ -1672,12 +1672,12 @@ export default function ApprovalRoutingTab() {
                       {/* 1-Day WFH Summary */}
                       <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                             <Home className="w-3.5 h-3.5 text-purple-600" />
                             <span>1-Day WFH</span>
                           </span>
                           <span
-                            className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                            className={`text-xs font-semibold px-1.5 py-0.2 rounded ${
                               rule.wfh?.enabled
                                 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                 : "bg-slate-200 text-slate-600 dark:bg-slate-700"
@@ -1686,7 +1686,7 @@ export default function ApprovalRoutingTab() {
                             {rule.wfh?.enabled ? "Enabled" : "Disabled"}
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
                           Approver:{" "}
                           <strong className="text-slate-800 dark:text-slate-200">
                             {users.find((u) => u.id === rule.wfh?.to_user_id)?.first_name ||
@@ -1699,7 +1699,7 @@ export default function ApprovalRoutingTab() {
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-400">
+                        <div className="text-xs text-slate-400">
                           {rule.wfh?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
                           {getCcCount(rule.wfh, users)} CC(s)
                         </div>
@@ -1708,12 +1708,12 @@ export default function ApprovalRoutingTab() {
                       {/* Multi-Day WFH Summary */}
                       <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                             <Building2 className="w-3.5 h-3.5 text-indigo-600" />
                             <span>Multi-Day WFH</span>
                           </span>
                           <span
-                            className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                            className={`text-xs font-semibold px-1.5 py-0.2 rounded ${
                               (rule.wfh_multi_day || rule.wfh)?.enabled
                                 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                 : "bg-slate-200 text-slate-600 dark:bg-slate-700"
@@ -1722,7 +1722,7 @@ export default function ApprovalRoutingTab() {
                             {(rule.wfh_multi_day || rule.wfh)?.enabled ? "Enabled" : "Disabled"}
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
                           Approver:{" "}
                           <strong className="text-slate-800 dark:text-slate-200">
                             {users.find((u) => u.id === (rule.wfh_multi_day || rule.wfh)?.to_user_id)?.first_name ||
@@ -1735,7 +1735,7 @@ export default function ApprovalRoutingTab() {
                               </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-400">
+                        <div className="text-xs text-slate-400">
                           {(rule.wfh_multi_day || rule.wfh)?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
                           {getCcCount(rule.wfh_multi_day || rule.wfh, users)} CC(s)
                         </div>
@@ -1744,12 +1744,12 @@ export default function ApprovalRoutingTab() {
                       {/* 1-Day Leave Summary */}
                       <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                             <Calendar className="w-3.5 h-3.5 text-emerald-600" />
                             <span>1-Day Leave</span>
                           </span>
                           <span
-                            className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                            className={`text-xs font-semibold px-1.5 py-0.2 rounded ${
                               rule.leave_single_day?.enabled
                                 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                 : "bg-slate-200 text-slate-600 dark:bg-slate-700"
@@ -1758,7 +1758,7 @@ export default function ApprovalRoutingTab() {
                             {rule.leave_single_day?.enabled ? "Enabled" : "Disabled"}
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
                           Approver:{" "}
                           <strong className="text-slate-800 dark:text-slate-200">
                             {users.find((u) => u.id === rule.leave_single_day?.to_user_id)
@@ -1772,7 +1772,7 @@ export default function ApprovalRoutingTab() {
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-400">
+                        <div className="text-xs text-slate-400">
                           {rule.leave_single_day?.approval_level === "multi"
                             ? "Multi-Level"
                             : "Single-Level"}{" "}
@@ -1783,12 +1783,12 @@ export default function ApprovalRoutingTab() {
                       {/* Multi-Day Leave Summary */}
                       <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                             <Layers className="w-3.5 h-3.5 text-amber-600" />
                             <span>Multi-Day Leave</span>
                           </span>
                           <span
-                            className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                            className={`text-xs font-semibold px-1.5 py-0.2 rounded ${
                               rule.leave_multi_day?.enabled
                                 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                 : "bg-slate-200 text-slate-600 dark:bg-slate-700"
@@ -1797,7 +1797,7 @@ export default function ApprovalRoutingTab() {
                             {rule.leave_multi_day?.enabled ? "Enabled" : "Disabled"}
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
                           Approver:{" "}
                           <strong className="text-slate-800 dark:text-slate-200">
                             {users.find((u) => u.id === rule.leave_multi_day?.to_user_id)
@@ -1811,7 +1811,7 @@ export default function ApprovalRoutingTab() {
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-400">
+                        <div className="text-xs text-slate-400">
                           {rule.leave_multi_day?.approval_level === "multi"
                             ? "Multi-Level"
                             : "Single-Level"}{" "}
@@ -1851,12 +1851,12 @@ export default function ApprovalRoutingTab() {
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                       {tlModalForm.id.includes(Date.now().toString().slice(0, 5))
                         ? "Create Separate Rule for Team Leads"
                         : "Edit Team Lead Routing Rule"}
                     </h3>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-xs text-slate-400">
                       Check specific Team Lead names and configure their 3 routing cards
                     </p>
                   </div>
@@ -1875,7 +1875,7 @@ export default function ApprovalRoutingTab() {
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {/* Rule Name / Label */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Rule Label (Optional)
                   </label>
                   <input
@@ -1899,7 +1899,7 @@ export default function ApprovalRoutingTab() {
 
                 {/* The 4 Cards for Team Lead Routing */}
                 <div className="space-y-2 pt-2">
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                  <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Routing Cards for Selected Team Leads
                   </h4>
                   <ThreeCardsEditor
@@ -1935,7 +1935,7 @@ export default function ApprovalRoutingTab() {
                   type="button"
                   disabled={saving}
                   onClick={saveTlRuleModal}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   <span>{saving ? "Saving Rule..." : "Save Team Lead Rule"}</span>
@@ -1951,7 +1951,7 @@ export default function ApprovalRoutingTab() {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <div className="space-y-1 min-w-0">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-[#56348f]" />
                 <span>Department-Wise Approval & Mail Routing</span>
               </h3>
@@ -1962,7 +1962,7 @@ export default function ApprovalRoutingTab() {
             <button
               type="button"
               onClick={openNewDeptRuleModal}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all cursor-pointer shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-semibold shadow-md shadow-purple-900/20 transition cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Add Department Rule</span>
@@ -1972,7 +1972,7 @@ export default function ApprovalRoutingTab() {
           {deptRules.length === 0 ? (
             <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
               <Building2 className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600" />
-              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">No Department Rules Configured</h4>
+              <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">No Department Rules Configured</h4>
               <p className="text-xs text-slate-400 max-w-md mx-auto">
                 Departments currently use the standard team lead and default approval routing.
               </p>
@@ -1994,17 +1994,17 @@ export default function ApprovalRoutingTab() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300">
                             Rule #{idx + 1}
                           </span>
-                          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                          <h4 className="text-xs font-semibold text-slate-900 dark:text-white">
                             {rule.name || `Routing for ${selectedTeams.length} Department(s)`}
                           </h4>
                         </div>
                         <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                          <span className="text-[11px] text-slate-400 font-medium">Departments:</span>
+                          <span className="text-xs text-slate-400 font-medium">Departments:</span>
                           {selectedTeams.map((t) => (
-                            <span key={t.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                            <span key={t.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
                               <Building2 className="w-3 h-3 text-[#56348f]" />
                               <span>{t.name}</span>
                             </span>
@@ -2034,18 +2034,18 @@ export default function ApprovalRoutingTab() {
                       {cards.map(([label, c]) => (
                         <div key={label} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="font-bold text-slate-900 dark:text-white">{label}</span>
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${c?.enabled ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" : "bg-slate-200 text-slate-600 dark:bg-slate-700"}`}>
+                            <span className="font-semibold text-slate-900 dark:text-white">{label}</span>
+                            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${c?.enabled ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" : "bg-slate-200 text-slate-600 dark:bg-slate-700"}`}>
                               {c?.enabled ? "Enabled" : "Disabled"}
                             </span>
                           </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400 break-words">
+                          <div className="text-xs text-slate-500 dark:text-slate-400 break-words">
                             Approver: <strong className="text-slate-800 dark:text-slate-200">{nameOf(c?.to_user_id, c?.to_email)}</strong>
                             {c?.approval_level === "multi" && (
                               <span className="text-[#56348f] dark:text-purple-300 font-semibold"> → {nameOf(c?.to_user_id_2, c?.to_email_2)}</span>
                             )}
                           </div>
-                          <div className="text-[11px] text-slate-400">
+                          <div className="text-xs text-slate-400">
                             {c?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} • {getCcCount(c, users)} CC(s)
                           </div>
                         </div>
@@ -2083,12 +2083,12 @@ export default function ApprovalRoutingTab() {
                     <UserPlus className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                       {empModalForm.id.includes(Date.now().toString().slice(0, 5))
                         ? "Create Employee-Wise Routing Rule"
                         : "Edit Employee-Wise Routing Rule"}
                     </h3>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-xs text-slate-400">
                       Choose employee names (multi-select) and configure the 3 routing cards
                     </p>
                   </div>
@@ -2107,7 +2107,7 @@ export default function ApprovalRoutingTab() {
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {/* Rule Name / Label */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Rule Label (Optional)
                   </label>
                   <input
@@ -2131,7 +2131,7 @@ export default function ApprovalRoutingTab() {
 
                 {/* The 4 CARDS for Employee Routing */}
                 <div className="space-y-2 pt-2">
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                  <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Routing Cards for Selected Employees
                   </h4>
                   <ThreeCardsEditor
@@ -2167,7 +2167,7 @@ export default function ApprovalRoutingTab() {
                   type="button"
                   disabled={saving}
                   onClick={saveEmpRuleModal}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   <span>{saving ? "Saving Rule..." : "Save Employee Rule"}</span>
@@ -2202,12 +2202,12 @@ export default function ApprovalRoutingTab() {
                     <Building2 className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                       {deptModalForm.id.includes(Date.now().toString().slice(0, 5))
                         ? "Create Department-Wise Routing Rule"
                         : "Edit Department-Wise Routing Rule"}
                     </h3>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-xs text-slate-400">
                       Choose departments (multi-select) and configure the 4 routing cards
                     </p>
                   </div>
@@ -2226,7 +2226,7 @@ export default function ApprovalRoutingTab() {
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {/* Rule Name / Label */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Rule Label (Optional)
                   </label>
                   <input
@@ -2250,7 +2250,7 @@ export default function ApprovalRoutingTab() {
 
                 {/* The 4 CARDS for Employee Routing */}
                 <div className="space-y-2 pt-2">
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                  <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Routing Cards for Selected Departments
                   </h4>
                   <ThreeCardsEditor
@@ -2286,7 +2286,7 @@ export default function ApprovalRoutingTab() {
                   type="button"
                   disabled={saving}
                   onClick={saveDeptRuleModal}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   <span>{saving ? "Saving Rule..." : "Save Department Rule"}</span>

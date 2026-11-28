@@ -176,7 +176,7 @@ export function PMDashboardCharts({ tasks }: PMDashboardChartsProps) {
         <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                 Project Status Distribution
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -248,7 +248,7 @@ export function PMDashboardCharts({ tasks }: PMDashboardChartsProps) {
         <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                 Resource Allocation
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -310,7 +310,7 @@ export function PMDashboardCharts({ tasks }: PMDashboardChartsProps) {
       <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
               Task Completion Trend
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">

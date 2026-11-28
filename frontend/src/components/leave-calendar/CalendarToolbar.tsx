@@ -91,20 +91,20 @@ export function CalendarToolbar({
             <button
               type="button"
               onClick={() => setPickerOpen((o) => !o)}
-              className="flex items-center gap-1.5 rounded-lg px-1.5 py-1 text-lg font-extrabold text-[#0B1F4B] transition-colors hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-lg px-1.5 py-1 text-lg font-semibold text-[#0B1F4B] transition-colors hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800 cursor-pointer"
               title="Jump to month"
             >
               {label}
               <ChevronDown className="h-4 w-4 text-slate-400" />
             </button>
           ) : (
-            <span className="px-1.5 text-lg font-extrabold text-[#0B1F4B] dark:text-white">{label}</span>
+            <span className="px-1.5 text-lg font-semibold text-[#0B1F4B] dark:text-white">{label}</span>
           )}
 
           {pickerOpen && (
             <div className="absolute left-0 top-full z-40 mt-2 w-72 space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl animate-in fade-in zoom-in-95 duration-150 dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2 dark:border-slate-800">
-                <span className="text-xs font-bold text-slate-500">Year</span>
+                <span className="text-xs font-semibold text-slate-500">Year</span>
                 <div className="flex items-center gap-1">
                   {[year - 1, year, year + 1].map((yr) => (
                     <button
@@ -114,7 +114,7 @@ export function CalendarToolbar({
                         onPickYear(yr);
                         setPickerOpen(false);
                       }}
-                      className={`rounded-md px-2.5 py-1 text-xs font-bold transition-colors cursor-pointer ${
+                      className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer ${
                         yr === year
                           ? "bg-blue-600 text-white"
                           : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -134,7 +134,7 @@ export function CalendarToolbar({
                       onPickMonth(idx);
                       setPickerOpen(false);
                     }}
-                    className={`rounded-lg py-1.5 text-xs font-bold transition-colors cursor-pointer ${
+                    className={`rounded-lg py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                       idx === monthIndex
                         ? "bg-blue-600 text-white shadow-xs"
                         : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -158,7 +158,7 @@ export function CalendarToolbar({
               type="button"
               onClick={() => onViewChange(v.id)}
               aria-pressed={view === v.id}
-              className={`h-10 rounded-xl px-3 text-sm font-bold transition-colors cursor-pointer sm:px-4 ${
+              className={`h-10 rounded-xl px-3 text-sm font-semibold transition-colors cursor-pointer sm:px-4 ${
                 view === v.id
                   ? "bg-blue-600 text-white shadow-sm"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
@@ -172,7 +172,7 @@ export function CalendarToolbar({
         <button
           type="button"
           onClick={onToday}
-          className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 sm:px-4 shadow-xs transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 cursor-pointer"
+          className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 sm:px-4 shadow-xs transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 cursor-pointer"
         >
           Today
         </button>
@@ -191,7 +191,7 @@ export function CalendarToolbar({
 
           {settingsOpen && (
             <div className="absolute right-0 top-full z-40 mt-2 w-72 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl animate-in fade-in zoom-in-95 duration-150 dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm font-extrabold text-slate-900 dark:text-white">Show on calendar</p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">Show on calendar</p>
               <div className="mt-3 space-y-3">
                 {prefRows.map((row) => (
                   <div key={row.key} className="flex items-center justify-between gap-3">

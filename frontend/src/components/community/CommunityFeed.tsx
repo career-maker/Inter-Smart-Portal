@@ -696,7 +696,7 @@ export function CommunityFeed() {
           <div className="flex items-center px-4 pt-1 border-b border-slate-200 dark:border-slate-700 gap-6">
             <button
               onClick={() => setActiveType("post")}
-              className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition-all cursor-pointer ${
+              className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition cursor-pointer ${
                 activeType === "post" ? "border-[#56348f] text-[#56348f] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
@@ -706,7 +706,7 @@ export function CommunityFeed() {
 
             <button
               onClick={() => setActiveType("poll")}
-              className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition-all cursor-pointer ${
+              className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition cursor-pointer ${
                 activeType === "poll" ? "border-[#56348f] text-[#56348f] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
@@ -716,7 +716,7 @@ export function CommunityFeed() {
 
             <button
               onClick={() => setActiveType("praise")}
-              className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition-all cursor-pointer ${
+              className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition cursor-pointer ${
                 activeType === "praise" ? "border-[#56348f] text-[#56348f] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
@@ -799,7 +799,7 @@ export function CommunityFeed() {
                           <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
                             {emp.name}
                           </p>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                             {emp.designation}
                           </p>
                         </div>
@@ -857,7 +857,7 @@ export function CommunityFeed() {
                   <span>{selectedBadge?.name ? `Badge: ${selectedBadge.name}` : "Select badge"}</span>
                   <ChevronDown className="w-3.5 h-3.5" />
                 </button>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-400 mt-0.5">
                   Choose a recognition badge for your colleague(s)
                 </p>
               </div>
@@ -947,7 +947,7 @@ export function CommunityFeed() {
                     <Paperclip className="w-3.5 h-3.5" />
                     <span>Add Attachment</span>
                   </button>
-                  <span className="text-[11px] text-slate-400">Max 5 files</span>
+                  <span className="text-xs text-slate-400">Max 5 files</span>
                 </div>
 
                 <label className="flex items-center gap-1.5 cursor-pointer select-none text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
@@ -971,7 +971,7 @@ export function CommunityFeed() {
                   backgroundColor: "#56348f",
                   color: "#ffffff",
                 }}
-                className="px-6 py-2 bg-[#56348f] hover:bg-[#452773] !text-white text-xs font-bold rounded-md shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                className="px-6 py-2 bg-[#56348f] hover:bg-[#452773] !text-white text-xs font-semibold rounded-md shadow-xs transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
               >
                 {posting ? (
                   <>
@@ -1095,7 +1095,7 @@ export function CommunityFeed() {
                   backgroundColor: "#56348f",
                   color: "#ffffff",
                 }}
-                className="px-6 py-2 bg-[#56348f] hover:bg-[#452773] !text-white text-xs font-bold rounded-md shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                className="px-6 py-2 bg-[#56348f] hover:bg-[#452773] !text-white text-xs font-semibold rounded-md shadow-xs transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
               >
                 {posting ? (
                   <>
@@ -1172,7 +1172,7 @@ export function CommunityFeed() {
                       className="w-24 h-24 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center text-slate-400 hover:text-[#56348f] hover:border-[#56348f] transition-colors cursor-pointer"
                     >
                       <Plus className="w-5 h-5 mb-0.5" />
-                      <span className="text-[10px] font-semibold">Add more</span>
+                      <span className="text-xs font-semibold">Add more</span>
                     </button>
                   )}
                 </div>
@@ -1215,7 +1215,7 @@ export function CommunityFeed() {
                   {showPostEmojiPicker && (
                     <div className="absolute z-50 bottom-full left-0 mb-2 w-72 sm:w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-3 animate-in fade-in zoom-in-95 duration-100">
                       <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                           Add Emoji
                         </span>
                         <button
@@ -1233,7 +1233,7 @@ export function CommunityFeed() {
                             key={idx}
                             type="button"
                             onClick={() => handleInsertEmoji(emoji)}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-lg hover:bg-purple-50 dark:hover:bg-purple-950/50 hover:scale-115 active:scale-90 transition-all cursor-pointer select-none"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-lg hover:bg-purple-50 dark:hover:bg-purple-950/50 active:scale-90 transition cursor-pointer select-none"
                           >
                             {emoji}
                           </button>
@@ -1282,7 +1282,7 @@ export function CommunityFeed() {
                       backgroundColor: "#56348f",
                       color: "#ffffff",
                     }}
-                    className="px-6 py-1.5 bg-[#56348f] hover:bg-[#452773] !text-white text-[13px] font-semibold rounded-md transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                    className="px-6 py-1.5 bg-[#56348f] hover:bg-[#452773] !text-white text-[13px] font-semibold rounded-md transition flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
                   >
                     {posting ? (
                       <>
@@ -1356,7 +1356,7 @@ export function CommunityFeed() {
 
           {/* Exact Date Filter */}
           <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1">
-            <span className="text-[11px] text-slate-400">Date:</span>
+            <span className="text-xs text-slate-400">Date:</span>
             <input
               type="date"
               value={filterDate}
@@ -1371,14 +1371,14 @@ export function CommunityFeed() {
           {(filterType !== "all" || filterYear !== "all" || filterMonth !== "all" || filterDate) && (
             <button
               onClick={handleResetFilters}
-              className="flex items-center gap-1 text-[11px] font-semibold text-purple-600 hover:text-purple-800 dark:text-purple-400 p-1 hover:underline cursor-pointer"
+              className="flex items-center gap-1 text-xs font-semibold text-purple-600 hover:text-purple-800 dark:text-purple-400 p-1 hover:underline cursor-pointer"
             >
               <RotateCcw className="w-3 h-3" /> Reset
             </button>
           )}
         </div>
 
-        <div className="text-slate-400 text-[11px]">
+        <div className="text-slate-400 text-xs">
           {totalPosts} {totalPosts === 1 ? "post" : "posts"} total
         </div>
       </div>
@@ -1447,7 +1447,7 @@ export function CommunityFeed() {
                     />
                     <div className="min-w-0 space-y-0.5">
                       <p className="text-[14px] leading-tight text-slate-800 dark:text-white truncate flex items-center gap-1.5">
-                        <span className="font-bold text-slate-900 dark:text-white hover:underline cursor-pointer">
+                        <span className="font-semibold text-slate-900 dark:text-white hover:underline cursor-pointer">
                           <RoyalName name={authorName} userId={post.user_id} />
                         </span>
                         <span className="text-slate-500 dark:text-slate-400 font-normal text-[14px]">
@@ -1493,12 +1493,12 @@ export function CommunityFeed() {
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           {post.poll_data?.badge && (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full">
+                            <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full">
                               {post.poll_data.badge}
                             </span>
                           )}
                           {post.poll_data?.project_name && (
-                            <span className="inline-block text-[11px] text-slate-500 dark:text-slate-400">
+                            <span className="inline-block text-xs text-slate-500 dark:text-slate-400">
                               • Project: {post.poll_data.project_name}
                             </span>
                           )}
@@ -1519,7 +1519,7 @@ export function CommunityFeed() {
                           />
                         ))}
                         {praisedList.length > 3 && (
-                          <span className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-800 shadow-sm">
+                          <span className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold flex items-center justify-center ring-2 ring-white dark:ring-slate-800 shadow-sm">
                             +{praisedList.length - 3}
                           </span>
                         )}
@@ -1557,7 +1557,7 @@ export function CommunityFeed() {
                           key={opt.id}
                           onClick={() => handleVote(post.id, opt.id)}
                           disabled={votingPostId === post.id}
-                          className={`w-full relative overflow-hidden text-left p-3 rounded-md border transition-all cursor-pointer ${
+                          className={`w-full relative overflow-hidden text-left p-3 rounded-md border transition cursor-pointer ${
                             isUserVote
                               ? "border-[#56348f] bg-purple-50/50 dark:bg-purple-950/20"
                               : "border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-slate-50/50 dark:bg-slate-900/40"
@@ -1565,7 +1565,7 @@ export function CommunityFeed() {
                         >
                           <div
                             style={{ width: `${percentage}%` }}
-                            className={`absolute inset-y-0 left-0 transition-all duration-500 opacity-20 ${
+                            className={`absolute inset-y-0 left-0 transition duration-500 opacity-20 ${
                               isUserVote ? "bg-[#56348f]" : "bg-slate-400 dark:bg-slate-600"
                             }`}
                           />
@@ -1573,7 +1573,7 @@ export function CommunityFeed() {
                           <div className="relative z-10 flex items-center justify-between text-xs font-medium">
                             <div className="flex items-center gap-2 min-w-0">
                               <span
-                                className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
+                                className={`w-4 h-4 rounded-full border flex items-center justify-center text-xs ${
                                   isUserVote
                                     ? "border-[#56348f] bg-[#56348f] text-white"
                                     : "border-slate-400"
@@ -1585,7 +1585,7 @@ export function CommunityFeed() {
                                 {opt.text}
                               </span>
                             </div>
-                            <span className="text-slate-500 dark:text-slate-400 font-bold shrink-0 ml-2">
+                            <span className="text-slate-500 dark:text-slate-400 font-semibold shrink-0 ml-2">
                               {percentage}% ({voteCount})
                             </span>
                           </div>
@@ -1593,7 +1593,7 @@ export function CommunityFeed() {
                       );
                     })}
 
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                    <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
                       <span>
                         {post.poll_data.total_votes || 0}{" "}
                         {post.poll_data.total_votes === 1 ? "vote" : "votes"}
@@ -1630,13 +1630,13 @@ export function CommunityFeed() {
                         <img
                           src={postImages[currentSlide]}
                           alt={`Post attachment ${currentSlide + 1}`}
-                          className="max-w-full w-auto h-auto max-h-[360px] md:max-h-[380px] object-contain rounded-xl block transition-all duration-300"
+                          className="max-w-full w-auto h-auto max-h-[360px] md:max-h-[380px] object-contain rounded-xl block transition duration-300"
                           loading="lazy"
                         />
 
                         {/* Image Counter Badge (Top Right) */}
                         {totalSlides > 1 && (
-                          <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md pointer-events-none">
+                          <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-md pointer-events-none">
                             {currentSlide + 1} / {totalSlides}
                           </div>
                         )}
@@ -1652,7 +1652,7 @@ export function CommunityFeed() {
                                 [post.id]: Math.max(0, currentSlide - 1),
                               }));
                             }}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white shadow-lg flex items-center justify-center opacity-80 group-hover:opacity-100 hover:scale-110 transition-all cursor-pointer z-10"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white shadow-lg flex items-center justify-center opacity-80 group-hover:opacity-100 transition cursor-pointer z-10"
                             title="Previous image"
                           >
                             <ChevronLeft className="w-5 h-5" />
@@ -1670,7 +1670,7 @@ export function CommunityFeed() {
                                 [post.id]: Math.min(totalSlides - 1, currentSlide + 1),
                               }));
                             }}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white shadow-lg flex items-center justify-center opacity-80 group-hover:opacity-100 hover:scale-110 transition-all cursor-pointer z-10"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white shadow-lg flex items-center justify-center opacity-80 group-hover:opacity-100 transition cursor-pointer z-10"
                             title="Next image"
                           >
                             <ChevronRight className="w-5 h-5" />
@@ -1688,7 +1688,7 @@ export function CommunityFeed() {
                               onClick={() =>
                                 setActiveSlideIndex((prev) => ({ ...prev, [post.id]: sIdx }))
                               }
-                              className={`transition-all duration-200 rounded-full cursor-pointer ${
+                              className={`transition duration-200 rounded-full cursor-pointer ${
                                 currentSlide === sIdx
                                   ? "w-2.5 h-2.5 bg-[#56348f] dark:bg-purple-400 scale-110 shadow-xs"
                                   : "w-1.5 h-1.5 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400"
@@ -1718,7 +1718,7 @@ export function CommunityFeed() {
                                 if (!r) return null;
                                 return (
                                   <div key={reaction} className="flex items-center gap-1">
-                                    <span className="w-4 h-4 rounded-full flex items-center justify-center text-[11px] bg-slate-100 dark:bg-slate-800">
+                                    <span className="w-4 h-4 rounded-full flex items-center justify-center text-xs bg-slate-100 dark:bg-slate-800">
                                       {r.emoji}
                                     </span>
                                     <span>{Number(count)}</span>
@@ -1748,7 +1748,7 @@ export function CommunityFeed() {
                     >
                       {/* Floating Emoji Reactions Bar */}
                       <div
-                        className={`absolute bottom-full left-1/2 -translate-x-1/2 pb-2 z-50 transition-all duration-200 ${
+                        className={`absolute bottom-full left-1/2 -translate-x-1/2 pb-2 z-50 transition duration-200 ${
                           hoveredReactionPostId === post.id
                             ? "opacity-100 visible translate-y-0"
                             : "opacity-0 invisible pointer-events-none translate-y-1 group-hover/reaction-box:opacity-100 group-hover/reaction-box:visible group-hover/reaction-box:pointer-events-auto group-hover/reaction-box:translate-y-0"
@@ -1765,7 +1765,7 @@ export function CommunityFeed() {
                                   e.stopPropagation();
                                   return handleToggleLike(post.id, re.id);
                                 }}
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-125 cursor-pointer ${
+                                className={`w-8 h-8 rounded-full flex items-center justify-center text-lg transition-transform cursor-pointer ${
                                   isSelected ? "scale-110 ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30" : "hover:bg-slate-100 dark:hover:bg-slate-700"
                                 }`}
                                 title={re.label}
@@ -1952,7 +1952,7 @@ export function CommunityFeed() {
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="font-semibold text-sm text-slate-900 dark:text-white flex items-center gap-2">
                 <span>Reactions</span>
                 <span className="text-xs font-normal text-slate-400">
                   ({reactionModalPost.likes_count || 0})
@@ -2044,13 +2044,13 @@ export function CommunityFeed() {
                           <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
                             <RoyalName name={u?.name || `${u?.first_name} ${u?.last_name}`} userId={u?.id} />
                           </p>
-                          <p className="text-[11px] text-slate-400 truncate">
+                          <p className="text-xs text-slate-400 truncate">
                             {u?.designation || "Team Member"}
                           </p>
                         </div>
                       </div>
 
-                      <span className="text-xs font-bold text-slate-500 capitalize px-2.5 py-1 bg-slate-50 dark:bg-slate-800 rounded-full shrink-0">
+                      <span className="text-xs font-semibold text-slate-500 capitalize px-2.5 py-1 bg-slate-50 dark:bg-slate-800 rounded-full shrink-0">
                         {emojiObj.label}
                       </span>
                     </div>

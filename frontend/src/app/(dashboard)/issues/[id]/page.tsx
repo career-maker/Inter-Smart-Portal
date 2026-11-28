@@ -127,7 +127,7 @@ export default function IssueDetailPage() {
           </Link>
           <div>
             <div className="flex items-center flex-wrap gap-3">
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white">#{issue.id} {issue.title}</h1>
+              <h1 className="text-xl font-semibold text-slate-900 dark:text-white">#{issue.id} {issue.title}</h1>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${statusCls}`}>
                 {issue.status}
               </span>
@@ -185,7 +185,7 @@ export default function IssueDetailPage() {
           <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
             <div className="p-5 bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-white/10">
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-sm font-bold text-white shrink-0 overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-sm font-semibold text-white shrink-0 overflow-hidden">
                   {issue.user?.profile_photo_path ? (
                     <img src={issue.user.profile_photo_path} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
                   ) : (
@@ -235,7 +235,7 @@ export default function IssueDetailPage() {
                 {issue.comments.map((comment: any) => (
                   <div key={comment.id} className="p-5">
                     <div className="flex gap-4">
-                      <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white shrink-0 overflow-hidden">
+                      <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-semibold text-slate-700 dark:text-white shrink-0 overflow-hidden">
                         {comment.user?.profile_photo_path ? (
                           <img src={comment.user.profile_photo_path} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
                         ) : (
@@ -246,7 +246,7 @@ export default function IssueDetailPage() {
                         <div className="flex items-center gap-2">
                           <p className="font-semibold text-slate-900 dark:text-white text-sm">{comment.user?.first_name} {comment.user?.last_name}</p>
                           {comment.user?.id === issue.user_id && (
-                            <span className="text-[10px] uppercase tracking-wider bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full font-bold">Author</span>
+                            <span className="text-xs bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full font-semibold">Author</span>
                           )}
                           <span className="text-xs text-slate-400 ml-auto">{format(new Date(comment.created_at), "PPp")}</span>
                         </div>
@@ -321,7 +321,7 @@ export default function IssueDetailPage() {
               {/* Assign to employee (super admin only) */}
               {isSuperAdmin ? (
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider block mb-1.5">
+                  <span className="text-slate-500 dark:text-slate-400 text-xs block mb-1.5">
                     Assigned To {assigning && <Loader2 className="inline w-3 h-3 animate-spin ml-1" />}
                   </span>
                   <SelectCompat
@@ -338,7 +338,7 @@ export default function IssueDetailPage() {
                     ))}
                   </SelectCompat>
                   {assignedToObj && (
-                    <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
                       <UserCheck className="w-3 h-3" />
                       {assignedToObj.first_name} {assignedToObj.last_name}
                     </p>
@@ -375,7 +375,7 @@ export default function IssueDetailPage() {
 function Detail({ label, value }: { label: string; value: any }) {
   return (
     <div>
-      <span className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider block mb-0.5">{label}</span>
+      <span className="text-slate-500 dark:text-slate-400 text-xs block mb-0.5">{label}</span>
       <span className="font-medium text-slate-800 dark:text-slate-200">{value}</span>
     </div>
   );

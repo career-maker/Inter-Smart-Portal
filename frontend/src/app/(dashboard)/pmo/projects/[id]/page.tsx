@@ -55,7 +55,7 @@ export default function PmoProjectPage() {
     <div className="space-y-5 [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500">
       <div>
         <Link href="/pmo" className="text-sm text-slate-500 flex items-center gap-1 hover:underline"><ArrowLeft className="h-4 w-4" /> Project Office</Link>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-1">{d.project.name}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white mt-1">{d.project.name}</h1>
         <div className="flex flex-wrap gap-2 mt-2 items-center">
           <Badge variant="outline">{d.project.status}</Badge>
           <Badge className="bg-slate-100 text-slate-700">{g.payment.state}</Badge>

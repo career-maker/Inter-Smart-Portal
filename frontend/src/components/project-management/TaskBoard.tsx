@@ -37,7 +37,7 @@ export function photoSrc(path?: string | null) {
 function Avatars({ task, size = 24, max = 3 }: { task: ProjectTask; size?: number; max?: number }) {
   const list = task.assignees || [];
   if (!list.length) {
-    return <span className="text-[11px] italic text-slate-500 dark:text-slate-400">{task.old_assignee_name || "Unassigned"}</span>;
+    return <span className="text-xs italic text-slate-500 dark:text-slate-400">{task.old_assignee_name || "Unassigned"}</span>;
   }
   return (
     <span className="flex items-center -space-x-1.5">
@@ -48,13 +48,13 @@ function Avatars({ task, size = 24, max = 3 }: { task: ProjectTask; size?: numbe
           // eslint-disable-next-line @next/next/no-img-element
           <img key={a.id} src={src} alt={`${a.first_name} ${a.last_name}`} title={`${a.first_name} ${a.last_name}`} style={box} className="rounded-full border-2 border-white dark:border-slate-900 object-cover bg-slate-200" referrerPolicy="no-referrer" loading="lazy" />
         ) : (
-          <span key={a.id} title={`${a.first_name} ${a.last_name}`} style={{ ["--h" as any]: hueOf(a.id + 5), ...box }} className="grid place-items-center rounded-full border-2 border-white dark:border-slate-900 font-bold text-white bg-[hsl(var(--h)_55%_42%)]">
+          <span key={a.id} title={`${a.first_name} ${a.last_name}`} style={{ ["--h" as any]: hueOf(a.id + 5), ...box }} className="grid place-items-center rounded-full border-2 border-white dark:border-slate-900 font-semibold text-white bg-[hsl(var(--h)_55%_42%)]">
             {initials(a)}
           </span>
         );
       })}
       {list.length > max && (
-        <span style={{ width: size, height: size, fontSize: size * 0.4 }} className="grid place-items-center rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 font-bold text-slate-700 dark:text-slate-200">
+        <span style={{ width: size, height: size, fontSize: size * 0.4 }} className="grid place-items-center rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 font-semibold text-slate-700 dark:text-slate-200">
           +{list.length - max}
         </span>
       )}
@@ -70,7 +70,7 @@ function CardBody({ task, busy, dense }: { task: ProjectTask; busy?: boolean; de
       <div className="flex items-center gap-2">
         {busy ? <Loader2 className="h-3 w-3 shrink-0 animate-spin text-slate-500" /> : <span title={`Priority: ${task.priority}`} aria-label={`Priority: ${task.priority}`} className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: pc }} />}
         <h4 className="flex-1 min-w-0 text-[12.5px] font-semibold leading-snug text-slate-900 dark:text-slate-50 line-clamp-2">{task.title}</h4>
-        {over && <span className="shrink-0 rounded bg-rose-600 px-1 text-[10px] font-bold text-white">{shortDay(task.due_date)}</span>}
+        {over && <span className="shrink-0 rounded bg-rose-600 px-1 text-xs font-semibold text-white">{shortDay(task.due_date)}</span>}
         <Avatars task={task} size={20} max={1} />
       </div>
     );
@@ -90,10 +90,10 @@ function CardBody({ task, busy, dense }: { task: ProjectTask; busy?: boolean; de
           />
         )}
       </div>
-      {task.project?.name && <p className="mt-1 text-[11.5px] text-[hsl(var(--h)_35%_32%)] dark:text-[hsl(var(--h)_30%_72%)] truncate">{task.project.name}</p>}
+      {task.project?.name && <p className="mt-1 text-xs text-[hsl(var(--h)_35%_32%)] dark:text-[hsl(var(--h)_30%_72%)] truncate">{task.project.name}</p>}
       <div className="mt-3 flex items-center justify-between gap-2">
         <span
-          className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium ${
+          className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium ${
             over ? "bg-rose-600 text-white" : "bg-white/70 dark:bg-white/10 text-slate-700 dark:text-slate-200"
           }`}
         >
@@ -145,7 +145,7 @@ export function TaskDrawer({
             <div className="flex items-start gap-3">
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-[hsl(var(--h)_35%_30%)] dark:text-[hsl(var(--h)_30%_72%)] truncate">{task.project?.name || "No project"}{task.sub_phase?.name ? ` · ${task.sub_phase.name}` : ""}</p>
-                <h2 className="mt-1 text-lg font-bold leading-snug text-slate-900 dark:text-white">{task.title}</h2>
+                <h2 className="mt-1 text-lg font-semibold leading-snug text-slate-900 dark:text-white">{task.title}</h2>
               </div>
               <button ref={closeRef} onClick={onClose} aria-label="Close task panel" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-black/5 dark:hover:bg-white/10">
                 <X className="h-5 w-5" />
@@ -390,7 +390,7 @@ export function TaskBoard({
               key={key}
               data-lane={key}
               aria-label={`${s}, ${items.length} tasks`}
-              className={`rounded-2xl bg-stone-100 dark:bg-slate-900/70 transition-all duration-200 ${folded ? (arrange ? "lg:w-[5.25rem]" : "lg:w-12") + " lg:shrink-0" : "lg:flex-1 lg:min-w-[210px]"}`}
+              className={`rounded-2xl bg-stone-100 dark:bg-slate-900/70 transition duration-200 ${folded ? (arrange ? "lg:w-[5.25rem]" : "lg:w-12") + " lg:shrink-0" : "lg:flex-1 lg:min-w-[210px]"}`}
               style={hot ? { backgroundColor: `color-mix(in srgb, ${color} 18%, transparent)`, boxShadow: `inset 0 0 0 2px ${color}` } : undefined}
             >
               {arrange && (
@@ -406,8 +406,8 @@ export function TaskBoard({
                 className={`flex w-full items-center gap-2.5 px-3.5 min-h-12 text-left ${folded ? "lg:h-full lg:min-h-[9rem] lg:flex-col lg:justify-start lg:px-0 lg:pt-3.5" : ""}`}
               >
                 <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-                <span className={`flex-1 text-[13px] font-bold text-slate-800 dark:text-slate-100 ${folded ? "lg:flex-none lg:[writing-mode:vertical-rl] lg:rotate-180 lg:order-3" : ""}`}>{s}</span>
-                <span className={`rounded-full bg-white/80 dark:bg-white/10 px-2 text-xs font-bold tabular-nums text-slate-600 dark:text-slate-300 ${folded ? "lg:order-2" : ""}`}>{items.length}</span>
+                <span className={`flex-1 text-[13px] font-semibold text-slate-800 dark:text-slate-100 ${folded ? "lg:flex-none lg:[writing-mode:vertical-rl] lg:rotate-180 lg:order-3" : ""}`}>{s}</span>
+                <span className={`rounded-full bg-white/80 dark:bg-white/10 px-2 text-xs font-semibold tabular-nums text-slate-600 dark:text-slate-300 ${folded ? "lg:order-2" : ""}`}>{items.length}</span>
                 <ChevronDown className={`h-4 w-4 shrink-0 text-slate-500 transition-transform ${folded ? "-rotate-90 lg:hidden" : ""}`} />
               </button>
               {!folded && (
@@ -476,9 +476,9 @@ export function TaskBoard({
                   <ArrangeArrows label={g.name} canBack={gi > 0} canFwd={gi < groups!.length - 1} onMove={(d) => onMoveGroup(g.key, d)} />
                 )}
                 <button onClick={() => setFold((f) => ({ ...f, [gkey]: !closed }))} aria-expanded={!closed} className="flex flex-1 items-center gap-3 px-2 py-1.5 min-h-12 text-left">
-                  <span style={{ ["--h" as any]: hueOf(g.key.length * 31 + g.name.charCodeAt(0)) }} className="grid h-9 w-9 place-items-center rounded-full bg-[hsl(var(--h)_55%_42%)] text-sm font-bold text-white">{g.name[0]?.toUpperCase()}</span>
+                  <span style={{ ["--h" as any]: hueOf(g.key.length * 31 + g.name.charCodeAt(0)) }} className="grid h-9 w-9 place-items-center rounded-full bg-[hsl(var(--h)_55%_42%)] text-sm font-semibold text-white">{g.name[0]?.toUpperCase()}</span>
                   <span className="flex-1 min-w-0">
-                    <span className="block truncate text-sm font-bold text-slate-900 dark:text-white">{g.name}</span>
+                    <span className="block truncate text-sm font-semibold text-slate-900 dark:text-white">{g.name}</span>
                     {g.sub && <span className="block truncate text-xs text-slate-500">{g.sub}</span>}
                   </span>
                   <span className="text-xs font-semibold text-slate-500">{g.tasks.length} {g.tasks.length === 1 ? "task" : "tasks"}</span>

@@ -119,7 +119,7 @@ export default function BugzillaOverviewPage() {
       {/* ── Action bar / status notice ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white">Triage & Health Dashboard</h2>
+          <h2 className="text-base font-semibold text-slate-900 dark:text-white">Triage & Health Dashboard</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Real-time breakdown of open defects, severity distribution, and project activities.
           </p>
@@ -158,14 +158,14 @@ export default function BugzillaOverviewPage() {
         {/* Total */}
         <Link
           href="/project-management/bugsmart/bugs"
-          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700 shadow-xs transition-all block group"
+          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700 shadow-xs transition block group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Bugs</span>
             <Bug className="w-4 h-4 text-slate-400 group-hover:text-rose-500 transition-colors" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-white font-mono">{s.total}</div>
-          <span className="text-[10px] text-slate-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 flex items-center gap-0.5 mt-1 font-medium">
+          <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white font-mono">{s.total}</div>
+          <span className="text-xs text-slate-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 flex items-center gap-0.5 mt-1 font-medium">
             View all <ArrowRight className="w-2.5 h-2.5" />
           </span>
         </Link>
@@ -173,14 +173,14 @@ export default function BugzillaOverviewPage() {
         {/* Open */}
         <Link
           href="/project-management/bugsmart/bugs?quick_filter=open"
-          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-700 shadow-xs transition-all block group"
+          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-700 shadow-xs transition block group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Open</span>
             <Clock className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400 font-mono">{s.open}</div>
-          <span className="text-[10px] text-slate-400 group-hover:text-amber-600 flex items-center gap-0.5 mt-1 font-medium">
+          <div className="mt-2 text-2xl font-semibold text-amber-600 dark:text-amber-400 font-mono">{s.open}</div>
+          <span className="text-xs text-slate-400 group-hover:text-amber-600 flex items-center gap-0.5 mt-1 font-medium">
             In triage <ArrowRight className="w-2.5 h-2.5" />
           </span>
         </Link>
@@ -188,16 +188,16 @@ export default function BugzillaOverviewPage() {
         {/* Critical & Blocker */}
         <Link
           href="/project-management/bugsmart/bugs?quick_filter=critical_blocker"
-          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700 shadow-xs transition-all block group"
+          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700 shadow-xs transition block group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Critical / Blocker</span>
             <AlertOctagon className="w-4 h-4 text-rose-600" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-rose-600 dark:text-rose-400 font-mono">
+          <div className="mt-2 text-2xl font-semibold text-rose-600 dark:text-rose-400 font-mono">
             {s.critical_blocker}
           </div>
-          <span className="text-[10px] text-slate-400 group-hover:text-rose-600 flex items-center gap-0.5 mt-1 font-medium">
+          <span className="text-xs text-slate-400 group-hover:text-rose-600 flex items-center gap-0.5 mt-1 font-medium">
             Urgent attention <ArrowRight className="w-2.5 h-2.5" />
           </span>
         </Link>
@@ -205,14 +205,14 @@ export default function BugzillaOverviewPage() {
         {/* Unassigned */}
         <Link
           href="/project-management/bugsmart/bugs?quick_filter=unassigned"
-          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-700 shadow-xs transition-all block group"
+          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-700 shadow-xs transition block group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Unassigned</span>
             <UserX className="w-4 h-4 text-indigo-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-indigo-600 dark:text-indigo-400 font-mono">{s.unassigned}</div>
-          <span className="text-[10px] text-slate-400 group-hover:text-indigo-600 flex items-center gap-0.5 mt-1 font-medium">
+          <div className="mt-2 text-2xl font-semibold text-indigo-600 dark:text-indigo-400 font-mono">{s.unassigned}</div>
+          <span className="text-xs text-slate-400 group-hover:text-indigo-600 flex items-center gap-0.5 mt-1 font-medium">
             Needs owner <ArrowRight className="w-2.5 h-2.5" />
           </span>
         </Link>
@@ -220,14 +220,14 @@ export default function BugzillaOverviewPage() {
         {/* Resolved */}
         <Link
           href="/project-management/bugsmart/bugs?quick_filter=resolved"
-          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-700 shadow-xs transition-all block group"
+          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-700 shadow-xs transition block group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Resolved</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400 font-mono">{s.resolved}</div>
-          <span className="text-[10px] text-slate-400 group-hover:text-emerald-600 flex items-center gap-0.5 mt-1 font-medium">
+          <div className="mt-2 text-2xl font-semibold text-emerald-600 dark:text-emerald-400 font-mono">{s.resolved}</div>
+          <span className="text-xs text-slate-400 group-hover:text-emerald-600 flex items-center gap-0.5 mt-1 font-medium">
             Pending verification <ArrowRight className="w-2.5 h-2.5" />
           </span>
         </Link>
@@ -235,14 +235,14 @@ export default function BugzillaOverviewPage() {
         {/* Reopened */}
         <Link
           href="/project-management/bugsmart/bugs?quick_filter=reopened"
-          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700 shadow-xs transition-all block group"
+          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700 shadow-xs transition block group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Reopened</span>
             <RotateCcw className="w-4 h-4 text-rose-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-rose-600 dark:text-rose-400 font-mono">{s.reopened}</div>
-          <span className="text-[10px] text-slate-400 group-hover:text-rose-600 flex items-center gap-0.5 mt-1 font-medium">
+          <div className="mt-2 text-2xl font-semibold text-rose-600 dark:text-rose-400 font-mono">{s.reopened}</div>
+          <span className="text-xs text-slate-400 group-hover:text-rose-600 flex items-center gap-0.5 mt-1 font-medium">
             Regressions <ArrowRight className="w-2.5 h-2.5" />
           </span>
         </Link>
@@ -250,14 +250,14 @@ export default function BugzillaOverviewPage() {
         {/* Closed */}
         <Link
           href="/project-management/bugsmart/bugs?quick_filter=closed"
-          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 shadow-xs transition-all block group"
+          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 shadow-xs transition block group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Closed</span>
             <Archive className="w-4 h-4 text-slate-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-slate-700 dark:text-slate-300 font-mono">{s.closed}</div>
-          <span className="text-[10px] text-slate-400 group-hover:text-slate-600 flex items-center gap-0.5 mt-1 font-medium">
+          <div className="mt-2 text-2xl font-semibold text-slate-700 dark:text-slate-300 font-mono">{s.closed}</div>
+          <span className="text-xs text-slate-400 group-hover:text-slate-600 flex items-center gap-0.5 mt-1 font-medium">
             Archived <ArrowRight className="w-2.5 h-2.5" />
           </span>
         </Link>
@@ -268,10 +268,10 @@ export default function BugzillaOverviewPage() {
         {/* Status Distribution */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+            <h3 className="text-xs font-semibold text-slate-600 dark:text-slate-300">
               Bugs by Status
             </h3>
-            <span className="text-[11px] text-slate-400 font-mono">{s.total} total</span>
+            <span className="text-xs text-slate-400 font-mono">{s.total} total</span>
           </div>
           {statusChartData.length > 0 ? (
             <div className="h-56">
@@ -304,10 +304,10 @@ export default function BugzillaOverviewPage() {
               </ResponsiveContainer>
               <div className="flex flex-wrap gap-2 justify-center pt-2">
                 {statusChartData.map((d) => (
-                  <div key={d.name} className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-400">
+                  <div key={d.name} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
                     <span>{d.name}:</span>
-                    <span className="font-bold text-slate-900 dark:text-white">{d.value}</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{d.value}</span>
                   </div>
                 ))}
               </div>
@@ -320,7 +320,7 @@ export default function BugzillaOverviewPage() {
         {/* Severity Breakdown */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+            <h3 className="text-xs font-semibold text-slate-600 dark:text-slate-300">
               Bugs by Severity
             </h3>
           </div>
@@ -355,7 +355,7 @@ export default function BugzillaOverviewPage() {
         {/* Priority Breakdown */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+            <h3 className="text-xs font-semibold text-slate-600 dark:text-slate-300">
               Bugs by Priority
             </h3>
           </div>
@@ -389,7 +389,7 @@ export default function BugzillaOverviewPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-rose-600" />
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Recent Bug Reports & Triage</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Recent Bug Reports & Triage</h3>
           </div>
           <Link
             href="/project-management/bugsmart/bugs"
@@ -407,7 +407,7 @@ export default function BugzillaOverviewPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <Link
                       href={`/project-management/bugsmart/bugs/${bug.id}`}
-                      className="font-mono text-xs font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 underline decoration-dotted"
+                      className="font-mono text-xs font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 underline decoration-dotted"
                     >
                       {bug.bug_number}
                     </Link>
@@ -416,7 +416,7 @@ export default function BugzillaOverviewPage() {
                     <BugzillaSeverityBadge severity={bug.severity} showIcon={false} />
                     <BugzillaPriorityBadge priority={bug.priority} />
                   </div>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                     <span>Project: <strong className="text-slate-700 dark:text-slate-300">{bug.project?.name}</strong></span>
                     {bug.component && (
                       <>
@@ -434,7 +434,7 @@ export default function BugzillaOverviewPage() {
                     <div className="text-xs text-slate-700 dark:text-slate-300 font-medium">
                       {bug.assignee ? `${bug.assignee.first_name} ${bug.assignee.last_name}` : <span className="text-slate-400 italic">Unassigned</span>}
                     </div>
-                    <div className="text-[10px] text-slate-400">
+                    <div className="text-xs text-slate-400">
                       {new Date(bug.updated_at).toLocaleDateString()}
                     </div>
                   </div>

@@ -473,7 +473,7 @@ export default function AttendanceManagementPage() {
       {viewMode === "directory" && (
         <>
           {/* Card 1: View All Employees on a Date (TOP OPTION) */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 sm:p-6 transition-all">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 sm:p-6 transition">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h3
@@ -574,7 +574,7 @@ export default function AttendanceManagementPage() {
                   placeholder="Search by name, employee code, designation, or team..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00806E]/40 dark:focus:ring-purple-400/40 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00806E]/40 dark:focus:ring-purple-400/40 transition"
                 />
               </div>
             </div>
@@ -738,7 +738,7 @@ export default function AttendanceManagementPage() {
 
             {/* Body */}
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-2">
                 Select how you want to view attendance:
               </span>
 
@@ -747,9 +747,9 @@ export default function AttendanceManagementPage() {
                 onClick={() => {
                   handleOpenDateWise(selectedEmployee);
                 }}
-                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
+                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition group flex items-start gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#00806E] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#00806E] dark:text-purple-300 shrink-0 transition-transform">
                   <Calendar className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -770,9 +770,9 @@ export default function AttendanceManagementPage() {
                 onClick={() => {
                   handleOpenDateRange(selectedEmployee);
                 }}
-                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
+                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition group flex items-start gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#00806E] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#00806E] dark:text-purple-300 shrink-0 transition-transform">
                   <CalendarRange className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -794,9 +794,9 @@ export default function AttendanceManagementPage() {
                   setIsDrawerOpen(false);
                   setIsLeaveWfhModalOpen(true);
                 }}
-                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-amber-50/50 dark:hover:bg-amber-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-amber-300 dark:hover:border-amber-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
+                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-amber-50/50 dark:hover:bg-amber-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-amber-300 dark:hover:border-amber-700/60 rounded-xl text-left transition group flex items-start gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-300 shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-300 shrink-0 transition-transform">
                   <Plus className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -818,9 +818,9 @@ export default function AttendanceManagementPage() {
                   setIsDrawerOpen(false);
                   setIsMonthlyReportOpen(true);
                 }}
-                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
+                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition group flex items-start gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#00806E] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#00806E] dark:text-purple-300 shrink-0 transition-transform">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -841,7 +841,7 @@ export default function AttendanceManagementPage() {
             <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
               <button
                 onClick={() => setIsDrawerOpen(false)}
-                className="w-full py-2.5 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
+                className="w-full py-2.5 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition cursor-pointer"
               >
                 ← Change Employee
               </button>
@@ -885,7 +885,7 @@ export default function AttendanceManagementPage() {
                       name={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
                       userId={selectedEmployee.id}
                       employeeCode={selectedEmployee.employee_code}
-                      className="font-bold text-slate-900 dark:text-white text-base"
+                      className="font-semibold text-slate-900 dark:text-white text-base"
                     />
                     <span className="font-mono text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
                       Code: {selectedEmployee.employee_code}
@@ -907,7 +907,7 @@ export default function AttendanceManagementPage() {
                         handleDateSelection(dateWiseSelectedDate, selectedEmployee.id);
                       }
                     }}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                       employeeViewTab === "single"
                         ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-bold"
                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -922,7 +922,7 @@ export default function AttendanceManagementPage() {
                         fetchEmployeeDateRange(rangeStartDate, rangeEndDate, selectedEmployee.id);
                       }
                     }}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                       employeeViewTab === "range"
                         ? "bg-[#00806E] text-white shadow-xs font-bold"
                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -934,7 +934,7 @@ export default function AttendanceManagementPage() {
 
                 {employeeViewTab === "single" && (
                   <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5">
-                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                       Date:
                     </label>
                     <input
@@ -1066,7 +1066,7 @@ export default function AttendanceManagementPage() {
                   >
                     <ArrowLeft className="w-4 h-4" />
                   </button>
-                  <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white">
                     Attendance Report — {selectedDate}
                   </h2>
                 </div>
@@ -1077,7 +1077,7 @@ export default function AttendanceManagementPage() {
 
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5">
-                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                     Change Date:
                   </label>
                   <input
@@ -1130,34 +1130,34 @@ export default function AttendanceManagementPage() {
               {/* Summary Stats */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 rounded-xl p-4 text-center shadow-sm">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                     Total Employees
                   </p>
-                  <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                  <p className="text-2xl font-semibold text-slate-900 dark:text-white mt-1">
                     {allEmployeesDateData.length}
                   </p>
                 </div>
                 <div className="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 rounded-xl p-4 text-center shadow-sm">
-                  <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                     Punched In
                   </p>
-                  <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">
+                  <p className="text-2xl font-semibold text-emerald-700 dark:text-emerald-300 mt-1">
                     {allEmployeesDateData.filter((emp) => emp.attendance?.first_in).length}
                   </p>
                 </div>
                 <div className="bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-800/40 rounded-xl p-4 text-center shadow-sm">
-                  <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">
                     Absent
                   </p>
-                  <p className="text-2xl font-bold text-rose-700 dark:text-rose-300 mt-1">
+                  <p className="text-2xl font-semibold text-rose-700 dark:text-rose-300 mt-1">
                     {allEmployeesDateData.filter((emp) => !emp.attendance?.first_in).length}
                   </p>
                 </div>
                 <div className="bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-800/40 rounded-xl p-4 text-center shadow-sm">
-                  <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">
                     Punch-In Rate
                   </p>
-                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300 mt-1">
+                  <p className="text-2xl font-semibold text-blue-700 dark:text-blue-300 mt-1">
                     {allEmployeesDateData.length > 0
                       ? Math.round(
                           (allEmployeesDateData.filter((emp) => emp.attendance?.first_in).length /

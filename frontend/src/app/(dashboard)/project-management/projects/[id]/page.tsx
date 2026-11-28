@@ -212,7 +212,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
     return (
       <div className="max-w-xl mx-auto p-6 my-16 text-center rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-8 shadow-sm space-y-4">
         <AlertCircle className="w-12 h-12 text-rose-500 mx-auto" />
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Project Inaccessible</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Project Inaccessible</h2>
         <p className="text-xs text-slate-500 dark:text-slate-400">{error || "Project could not be found."}</p>
         <Link
           href="/project-management/projects"
@@ -246,7 +246,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight">
               {project.name}
             </h1>
             <ProjectStatusBadge status={project.status} />
@@ -316,26 +316,26 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Owning Team */}
         <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <Building2 className="w-4 h-4 text-blue-500" />
             <span>Owning Department</span>
           </div>
-          <div className="mt-2 text-base font-bold text-slate-900 dark:text-white">
+          <div className="mt-2 text-base font-semibold text-slate-900 dark:text-white">
             {project.team?.name || "Cross-Department"}
           </div>
-          <span className="text-[11px] text-slate-400">Primary delivery team</span>
+          <span className="text-xs text-slate-400">Primary delivery team</span>
         </div>
 
         {/* Metric 2: Project Coordinator */}
         <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <User className="w-4 h-4 text-purple-500" />
             <span>Project Coordinator</span>
           </div>
-          <div className="mt-2 text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <div className="mt-2 text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
             {project.coordinator ? (
               <>
-                <span className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0">
+                <span className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-semibold flex items-center justify-center shrink-0">
                   {project.coordinator.first_name?.[0]}
                   {project.coordinator.last_name?.[0]}
                 </span>
@@ -347,32 +347,32 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               <span className="text-slate-400 italic">Unassigned</span>
             )}
           </div>
-          <span className="text-[11px] text-slate-400">Assigned coordination lead</span>
+          <span className="text-xs text-slate-400">Assigned coordination lead</span>
         </div>
 
         {/* Metric 3: Timeline */}
         <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <Calendar className="w-4 h-4 text-emerald-500" />
             <span>Target Timeline</span>
           </div>
-          <div className="mt-2 text-sm font-bold text-slate-900 dark:text-white">
+          <div className="mt-2 text-sm font-semibold text-slate-900 dark:text-white">
             {formatDateDisplay(project.start_date)} → {formatDateDisplay(project.expected_end_date)}
           </div>
-          <span className="text-[11px] text-slate-400">Start & expected completion</span>
+          <span className="text-xs text-slate-400">Start & expected completion</span>
         </div>
 
         {/* Metric 4: Effort & Budget */}
         <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <Clock className="w-4 h-4 text-amber-500" />
             <span>Effort & Budget</span>
           </div>
-          <div className="mt-2 text-base font-bold text-slate-900 dark:text-white">
+          <div className="mt-2 text-base font-semibold text-slate-900 dark:text-white">
             {project.allotted_effort ? `${project.allotted_effort} hrs` : "—"}
             {project.budget ? ` / ₹${project.budget.toLocaleString()}` : ""}
           </div>
-          <span className="text-[11px] text-slate-400">Planned capacity allocation</span>
+          <span className="text-xs text-slate-400">Planned capacity allocation</span>
         </div>
       </div>
 
@@ -381,7 +381,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-300 flex items-start gap-3 text-sm">
           <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
           <div>
-            <span className="font-bold block">Active Blockers / Dependencies:</span>
+            <span className="font-semibold block">Active Blockers / Dependencies:</span>
             <p className="text-xs text-rose-600 dark:text-rose-300/90 mt-0.5">{project.blockers}</p>
           </div>
         </div>
@@ -393,7 +393,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         <div className="lg:col-span-2 space-y-6">
           {/* Section: Description & Scope */}
           <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm space-y-4">
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
               <FileText className="w-4 h-4 text-blue-500" />
               <span>Project Description & Scope</span>
             </div>
@@ -405,7 +405,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 {project.live_notes && (
                   <div className="space-y-1">
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       Live Notes:
                     </span>
                     <p className="text-xs text-slate-500 dark:text-slate-400 whitespace-pre-wrap">
@@ -415,7 +415,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 )}
                 {project.fixing_notes && (
                   <div className="space-y-1">
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       Fixing / Patch Notes:
                     </span>
                     <p className="text-xs text-slate-500 dark:text-slate-400 whitespace-pre-wrap">
@@ -432,7 +432,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-bold text-slate-900 dark:text-white">
+                <span className="text-sm font-semibold text-slate-900 dark:text-white">
                   Project Members ({members.length})
                 </span>
               </div>
@@ -454,7 +454,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   No project members added yet
                 </p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-400 mt-0.5">
                   Members added here will have participant visibility over this project.
                 </p>
               </div>
@@ -466,7 +466,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                     className="py-3 flex items-center justify-between gap-3 first:pt-0 last:pb-0"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold flex items-center justify-center shrink-0">
                         {member.first_name?.[0]}
                         {member.last_name?.[0]}
                       </div>
@@ -474,13 +474,13 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                         <div className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
                           {member.first_name} {member.last_name}
                           {member.employee_code && (
-                            <span className="text-[11px] text-slate-400 ml-1.5">
+                            <span className="text-xs text-slate-400 ml-1.5">
                               ({member.employee_code})
                             </span>
                           )}
                         </div>
                         {member.pivot?.project_role && (
-                          <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md inline-block mt-0.5">
+                          <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md inline-block mt-0.5">
                             {member.pivot.project_role}
                           </span>
                         )}
@@ -512,7 +512,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         <div className="space-y-6">
           {/* Section: Coordinator Assignment Box */}
           <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm space-y-4">
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
               <ShieldCheck className="w-4 h-4 text-purple-500" />
               <span>Project Coordinator</span>
             </div>
@@ -555,7 +555,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                     <strong className="block text-slate-900 dark:text-white">
                       {project.coordinator.first_name} {project.coordinator.last_name}
                     </strong>
-                    <span className="text-[11px] text-slate-400">{project.coordinator.email}</span>
+                    <span className="text-xs text-slate-400">{project.coordinator.email}</span>
                   </div>
                 ) : (
                   <span className="text-slate-400 italic">No coordinator assigned</span>
@@ -566,7 +566,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
           {/* Section: Stage 8.4 Tasks Notice */}
           <div className="rounded-2xl bg-blue-50/50 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40 p-5 space-y-2.5">
-            <div className="flex items-center gap-2 text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-800 dark:text-blue-300">
               <Layers className="w-4 h-4 text-blue-500" />
               <span>Tasks & Sub-Phases</span>
             </div>
@@ -623,7 +623,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">Archive Project</h3>
+                <h3 className="text-base font-semibold text-slate-900 dark:text-white">Archive Project</h3>
                 <p className="text-xs text-slate-500">Soft-delete project deliverable</p>
               </div>
             </div>

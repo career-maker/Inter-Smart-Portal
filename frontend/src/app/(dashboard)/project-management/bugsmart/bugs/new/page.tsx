@@ -36,7 +36,7 @@ export default function NewBugzillaBugPage() {
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <h1 className="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
               <Bug className="w-5 h-5 text-rose-600" />
               <span>Report Defect</span>
             </h1>

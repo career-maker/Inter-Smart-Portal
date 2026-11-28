@@ -175,7 +175,7 @@ export function UiverseSelect({
         style={{
           fontFamily: 'var(--portal-font-family, Inter, sans-serif)',
         }}
-        className={`selected flex items-center justify-between gap-2.5 px-3 rounded-[9px] border transition-all duration-200 ${isOpen ? "is-open" : ""} ${
+        className={`selected flex items-center justify-between gap-2.5 px-3 rounded-[9px] border transition duration-200 ${isOpen ? "is-open" : ""} ${
           size === "sm" ? "py-1 text-xs min-h-[32px]" : "py-2 text-xs sm:text-sm min-h-[38px]"
         } ${
           disabled
@@ -210,7 +210,7 @@ export function UiverseSelect({
             ? { fontFamily: 'var(--portal-font-family, Inter, sans-serif)', position: "absolute", left: 0, minWidth: "100%", zIndex: 100000, ...(pos.up ? { bottom: "100%", marginBottom: 6 } : { top: "100%", marginTop: 6 }) }
             : { fontFamily: 'var(--portal-font-family, Inter, sans-serif)', position: "fixed", left: pos.left, minWidth: pos.minWidth, zIndex: 100000, pointerEvents: "auto",
                 ...(pos.up ? { bottom: window.innerHeight - pos.top } : { top: pos.top }) }}
-          className={`uv-panel w-max max-w-xs sm:max-w-sm rounded-[12px] p-1.5 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-150 animate-in fade-in-50 zoom-in-95 before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']`}
+          className={`uv-panel w-max max-w-xs sm:max-w-sm rounded-[12px] p-1.5 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition duration-150 animate-in fade-in-50 zoom-in-95 before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']`}
         >
           {/* Quick Search if more than 10 options */}
           {isAutoSearchable && (
@@ -243,7 +243,7 @@ export function UiverseSelect({
                       setIsOpen(false);
                       setSearchTerm("");
                     }}
-                    className={`option px-3 py-1.5 rounded-[8px] text-xs sm:text-sm cursor-pointer transition-all duration-300 flex items-center justify-between gap-2 ${
+                    className={`option px-3 py-1.5 rounded-[8px] text-xs sm:text-sm cursor-pointer transition duration-300 flex items-center justify-between gap-2 ${
                       isSelected
                         ? "bg-[var(--portal-primary-color,#00BDA1)]/15 text-[var(--portal-primary-color,#00BDA1)] font-semibold"
                         : "text-slate-700 dark:text-slate-200 hover:bg-[var(--portal-primary-color,#00BDA1)]/10 hover:text-[var(--portal-primary-color,#00BDA1)] dark:hover:bg-slate-800/80"
@@ -251,7 +251,7 @@ export function UiverseSelect({
                   >
                     <span className="truncate">{opt.label}</span>
                     {isSelected && (
-                      <span className="text-[var(--portal-primary-color,#00BDA1)] font-bold text-xs shrink-0">
+                      <span className="text-[var(--portal-primary-color,#00BDA1)] font-semibold text-xs shrink-0">
                         ✓
                       </span>
                     )}

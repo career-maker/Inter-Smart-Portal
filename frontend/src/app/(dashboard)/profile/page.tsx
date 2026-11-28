@@ -120,7 +120,7 @@ export default function MyProfilePage() {
         <div className="flex items-center gap-3">
           <UserCircle className="h-8 w-8 text-amber-400" />
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
               {isOwnProfile ? "My Profile" : "Employee Profile"}
             </h1>
             <p className="text-slate-600 dark:text-slate-300">
@@ -205,7 +205,7 @@ export default function MyProfilePage() {
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
+                    <h4 className="font-medium text-sm text-muted-foreground">
                       Requested Changes
                     </h4>
                     <div className="grid grid-cols-2 gap-4">
@@ -347,11 +347,11 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
               <Award className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Achievements & Recognition</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Achievements & Recognition</h2>
               <p className="text-xs text-slate-600 dark:text-slate-400">Complete history of awards and certificates</p>
             </div>
             <div className="ml-auto">
-              <span className="bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-200 dark:border-amber-500/30">
+              <span className="bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 text-xs font-semibold px-3 py-1 rounded-full border border-amber-200 dark:border-amber-500/30">
                 {recognitions.length} {recognitions.length === 1 ? "Award" : "Awards"}
               </span>
             </div>
@@ -378,7 +378,7 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
                 return (
                   <div
                     key={idx}
-                    className={`rounded-2xl border p-5 transition-all ${
+                    className={`rounded-2xl border p-5 transition ${
                       isActive
                         ? "bg-amber-50/70 dark:bg-gradient-to-r dark:from-amber-500/10 dark:to-violet-500/10 border-amber-300 dark:border-amber-500/30 shadow-sm"
                         : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/60 shadow-sm"
@@ -389,7 +389,7 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
                         <span className="text-3xl">{rec.icon || "🏆"}</span>
                         <div>
                           <h3
-                            className={`font-black tracking-wide uppercase text-sm ${
+                            className={`font-semibold text-sm ${
                               isActive
                                 ? "text-amber-800 dark:text-amber-300"
                                 : "text-slate-900 dark:text-white"
@@ -404,12 +404,12 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
                       </div>
                       <div className="shrink-0">
                         {isActive ? (
-                          <span className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-500/30 uppercase tracking-wider">
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-500/30">
                             <CheckCircle2 className="w-3 h-3" />
                             Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 uppercase tracking-wider">
+                          <span className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                             <Clock className="w-3 h-3" />
                             Past Award
                           </span>
@@ -425,15 +425,15 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
 
                     <div className="flex flex-wrap items-center gap-4 mb-4 py-2 px-3 rounded-xl bg-white/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-700/50">
                       <div>
-                        <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Awarded On</p>
-                        <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-0.5">Awarded On</p>
+                        <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                           {format(new Date(rec.created_at || rec.start_date), "dd MMM yyyy")}
                         </p>
                       </div>
                       <div className="w-px h-7 bg-slate-200 dark:bg-slate-700" />
                       <div>
-                        <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Valid Period</p>
-                        <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-0.5">Valid Period</p>
+                        <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                           {format(new Date(rec.start_date), "dd MMM yyyy")} –{" "}
                           {format(new Date(rec.end_date), "dd MMM yyyy")}
                         </p>
@@ -444,14 +444,14 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
                     <div className="flex gap-3">
                       <button
                         onClick={() => setSelectedRec(rec)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/15 hover:bg-amber-100 dark:hover:bg-amber-500/25 px-4 py-2 rounded-xl transition-all shadow-sm cursor-pointer"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/15 hover:bg-amber-100 dark:hover:bg-amber-500/25 px-4 py-2 rounded-xl transition shadow-sm cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                         View Certificate
                       </button>
                       <button
                         onClick={() => setSelectedRec(rec)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 dark:bg-amber-500 dark:hover:bg-amber-400 px-4 py-2 rounded-xl transition-all shadow-sm cursor-pointer"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 dark:bg-amber-500 dark:hover:bg-amber-400 px-4 py-2 rounded-xl transition shadow-sm cursor-pointer"
                       >
                         <Download className="w-3.5 h-3.5" />
                         Download PDF

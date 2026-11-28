@@ -197,16 +197,16 @@ export function EmployeeAttendanceDrawer({
                VIEW 1: MENU (Matches Attendance Management Screenshot 2)
                ──────────────────────────────────────────────────────── */
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-2">
                 Select how you want to view attendance:
               </span>
 
               {/* Option 1: Date Wise */}
               <button
                 onClick={handleOpenDateWise}
-                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
+                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition group flex items-start gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 transition-transform">
                   <Calendar className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -225,9 +225,9 @@ export function EmployeeAttendanceDrawer({
               {/* Option 2: Add Leave / WFH */}
               <button
                 onClick={() => setIsLeaveWfhModalOpen(true)}
-                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-amber-50/50 dark:hover:bg-amber-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-amber-300 dark:hover:border-amber-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
+                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-amber-50/50 dark:hover:bg-amber-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-amber-300 dark:hover:border-amber-700/60 rounded-xl text-left transition group flex items-start gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-300 shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-300 shrink-0 transition-transform">
                   <Plus className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -275,7 +275,7 @@ export function EmployeeAttendanceDrawer({
                     value={selectedDate}
                     onChange={(e) => handleDateChange(e.target.value)}
                     disabled={isLoadingDetails}
-                    className="bg-transparent border-0 text-slate-900 dark:text-white text-xs font-bold focus:outline-none cursor-pointer"
+                    className="bg-transparent border-0 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none cursor-pointer"
                   />
 
                   <button
@@ -292,7 +292,7 @@ export function EmployeeAttendanceDrawer({
                   <button
                     onClick={() => handleDateChange(format(new Date(), "yyyy-MM-dd"))}
                     disabled={isLoadingDetails}
-                    className="text-[11px] font-bold px-2 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors cursor-pointer"
+                    className="text-xs font-semibold px-2 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors cursor-pointer"
                   >
                     Today
                   </button>
@@ -336,14 +336,14 @@ export function EmployeeAttendanceDrawer({
                     <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xs p-5">
                       <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-4 flex items-center justify-between">
                         <div>
-                          <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                          <h3 className="font-semibold text-sm text-slate-900 dark:text-white">
                             Biometric Punch Timeline
                           </h3>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                             Chronological events on {selectedDate}
                           </p>
                         </div>
-                        <span className="text-[11px] font-semibold text-slate-400">
+                        <span className="text-xs font-semibold text-slate-400">
                           {dailyDetails.raw_punches?.length || 0} Punches
                         </span>
                       </div>
@@ -373,7 +373,7 @@ export function EmployeeAttendanceDrawer({
             {onBack ? (
               <button
                 onClick={onBack}
-                className="py-2 px-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
+                className="py-2 px-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition cursor-pointer"
               >
                 {backButtonLabel}
               </button>
@@ -388,7 +388,7 @@ export function EmployeeAttendanceDrawer({
 
             <button
               onClick={() => setIsLeaveWfhModalOpen(true)}
-              className="inline-flex items-center gap-1.5 py-2 px-3.5 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-xl transition-all shadow-2xs cursor-pointer ml-auto"
+              className="inline-flex items-center gap-1.5 py-2 px-3.5 text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-xl transition shadow-2xs cursor-pointer ml-auto"
             >
               <Plus className="w-3.5 h-3.5" />
               Add Leave / WFH

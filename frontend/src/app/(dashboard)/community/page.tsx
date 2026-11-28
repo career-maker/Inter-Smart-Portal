@@ -135,7 +135,7 @@ function CommunityPageContent() {
             <div className="lg:col-span-4 space-y-6">
               {/* 1. Today's Out of Office (Leaves & WFH) */}
               <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 space-y-4">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
                   <Palmtree className="w-3.5 h-3.5" /> Out of Office Today
                 </span>
 
@@ -161,13 +161,13 @@ function CommunityPageContent() {
                               src={person.profile_photo_path}
                               name={person.name}
                               userId={person.id}
-                              className="w-6 h-6 rounded-full text-[10px]"
+                              className="w-6 h-6 rounded-full text-xs"
                             />
                             <span className="font-medium text-slate-800 dark:text-slate-200 truncate">
                               <RoyalName name={person.name} userId={person.id} />
                             </span>
                           </div>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono shrink-0 ml-2">
+                          <span className="text-xs text-slate-500 dark:text-slate-400 font-mono shrink-0 ml-2">
                             {person.leave_type || "Leave"}
                           </span>
                         </div>
@@ -198,13 +198,13 @@ function CommunityPageContent() {
                               src={person.profile_photo_path}
                               name={person.name}
                               userId={person.id}
-                              className="w-6 h-6 rounded-full text-[10px]"
+                              className="w-6 h-6 rounded-full text-xs"
                             />
                             <span className="font-medium text-slate-800 dark:text-slate-200 truncate">
                               <RoyalName name={person.name} userId={person.id} />
                             </span>
                           </div>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0 ml-2">
+                          <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0 ml-2">
                             WFH
                           </span>
                         </div>
@@ -217,12 +217,12 @@ function CommunityPageContent() {
               {/* 2. My Available Leave Balances */}
               <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
 My Leave Balances
                   </span>
                   <Link
                     href="/leaves"
-                    className="text-[11px] font-medium text-[#56348f] dark:text-purple-400 hover:underline"
+                    className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline"
                   >
                     Details
                   </Link>
@@ -230,14 +230,14 @@ My Leave Balances
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 bg-purple-50/70 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 rounded-md">
-                    <span className="text-[11px] text-slate-600 dark:text-slate-400 block">Casual Leave</span>
-                    <span className="text-xl font-bold text-[#56348f] dark:text-purple-400 mt-1 block">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 block">Casual Leave</span>
+                    <span className="text-xl font-semibold text-[#56348f] dark:text-purple-400 mt-1 block">
                       {leaveBalances.casual}
                     </span>
                   </div>
                   <div className="p-3 bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 rounded-md">
-                    <span className="text-[11px] text-slate-600 dark:text-slate-400 block">Sick Leave</span>
-                    <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400 mt-1 block">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 block">Sick Leave</span>
+                    <span className="text-xl font-semibold text-indigo-600 dark:text-indigo-400 mt-1 block">
                       {leaveBalances.sick}
                     </span>
                   </div>
@@ -246,7 +246,7 @@ My Leave Balances
 
               {/* 3. Quick Portal Shortcuts */}
               <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 space-y-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
                   <LinkIcon className="w-3.5 h-3.5" /> Quick Actions
                 </span>
                 <div className="space-y-1 text-xs">

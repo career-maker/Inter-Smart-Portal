@@ -94,14 +94,14 @@ export function getTaskStatusClass(status: TaskStatus | string): string {
 export function getTaskPriorityClass(priority: TaskPriority | string): string {
   switch (priority) {
     case "Critical":
-      return "task-priority-critical font-extrabold";
+      return "task-priority-critical font-semibold";
     case "High":
-      return "task-priority-high font-extrabold";
+      return "task-priority-high font-semibold";
     case "Medium":
-      return "task-priority-medium font-extrabold";
+      return "task-priority-medium font-semibold";
     case "Low":
     default:
-      return "task-priority-low font-extrabold";
+      return "task-priority-low font-semibold";
   }
 }
 
@@ -194,7 +194,7 @@ function TableDateCell({
     }
     return (
       <div className="flex items-center gap-1">
-        <span className={isOverdue ? "text-rose-600 dark:text-rose-400 font-bold" : ""}>
+        <span className={isOverdue ? "text-rose-600 dark:text-rose-400 font-semibold" : ""}>
           {value ? formatDateDisplay(value) : emptyPlaceholder}
         </span>
         {isOverdue && <Clock className="w-2.5 h-2.5 text-rose-500 shrink-0" />}
@@ -205,7 +205,7 @@ function TableDateCell({
   return (
     <div
       onClick={openPicker}
-      className="relative group/date inline-flex items-center gap-1 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 py-0.5 px-1 rounded hover:bg-purple-50 dark:hover:bg-purple-950/40 transition-all select-none"
+      className="relative group/date inline-flex items-center gap-1 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 py-0.5 px-1 rounded hover:bg-purple-50 dark:hover:bg-purple-950/40 transition select-none"
       title="Click to open calendar date picker"
     >
       <input
@@ -233,7 +233,7 @@ function TableDateCell({
           <span>{formatDateDisplay(value)}</span>
         </span>
       ) : (
-        <span className={isOverdue ? "text-rose-600 dark:text-rose-400 font-bold group-hover/date:underline" : "group-hover/date:underline"}>
+        <span className={isOverdue ? "text-rose-600 dark:text-rose-400 font-semibold group-hover/date:underline" : "group-hover/date:underline"}>
           {value ? formatDateDisplay(value) : <span className="text-slate-400 font-normal">{emptyPlaceholder}</span>}
         </span>
       )}
@@ -531,7 +531,7 @@ export function TaskTrackerTable({
                         </div>
                       )
                     ) : (
-                      <span className="text-slate-400 italic text-[11px]">Unassigned</span>
+                      <span className="text-slate-400 italic text-xs">Unassigned</span>
                     )}
                   </td>
 
@@ -589,7 +589,7 @@ export function TaskTrackerTable({
                     </span>
                   )}
                   {task.sub_phase && (
-                    <div className="text-[10px] text-purple-600 dark:text-purple-400 truncate">
+                    <div className="text-xs text-purple-600 dark:text-purple-400 truncate">
                       {task.sub_phase.name}
                     </div>
                   )}
@@ -606,9 +606,9 @@ export function TaskTrackerTable({
                           return (
                             <span
                               key={a?.id || Math.random()}
-                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] text-slate-700 dark:text-slate-300"
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300"
                             >
-                              <span className="w-3 h-3 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[8px] font-bold flex items-center justify-center">
+                              <span className="w-3 h-3 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-semibold flex items-center justify-center">
                                 {initial}
                               </span>
                               <span className="truncate max-w-[70px]">{name}</span>
@@ -617,16 +617,16 @@ export function TaskTrackerTable({
                         })}
                       </div>
                     ) : task.old_assignee_name ? (
-                      <span className="text-[11px] text-slate-700 dark:text-slate-300 truncate" title="Not in this portal (old tracker)">{task.old_assignee_name}</span>
+                      <span className="text-xs text-slate-700 dark:text-slate-300 truncate" title="Not in this portal (old tracker)">{task.old_assignee_name}</span>
                     ) : (
-                      <span className="text-[11px] text-slate-400 italic">Unassigned</span>
+                      <span className="text-xs text-slate-400 italic">Unassigned</span>
                     )}
                   </td>
                 )}
 
                 {!slim && (<>
                 {/* 4. PC (Project Coordinator) */}
-                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-400 text-[11px] max-w-[80px] truncate" title={pcName}>
+                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-400 text-xs max-w-[80px] truncate" title={pcName}>
                   {pcName}
                 </td>
 
@@ -644,7 +644,7 @@ export function TaskTrackerTable({
 
                     {/* Delay Days Badge if Overdue */}
                     {overdueInfo.isOverdue && (
-                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-800/60 px-1 py-0.5 rounded">
+                      <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-800/60 px-1 py-0.5 rounded">
                         <AlertTriangle className="w-2.5 h-2.5" />
                         <span>{overdueInfo.delayDays}d</span>
                       </span>
@@ -652,7 +652,7 @@ export function TaskTrackerTable({
 
                     {/* Completed Overdue Badge */}
                     {overdueInfo.isCompletedOverdue && (
-                      <span className="inline-flex items-center gap-0.5 text-[9px] font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 px-1 py-0.5 rounded" title="Completed past due date">
+                      <span className="inline-flex items-center gap-0.5 text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 px-1 py-0.5 rounded" title="Completed past due date">
                         Late
                       </span>
                     )}
@@ -660,7 +660,7 @@ export function TaskTrackerTable({
                 </td>
 
                 {/* 6. START DATE */}
-                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-[11px]">
+                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-xs">
                   <TableDateCell
                     value={task.start_date}
                     field="start_date"
@@ -672,7 +672,7 @@ export function TaskTrackerTable({
 
                 {/* 7. END DATE (Highlighted red if overdue past 6:30 PM) */}
                 <td
-                  className={`py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-[11px] ${
+                  className={`py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-xs ${
                     overdueInfo.isOverdue
                       ? "bg-rose-50/80 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-semibold"
                       : "text-slate-600 dark:text-slate-300"
@@ -690,7 +690,7 @@ export function TaskTrackerTable({
 
                 {!slim && (<>
                 {/* 8. ACHIEVED DATE */}
-                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-[11px]">
+                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-xs">
                   <TableDateCell
                     value={achievedDateStr}
                     field="actual_completion_date"
@@ -702,7 +702,7 @@ export function TaskTrackerTable({
                 </td>
 
                 {/* 9. COMMENTS / UPDATES */}
-                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 text-[11px] max-w-[110px]">
+                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 text-xs max-w-[110px]">
                   {task.current_updates || task.description ? (
                     <span
                       onClick={() => setActiveCommentPopover(activeCommentPopover === task.id ? null : task.id)}
@@ -717,7 +717,7 @@ export function TaskTrackerTable({
                 </td>
 
                 {/* 10. DEVIATION */}
-                <td className="py-2 px-2 border-r border-slate-200/70 dark:border-slate-800/70 text-center whitespace-nowrap text-[11px]">
+                <td className="py-2 px-2 border-r border-slate-200/70 dark:border-slate-800/70 text-center whitespace-nowrap text-xs">
                   {task.deviation ? (
                     <span className={`font-semibold ${Number(task.deviation) > 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
                       {Number(task.deviation) > 0 ? `+${task.deviation}d` : `${task.deviation}d`}
@@ -728,7 +728,7 @@ export function TaskTrackerTable({
                 </td>
 
                 {/* 11. SPRINT */}
-                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-[11px] max-w-[90px]">
+                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-xs max-w-[90px]">
                   {task.sprint ? (
                     task.sprint_link ? (
                       <a
@@ -761,7 +761,7 @@ export function TaskTrackerTable({
                         lineHeight: "16px",
                         fontWeight: 400,
                       }}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 text-[11px] border border-slate-200 dark:border-slate-700/60 transition-colors"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 text-xs border border-slate-200 dark:border-slate-700/60 transition-colors"
                     >
                       <span>Edit</span>
                       <ChevronRight className="w-2.5 h-2.5" />
@@ -827,7 +827,7 @@ export function TaskTrackerTable({
                       <button
                         type="button"
                         onClick={() => setTablePage(p)}
-                        className={`min-w-[28px] h-7 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        className={`min-w-[28px] h-7 px-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
                           tablePage === p
                             ? "bg-[#56348f] text-white shadow-xs"
                             : "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"

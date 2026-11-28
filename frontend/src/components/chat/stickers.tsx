@@ -57,7 +57,7 @@ export function StickerView({ id, small = false }: { id?: string | null; small?:
       title={s.label}
     >
       <span className={small ? "text-3xl leading-none" : "text-5xl leading-none"}>{s.emoji}</span>
-      <span className={`font-extrabold text-center leading-tight mt-1 ${small ? "text-[9px]" : "text-[12px]"}`}>{s.label}</span>
+      <span className={`font-semibold text-center leading-tight mt-1 ${small ? "text-[9px]" : "text-[12px]"}`}>{s.label}</span>
     </div>
   );
 }
@@ -70,7 +70,7 @@ export function StickerPicker({ onPick, onClose }: { onPick: (id: string) => voi
       aria-label="Stickers"
     >
       <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-800">
-        <span className="text-xs font-bold text-slate-700 dark:text-slate-200">Stickers</span>
+        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">Stickers</span>
         <button type="button" onClick={onClose} className="text-xs text-slate-400 hover:text-slate-600 cursor-pointer" aria-label="Close stickers">
           Close
         </button>
@@ -81,7 +81,7 @@ export function StickerPicker({ onPick, onClose }: { onPick: (id: string) => voi
             key={s.id}
             type="button"
             onClick={() => onPick(s.id)}
-            className="rounded-2xl hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+            className="rounded-2xl active:scale-95 transition-transform cursor-pointer"
             aria-label={`Send sticker: ${s.label}`}
           >
             <StickerView id={s.id} small />

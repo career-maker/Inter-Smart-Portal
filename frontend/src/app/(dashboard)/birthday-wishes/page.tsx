@@ -242,7 +242,7 @@ export default function BirthdayWishesPage() {
               lineHeight: "20px",
               fontWeight: activeTab === "received" ? 600 : 400,
             }}
-            className={`px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-3.5 py-1.5 rounded-md transition cursor-pointer flex items-center gap-2 ${
               activeTab === "received"
                 ? "bg-white dark:bg-slate-700 text-[#56348f] dark:text-purple-300 shadow-xs"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -251,7 +251,7 @@ export default function BirthdayWishesPage() {
             <Inbox className="w-4 h-4" />
             <span>Received Wishes</span>
             <span
-              className={`text-[11px] px-1.5 py-0.2 rounded-full font-bold ${
+              className={`text-xs px-1.5 py-0.2 rounded-full font-semibold ${
                 activeTab === "received"
                   ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300"
                   : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
@@ -274,7 +274,7 @@ export default function BirthdayWishesPage() {
               lineHeight: "20px",
               fontWeight: activeTab === "upcoming" ? 600 : 400,
             }}
-            className={`px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-3.5 py-1.5 rounded-md transition cursor-pointer flex items-center gap-2 ${
               activeTab === "upcoming"
                 ? "bg-white dark:bg-slate-700 text-[#56348f] dark:text-purple-300 shadow-xs"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -282,7 +282,7 @@ export default function BirthdayWishesPage() {
           >
             <span>Send Wishes / Upcoming</span>
             {upcomingBirthdays.length > 0 && (
-              <span className="text-[11px] px-1.5 py-0.2 rounded-full font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+              <span className="text-xs px-1.5 py-0.2 rounded-full font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
                 {upcomingBirthdays.length}
               </span>
             )}
@@ -398,7 +398,7 @@ export default function BirthdayWishesPage() {
                           src={wish.sender?.profile_photo_path}
                           name={wish.sender?.name || "Colleague"}
                           userId={wish.sender?.id}
-                          className="w-9 h-9 text-xs font-bold"
+                          className="w-9 h-9 text-xs font-semibold"
                           showCrownBadge={false}
                         />
                       </div>
@@ -488,7 +488,7 @@ export default function BirthdayWishesPage() {
                         src={person.profile_photo_path}
                         name={person.name}
                         userId={person.id}
-                        className="w-9 h-9 text-xs font-bold"
+                        className="w-9 h-9 text-xs font-semibold"
                         showCrownBadge={false}
                       />
                     </div>
@@ -507,7 +507,7 @@ export default function BirthdayWishesPage() {
                           {person.name}
                         </p>
                         {isToday ? (
-                          <span className="text-[10px] font-bold uppercase tracking-wider bg-rose-500 text-white px-2 py-0.2 rounded-full">
+                          <span className="text-xs font-semibold bg-rose-500 text-white px-2 py-0.2 rounded-full">
                             Today!
                           </span>
                         ) : (
@@ -592,7 +592,7 @@ export default function BirthdayWishesPage() {
                       src={selectedWish.sender?.profile_photo_path}
                       name={selectedWish.sender?.name || "Colleague"}
                       userId={selectedWish.sender?.id}
-                      className="w-10 h-10 text-sm font-bold"
+                      className="w-10 h-10 text-sm font-semibold"
                       showCrownBadge={true}
                     />
                     <div>
@@ -691,7 +691,7 @@ export default function BirthdayWishesPage() {
                       type="button"
                       onClick={handleSendWish}
                       disabled={isSending || !replyMessage.trim()}
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm shrink-0"
+                      className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 text-white rounded-lg text-xs font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm shrink-0"
                     >
                       {isSending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -758,7 +758,7 @@ export default function BirthdayWishesPage() {
                   </h2>
                   <div className="flex items-center gap-2">
                     {selectedPerson.days_remaining === 0 ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-white bg-rose-500 px-3 py-1 rounded-md shadow-xs animate-pulse">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-white bg-rose-500 px-3 py-1 rounded-md shadow-xs animate-pulse">
                         🎂 Celebrating Today!
                       </span>
                     ) : (
@@ -790,7 +790,7 @@ export default function BirthdayWishesPage() {
                     src={selectedPerson.profile_photo_path}
                     name={selectedPerson.name}
                     userId={selectedPerson.id}
-                    className="w-14 h-14 text-base font-bold"
+                    className="w-14 h-14 text-base font-semibold"
                     showCrownBadge={true}
                   />
                   <div>
@@ -824,7 +824,7 @@ export default function BirthdayWishesPage() {
                       fontWeight: 600,
                       color: "rgb(94, 105, 120)",
                     }}
-                    className="uppercase tracking-wider block"
+                    className="block"
                   >
                     Quick Wish Starters
                   </label>
@@ -838,7 +838,7 @@ export default function BirthdayWishesPage() {
                         key={idx}
                         type="button"
                         onClick={() => setReplyMessage(tmpl)}
-                        className="text-left text-xs bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/30 hover:border-purple-300 dark:hover:border-purple-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 transition-all cursor-pointer"
+                        className="text-left text-xs bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/30 hover:border-purple-300 dark:hover:border-purple-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 transition cursor-pointer"
                       >
                         &ldquo;{tmpl}&rdquo;
                       </button>
@@ -903,7 +903,7 @@ export default function BirthdayWishesPage() {
                     type="button"
                     onClick={handleSendWish}
                     disabled={isSending || !replyMessage.trim()}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm shrink-0"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 text-white rounded-lg text-xs font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm shrink-0"
                   >
                     {isSending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />

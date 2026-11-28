@@ -189,9 +189,9 @@ export function AdminLeaveWfhModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md w-full p-0 overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl">
         <DialogHeader className="p-5 pb-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-          <DialogTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <DialogTitle className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
             <span>Direct {type === "leave" ? "Add Leave" : "Add WFH"}</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
               Super Admin
             </span>
           </DialogTitle>
@@ -206,7 +206,7 @@ export function AdminLeaveWfhModal({
                 setType("leave");
                 setError(null);
               }}
-              className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              className={`py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
                 type === "leave"
                   ? "bg-[#56348f] text-white shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -220,7 +220,7 @@ export function AdminLeaveWfhModal({
                 setType("wfh");
                 setError(null);
               }}
-              className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              className={`py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
                 type === "wfh"
                   ? "bg-[#56348f] text-white shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -240,7 +240,7 @@ export function AdminLeaveWfhModal({
             {/* Employee Selector (if not preselected) */}
             {!selectedEmployeeId && (
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                   Employee <span className="text-red-500">*</span>
                 </label>
                 <SelectCompat
@@ -264,7 +264,7 @@ export function AdminLeaveWfhModal({
             {/* Leave Type OR WFH Type */}
             {type === "leave" ? (
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                   Leave Type <span className="text-red-500">*</span>
                 </label>
                 <SelectCompat
@@ -282,7 +282,7 @@ export function AdminLeaveWfhModal({
               </div>
             ) : (
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                   WFH Type <span className="text-red-500">*</span>
                 </label>
                 <SelectCompat
@@ -302,7 +302,7 @@ export function AdminLeaveWfhModal({
             {/* Date Selection */}
             {type === "wfh" && formData.wfh_type !== "Full" ? (
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                   Date <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -316,12 +316,12 @@ export function AdminLeaveWfhModal({
                   required
                   className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs"
                 />
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Single day for half-day session</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Single day for half-day session</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                     Start Date <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -334,7 +334,7 @@ export function AdminLeaveWfhModal({
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                     End Date <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -352,7 +352,7 @@ export function AdminLeaveWfhModal({
 
             {/* Reason */}
             <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                 Reason <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -367,8 +367,8 @@ export function AdminLeaveWfhModal({
             </div>
 
             <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 rounded-xl p-2.5">
-              <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
-                <span className="font-bold">Direct Entry:</span> This record will be created in <span className="font-semibold text-emerald-600 dark:text-emerald-400">Approved</span> status immediately on behalf of the selected employee.
+              <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                <span className="font-semibold">Direct Entry:</span> This record will be created in <span className="font-semibold text-emerald-600 dark:text-emerald-400">Approved</span> status immediately on behalf of the selected employee.
               </p>
             </div>
 
@@ -380,7 +380,7 @@ export function AdminLeaveWfhModal({
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="bg-[#56348f] hover:bg-[#452875] text-white rounded-xl text-xs font-bold shadow-xs px-5 cursor-pointer"
+                className="bg-[#56348f] hover:bg-[#452875] text-white rounded-xl text-xs font-semibold shadow-xs px-5 cursor-pointer"
               >
                 {isLoading && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
                 Create & Approve

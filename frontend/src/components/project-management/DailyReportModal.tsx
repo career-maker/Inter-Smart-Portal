@@ -809,13 +809,13 @@ export function DailyReportModal({
           {/* Header Bar */}
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-purple-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-purple-950/30 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
+              <div className="w-10 h-10 rounded-2xl bg-purple-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                   <span>Daily Reports</span>
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                     {isEmployee ? "Employee Mode" : isTeamLead ? "Team Lead Mode" : "Admin Mode"}
                   </span>
                 </h2>
@@ -840,7 +840,7 @@ export function DailyReportModal({
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 [&>*]:min-w-0">
               {/* 1. Report Type */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                   Report Type
                 </label>
                 {isEmployee ? (
@@ -869,7 +869,7 @@ export function DailyReportModal({
 
               {/* 2. Date Selector */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                   Report Date
                 </label>
                 <div className="relative">
@@ -885,7 +885,7 @@ export function DailyReportModal({
               {/* 3. Team / Member Selector (Role-based) */}
               {isEmployee ? (
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     Employee Scope
                   </label>
                   <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
@@ -895,7 +895,7 @@ export function DailyReportModal({
                 </div>
               ) : reportType === "individual_member" ? (
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     Select Member
                   </label>
                   <SelectCompat
@@ -912,7 +912,7 @@ export function DailyReportModal({
                 </div>
               ) : (
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     Assigned Team
                   </label>
                   {reportData?.available_teams && reportData.available_teams.length > 1 ? (
@@ -955,29 +955,29 @@ export function DailyReportModal({
           <div className="px-6 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2.5">
               {!isSingleMemberScope && reportData?.summary?.total_members !== undefined && (
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300">
                   <Users className="w-3.5 h-3.5 text-slate-500" />
                   <span>{summary.total_members || 0} Members</span>
                 </div>
               )}
 
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-xs font-bold text-purple-700 dark:text-purple-300">
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-xs font-semibold text-purple-700 dark:text-purple-300">
                 <Layers className="w-3.5 h-3.5 text-purple-500" />
                 <span>{summary.total_tasks || 0} Total Tasks</span>
               </div>
 
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                 <span>{summary.completed || 0} Completed</span>
               </div>
 
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-700 dark:text-blue-300">
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-xs font-semibold text-blue-700 dark:text-blue-300">
                 <PlayCircle className="w-3.5 h-3.5 text-blue-500" />
                 <span>{summary.in_progress || 0} In Progress</span>
               </div>
 
               {summary.overdue > 0 && (
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300">
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-xs font-semibold text-rose-700 dark:text-rose-300">
                   <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
                   <span>{summary.overdue} Overdue</span>
                 </div>
@@ -989,16 +989,16 @@ export function DailyReportModal({
               <button
                 onClick={copyTextReport}
                 disabled={loading || !reportData}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-xs font-semibold transition disabled:opacity-50 cursor-pointer shadow-sm"
               >
                 {copySuccess ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copySuccess ? "Copied!" : "Copy Text Report"}</span>
+                <span>{copySuccess ? "Copied" : "Copy Text Report"}</span>
               </button>
 
               <button
                 onClick={generateImageReport}
                 disabled={loading || !reportData || imageGenerating}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#56348f] hover:bg-purple-800 !text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-md shadow-purple-500/20"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#56348f] hover:bg-purple-800 !text-white text-xs font-semibold transition disabled:opacity-50 cursor-pointer shadow-md shadow-purple-500/20"
               >
                 {imageGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <ImageIcon className="w-3.5 h-3.5 !text-white" />}
                 <span className="!text-white font-bold">Generate Image Report</span>
@@ -1024,11 +1024,11 @@ export function DailyReportModal({
                 {reportType === "individual_member" && reportData.member_reports?.[0] && (
                   <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-purple-600 text-white font-bold text-sm flex items-center justify-center">
+                      <div className="w-9 h-9 rounded-full bg-purple-600 text-white font-semibold text-sm flex items-center justify-center">
                         {reportData.member_reports[0].name?.[0] || "U"}
                       </div>
                       <div>
-                        <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                        <h3 className="font-semibold text-sm text-slate-900 dark:text-white">
                           {reportData.member_reports[0].name}
                         </h3>
                         <p className="text-xs text-slate-500">
@@ -1036,7 +1036,7 @@ export function DailyReportModal({
                         </p>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 px-3 py-1 rounded-full border border-purple-200 dark:border-purple-800">
+                    <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 px-3 py-1 rounded-full border border-purple-200 dark:border-purple-800">
                       {reportData.member_reports[0].total_tasks} Tasks Scheduled
                     </span>
                   </div>
@@ -1047,13 +1047,13 @@ export function DailyReportModal({
                   <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-purple-600" />
-                      <span className="font-bold text-slate-900 dark:text-white">Time Tracking:</span>
+                      <span className="font-semibold text-slate-900 dark:text-white">Time Tracking:</span>
                       <span className="text-slate-600 dark:text-slate-300">
                         Check-in: {reportData.time_tracking[reportData.member_reports?.[0]?.user_id || user?.id || 0]?.check_in || "—"} | Check-out: {reportData.time_tracking[reportData.member_reports?.[0]?.user_id || user?.id || 0]?.check_out || "—"}
                       </span>
                     </div>
                     <div className="font-semibold text-slate-700 dark:text-slate-300">
-                      Total Working Hours: <span className="font-bold text-purple-600 dark:text-purple-400">{reportData.time_tracking[reportData.member_reports?.[0]?.user_id || user?.id || 0]?.working_hours || "0h 00m"}</span>
+                      Total Working Hours: <span className="font-semibold text-purple-600 dark:text-purple-400">{reportData.time_tracking[reportData.member_reports?.[0]?.user_id || user?.id || 0]?.working_hours || "0h 00m"}</span>
                     </div>
                   </div>
                 )}
@@ -1062,14 +1062,14 @@ export function DailyReportModal({
                   {(reportData.member_reports?.[0]?.tasks || reportData.tasks || []).map((t: any) => (
                     <div
                       key={t.id}
-                      className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-800 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-800 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                     >
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-[10px] font-bold border border-purple-200 dark:border-purple-800">
+                          <span className="px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800">
                             {t.project_name}
                           </span>
-                          <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
+                          <h4 className="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
                             {t.title}
                           </h4>
                         </div>
@@ -1081,11 +1081,11 @@ export function DailyReportModal({
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                           {t.priority}
                         </span>
                         <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
+                          className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
                             t.status === "Completed"
                               ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
                               : t.is_overdue
@@ -1111,14 +1111,14 @@ export function DailyReportModal({
                     {/* Member Header */}
                     <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-purple-600 text-white font-bold text-xs flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-full bg-purple-600 text-white font-semibold text-xs flex items-center justify-center">
                           {m.name?.[0] || "U"}
                         </div>
                         <div>
-                          <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
+                          <h4 className="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white">
                             {m.name}
                           </h4>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             {m.designation || "Member"} {m.employee_code && `• ${m.employee_code}`}
                           </p>
                         </div>
@@ -1126,16 +1126,16 @@ export function DailyReportModal({
 
                       <div className="flex items-center gap-3 text-xs">
                         {includeTimeTracking && reportData.time_tracking?.[m.user_id] && (
-                          <span className="text-slate-600 dark:text-slate-400 text-[11px]">
+                          <span className="text-slate-600 dark:text-slate-400 text-xs">
                             ⏱️ {reportData.time_tracking[m.user_id].working_hours}
                           </span>
                         )}
                         <span className="font-semibold text-slate-700 dark:text-slate-300">
                           {m.total_tasks} Tasks:
                         </span>
-                        <span className="text-emerald-600 font-bold">✅ {m.completed_count}</span>
-                        <span className="text-blue-600 font-bold">🔄 {m.in_progress_count}</span>
-                        {m.overdue_count > 0 && <span className="text-rose-600 font-bold">⚠️ {m.overdue_count}</span>}
+                        <span className="text-emerald-600 font-semibold">✅ {m.completed_count}</span>
+                        <span className="text-blue-600 font-semibold">🔄 {m.in_progress_count}</span>
+                        {m.overdue_count > 0 && <span className="text-rose-600 font-semibold">⚠️ {m.overdue_count}</span>}
                       </div>
                     </div>
 
@@ -1150,7 +1150,7 @@ export function DailyReportModal({
                             className="p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between gap-3 text-xs"
                           >
                             <div className="min-w-0 truncate">
-                              <span className="text-purple-600 dark:text-purple-400 font-bold mr-2">
+                              <span className="text-purple-600 dark:text-purple-400 font-semibold mr-2">
                                 [{t.project_name}]
                               </span>
                               <span className="text-slate-800 dark:text-slate-200 font-medium truncate">
@@ -1158,9 +1158,9 @@ export function DailyReportModal({
                               </span>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
-                              <span className="text-[10px] text-slate-500">{t.priority}</span>
+                              <span className="text-xs text-slate-500">{t.priority}</span>
                               <span
-                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                                className={`px-2 py-0.5 rounded-md text-xs font-semibold ${
                                   t.status === "Completed"
                                     ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
                                     : t.is_overdue
@@ -1210,29 +1210,29 @@ export function DailyReportModal({
                   <ImageIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Daily Report Image Preview</h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Copy to clipboard or download as high-resolution PNG</p>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Daily Report Image Preview</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Copy to clipboard or download as high-resolution PNG</p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={copyImageToClipboard}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 text-slate-800 dark:text-white text-xs font-bold transition-all cursor-pointer border border-slate-300 dark:border-slate-600 shadow-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 text-slate-800 dark:text-white text-xs font-semibold transition cursor-pointer border border-slate-300 dark:border-slate-600 shadow-sm"
                 >
                   {imageCopied ? (
                     <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   ) : (
                     <Copy className="w-4 h-4 text-slate-600 dark:text-slate-300 shrink-0" />
                   )}
-                  <span className={imageCopied ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-slate-800 dark:text-white font-bold"}>
-                    {imageCopied ? "Copied Image!" : "Copy Image"}
+                  <span className={imageCopied ? "text-emerald-600 dark:text-emerald-400 font-semibold" : "text-slate-800 dark:text-white font-semibold"}>
+                    {imageCopied ? "Copied Image" : "Copy Image"}
                   </span>
                 </button>
                 <button
                   type="button"
                   onClick={downloadImage}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 !text-white text-xs font-bold transition-all cursor-pointer shadow-md"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 !text-white text-xs font-semibold transition cursor-pointer shadow-md"
                 >
                   <Download className="w-4 h-4 !text-white shrink-0" />
                   <span className="!text-white font-bold">Download PNG</span>

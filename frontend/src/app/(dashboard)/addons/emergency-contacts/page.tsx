@@ -328,7 +328,7 @@ export default function EmergencyContactsManagementPage() {
 
       await fetchContacts(true);
       if (!isAuto) {
-        setSuccessMessage("Synced all team leads, emergency contacts, and phone numbers successfully!");
+        setSuccessMessage("Synced all team leads, emergency contacts, and phone numbers successfully");
       }
     } catch (err: any) {
       console.error("Sync team leads error:", err);
@@ -582,7 +582,7 @@ export default function EmergencyContactsManagementPage() {
       <div className="">
         <div className="p-8 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-center space-y-3">
           <ShieldCheck className="w-12 h-12 mx-auto text-amber-600 dark:text-amber-400" />
-          <h2 className="text-lg font-bold">Super Admin Access Only</h2>
+          <h2 className="text-lg font-semibold">Super Admin Access Only</h2>
           <p className="text-xs">
             Only Super Administrators can configure and manage emergency contacts for employee
             dashboards.
@@ -631,9 +631,9 @@ export default function EmergencyContactsManagementPage() {
               Add-on Features
             </Link>
             <span>/</span>
-            <span className="text-slate-900 dark:text-white font-bold">Emergency Contacts</span>
+            <span className="text-slate-900 dark:text-white font-semibold">Emergency Contacts</span>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+          <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
             <LifeBuoy className="w-5 h-5 text-[#56348f] shrink-0" />
             <span>Emergency Contacts Management</span>
           </h1>
@@ -655,7 +655,7 @@ export default function EmergencyContactsManagementPage() {
             type="button"
             onClick={() => handleSyncTeamLeads(false)}
             disabled={syncingLeads || refreshing || loading}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
             title="Scan & sync all team leads and phone numbers from employee directory"
           >
             <Users
@@ -680,7 +680,7 @@ export default function EmergencyContactsManagementPage() {
             type="button"
             onClick={handleOpenCreate}
             style={{ backgroundColor: "#56348f" }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-bold shadow-sm hover:opacity-90 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-semibold shadow-sm hover:opacity-90 transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add Contact</span>
@@ -714,32 +714,32 @@ export default function EmergencyContactsManagementPage() {
       {/* ── KPI Stat Cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
-          <p className="text-[11px] uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
             Total Contacts
           </p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.total}</p>
+          <p className="text-2xl font-semibold text-slate-900 dark:text-white mt-1">{stats.total}</p>
         </div>
         <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
-          <p className="text-[11px] uppercase tracking-wider font-semibold text-emerald-600 dark:text-emerald-400">
+          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
             Active on Dashboard
           </p>
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+          <p className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
             {stats.active}
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
-          <p className="text-[11px] uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
             Hidden / Inactive
           </p>
-          <p className="text-2xl font-bold text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-2xl font-semibold text-slate-500 dark:text-slate-400 mt-1">
             {stats.inactive}
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
-          <p className="text-[11px] uppercase tracking-wider font-semibold text-[#56348f] dark:text-purple-400">
+          <p className="text-xs font-semibold text-[#56348f] dark:text-purple-400">
             Departments
           </p>
-          <p className="text-2xl font-bold text-[#56348f] dark:text-purple-400 mt-1">
+          <p className="text-2xl font-semibold text-[#56348f] dark:text-purple-400 mt-1">
             {stats.departments.length || 1}
           </p>
         </div>
@@ -807,7 +807,7 @@ export default function EmergencyContactsManagementPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700/70 bg-slate-50/70 dark:bg-slate-900/40 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <tr className="border-b border-slate-100 dark:border-slate-700/70 bg-slate-50/70 dark:bg-slate-900/40 text-xs font-semibold text-slate-500 dark:text-slate-400">
                   <th className="py-3 px-4 w-16 text-center">Order</th>
                   <th className="py-3 px-4">Contact Person</th>
                   <th className="py-3 px-4">Role / Designation</th>
@@ -826,7 +826,7 @@ export default function EmergencyContactsManagementPage() {
                     {/* Order & Reorder Controls */}
                     <td className="py-3.5 px-4 text-center">
                       <div className="flex items-center justify-center gap-1">
-                        <span className="font-mono text-slate-400 text-[11px] w-4">
+                        <span className="font-mono text-slate-400 text-xs w-4">
                           {contact.order}
                         </span>
                         <div className="flex flex-col gap-0.5">
@@ -856,7 +856,7 @@ export default function EmergencyContactsManagementPage() {
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`relative w-9 h-9 rounded-full ${contact.avatar_bg || "bg-indigo-500"} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs overflow-hidden`}
+                          className={`relative w-9 h-9 rounded-full ${contact.avatar_bg || "bg-indigo-500"} text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-2xs overflow-hidden`}
                         >
                           <span className="select-none">{contact.initials}</span>
                           {(contact.profile_photo_path || contact.profile_photo_url) && (
@@ -871,7 +871,7 @@ export default function EmergencyContactsManagementPage() {
                           )}
                         </div>
                         <div>
-                          <div className="font-bold text-slate-900 dark:text-white">
+                          <div className="font-semibold text-slate-900 dark:text-white">
                             {contact.name}
                           </div>
                         </div>
@@ -886,7 +886,7 @@ export default function EmergencyContactsManagementPage() {
                     {/* Department */}
                     <td className="py-3.5 px-4">
                       {contact.department ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 dark:bg-purple-950/50 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 dark:bg-purple-950/50 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
                           <Building2 className="w-3 h-3" />
                           <span>{contact.department}</span>
                         </span>
@@ -919,13 +919,13 @@ export default function EmergencyContactsManagementPage() {
                           </a>
                         </div>
                       ) : (
-                        <div className="text-[11px] text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                        <div className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
                           <Phone className="w-3 h-3 text-amber-500 opacity-60 shrink-0" />
                           <span>No phone added</span>
                         </div>
                       )}
                       {!contact.email && !contact.phone && (
-                        <span className="text-slate-400 italic text-[11px]">No channels added</span>
+                        <span className="text-slate-400 italic text-xs">No channels added</span>
                       )}
                     </td>
 
@@ -938,11 +938,11 @@ export default function EmergencyContactsManagementPage() {
                         title={contact.is_active ? "Click to deactivate" : "Click to activate"}
                       >
                         {contact.is_active ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                             Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                             Inactive
                           </span>
                         )}
@@ -1007,12 +1007,12 @@ export default function EmergencyContactsManagementPage() {
 
               <div className="flex items-center gap-3.5 pr-8">
                 <div
-                  className={`w-14 h-14 rounded-2xl ${formData.avatar_bg} text-white font-bold text-lg flex items-center justify-center shrink-0 shadow-md ring-4 ring-white dark:ring-slate-800 transition-colors`}
+                  className={`w-14 h-14 rounded-2xl ${formData.avatar_bg} text-white font-semibold text-lg flex items-center justify-center shrink-0 shadow-md ring-4 ring-white dark:ring-slate-800 transition-colors`}
                 >
                   {formData.initials || "EC"}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 mb-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 mb-1">
                     <LifeBuoy className="w-3 h-3" />
                     <span>{editingContact ? "Edit Contact" : "Add New Contact"}</span>
                   </div>
@@ -1033,7 +1033,7 @@ export default function EmergencyContactsManagementPage() {
                 {/* Directory Auto-fill Selector */}
                 <div className="p-3.5 bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 rounded-2xl space-y-1.5 shadow-2xs">
                   <div className="flex items-center justify-between">
-                    <label className="font-bold text-[#56348f] dark:text-purple-300 flex items-center gap-1.5">
+                    <label className="font-semibold text-[#56348f] dark:text-purple-300 flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5" />
                       <span>Select from Employee Directory (Auto-fill)</span>
                     </label>
@@ -1041,7 +1041,7 @@ export default function EmergencyContactsManagementPage() {
                       <button
                         type="button"
                         onClick={() => setSelectedEmployeeId("")}
-                        className="text-[10px] text-purple-600 dark:text-purple-400 hover:underline font-semibold cursor-pointer"
+                        className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-semibold cursor-pointer"
                       >
                         Clear selection
                       </button>
@@ -1070,7 +1070,7 @@ export default function EmergencyContactsManagementPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Contact Full Name <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -1085,7 +1085,7 @@ export default function EmergencyContactsManagementPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Role / Designation <span className="text-rose-500">*</span>
                     </label>
                     <input
@@ -1099,7 +1099,7 @@ export default function EmergencyContactsManagementPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Department / Category
                     </label>
                     <input
@@ -1114,7 +1114,7 @@ export default function EmergencyContactsManagementPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Email Address
                     </label>
                     <input
@@ -1127,7 +1127,7 @@ export default function EmergencyContactsManagementPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Phone / Mobile Number
                     </label>
                     <input
@@ -1143,17 +1143,17 @@ export default function EmergencyContactsManagementPage() {
                 {/* Live Dashboard Card Preview */}
                 <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-700 dark:text-slate-300">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">
                       Dashboard Appearance Preview
                     </span>
-                    <span className="text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/60 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/60 px-2 py-0.5 rounded-md">
                       Live Preview
                     </span>
                   </div>
                   <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-2 shadow-2xs">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-9 h-9 rounded-full ${formData.avatar_bg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs`}
+                        className={`w-9 h-9 rounded-full ${formData.avatar_bg} text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-xs`}
                       >
                         {formData.initials || "EC"}
                       </div>
@@ -1166,12 +1166,12 @@ export default function EmergencyContactsManagementPage() {
                         </div>
                       </div>
                       {formData.department && (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                           {formData.department}
                         </span>
                       )}
                     </div>
-                    <div className="pl-12 space-y-1 text-[11px]">
+                    <div className="pl-12 space-y-1 text-xs">
                       {formData.email && (
                         <div className="flex items-center gap-1.5 text-[#56348f] dark:text-purple-300 font-medium">
                           <Mail className="w-3 h-3 text-slate-400 shrink-0" />
@@ -1194,13 +1194,13 @@ export default function EmergencyContactsManagementPage() {
                 {/* Avatar Color & Initials Preview */}
                 <div className="space-y-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-700 dark:text-slate-300">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">
                       Avatar Circle Style
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[13px] text-slate-400">Live Preview:</span>
                       <div
-                        className={`w-7 h-7 rounded-full ${formData.avatar_bg} text-white font-bold text-xs flex items-center justify-center shadow-xs`}
+                        className={`w-7 h-7 rounded-full ${formData.avatar_bg} text-white font-semibold text-xs flex items-center justify-center shadow-xs`}
                       >
                         {formData.initials || "EC"}
                       </div>
@@ -1209,7 +1209,7 @@ export default function EmergencyContactsManagementPage() {
 
                   <div className="flex items-center gap-3 pt-1">
                     <div className="flex-1">
-                      <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">
                         Custom Initials (2 Letters)
                       </label>
                       <input
@@ -1220,12 +1220,12 @@ export default function EmergencyContactsManagementPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, initials: e.target.value.toUpperCase() })
                         }
-                        className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono uppercase font-bold"
+                        className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono uppercase font-semibold"
                       />
                     </div>
 
                     <div className="flex-2">
-                      <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">
                         Color Palette
                       </label>
                       <div className="flex items-center gap-1.5 flex-wrap">
@@ -1250,7 +1250,7 @@ export default function EmergencyContactsManagementPage() {
                 {/* Display Order */}
                 <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60">
                   <div>
-                    <span className="font-bold text-slate-700 dark:text-slate-300 block">Display Order</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 block">Display Order</span>
                     <span className="text-[13px] text-slate-500">Lower numbers appear first on the card</span>
                   </div>
                   <input
@@ -1260,7 +1260,7 @@ export default function EmergencyContactsManagementPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, order: parseInt(e.target.value, 10) || 1 })
                     }
-                    className="w-16 px-2.5 py-1.5 text-center rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono font-bold"
+                    className="w-16 px-2.5 py-1.5 text-center rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono font-semibold"
                   />
                 </div>
               </div>
@@ -1277,7 +1277,7 @@ export default function EmergencyContactsManagementPage() {
                   />
                   <label
                     htmlFor="drawer_contact_is_active"
-                    className="font-bold text-slate-700 dark:text-slate-300 cursor-pointer text-xs select-none"
+                    className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer text-xs select-none"
                   >
                     Active on Dashboard
                   </label>
@@ -1296,7 +1296,7 @@ export default function EmergencyContactsManagementPage() {
                     type="submit"
                     disabled={savingContact}
                     style={{ backgroundColor: "#56348f" }}
-                    className="px-5 py-2 rounded-xl text-white font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 text-xs shadow-sm flex items-center gap-1.5"
+                    className="px-5 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 text-xs shadow-sm flex items-center gap-1.5"
                   >
                     {savingContact ? (
                       <>
@@ -1331,7 +1331,7 @@ export default function EmergencyContactsManagementPage() {
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Are you sure you want to delete{" "}
-                <span className="font-bold text-slate-700 dark:text-slate-300">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
                   {deletingContact.name}
                 </span>
                 ? It will be removed from all employee dashboards immediately.
@@ -1351,7 +1351,7 @@ export default function EmergencyContactsManagementPage() {
                 type="button"
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
-                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
               >
                 {isDeleting ? "Deleting…" : "Yes, Delete"}
               </button>

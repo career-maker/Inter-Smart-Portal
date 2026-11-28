@@ -133,7 +133,7 @@ export default function BugzillaReportsPage() {
       {/* ── Top Bar ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-rose-600" />
             <span>Defect Analytics & Reports</span>
           </h2>
@@ -179,19 +179,19 @@ export default function BugzillaReportsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
           <span className="text-xs font-semibold text-slate-500">Total Recorded</span>
-          <div className="mt-1 text-2xl font-bold text-slate-900 dark:text-white font-mono">{s.total}</div>
+          <div className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white font-mono">{s.total}</div>
         </div>
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
           <span className="text-xs font-semibold text-slate-500">Active Open Defect Pool</span>
-          <div className="mt-1 text-2xl font-bold text-amber-600 font-mono">{s.open}</div>
+          <div className="mt-1 text-2xl font-semibold text-amber-600 font-mono">{s.open}</div>
         </div>
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
           <span className="text-xs font-semibold text-slate-500">Critical / Blocker</span>
-          <div className="mt-1 text-2xl font-bold text-rose-600 font-mono">{s.critical_blocker}</div>
+          <div className="mt-1 text-2xl font-semibold text-rose-600 font-mono">{s.critical_blocker}</div>
         </div>
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
           <span className="text-xs font-semibold text-slate-500">Resolved & Closed</span>
-          <div className="mt-1 text-2xl font-bold text-emerald-600 font-mono">{s.resolved + s.closed}</div>
+          <div className="mt-1 text-2xl font-semibold text-emerald-600 font-mono">{s.resolved + s.closed}</div>
         </div>
       </div>
 
@@ -199,7 +199,7 @@ export default function BugzillaReportsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Status Distribution */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+          <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Defects by Status
           </h3>
           {statusChartData.length > 0 ? (
@@ -239,7 +239,7 @@ export default function BugzillaReportsPage() {
 
         {/* Severity Distribution */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+          <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Defects by Severity
           </h3>
           {severityChartData.length > 0 ? (
@@ -272,7 +272,7 @@ export default function BugzillaReportsPage() {
 
         {/* Priority Distribution */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+          <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Defects by Priority
           </h3>
           {priorityChartData.length > 0 ? (
@@ -301,7 +301,7 @@ export default function BugzillaReportsPage() {
 
         {/* Resolution Codes Breakdown */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+          <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Resolution Distribution (FIXED, INVALID, etc.)
           </h3>
           {resolutionChartData.length > 0 ? (

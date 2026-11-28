@@ -41,7 +41,7 @@ export function FavoritesNav({ onClose }: FavoritesNavProps) {
     <div className="px-2 py-3 border-b border-slate-200 dark:border-white/10">
       <div className="flex items-center gap-2 px-2 pb-2">
         <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
           Favorites
         </span>
       </div>

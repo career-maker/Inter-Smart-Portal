@@ -19,15 +19,15 @@ function StatCard({ value, label, hint, icon, tone, iconTone, onClick }: StatCar
     <button
       type="button"
       onClick={onClick}
-      className={`portal-focus group flex cursor-pointer items-center gap-3 rounded-2xl border p-3 text-left shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md sm:gap-4 sm:p-4 sm:pr-3 ${tone}`}
+      className={`portal-focus group flex cursor-pointer items-center gap-3 rounded-2xl border p-3 text-left shadow-xs transition hover:-translate-y-0.5 hover:shadow-md sm:gap-4 sm:p-4 sm:pr-3 ${tone}`}
     >
       <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl sm:h-14 sm:w-14 sm:rounded-2xl ${iconTone}`}>
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-2xl font-extrabold leading-none text-[#0B1F4B] sm:text-3xl dark:text-white">{value}</div>
-        <div className="mt-1.5 line-clamp-2 text-xs font-bold leading-tight text-slate-800 sm:line-clamp-1 sm:text-sm dark:text-slate-100">{label}</div>
-        <div className="truncate text-[11px] font-medium text-slate-400 sm:text-xs dark:text-slate-500">{hint}</div>
+        <div className="text-2xl font-semibold leading-none text-[#0B1F4B] sm:text-3xl dark:text-white">{value}</div>
+        <div className="mt-1.5 line-clamp-2 text-xs font-semibold leading-tight text-slate-800 sm:line-clamp-1 sm:text-sm dark:text-slate-100">{label}</div>
+        <div className="truncate text-xs font-medium text-slate-400 sm:text-xs dark:text-slate-500">{hint}</div>
       </div>
       <ChevronRight className="hidden h-5 w-5 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5 sm:block" />
     </button>

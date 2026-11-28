@@ -141,7 +141,7 @@ export function TaskAssigneeModal({
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Manage Task Assignees</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Manage Task Assignees</h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {isTeamLead
                     ? "Assign members of your HR team to this task"
@@ -169,7 +169,7 @@ export function TaskAssigneeModal({
           <div className="p-6 space-y-6 overflow-y-auto flex-1 custom-scrollbar">
             {/* Current Assignees List */}
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+              <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2.5">
                 Current Assignees ({task.assignees?.length || 0})
               </h3>
 
@@ -185,7 +185,7 @@ export function TaskAssigneeModal({
                       className="p-3 flex items-center justify-between bg-white dark:bg-slate-900"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-xs flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold text-xs flex items-center justify-center">
                           {assignee.first_name?.[0]}
                         </div>
                         <div>
@@ -194,7 +194,7 @@ export function TaskAssigneeModal({
                               {assignee.first_name} {assignee.last_name}
                             </span>
                             {assignee.pivot?.is_primary && (
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50">
+                              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50">
                                 Primary Lead
                               </span>
                             )}
@@ -223,7 +223,7 @@ export function TaskAssigneeModal({
 
             {/* Add New Assignee Form */}
             <form onSubmit={handleAddAssignee} className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                 Add New Assignee
               </h3>
 

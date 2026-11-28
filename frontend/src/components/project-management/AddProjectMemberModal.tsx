@@ -134,7 +134,7 @@ export function AddProjectMemberModal({
                 <UserPlus className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Add Project Member</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Add Project Member</h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Grant team participant access to this project
                 </p>
@@ -200,7 +200,7 @@ export function AddProjectMemberModal({
                               {emp.first_name} {emp.last_name}
                               {emp.employee_code ? ` (${emp.employee_code})` : ""}
                             </div>
-                            <span className="text-[10px] text-slate-400 block">{emp.department}</span>
+                            <span className="text-xs text-slate-400 block">{emp.department}</span>
                           </div>
                           {isSelected && (
                             <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />
@@ -228,7 +228,7 @@ export function AddProjectMemberModal({
                     </option>
                   ))}
                 </SelectCompat>
-                <span className="text-[10px] text-slate-400 mt-1 block">
+                <span className="text-xs text-slate-400 mt-1 block">
                   Member (standard participant), Lead (sub-lead), Reviewer (QA/Review), Observer (read-only).
                 </span>
               </div>

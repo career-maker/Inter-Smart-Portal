@@ -370,7 +370,7 @@ export default function HolidaysPage() {
     setSeedingLoading(true);
     try {
       const res = await api.post("/holidays/seed-kerala");
-      const msg = res.data?.message || "Kerala bank holidays processed successfully!";
+      const msg = res.data?.message || "Kerala bank holidays processed successfully";
       setSuccessMessage(msg);
       setShowSuccess(true);
       fetchHolidays();
@@ -423,12 +423,12 @@ export default function HolidaysPage() {
         body.append("_method", "PUT");
         await api.post(`/holidays/${editId}`, body, { headers: { "Content-Type": "multipart/form-data" } });
         setHolidays(holidays.map((h) => (h.id === editId ? { ...h, ...payload } : h)));
-        setSuccessMessage("Holiday updated successfully!");
+        setSuccessMessage("Holiday updated successfully");
       } else {
         const res = await api.post("/holidays", body, { headers: { "Content-Type": "multipart/form-data" } });
         const newHoliday = res.data?.data || { id: Date.now(), ...payload };
         setHolidays([...holidays, newHoliday]);
-        setSuccessMessage("Holiday added successfully!");
+        setSuccessMessage("Holiday added successfully");
       }
       setShowDialog(false);
       setShowSuccess(true);
@@ -481,7 +481,7 @@ export default function HolidaysPage() {
       };
       setOverrides((prev) => [...prev.filter((o) => toDateKey(o.date) !== dateKey), newOverride]);
       setShowOverrideDialog(false);
-      setSuccessMessage("Working day override saved successfully!");
+      setSuccessMessage("Working day override saved successfully");
       setShowSuccess(true);
     } catch (e: any) {
       const errors = e.response?.data?.errors;
@@ -582,7 +582,7 @@ export default function HolidaysPage() {
             <CalendarDays className="w-7 h-7 stroke-[1.75]" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-[26px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight m-0">
+            <h1 className="text-2xl sm:text-[26px] font-semibold text-slate-900 dark:text-white tracking-tight leading-tight m-0">
               Holiday Calendar
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -610,7 +610,7 @@ export default function HolidaysPage() {
               <button
                 type="button"
                 onClick={() => setIsMonthPickerOpen((prev) => !prev)}
-                className="px-3.5 sm:px-4 py-2 flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+                className="px-3.5 sm:px-4 py-2 flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
               >
                 <span>{format(currentDate, "MMMM yyyy")}</span>
                 <ChevronDown className="w-3.5 h-3.5 stroke-[2.5] text-slate-500" />
@@ -621,13 +621,13 @@ export default function HolidaysPage() {
                 <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl p-3 z-50 animate-in fade-in zoom-in-95 duration-100">
                   {/* Year selector */}
                   <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800 px-1">
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       Select Month & Year
                     </span>
                     <SelectCompat
                       value={currentDate.getFullYear()}
                       onChange={(e) => handleSelectYear(Number(e.target.value))}
-                      className="text-xs font-bold bg-slate-100 dark:bg-slate-800 border-0 rounded px-2 py-1 text-slate-800 dark:text-white focus:outline-none"
+                      className="text-xs font-semibold bg-slate-100 dark:bg-slate-800 border-0 rounded px-2 py-1 text-slate-800 dark:text-white focus:outline-none"
                     >
                       {[2024, 2025, 2026, 2027, 2028].map((yr) => (
                         <option key={yr} value={yr}>
@@ -646,7 +646,7 @@ export default function HolidaysPage() {
                           key={m}
                           type="button"
                           onClick={() => handleSelectMonth(idx)}
-                          className={`text-xs py-1.5 px-2 rounded-lg font-semibold transition-all cursor-pointer truncate ${
+                          className={`text-xs py-1.5 px-2 rounded-lg font-semibold transition cursor-pointer truncate ${
                             isSelected
                               ? "bg-[#56348f] text-white"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -687,7 +687,7 @@ export default function HolidaysPage() {
               <button
                 type="button"
                 onClick={() => setShowAdminMenu((prev) => !prev)}
-                className="flex items-center gap-1.5 px-3 py-2 bg-purple-50 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 rounded-xl text-xs sm:text-sm font-bold text-[#56348f] dark:text-purple-300 hover:bg-purple-100 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-2 bg-purple-50 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 rounded-xl text-xs sm:text-sm font-semibold text-[#56348f] dark:text-purple-300 hover:bg-purple-100 transition-colors cursor-pointer"
                 title="Admin Holiday Management"
               >
                 <Settings2 className="w-4 h-4" />
@@ -767,14 +767,14 @@ export default function HolidaysPage() {
             <Gift className="w-5 h-5 stroke-[1.75]" />
           </div>
           <div className="flex items-baseline gap-2.5 min-w-0">
-            <span className="text-2xl sm:text-[28px] font-bold text-slate-900 dark:text-white leading-none">
+            <span className="text-2xl sm:text-[28px] font-semibold text-slate-900 dark:text-white leading-none">
               {companyHolidaysCount}
             </span>
             <div className="min-w-0">
-              <span className="text-xs sm:text-[13px] font-bold text-slate-800 dark:text-slate-200 truncate block">
+              <span className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-slate-200 truncate block">
                 Company Holiday
               </span>
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium block">
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-medium block">
                 This Month
               </span>
             </div>
@@ -787,14 +787,14 @@ export default function HolidaysPage() {
             <CalendarIcon className="w-5 h-5 stroke-[1.75]" />
           </div>
           <div className="flex items-baseline gap-2.5 min-w-0">
-            <span className="text-2xl sm:text-[28px] font-bold text-slate-900 dark:text-white leading-none">
+            <span className="text-2xl sm:text-[28px] font-semibold text-slate-900 dark:text-white leading-none">
               {weekendsCount}
             </span>
             <div className="min-w-0">
-              <span className="text-xs sm:text-[13px] font-bold text-slate-800 dark:text-slate-200 truncate block">
+              <span className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-slate-200 truncate block">
                 Weekends
               </span>
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium block">
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-medium block">
                 This Month
               </span>
             </div>
@@ -807,14 +807,14 @@ export default function HolidaysPage() {
             <CalendarCheck2 className="w-5 h-5 stroke-[1.75]" />
           </div>
           <div className="flex items-baseline gap-2.5 min-w-0">
-            <span className="text-2xl sm:text-[28px] font-bold text-slate-900 dark:text-white leading-none">
+            <span className="text-2xl sm:text-[28px] font-semibold text-slate-900 dark:text-white leading-none">
               {totalNonWorkingDays}
             </span>
             <div className="min-w-0">
-              <span className="text-xs sm:text-[13px] font-bold text-slate-800 dark:text-slate-200 truncate block">
+              <span className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-slate-200 truncate block">
                 Total Non-Working Days
               </span>
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium block">
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-medium block">
                 Holidays + Weekends
               </span>
             </div>
@@ -868,7 +868,7 @@ export default function HolidaysPage() {
           {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((dayName) => (
             <div
               key={dayName}
-              className="py-3 text-center text-[11.5px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+              className="py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400"
             >
               {dayName}
             </div>
@@ -929,7 +929,7 @@ export default function HolidaysPage() {
                         setShowDialog(true);
                       }}
                       title={`Add holiday on ${format(day, "d MMMM")}`}
-                      className="opacity-0 group-hover/day:opacity-100 w-5 h-5 rounded-md bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 flex items-center justify-center transition-all cursor-pointer shrink-0"
+                      className="opacity-0 group-hover/day:opacity-100 w-5 h-5 rounded-md bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 flex items-center justify-center transition cursor-pointer shrink-0"
                     >
                       <Plus className="w-3 h-3" />
                     </button>
@@ -937,7 +937,7 @@ export default function HolidaysPage() {
                     <span />
                   )}
                   <span
-                    className={`text-sm font-bold ${
+                    className={`text-sm font-semibold ${
                       !isCurrentMonth
                         ? "text-slate-300 dark:text-slate-600"
                         : isTreatedAsWeekend || (holiday && isCurrentMonth)
@@ -958,10 +958,10 @@ export default function HolidaysPage() {
                     {holiday && !isWeekend && (
                       <div className="bg-[#FFE4E8] dark:bg-rose-950/60 border border-rose-200/60 dark:border-rose-900/50 rounded-lg p-2 w-full shadow-2xs">
                         <div className="flex items-start gap-1.5">
-                          <span className="text-rose-600 dark:text-rose-400 font-bold text-sm shrink-0">
+                          <span className="text-rose-600 dark:text-rose-400 font-semibold text-sm shrink-0">
                             {format(day, "d")}
                           </span>
-                          <span className="text-slate-900 dark:text-white font-bold text-xs leading-snug line-clamp-2 flex-1">
+                          <span className="text-slate-900 dark:text-white font-semibold text-xs leading-snug line-clamp-2 flex-1">
                             {holiday.name}
                           </span>
                         </div>
@@ -991,7 +991,7 @@ export default function HolidaysPage() {
                     {/* CASE B: Weekend Day (Sunday or Saturday, not overridden) */}
                     {isTreatedAsWeekend && !holiday && (
                       <div className="flex flex-col items-center gap-1 w-full">
-                        <span className="bg-[#FFE4E8] dark:bg-rose-900/30 text-[#E11D48] dark:text-rose-300 text-[10.5px] font-bold px-3 py-0.5 rounded-md shadow-2xs self-center">
+                        <span className="bg-[#FFE4E8] dark:bg-rose-900/30 text-[#E11D48] dark:text-rose-300 text-xs font-semibold px-3 py-0.5 rounded-md shadow-2xs self-center">
                           Weekend
                         </span>
                         {isSuperAdmin && (
@@ -1004,7 +1004,7 @@ export default function HolidaysPage() {
                               setShowOverrideDialog(true);
                             }}
                             title="Mark as working day"
-                            className="opacity-0 group-hover/day:opacity-100 text-[9.5px] font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/40 px-2 py-0.5 rounded-md hover:bg-purple-100 transition-all cursor-pointer"
+                            className="opacity-0 group-hover/day:opacity-100 text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/40 px-2 py-0.5 rounded-md hover:bg-purple-100 transition cursor-pointer"
                           >
                             Mark Working
                           </button>
@@ -1016,10 +1016,10 @@ export default function HolidaysPage() {
                     {holiday && isWeekend && (
                       <div className="bg-[#FFE4E8] dark:bg-rose-950/60 border border-rose-200/60 dark:border-rose-900/50 rounded-lg p-1.5 w-full shadow-2xs">
                         <div className="flex flex-col items-center text-center">
-                          <span className="text-slate-900 dark:text-white font-bold text-xs leading-tight line-clamp-2">
+                          <span className="text-slate-900 dark:text-white font-semibold text-xs leading-tight line-clamp-2">
                             {holiday.name}
                           </span>
-                          <span className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold mt-0.5">
+                          <span className="text-xs text-rose-600 dark:text-rose-400 font-semibold mt-0.5">
                             (Weekend Holiday)
                           </span>
                         </div>
@@ -1049,11 +1049,11 @@ export default function HolidaysPage() {
                     {/* CASE D: Weekend marked as Working Day */}
                     {isWorkingWeekend && (
                       <div className="bg-purple-50 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/40 rounded-lg p-1.5 text-center w-full">
-                        <span className="text-[10.5px] font-bold text-purple-700 dark:text-purple-300 block">
+                        <span className="text-xs font-semibold text-purple-700 dark:text-purple-300 block">
                           Working Day
                         </span>
                         {override?.reason && (
-                          <span className="text-[9.5px] text-slate-500 dark:text-slate-400 block truncate">
+                          <span className="text-xs text-slate-500 dark:text-slate-400 block truncate">
                             {override.reason}
                           </span>
                         )}
@@ -1062,7 +1062,7 @@ export default function HolidaysPage() {
                             type="button"
                             onClick={(e) => { e.stopPropagation(); return deleteOverride(override.id); }}
                             title="Remove working day override (revert to weekend)"
-                            className="mt-1 text-[9px] font-bold text-rose-500 hover:text-rose-700 transition-colors cursor-pointer"
+                            className="mt-1 text-xs font-semibold text-rose-500 hover:text-rose-700 transition-colors cursor-pointer"
                           >
                             ✕ Revert to Weekend
                           </button>
@@ -1081,7 +1081,7 @@ export default function HolidaysPage() {
                         onClick={() => setPeopleDrawer({ date: dateStr, tab: "leave" })}
                         title={`${leaveCount} on leave — click for details`}
                         aria-label={`${leaveCount} on leave on ${format(day, "d MMMM")}`}
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold border cursor-pointer transition-colors bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-200 dark:hover:bg-emerald-900"
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-semibold border cursor-pointer transition-colors bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-200 dark:hover:bg-emerald-900"
                       >
                         <CalendarOff className="w-3 h-3" />
                         <span>{leaveCount}</span>
@@ -1094,7 +1094,7 @@ export default function HolidaysPage() {
                         onClick={() => setPeopleDrawer({ date: dateStr, tab: "wfh" })}
                         title={`${wfhCount} working from home — click for details`}
                         aria-label={`${wfhCount} working from home on ${format(day, "d MMMM")}`}
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold border cursor-pointer transition-colors bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800 hover:bg-sky-200 dark:hover:bg-sky-900"
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-semibold border cursor-pointer transition-colors bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800 hover:bg-sky-200 dark:hover:bg-sky-900"
                       >
                         <Laptop className="w-3 h-3" />
                         <span>{wfhCount}</span>
@@ -1131,10 +1131,10 @@ export default function HolidaysPage() {
               {/* Header */}
               <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 to-white dark:from-slate-800 dark:to-slate-900 shrink-0 flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#56348f] dark:text-purple-300">
+                  <p className="text-xs font-semibold text-[#56348f] dark:text-purple-300">
                     Leave &amp; WFH
                   </p>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-tight mt-0.5">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white leading-tight mt-0.5">
                     {format(parseISO(peopleDrawer.date), "EEEE, dd MMMM yyyy")}
                   </h2>
                 </div>
@@ -1154,7 +1154,7 @@ export default function HolidaysPage() {
                 <button
                   type="button"
                   onClick={() => setPeopleDrawer({ date: peopleDrawer.date, tab: "leave" })}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                     peopleDrawer.tab === "leave"
                       ? "bg-emerald-600 text-white"
                       : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -1166,7 +1166,7 @@ export default function HolidaysPage() {
                 <button
                   type="button"
                   onClick={() => setPeopleDrawer({ date: peopleDrawer.date, tab: "wfh" })}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                     peopleDrawer.tab === "wfh"
                       ? "bg-sky-600 text-white"
                       : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -1200,13 +1200,13 @@ export default function HolidaysPage() {
                           className="w-10 h-10 rounded-full shrink-0 border border-slate-200 dark:border-slate-700 text-sm"
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{person.name}</p>
+                          <p className="font-semibold text-sm text-slate-900 dark:text-white truncate">{person.name}</p>
                           <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                             {[person.employee_code, person.designation].filter(Boolean).join(" · ") || "Employee"}
                           </p>
                         </div>
                         {person.team && (
-                          <span className="shrink-0 max-w-[40%] truncate text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/50">
+                          <span className="shrink-0 max-w-[40%] truncate text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/50">
                             {person.team}
                           </span>
                         )}
@@ -1225,7 +1225,7 @@ export default function HolidaysPage() {
                             <div key={e.id} className="text-xs">
                               <div className="flex items-center flex-wrap gap-1.5">
                                 <span
-                                  className={`font-bold px-2 py-0.5 rounded-md border ${
+                                  className={`font-semibold px-2 py-0.5 rounded-md border ${
                                     e.type === "WFH"
                                       ? "bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800"
                                       : "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
@@ -1263,7 +1263,7 @@ export default function HolidaysPage() {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-2xl">
           <DialogHeader className="mb-1">
-            <DialogTitle className="text-lg font-bold">
+            <DialogTitle className="text-lg font-semibold">
               {editId ? "Edit Holiday" : "Add New Holiday"}
             </DialogTitle>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -1273,7 +1273,7 @@ export default function HolidaysPage() {
 
           <div className="space-y-4 py-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Holiday Name *
               </label>
               <input
@@ -1286,7 +1286,7 @@ export default function HolidaysPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Date *
               </label>
               <input
@@ -1298,7 +1298,7 @@ export default function HolidaysPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Holiday Type *
               </label>
               <SelectCompat
@@ -1315,7 +1315,7 @@ export default function HolidaysPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Description <span className="text-slate-400 normal-case font-normal">(optional)</span>
               </label>
               <textarea
@@ -1328,7 +1328,7 @@ export default function HolidaysPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Image <span className="text-slate-400 normal-case font-normal">(optional, shown on the dashboard holiday card)</span>
               </label>
               {imagePreview && !removeImage && (
@@ -1341,7 +1341,7 @@ export default function HolidaysPage() {
                       setImagePreview(null);
                       setRemoveImage(true);
                     }}
-                    className="absolute top-1.5 right-1.5 px-2 py-0.5 text-[11px] font-bold rounded-lg bg-white/90 text-rose-600 hover:bg-white"
+                    className="absolute top-1.5 right-1.5 px-2 py-0.5 text-xs font-semibold rounded-lg bg-white/90 text-rose-600 hover:bg-white"
                   >
                     Remove
                   </button>
@@ -1374,7 +1374,7 @@ export default function HolidaysPage() {
                   setShowDialog(false);
                   return deleteHoliday(editId);
                 }}
-                className="text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors"
+                className="text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors"
               >
                 Delete
               </button>
@@ -1392,7 +1392,7 @@ export default function HolidaysPage() {
                 type="button"
                 onClick={saveHoliday}
                 disabled={actionLoading || !name || !date || !type}
-                className="flex items-center gap-1.5 px-5 py-2 bg-[#56348f] hover:bg-purple-800 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
+                className="flex items-center gap-1.5 px-5 py-2 bg-[#56348f] hover:bg-purple-800 text-white text-xs font-semibold rounded-xl transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
               >
                 {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
                 <span>{editId ? "Update" : "Save Holiday"}</span>
@@ -1406,7 +1406,7 @@ export default function HolidaysPage() {
       <Dialog open={showOverrideDialog} onOpenChange={setShowOverrideDialog}>
         <DialogContent className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-2xl">
           <DialogHeader className="mb-1">
-            <DialogTitle className="text-lg font-bold">Mark Weekend as Working Day</DialogTitle>
+            <DialogTitle className="text-lg font-semibold">Mark Weekend as Working Day</DialogTitle>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Select a Saturday or Sunday to designate as an official working day (e.g. compensatory working day).
             </p>
@@ -1414,7 +1414,7 @@ export default function HolidaysPage() {
 
           <div className="space-y-4 py-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Weekend Date *
               </label>
               <input
@@ -1426,7 +1426,7 @@ export default function HolidaysPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Reason / Note *
               </label>
               <input
@@ -1451,7 +1451,7 @@ export default function HolidaysPage() {
               type="button"
               onClick={saveOverride}
               disabled={actionLoading || !overrideDate}
-              className="flex items-center gap-1.5 px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
             >
               {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
               <span>Save Working Day</span>
@@ -1485,15 +1485,15 @@ export default function HolidaysPage() {
                 <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 to-white dark:from-slate-800 dark:to-slate-900 shrink-0">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#56348f] dark:text-purple-300">Admin</p>
-                      <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-tight mt-0.5">Manage Holidays &amp; Overrides</h2>
+                      <p className="text-xs font-semibold text-[#56348f] dark:text-purple-300">Admin</p>
+                      <h2 className="text-lg font-semibold text-slate-900 dark:text-white leading-tight mt-0.5">Manage Holidays &amp; Overrides</h2>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {manageTab === "holidays" && (
                         <button
                           type="button"
                           onClick={() => { setShowManageModal(false); openNewHoliday(); }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#56348f] hover:bg-purple-800 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#56348f] hover:bg-purple-800 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-xs"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           Add Holiday
@@ -1513,7 +1513,7 @@ export default function HolidaysPage() {
                     <button
                       type="button"
                       onClick={() => setManageTab("holidays")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                         manageTab === "holidays" ? "bg-[#56348f] text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                       }`}
                     >
@@ -1522,7 +1522,7 @@ export default function HolidaysPage() {
                     <button
                       type="button"
                       onClick={() => setManageTab("overrides")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                         manageTab === "overrides" ? "bg-purple-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                       }`}
                     >
@@ -1542,7 +1542,7 @@ export default function HolidaysPage() {
                           <button
                             type="button"
                             onClick={() => { setShowManageModal(false); openNewHoliday(); }}
-                            className="mt-4 flex items-center gap-1.5 px-4 py-2 bg-[#56348f] text-white text-xs font-bold rounded-xl mx-auto cursor-pointer hover:bg-purple-800 transition-colors"
+                            className="mt-4 flex items-center gap-1.5 px-4 py-2 bg-[#56348f] text-white text-xs font-semibold rounded-xl mx-auto cursor-pointer hover:bg-purple-800 transition-colors"
                           >
                             <Plus className="w-3.5 h-3.5" /> Add First Holiday
                           </button>
@@ -1554,7 +1554,7 @@ export default function HolidaysPage() {
                             className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                           >
                             <div className="min-w-0 flex-1 mr-3">
-                              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{h.name}</p>
+                              <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{h.name}</p>
                               <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                                 {h.date} &bull; {h.type || "Company Holiday"}
                               </p>
@@ -1586,24 +1586,24 @@ export default function HolidaysPage() {
                       {/* Month + Year selector for weekend list */}
                       <div className="flex items-center gap-2 mb-4 p-3 bg-purple-50/60 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/40 rounded-xl">
                         <CalendarIcon className="w-4 h-4 text-purple-600 shrink-0" />
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0">Select Month:</span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 shrink-0">Select Month:</span>
                         <SelectCompat
                           value={manageOverrideMonth}
                           onChange={(e) => setManageOverrideMonth(Number(e.target.value))}
-                          className="text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-800 dark:text-white focus:outline-none focus:border-purple-400 cursor-pointer"
+                          className="text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-800 dark:text-white focus:outline-none focus:border-purple-400 cursor-pointer"
                         >
                           {MONTH_NAMES.map((m, i) => <option key={i} value={i}>{m}</option>)}
                         </SelectCompat>
                         <SelectCompat
                           value={manageOverrideYear}
                           onChange={(e) => setManageOverrideYear(Number(e.target.value))}
-                          className="text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-800 dark:text-white focus:outline-none focus:border-purple-400 cursor-pointer"
+                          className="text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-800 dark:text-white focus:outline-none focus:border-purple-400 cursor-pointer"
                         >
                           {[2024, 2025, 2026, 2027, 2028].map((y) => <option key={y} value={y}>{y}</option>)}
                         </SelectCompat>
                       </div>
 
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
+                      <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mb-2">
                         {weekendsInMonth.length} Weekends in {MONTH_NAMES[manageOverrideMonth]} {manageOverrideYear}
                       </p>
 
@@ -1623,7 +1623,7 @@ export default function HolidaysPage() {
                             >
                               <div className="flex items-center justify-between p-3.5">
                                 <div className="min-w-0">
-                                  <p className="text-sm font-bold text-slate-900 dark:text-white">
+                                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
                                     {format(day, "EEEE, dd MMMM yyyy")}
                                   </p>
                                   {existing ? (
@@ -1639,7 +1639,7 @@ export default function HolidaysPage() {
                                     <button
                                       type="button"
                                       onClick={() => deleteOverride(existing.id)}
-                                      className="flex items-center gap-1 text-[11px] font-bold text-rose-500 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 px-2.5 py-1.5 rounded-lg hover:bg-rose-100 transition-colors cursor-pointer"
+                                      className="flex items-center gap-1 text-xs font-semibold text-rose-500 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 px-2.5 py-1.5 rounded-lg hover:bg-rose-100 transition-colors cursor-pointer"
                                     >
                                       <Trash2 className="w-3 h-3" /> Revert to Weekend
                                     </button>
@@ -1650,7 +1650,7 @@ export default function HolidaysPage() {
                                         setInlineOverrideDate(isExpanded ? null : ds);
                                         setInlineOverrideReason("");
                                       }}
-                                      className="flex items-center gap-1 text-[11px] font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/40 px-2.5 py-1.5 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer"
+                                      className="flex items-center gap-1 text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/40 px-2.5 py-1.5 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer"
                                     >
                                       <CalendarCheck2 className="w-3 h-3" />
                                       {isExpanded ? "Cancel" : "Mark Working"}
@@ -1672,7 +1672,7 @@ export default function HolidaysPage() {
                                     type="button"
                                     onClick={() => saveInlineOverride(ds)}
                                     disabled={inlineOverrideLoading}
-                                    className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                                    className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 shrink-0"
                                   >
                                     {inlineOverrideLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
                                     Save
@@ -1703,13 +1703,13 @@ export default function HolidaysPage() {
             <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
               <CheckCircle className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white">
               {successMessage}
             </h3>
             <button
               type="button"
               onClick={() => setShowSuccess(false)}
-              className="w-full py-2 bg-[#56348f] hover:bg-purple-800 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs"
+              className="w-full py-2 bg-[#56348f] hover:bg-purple-800 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-xs"
             >
               Continue
             </button>

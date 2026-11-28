@@ -44,7 +44,7 @@ export default function PmoProjectsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           <ClipboardList className="h-7 w-7 text-amber-500" /> Project Office
         </h1>
         <p className="text-slate-600 dark:text-slate-300">Every project from sale to delivery: coordinator, payment, department budgets and holds.</p>

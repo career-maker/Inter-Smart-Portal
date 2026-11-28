@@ -969,7 +969,7 @@ export default function CustomizationPage() {
       <div className="">
         <div className="p-8 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-center space-y-3">
           <ShieldCheck className="w-12 h-12 mx-auto text-amber-600 dark:text-amber-400" />
-          <h2 className="text-lg font-bold">Super Admin Access Only</h2>
+          <h2 className="text-lg font-semibold">Super Admin Access Only</h2>
           <p className="text-xs">Only Super Administrators have permission to modify portal branding and customizations.</p>
         </div>
       </div>
@@ -1008,14 +1008,14 @@ export default function CustomizationPage() {
               Add-ons
             </Link>
             <span>/</span>
-            <span className="text-purple-600 dark:text-purple-400 font-bold">Portal Customization</span>
+            <span className="text-purple-600 dark:text-purple-400 font-semibold">Portal Customization</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-purple-600 text-white shadow-md shadow-purple-600/20">
               <Palette className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
                 Universal Portal Customization
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -1041,7 +1041,7 @@ export default function CustomizationPage() {
             onClick={handleSave}
             disabled={saving || resetting}
             style={{ backgroundColor: form.primary_color || "#56348f" }}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-white text-xs font-semibold shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-white text-xs font-semibold shadow-md hover:brightness-110 active:scale-95 transition cursor-pointer disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <Save className="w-4 h-4 text-white" />}
             <span>Save Customizations</span>
@@ -1061,7 +1061,7 @@ export default function CustomizationPage() {
             onClick={handleSave}
             disabled={saving || resetting}
             style={{ backgroundColor: form.primary_color || "#0F766E" }}
-            className="shrink-0 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-all shadow-xs hover:brightness-110 active:scale-95 cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+            className="shrink-0 px-3 py-1.5 rounded-lg text-white text-xs font-semibold transition shadow-xs hover:brightness-110 active:scale-95 cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
             <span>Save Now</span>
@@ -1100,7 +1100,7 @@ export default function CustomizationPage() {
               <div className="flex items-center justify-between">
                 <label className="text-[12px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <span>Browser Tab Favicon</span>
-                  <span className="text-[10px] text-purple-600 font-normal">(Instant tab update)</span>
+                  <span className="text-xs text-purple-600 font-normal">(Instant tab update)</span>
                 </label>
                 <div className="flex items-center gap-2">
                   <button
@@ -1146,7 +1146,7 @@ export default function CustomizationPage() {
 
               {/* Quick Presets */}
               <div className="flex items-center gap-2 pt-0.5">
-                <span className="text-[10px] text-slate-400 font-medium">Presets:</span>
+                <span className="text-xs text-slate-400 font-medium">Presets:</span>
                 {[
                   { label: "Default Purple Mark", url: "/icon.png" },
                   { label: "Classic Favicon", url: "/favicon.ico" },
@@ -1155,7 +1155,7 @@ export default function CustomizationPage() {
                     key={preset.url}
                     type="button"
                     onClick={() => handleFieldChange("favicon_url", preset.url)}
-                    className="text-[10px] px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-800 hover:border-purple-400 text-slate-600 dark:text-slate-400 cursor-pointer"
+                    className="text-xs px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-800 hover:border-purple-400 text-slate-600 dark:text-slate-400 cursor-pointer"
                   >
                     {preset.label}
                   </button>
@@ -1168,14 +1168,14 @@ export default function CustomizationPage() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <span>Portal Header Logo</span>
-                  <span className="text-[10px] text-slate-400 font-normal">(Used in header & drawer)</span>
+                  <span className="text-xs text-slate-400 font-normal">(Used in header & drawer)</span>
                 </label>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     disabled={uploadingLogo}
                     onClick={() => logoInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-300 cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer disabled:opacity-50"
                   >
                     {uploadingLogo ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
                     <span>{uploadingLogo ? "Optimizing..." : "Upload Logo"}</span>
@@ -1210,7 +1210,7 @@ export default function CustomizationPage() {
 
               {/* Quick Presets */}
               <div className="flex items-center gap-2 pt-0.5">
-                <span className="text-[10px] text-slate-400 font-medium">Presets:</span>
+                <span className="text-xs text-slate-400 font-medium">Presets:</span>
                 {[
                   { label: "Default InterSmart", url: "/logo.png" },
                   { label: "Dark Variant", url: "/logo-dark.png" },
@@ -1219,7 +1219,7 @@ export default function CustomizationPage() {
                     key={preset.url}
                     type="button"
                     onClick={() => handleFieldChange("logo_url", preset.url)}
-                    className="text-[10px] px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-800 hover:border-purple-400 text-slate-600 dark:text-slate-400 cursor-pointer"
+                    className="text-xs px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-800 hover:border-purple-400 text-slate-600 dark:text-slate-400 cursor-pointer"
                   >
                     {preset.label}
                   </button>
@@ -1252,7 +1252,7 @@ export default function CustomizationPage() {
                       handleFieldChange("welcome_banner_url", "/welcome-banner-bg.jpg");
                     }
                   }}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition cursor-pointer ${
                     !isBannerVideo
                       ? "bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-300 shadow-xs font-bold"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -1269,7 +1269,7 @@ export default function CustomizationPage() {
                       handleFieldChange("welcome_banner_url", "/videos/login-bg.mp4");
                     }
                   }}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition cursor-pointer ${
                     isBannerVideo
                       ? "bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-300 shadow-xs font-bold"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -1286,7 +1286,7 @@ export default function CustomizationPage() {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <span>Welcome Card Live Preview</span>
-                  <span className="text-[10px] text-purple-600 font-normal">
+                  <span className="text-xs text-purple-600 font-normal">
                     {isBannerVideo ? "(With ambient looping video background)" : "(With dark gradient overlay)"}
                   </span>
                 </label>
@@ -1300,7 +1300,7 @@ export default function CustomizationPage() {
                         handleFieldChange("welcome_banner_url", "/welcome-banner-bg.jpg");
                       }
                     }}
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium text-slate-600 dark:text-slate-400 cursor-pointer"
                   >
                     <RotateCcw className="w-3 h-3" />
                     <span>Default</span>
@@ -1360,7 +1360,7 @@ export default function CustomizationPage() {
                     : { backgroundColor: "#0c182d" }),
                   borderRadius: currentRadius,
                 }}
-                className="relative overflow-hidden p-5 sm:p-6 border border-white/20 shadow-none min-h-[150px] flex flex-col justify-between text-white transition-all select-none"
+                className="relative overflow-hidden p-5 sm:p-6 border border-white/20 shadow-none min-h-[150px] flex flex-col justify-between text-white transition select-none"
               >
                 {isBannerVideo && (
                   <>
@@ -1388,10 +1388,10 @@ export default function CustomizationPage() {
 
                 <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ zIndex: 10 }}>
                   <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-amber-300 flex items-center gap-1">
+                    <span className="text-xs font-semibold text-amber-300 flex items-center gap-1">
 Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     </span>
-                    <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                    <h3 className="text-base sm:text-lg font-semibold text-white tracking-tight">
                       Good Day, {user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : "Abhiram"}
                     </h3>
                     <p className="text-xs text-slate-200/90 font-medium">
@@ -1405,14 +1405,14 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   </div>
                 </div>
 
-                <div className="relative flex flex-wrap items-center justify-between text-[11px] text-slate-300/80 pt-3 border-t border-white/10 mt-3" style={{ zIndex: 10 }}>
+                <div className="relative flex flex-wrap items-center justify-between text-xs text-slate-300/80 pt-3 border-t border-white/10 mt-3" style={{ zIndex: 10 }}>
                   <span>
                     Current {isBannerVideo ? "Video" : "Image"}:{" "}
                     <strong className="text-white font-mono">
                       {currentWelcomeBanner.length > 40 ? currentWelcomeBanner.substring(0, 38) + "..." : currentWelcomeBanner}
                     </strong>
                   </span>
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-xs text-slate-400">
                     {isBannerVideo ? "Video formats: MP4, WebM (up to 50MB)" : "Image formats: PNG, JPG, WebP (1920×1080)"}
                   </span>
                 </div>
@@ -1420,7 +1420,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
 
               {/* Direct Path / URL Input */}
               <div className="space-y-1.5 pt-1">
-                <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                   {isBannerVideo ? "Video Path or Direct MP4 URL" : "Image Path or Direct URL"}
                 </label>
                 <div className="flex items-center gap-2">
@@ -1445,7 +1445,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
 
               {/* Curated Aesthetic Presets */}
               <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                   {isBannerVideo ? "Curated Video Themes:" : "Curated Background Themes:"}
                 </span>
                 {!isBannerVideo ? (
@@ -1467,19 +1467,19 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                             handleFieldChange("welcome_banner_media_type", "image");
                             handleFieldChange("welcome_banner_url", preset.url);
                           }}
-                          className={`p-2 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden group ${
+                          className={`p-2 rounded-xl border text-left flex flex-col justify-between transition cursor-pointer relative overflow-hidden group ${
                             isSelected
                               ? "border-purple-600 bg-purple-50/70 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
                               : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className={`text-[11px] font-bold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
+                            <span className={`text-xs font-semibold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
                               {preset.label}
                             </span>
                             {isSelected && <Check className="w-3.5 h-3.5 text-purple-600 shrink-0 ml-1" />}
                           </div>
-                          <span className="text-[9.5px] text-slate-400 mt-0.5 truncate">{preset.desc}</span>
+                          <span className="text-xs text-slate-400 mt-0.5 truncate">{preset.desc}</span>
                         </button>
                       );
                     })}
@@ -1500,19 +1500,19 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                             handleFieldChange("welcome_banner_media_type", "video");
                             handleFieldChange("welcome_banner_url", preset.url);
                           }}
-                          className={`p-2 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden group ${
+                          className={`p-2 rounded-xl border text-left flex flex-col justify-between transition cursor-pointer relative overflow-hidden group ${
                             isSelected
                               ? "border-purple-600 bg-purple-50/70 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
                               : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className={`text-[11px] font-bold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
+                            <span className={`text-xs font-semibold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
                               {preset.label}
                             </span>
                             {isSelected && <Check className="w-3.5 h-3.5 text-purple-600 shrink-0 ml-1" />}
                           </div>
-                          <span className="text-[9.5px] text-slate-400 mt-0.5 truncate">{preset.desc}</span>
+                          <span className="text-xs text-slate-400 mt-0.5 truncate">{preset.desc}</span>
                         </button>
                       );
                     })}
@@ -1548,7 +1548,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={font.id}
                       type="button"
                       onClick={() => handleFieldChange("font_family", font.id)}
-                      className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl border text-left flex items-center justify-between transition cursor-pointer ${
                         isSelected
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
@@ -1557,13 +1557,13 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       <div className="space-y-0.5">
                         <div
                           style={{ fontFamily: `"${font.id}", sans-serif` }}
-                          className={`text-sm font-bold ${
+                          className={`text-sm font-semibold ${
                             isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-900 dark:text-white"
                           }`}
                         >
                           {font.name}
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className="text-xs text-slate-400">
                           {font.category} • {font.provider}
                         </div>
                       </div>
@@ -1585,7 +1585,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-[15px] font-semibold text-slate-900 dark:text-white box-title">Global Brand Color Palette System</h2>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-200">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-200">
                       Brand Themes
                     </span>
                   </div>
@@ -1599,7 +1599,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
               <button
                 type="button"
                 onClick={applyGreenTealPalette}
-                className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer self-start sm:self-auto shrink-0"
+                className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-xs transition cursor-pointer self-start sm:self-auto shrink-0"
                 title="Apply standard InterSmart Green / Teal 8-color system"
               >
                 <span>Reset to Default Teal</span>
@@ -1619,14 +1619,14 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-200">
+                  <h3 className="text-xs font-semibold text-teal-900 dark:text-teal-200">
                     Curated Color Palettes (Click to Apply)
                   </h3>
                   <p className="text-[12px] text-slate-500 dark:text-slate-400">
                     Select any pre-configured color harmony to immediately transform your entire portal layout and buttons.
                   </p>
                 </div>
-                <span className="text-[11px] font-medium text-slate-500">
+                <span className="text-xs font-medium text-slate-500">
                   {PALETTE_PRESETS.length} Themes Available
                 </span>
               </div>
@@ -1641,7 +1641,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     <div
                       key={preset.id}
                       onClick={() => applyPalettePreset(preset)}
-                      className={`group relative p-3.5 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col justify-between text-left ${
+                      className={`group relative p-3.5 rounded-xl border transition duration-200 cursor-pointer flex flex-col justify-between text-left ${
                         isActive
                           ? "bg-teal-50/70 dark:bg-teal-950/40 border-teal-600 dark:border-teal-400 shadow-md ring-2 ring-teal-500/30"
                           : "bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-teal-400 dark:hover:border-teal-600 hover:shadow-xs"
@@ -1650,21 +1650,21 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       {/* Top row: Name & Active Indicator */}
                       <div>
                         <div className="flex items-center justify-between gap-1 mb-1">
-                          <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          <span className="text-xs font-semibold text-slate-900 dark:text-white truncate">
                             {preset.name}
                           </span>
                           {isActive ? (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-600 text-white shrink-0">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-semibold bg-teal-600 text-white shrink-0">
                               <Check className="w-2.5 h-2.5" />
                               Active
                             </span>
                           ) : (
-                            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 capitalize shrink-0">
+                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 capitalize shrink-0">
                               {preset.category === "green_teal" ? "Teal" : preset.category}
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-3">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-3">
                           {preset.tagline}
                         </p>
                       </div>
@@ -1676,7 +1676,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                           {preset.previewColors.map((color, idx) => (
                             <span
                               key={idx}
-                              className="w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 shadow-xs shrink-0 transition-transform group-hover:scale-110"
+                              className="w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 shadow-xs shrink-0 transition-transform"
                               style={{ backgroundColor: color }}
                               title={color}
                             />
@@ -1685,7 +1685,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
 
                         {/* Action Text */}
                         <span
-                          className={`text-[11px] font-semibold transition-colors ${
+                          className={`text-xs font-semibold transition-colors ${
                             isActive
                               ? "text-teal-700 dark:text-teal-300 font-bold"
                               : "text-slate-600 dark:text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400"
@@ -1704,7 +1704,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
             <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                  <h3 className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Fine-Tune Individual Component Colors
                   </h3>
                   <p className="text-[12px] text-slate-500 dark:text-slate-400">
@@ -1730,7 +1730,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Sidebar background rail</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.sidebar_bg_color || "#093E3A"}</span>
                 </div>
@@ -1750,7 +1750,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Sidebar mouse hover</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.sidebar_hover_color || "#138A80"}</span>
                 </div>
@@ -1770,7 +1770,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Active sidebar item</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.sidebar_active_color || "#14A092"}</span>
                 </div>
@@ -1797,7 +1797,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Top brand header</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.header_bg_color || "#0F766E"}</span>
                 </div>
@@ -1817,7 +1817,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Action & submit buttons</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.primary_color || "#0F766E"}</span>
                 </div>
@@ -1837,7 +1837,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Button hover state</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.hover_color || "#138A80"}</span>
                 </div>
@@ -1860,7 +1860,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Sub-header tabs & toggles</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.active_color || "#14A092"}</span>
                 </div>
@@ -1880,7 +1880,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Page titles & dark text</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.dark_text_color || "#093E3A"}</span>
                 </div>
@@ -1901,7 +1901,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Subtitles, descriptions & icons</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.secondary_text_color || "#52525B"}</span>
                 </div>
@@ -1921,7 +1921,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Hints, meta & placeholders</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.muted_text_color || "#71717A"}</span>
                 </div>
@@ -1941,7 +1941,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Portal page background</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.light_bg_color || "#E6F8F6"}</span>
                 </div>
@@ -1961,7 +1961,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Cards, panels & widgets</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.card_bg_color || "#F2FCFB"}</span>
                 </div>
@@ -1981,7 +1981,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Card & table outlines</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.border_color || "#CBEFEA"}</span>
                 </div>
@@ -2001,7 +2001,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 dark:text-slate-400">Header & dark surfaces</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.header_text_color || "#FFFFFF"}</span>
                 </div>
@@ -2030,7 +2030,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   Header Background Color
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.header_bg_color}</span>
+                  <span className="text-xs font-mono text-slate-500">{form.header_bg_color}</span>
                   <input
                     type="color"
                     value={form.header_bg_color}
@@ -2048,7 +2048,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={preset.hex}
                       type="button"
                       onClick={() => handleFieldChange("header_bg_color", preset.hex)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition cursor-pointer ${
                         isActive
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2069,7 +2069,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   Header Text & Icon Color
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.header_text_color}</span>
+                  <span className="text-xs font-mono text-slate-500">{form.header_text_color}</span>
                   <input
                     type="color"
                     value={form.header_text_color}
@@ -2087,7 +2087,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={preset.hex}
                       type="button"
                       onClick={() => handleFieldChange("header_text_color", preset.hex)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition cursor-pointer ${
                         isActive
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2117,7 +2117,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   ) : (
                     <ToggleLeft className="w-5 h-5 text-slate-400" />
                   )}
-                  <span className="text-[11px] font-medium">{form.show_header_subtitle !== false ? "Visible" : "Hidden"}</span>
+                  <span className="text-xs font-medium">{form.show_header_subtitle !== false ? "Visible" : "Hidden"}</span>
                 </button>
               </div>
               <input
@@ -2125,7 +2125,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                 value={form.header_subtitle || ""}
                 onChange={(e) => handleFieldChange("header_subtitle", e.target.value)}
                 placeholder="PERFECTION AT ITS FINEST"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white uppercase tracking-wider font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
 
@@ -2136,7 +2136,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   Sub-Header Tab Bar Background
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sub_header_bg || "#ffffff"}</span>
+                  <span className="text-xs font-mono text-slate-500">{form.sub_header_bg || "#ffffff"}</span>
                   <input
                     type="color"
                     value={form.sub_header_bg || "#ffffff"}
@@ -2154,7 +2154,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={preset.hex}
                       type="button"
                       onClick={() => handleFieldChange("sub_header_bg", preset.hex)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition cursor-pointer ${
                         isActive
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2175,7 +2175,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   Sub-Header Active Tab Highlight & Underline
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sub_header_active_color || "#56348f"}</span>
+                  <span className="text-xs font-mono text-slate-500">{form.sub_header_active_color || "#56348f"}</span>
                   <input
                     type="color"
                     value={form.sub_header_active_color || "#56348f"}
@@ -2193,7 +2193,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={preset.hex}
                       type="button"
                       onClick={() => handleFieldChange("sub_header_active_color", preset.hex)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition cursor-pointer ${
                         isActive
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2229,7 +2229,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   Side Navigation Menu Background
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sidebar_bg_color || "#0e2638"}</span>
+                  <span className="text-xs font-mono text-slate-500">{form.sidebar_bg_color || "#0e2638"}</span>
                   <input
                     type="color"
                     value={form.sidebar_bg_color || "#0e2638"}
@@ -2247,7 +2247,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={preset.hex}
                       type="button"
                       onClick={() => handleFieldChange("sidebar_bg_color", preset.hex)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition cursor-pointer ${
                         isActive
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2268,7 +2268,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   Active Item Background Highlight
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sidebar_active_color || "#133249"}</span>
+                  <span className="text-xs font-mono text-slate-500">{form.sidebar_active_color || "#133249"}</span>
                   <input
                     type="color"
                     value={form.sidebar_active_color || "#133249"}
@@ -2286,7 +2286,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={preset.hex}
                       type="button"
                       onClick={() => handleFieldChange("sidebar_active_color", preset.hex)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition cursor-pointer ${
                         isActive
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2307,12 +2307,12 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Side Menu Item Hover Highlight
                   </label>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Background highlight color when hovering over sidebar menu links and flyouts
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sidebar_hover_color || "#138A80"}</span>
+                  <span className="text-xs font-mono text-slate-500">{form.sidebar_hover_color || "#138A80"}</span>
                   <input
                     type="color"
                     value={form.sidebar_hover_color || "#138A80"}
@@ -2330,7 +2330,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={preset.hex}
                       type="button"
                       onClick={() => handleFieldChange("sidebar_hover_color", preset.hex)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition cursor-pointer ${
                         isActive
                           ? "border-teal-600 bg-teal-50 dark:bg-teal-950/40 text-teal-900 dark:text-teal-300 font-bold ring-1 ring-teal-500/20"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2363,7 +2363,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   Primary Accent & CTA Color
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.primary_color}</span>
+                  <span className="text-xs font-mono text-slate-500">{form.primary_color}</span>
                   <input
                     type="color"
                     value={form.primary_color}
@@ -2381,7 +2381,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={preset.hex}
                       type="button"
                       onClick={() => handleFieldChange("primary_color", preset.hex)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition cursor-pointer ${
                         isActive
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2408,7 +2408,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={opt.id}
                       type="button"
                       onClick={() => handleFieldChange("border_radius", opt.id)}
-                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl border text-center transition cursor-pointer ${
                         isSelected
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-2 ring-purple-500/20 font-bold"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2418,10 +2418,10 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                         style={{ borderRadius: opt.id }}
                         className="w-8 h-8 mx-auto mb-2 border-2 border-purple-500 bg-purple-100/50 dark:bg-purple-950/50 flex items-center justify-center"
                       >
-                        <span className="text-[10px] font-mono">{opt.id.replace("px", "")}</span>
+                        <span className="text-xs font-mono">{opt.id.replace("px", "")}</span>
                       </div>
                       <div className="text-xs">{opt.label}</div>
-                      <div className="text-[9px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
+                      <div className="text-xs text-slate-400 font-normal mt-0.5">{opt.desc}</div>
                     </button>
                   );
                 })}
@@ -2442,7 +2442,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       type="button"
                       onClick={() => handleFieldChange("ui_theme", opt.id)}
                       aria-pressed={isSelected}
-                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl border text-left transition cursor-pointer ${
                         isSelected
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2452,7 +2452,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                         <div style={opt.card} className="w-full h-7" />
                       </div>
                       <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">{opt.label}</div>
-                      <div className="text-[9.5px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
+                      <div className="text-xs text-slate-400 font-normal mt-0.5">{opt.desc}</div>
                     </button>
                   );
                 })}
@@ -2472,14 +2472,14 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={opt.id}
                       type="button"
                       onClick={() => handleFieldChange("card_elevation", opt.id as any)}
-                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl border text-center transition cursor-pointer ${
                         isSelected
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-2 ring-purple-500/20 font-bold"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
                       <div className="text-xs font-semibold">{opt.label}</div>
-                      <div className="text-[9.5px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
+                      <div className="text-xs text-slate-400 font-normal mt-0.5">{opt.desc}</div>
                     </button>
                   );
                 })}
@@ -2499,14 +2499,14 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={opt.id}
                       type="button"
                       onClick={() => handleFieldChange("button_style", opt.id as any)}
-                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl border text-center transition cursor-pointer ${
                         isSelected
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-2 ring-purple-500/20 font-bold"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
                       <div className="text-xs font-semibold">{opt.label}</div>
-                      <div className="text-[9.5px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
+                      <div className="text-xs text-slate-400 font-normal mt-0.5">{opt.desc}</div>
                     </button>
                   );
                 })}
@@ -2534,7 +2534,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Body Text Size
                   </label>
-                  <span className="text-xs font-mono font-bold text-purple-600 dark:text-purple-400">
+                  <span className="text-xs font-mono font-semibold text-purple-600 dark:text-purple-400">
                     {form.body_font_size}
                   </span>
                 </div>
@@ -2547,7 +2547,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   onChange={(e) => handleFieldChange("body_font_size", `${e.target.value}px`)}
                   className="w-full accent-purple-600 cursor-pointer"
                 />
-                <div className="flex justify-between text-[10px] text-slate-400">
+                <div className="flex justify-between text-xs text-slate-400">
                   <span>11px (Compact)</span>
                   <span>12px (Default)</span>
                   <span>17px (Large)</span>
@@ -2559,7 +2559,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Description & Caption Size
                   </label>
-                  <span className="text-xs font-mono font-bold text-purple-600 dark:text-purple-400">
+                  <span className="text-xs font-mono font-semibold text-purple-600 dark:text-purple-400">
                     {form.description_font_size}
                   </span>
                 </div>
@@ -2572,7 +2572,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   onChange={(e) => handleFieldChange("description_font_size", `${e.target.value}px`)}
                   className="w-full accent-purple-600 cursor-pointer"
                 />
-                <div className="flex justify-between text-[10px] text-slate-400">
+                <div className="flex justify-between text-xs text-slate-400">
                   <span>10px (Subtle)</span>
                   <span>13px (Default)</span>
                   <span>15px (Prominent)</span>
@@ -2597,7 +2597,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       key={scale.id}
                       type="button"
                       onClick={() => handleFieldChange("heading_scale", scale.id as any)}
-                      className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all cursor-pointer ${
+                      className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition cursor-pointer ${
                         isActive
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-1 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2633,14 +2633,14 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     key={opt.id}
                     type="button"
                     onClick={() => handleFieldChange("density", opt.id as any)}
-                    className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                    className={`p-3 rounded-xl border text-center transition cursor-pointer ${
                       isSelected
                         ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-2 ring-purple-500/20 font-bold"
                         : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                   >
                     <div className="text-xs font-semibold">{opt.label}</div>
-                    <div className="text-[9.5px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
+                    <div className="text-xs text-slate-400 font-normal mt-0.5">{opt.desc}</div>
                   </button>
                 );
               })}
@@ -2673,7 +2673,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   placeholder="Inter Smart"
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
-                <p className="text-[10px] text-slate-400">Company brand name shown at the front of the browser tab.</p>
+                <p className="text-xs text-slate-400">Company brand name shown at the front of the browser tab.</p>
               </div>
 
               {/* Quick Title Separators */}
@@ -2689,7 +2689,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                         key={sep.value}
                         type="button"
                         onClick={() => handleSeparatorChange(sep.value)}
-                        className={`px-3 py-1.5 rounded-lg border text-xs font-mono font-bold transition-all cursor-pointer ${
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-mono font-semibold transition cursor-pointer ${
                           isSelected
                             ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-1 ring-purple-500/20"
                             : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -2715,8 +2715,8 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                 />
                 <div className="flex items-center gap-2 text-[13px] text-slate-500">
                   <span>Supported variables:</span>
-                  <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-purple-700 dark:text-purple-300 font-mono text-[10px]">{`{title}`}</code>
-                  <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-purple-700 dark:text-purple-300 font-mono text-[10px]">{`{pagename}`}</code>
+                  <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-purple-700 dark:text-purple-300 font-mono text-xs">{`{title}`}</code>
+                  <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-purple-700 dark:text-purple-300 font-mono text-xs">{`{pagename}`}</code>
                 </div>
               </div>
             </div>
@@ -2745,13 +2745,13 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                     <Video className="w-4 h-4 text-purple-600" />
                     <span>Login Page Background Video</span>
-                    <span className="text-[10px] text-slate-400 font-normal">(MP4, WebM formats)</span>
+                    <span className="text-xs text-slate-400 font-normal">(MP4, WebM formats)</span>
                   </label>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => handleFieldChange("login_bg_video_url", "/videos/login-bg.mp4")}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium text-slate-600 dark:text-slate-400 cursor-pointer"
                     >
                       <RotateCcw className="w-3 h-3" />
                       <span>Default</span>
@@ -2804,29 +2804,29 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                         alt="Logo"
                         className="h-6 w-auto max-w-[120px] object-contain drop-shadow"
                       />
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-xs">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-xs">
                         Login Live Preview
                       </span>
                     </div>
-                    <h3 className="text-base font-bold text-white tracking-tight">
+                    <h3 className="text-base font-semibold text-white tracking-tight">
                       {form.login_heading || "Sign in to your workplace"}
                     </h3>
-                    <p className="text-[11px] text-slate-300 leading-snug">
+                    <p className="text-xs text-slate-300 leading-snug">
                       {form.login_subheading || "Perfection at its finest. Workforce management portal"}
                     </p>
                   </div>
 
-                  <div className="relative flex items-center justify-between text-[11px] text-slate-300 pt-3 border-t border-white/15 mt-3" style={{ zIndex: 10 }}>
+                  <div className="relative flex items-center justify-between text-xs text-slate-300 pt-3 border-t border-white/15 mt-3" style={{ zIndex: 10 }}>
                     <span>
                       Video: <strong className="text-white font-mono">{currentLoginBgVideo.length > 40 ? currentLoginBgVideo.substring(0, 38) + "..." : currentLoginBgVideo}</strong>
                     </span>
-                    <span className="text-[10px] text-slate-400">Looping background video</span>
+                    <span className="text-xs text-slate-400">Looping background video</span>
                   </div>
                 </div>
 
                 {/* Direct Video URL Input */}
                 <div className="space-y-1.5 pt-1">
-                  <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                     Video Path or Direct MP4 URL
                   </label>
                   <div className="flex items-center gap-2">
@@ -2851,7 +2851,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
 
                 {/* Curated Video Presets */}
                 <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                     Curated Login Video Themes:
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -2866,19 +2866,19 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                           key={preset.url}
                           type="button"
                           onClick={() => handleFieldChange("login_bg_video_url", preset.url)}
-                          className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden group ${
+                          className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition cursor-pointer relative overflow-hidden group ${
                             isSelected
                               ? "border-purple-600 bg-purple-50/70 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
                               : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className={`text-[11px] font-bold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
+                            <span className={`text-xs font-semibold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
                               {preset.label}
                             </span>
                             {isSelected && <Check className="w-3.5 h-3.5 text-purple-600 shrink-0 ml-1" />}
                           </div>
-                          <span className="text-[9.5px] text-slate-400 mt-0.5 truncate">{preset.desc}</span>
+                          <span className="text-xs text-slate-400 mt-0.5 truncate">{preset.desc}</span>
                         </button>
                       );
                     })}
@@ -2932,10 +2932,10 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
           
           {/* Quick Info Box */}
           <div className="p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
-            <div className="font-bold flex items-center gap-1.5">
+            <div className="font-semibold flex items-center gap-1.5">
               <span>Instant Universal Application</span>
             </div>
-            <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed">
+            <p className="text-xs text-purple-800/80 dark:text-purple-300/80 leading-relaxed">
               When saved, all favicon changes, logos, custom colors, typography, border radius, and title formats are broadcasted universally. Every employee screen and browser tab updates automatically!
             </p>
           </div>
@@ -2949,15 +2949,15 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
             className="sticky top-[116px] space-y-2.5 z-20"
           >
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <h2 className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
               <Eye className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               <span>Real-Time Live Preview</span>
             </h2>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
+              <span className="text-xs font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
                 Always Visible
               </span>
-              <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
                 <span>Interactive</span>
               </span>
@@ -3002,25 +3002,25 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                 {/* Active Menu Item respecting sidebar_active_color */}
                 <div
                   style={{ backgroundColor: form.sidebar_active_color || "#14A092" }}
-                  className="w-7 h-7 rounded-lg flex flex-col items-center justify-center text-[8px] text-white font-bold transition-colors shadow-xs"
+                  className="w-7 h-7 rounded-lg flex flex-col items-center justify-center text-xs text-white font-semibold transition-colors shadow-xs"
                 >
                   <span>Home</span>
                 </div>
                 {/* Hover Menu Item preview respecting sidebar_hover_color */}
                 <div
                   style={{ backgroundColor: form.sidebar_hover_color || "#138A80" }}
-                  className="w-7 h-7 rounded-lg flex flex-col items-center justify-center text-[8px] text-white font-medium transition-colors"
+                  className="w-7 h-7 rounded-lg flex flex-col items-center justify-center text-xs text-white font-medium transition-colors"
                   title="Hover Preview"
                 >
                   <span>Leaves</span>
                 </div>
-                <div className="w-7 h-7 rounded-lg hover:bg-white/10 flex flex-col items-center justify-center text-[8px] text-slate-300">
+                <div className="w-7 h-7 rounded-lg hover:bg-white/10 flex flex-col items-center justify-center text-xs text-slate-300">
                   <span>WFH</span>
                 </div>
-                <div className="w-7 h-7 rounded-lg hover:bg-white/10 flex flex-col items-center justify-center text-[8px] text-slate-300">
+                <div className="w-7 h-7 rounded-lg hover:bg-white/10 flex flex-col items-center justify-center text-xs text-slate-300">
                   <span>Projects</span>
                 </div>
-                <div className="mt-auto w-5 h-5 rounded-full bg-purple-600/60 flex items-center justify-center text-[7.5px] text-white font-bold">
+                <div className="mt-auto w-5 h-5 rounded-full bg-purple-600/60 flex items-center justify-center text-xs text-white font-semibold">
                   SA
                 </div>
               </div>
@@ -3044,16 +3044,16 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                       onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
                     />
                     {form.show_header_subtitle !== false && form.header_subtitle && (
-                      <span className="text-[6.5px] tracking-widest uppercase opacity-75 font-semibold leading-none mt-0.5 truncate">
+                      <span className="text-[6.5px] opacity-75 font-semibold leading-none mt-0.5 truncate">
                         {form.header_subtitle}
                       </span>
                     )}
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    <div className="hidden sm:flex items-center gap-1.5 bg-white/15 px-2 py-0.5 rounded-md text-[10px] backdrop-blur-xs">
+                    <div className="hidden sm:flex items-center gap-1.5 bg-white/15 px-2 py-0.5 rounded-md text-xs backdrop-blur-xs">
                       <Search className="w-3 h-3" style={{ color: form.header_text_color }} />
-                      <span className="text-[10px]" style={{ color: form.header_text_color, opacity: 0.85 }}>Search</span>
+                      <span className="text-xs" style={{ color: form.header_text_color, opacity: 0.85 }}>Search</span>
                     </div>
                     {/* Header Action Icons */}
                     <div className="flex items-center gap-1" style={{ color: form.header_text_color }}>
@@ -3067,7 +3067,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                         color: form.header_text_color,
                         borderColor: form.header_text_color,
                       }}
-                      className="px-1.5 py-0.5 rounded text-[9.5px] font-semibold border border-opacity-30"
+                      className="px-1.5 py-0.5 rounded text-xs font-semibold border border-opacity-30"
                     >
                       Logout
                     </div>
@@ -3080,21 +3080,21 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     backgroundColor: form.sub_header_bg || "#ffffff",
                     fontFamily: `"${form.font_family}", sans-serif`,
                   }}
-                  className="px-3 flex items-center gap-3.5 h-7 border-b border-slate-200 dark:border-slate-800 transition-colors text-[9.5px] font-semibold overflow-hidden shrink-0"
+                  className="px-3 flex items-center gap-3.5 h-7 border-b border-slate-200 dark:border-slate-800 transition-colors text-xs font-semibold overflow-hidden shrink-0"
                 >
                   <div
                     style={{
                       color: form.sub_header_active_color || "#56348f",
                       borderBottom: `2px solid ${form.sub_header_active_color || "#56348f"}`,
                     }}
-                    className="h-full flex items-center px-0.5 uppercase tracking-wider"
+                    className="h-full flex items-center px-0.5"
                   >
                     Attendance
                   </div>
-                  <div className="text-slate-500 h-full flex items-center px-0.5 uppercase tracking-wider hover:text-slate-800">
+                  <div className="text-slate-500 h-full flex items-center px-0.5 hover:text-slate-800">
                     Timelog
                   </div>
-                  <div className="text-slate-500 h-full flex items-center px-0.5 uppercase tracking-wider hover:text-slate-800">
+                  <div className="text-slate-500 h-full flex items-center px-0.5 hover:text-slate-800">
                     Shifts
                   </div>
                 </div>
@@ -3149,19 +3149,19 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     <div className="relative z-10 space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[9px] font-bold text-white shadow-inner">
+                          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-semibold text-white shadow-inner">
                             SA
                           </div>
                           <div>
-                            <div className="text-[11px] font-bold text-white leading-tight">Good Day, Administrator</div>
-                            <div className="text-[8px] text-white/80 font-medium truncate max-w-[140px]">{form.header_subtitle || "PERFECTION AT ITS FINEST"}</div>
+                            <div className="text-xs font-semibold text-white leading-tight">Good Day, Administrator</div>
+                            <div className="text-xs text-white/80 font-medium truncate max-w-[140px]">{form.header_subtitle || "PERFECTION AT ITS FINEST"}</div>
                           </div>
                         </div>
-                        <span className="text-[7.5px] px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 font-bold border border-emerald-400/30 shrink-0">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 font-semibold border border-emerald-400/30 shrink-0">
                           ● In 10:02 AM
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-[7.5px] text-white/75 pt-1 border-t border-white/10">
+                      <div className="flex items-center justify-between text-xs text-white/75 pt-1 border-t border-white/10">
                         <span>Dashboard Hero Banner</span>
                         <span className="font-mono">10:00 AM - 07:00 PM</span>
                       </div>
@@ -3171,8 +3171,8 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                   {/* Heading Sample */}
                   <div className="space-y-0.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider">Heading Preview</span>
-                      <span className="text-[9.5px] font-mono text-purple-600 dark:text-purple-400">{form.heading_scale} scale</span>
+                      <span className="text-xs font-semibold text-slate-400">Heading Preview</span>
+                      <span className="text-xs font-mono text-purple-600 dark:text-purple-400">{form.heading_scale} scale</span>
                     </div>
                     <h3
                       style={{
@@ -3184,7 +3184,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                           ? "22px"
                           : "17px",
                       }}
-                      className="font-bold text-slate-900 dark:text-white leading-tight"
+                      className="font-semibold text-slate-900 dark:text-white leading-tight"
                     >
                       Attendance Management
                     </h3>
@@ -3192,7 +3192,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
 
                   {/* Description Sample */}
                   <div className="space-y-0.5">
-                    <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider">Description</span>
+                    <span className="text-xs font-semibold text-slate-400">Description</span>
                     <p
                       style={{ fontSize: form.description_font_size }}
                       className="text-slate-500 dark:text-slate-400 leading-snug line-clamp-2"
@@ -3213,13 +3213,13 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                         ? "none"
                         : "0 1px 3px rgba(0,0,0,0.05)",
                     }}
-                    className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1 transition-all"
+                    className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1 transition"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider">
+                      <span className="text-xs font-semibold text-slate-400">
                         Card Container ({currentRadius})
                       </span>
-                      <span className="text-[9px] font-mono text-purple-600 dark:text-purple-400">
+                      <span className="text-xs font-mono text-purple-600 dark:text-purple-400">
                         {form.card_elevation || "subtle"}
                       </span>
                     </div>
@@ -3240,14 +3240,14 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                           backgroundColor: form.primary_color,
                           borderRadius: currentBtnRadius,
                         }}
-                        className="px-3 py-1 text-white text-[11px] font-semibold shadow-xs hover:brightness-110 transition-all cursor-pointer"
+                        className="px-3 py-1 text-white text-xs font-semibold shadow-xs hover:brightness-110 transition cursor-pointer"
                       >
                         Primary Action
                       </button>
                       <button
                         type="button"
                         style={{ borderRadius: currentBtnRadius }}
-                        className="px-2.5 py-1 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        className="px-2.5 py-1 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
                       >
                         Secondary
                       </button>
@@ -3256,7 +3256,7 @@ Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                           borderColor: form.primary_color,
                           color: form.primary_color,
                         }}
-                        className="px-2 py-0.5 rounded-full text-[9.5px] font-bold border bg-white dark:bg-slate-900"
+                        className="px-2 py-0.5 rounded-full text-xs font-semibold border bg-white dark:bg-slate-900"
                       >
                         Active Tag
                       </span>

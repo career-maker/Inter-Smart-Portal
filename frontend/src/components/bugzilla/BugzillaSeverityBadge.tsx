@@ -43,7 +43,7 @@ export function BugzillaSeverityBadge({ severity, className = "", showIcon = tru
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-xs font-semibold uppercase tracking-wider ${colors} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-xs font-semibold ${colors} ${className}`}
     >
       {showIcon && icon}
       <span>{s}</span>

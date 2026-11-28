@@ -62,7 +62,7 @@ export function DeleteAllTasksModal({ isOpen, teamId, onClose, onDeleted }: Prop
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div className="space-y-1">
-              <h2 id="del-all-title" className="text-base font-bold text-slate-900 dark:text-white">
+              <h2 id="del-all-title" className="text-base font-semibold text-slate-900 dark:text-white">
                 Delete all tasks{teamName ? ` of ${teamName}` : ""}?
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-300">

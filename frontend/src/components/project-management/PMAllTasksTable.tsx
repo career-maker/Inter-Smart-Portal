@@ -224,7 +224,7 @@ export function PMAllTasksTable({
             type="button"
             onClick={onToggleTodayOnly}
             style={showTodayOnly ? { backgroundColor: "#56348f", color: "#ffffff" } : undefined}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border cursor-pointer shadow-xs ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition border cursor-pointer shadow-xs ${
               showTodayOnly
                 ? "bg-[#56348f] border-[#56348f] !text-white shadow-sm"
                 : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 !text-slate-800 dark:!text-slate-100 hover:bg-purple-50 dark:hover:bg-slate-800"
@@ -240,7 +240,7 @@ export function PMAllTasksTable({
       <div className="overflow-x-auto table-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px]">
+            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-semibold text-xs">
               <th className="py-3.5 px-4 min-w-[220px]">PROJECT</th>
               <th className="py-3.5 px-4 min-w-[140px]">PHASE</th>
               <th className="py-3.5 px-4 min-w-[130px]">STATUS</th>
@@ -296,7 +296,7 @@ export function PMAllTasksTable({
                         {task.project?.name ? `${task.project.name} / ${task.title}` : task.title}
                       </div>
                       {(task.project as any)?.category && (
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5 font-normal">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 block mt-0.5 font-normal">
                           {(task.project as any).category}
                         </span>
                       )}

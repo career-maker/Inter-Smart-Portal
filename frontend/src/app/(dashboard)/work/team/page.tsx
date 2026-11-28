@@ -30,7 +30,7 @@ export default function TeamPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"><Users className="h-7 w-7 text-amber-500" /> My team</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"><Users className="h-7 w-7 text-amber-500" /> My team</h1>
         <p className="text-slate-600 dark:text-slate-300">Work, time and leave for {d.month}. Give each person their monthly feedback here.</p>
       </div>
       <Card><CardContent className="p-0 overflow-x-auto">

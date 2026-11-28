@@ -57,7 +57,7 @@ export function CSVImport({ onSuccess }: { onSuccess?: () => void }) {
   return (
     <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6 space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Mass Import Employees</h2>
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Mass Import Employees</h2>
         <p className="text-slate-500 dark:text-slate-400">Upload a CSV file to import multiple employees at once</p>
       </div>
 

@@ -111,7 +111,7 @@ export default function BugReportsPage() {
             <span>/</span>
             <span className="text-slate-900 dark:text-white">QA Bug Reports</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2.5">
             <Bug className="w-6 h-6 text-[#56348f]" />
             <span>Bug Reports & QA Metrics</span>
           </h1>
@@ -149,7 +149,7 @@ export default function BugReportsPage() {
             <div className="mt-1 text-[28px] leading-8 font-semibold tabular-nums text-slate-900">
               {summary.total_bugs}
             </div>
-            <span className="text-[11px] text-slate-400">All recorded QA issues</span>
+            <span className="text-xs text-slate-400">All recorded QA issues</span>
           </div>
 
           <div className="rounded-[10px] bg-white border border-slate-200 p-5">
@@ -159,7 +159,7 @@ export default function BugReportsPage() {
             <div className="mt-1 text-[28px] leading-8 font-semibold tabular-nums text-slate-900">
               {summary.html_bugs}
             </div>
-            <span className="text-[11px] text-slate-400">UI / Markup defects</span>
+            <span className="text-xs text-slate-400">UI / Markup defects</span>
           </div>
 
           <div className="rounded-[10px] bg-white border border-slate-200 p-5">
@@ -169,7 +169,7 @@ export default function BugReportsPage() {
             <div className="mt-1 text-[28px] leading-8 font-semibold tabular-nums text-slate-900">
               {summary.functional_bugs}
             </div>
-            <span className="text-[11px] text-slate-400">Logic & workflow bugs</span>
+            <span className="text-xs text-slate-400">Logic & workflow bugs</span>
           </div>
 
           <div className="rounded-[10px] bg-white border border-slate-200 p-5">
@@ -179,7 +179,7 @@ export default function BugReportsPage() {
             <div className="mt-1 text-[28px] leading-8 font-semibold tabular-nums text-slate-900">
               {summary.tasks_with_bugs}
             </div>
-            <span className="text-[11px] text-slate-400">
+            <span className="text-xs text-slate-400">
               {summary.avg_bugs_per_task} avg bugs / task
             </span>
           </div>
@@ -244,8 +244,8 @@ export default function BugReportsPage() {
                 <tr>
                   <td colSpan={9} className="py-16 text-center text-slate-500">
                     <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500 opacity-80 mb-2" />
-                    <p className="font-semibold text-slate-700 dark:text-slate-300">No bugs found!</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="font-semibold text-slate-700 dark:text-slate-300">No bugs found</p>
+                    <p className="text-xs text-slate-400 mt-0.5">
                       No tasks matched your current filter criteria.
                     </p>
                   </td>
@@ -265,12 +265,12 @@ export default function BugReportsPage() {
                       <td className="py-3.5 px-4 max-w-xs">
                         <Link
                           href={`/project-management/tasks/${task.id}`}
-                          className="font-bold text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 line-clamp-1"
+                          className="font-semibold text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 line-clamp-1"
                         >
                           {task.title}
                         </Link>
                         {task.project && (
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                          <div className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
                             {task.project.name}
                           </div>
                         )}

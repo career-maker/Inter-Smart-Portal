@@ -235,7 +235,7 @@ export default function LeaveBalancesPage() {
             <span>/</span>
             <span className="text-slate-900 dark:text-white">Leave Balances</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2.5">
             <Shield className="w-6 h-6 text-[#56348f]" />
             <span>Leave Balance Management</span>
           </h1>
@@ -256,7 +256,7 @@ export default function LeaveBalancesPage() {
               fontSize: "12px",
               fontWeight: 600,
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition cursor-pointer"
           >
             <Settings2 className="w-4 h-4 !text-white" />
             <span className="!text-white">Leave Policy Settings</span>
@@ -313,7 +313,7 @@ export default function LeaveBalancesPage() {
           <button
             type="button"
             onClick={() => setStatusFilter("all")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
               statusFilter === "all"
                 ? "bg-[#56348f] text-white border-[#56348f]"
                 : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
@@ -324,7 +324,7 @@ export default function LeaveBalancesPage() {
           <button
             type="button"
             onClick={() => setStatusFilter("in_probation")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
               statusFilter === "in_probation"
                 ? "bg-amber-600 text-white border-amber-600"
                 : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-amber-300"
@@ -335,7 +335,7 @@ export default function LeaveBalancesPage() {
           <button
             type="button"
             onClick={() => setStatusFilter("cleared_manually")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
               statusFilter === "cleared_manually"
                 ? "bg-purple-600 text-white border-purple-600"
                 : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
@@ -346,7 +346,7 @@ export default function LeaveBalancesPage() {
           <button
             type="button"
             onClick={() => setStatusFilter("custom_allocation")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
               statusFilter === "custom_allocation"
                 ? "bg-emerald-600 text-white border-emerald-600"
                 : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-emerald-300"
@@ -362,7 +362,7 @@ export default function LeaveBalancesPage() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px] text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+              <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-semibold text-xs">
                 <th className="py-3.5 px-4">Employee</th>
                 <th className="py-3.5 px-4">Joining Date</th>
                 <th className="py-3.5 px-4">Probation Status</th>
@@ -384,8 +384,8 @@ export default function LeaveBalancesPage() {
                     <tr key={emp.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
                       {/* Name & Code */}
                       <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 dark:text-white">{emp.name}</div>
-                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                        <div className="font-semibold text-slate-900 dark:text-white">{emp.name}</div>
+                        <div className="text-xs text-slate-400 flex items-center gap-1.5">
                           <span>{emp.employee_code}</span>
                           <span>•</span>
                           <span>{emp.designation}</span>
@@ -400,19 +400,19 @@ export default function LeaveBalancesPage() {
                       {/* Probation Status */}
                       <td className="py-3 px-4">
                         {emp.probation_cleared_manually ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800">
                             Cleared Manually
                           </span>
                         ) : emp.is_in_probation ? (
                           <div className="space-y-0.5">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800">
                               <Clock className="w-3 h-3 text-amber-500" />
                               In Probation ({emp.days_remaining}d left)
                             </span>
-                            <div className="text-[10px] text-slate-400">Ends: {emp.probation_end_date}</div>
+                            <div className="text-xs text-slate-400">Ends: {emp.probation_end_date}</div>
                           </div>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
                             <Check className="w-3 h-3 text-emerald-500" />
                             Completed
                           </span>
@@ -430,7 +430,7 @@ export default function LeaveBalancesPage() {
                             {emp.sick_leave_balance} SL
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                           <span>{emp.casual_leave_balance} Regular</span>
                           {emp.cl_carry_forward > 0 ? (
                             <span className="text-purple-600 dark:text-purple-400 font-semibold"> + {emp.cl_carry_forward} Carry-Fwd</span>
@@ -444,10 +444,10 @@ export default function LeaveBalancesPage() {
                       <td className="py-3 px-4">
                         {emp.has_custom_allocation ? (
                           <div className="space-y-0.5">
-                            <span className="font-bold text-purple-700 dark:text-purple-300">
+                            <span className="font-semibold text-purple-700 dark:text-purple-300">
                               +{emp.effective_monthly_cl} CL / +{emp.effective_monthly_sl} SL
                             </span>
-                            <span className="block text-[10px] font-semibold text-purple-500">Custom override</span>
+                            <span className="block text-xs font-semibold text-purple-500">Custom override</span>
                           </div>
                         ) : (
                           <div className="text-slate-600 dark:text-slate-400">
@@ -463,7 +463,7 @@ export default function LeaveBalancesPage() {
                             <button
                               type="button"
                               onClick={() => handleClearProbation(emp)}
-                              className="px-2.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[11px] font-bold cursor-pointer"
+                              className="px-2.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-semibold cursor-pointer"
                               title="Clear probation now to enable auto-allocation"
                             >
                               Clear Probation
@@ -473,7 +473,7 @@ export default function LeaveBalancesPage() {
                           <button
                             type="button"
                             onClick={() => handleOpenAdjust(emp)}
-                            className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-[11px] font-semibold border border-slate-200 dark:border-slate-700 cursor-pointer"
+                            className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 cursor-pointer"
                             title="Adjust balance manually without breaking auto allocations"
                           >
                             Adjust
@@ -489,7 +489,7 @@ export default function LeaveBalancesPage() {
                               fontSize: "11px",
                               fontWeight: 600,
                             }}
-                            className="px-2.5 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-[11px] font-bold cursor-pointer"
+                            className="px-2.5 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold cursor-pointer"
                           >
                             Configure
                           </button>
@@ -523,7 +523,7 @@ export default function LeaveBalancesPage() {
             >
               <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 p-6 pb-4 shrink-0">
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                     Manual Leave Balance Adjustment: {adjustingEmployee.name}
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">
@@ -542,7 +542,7 @@ export default function LeaveBalancesPage() {
               <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar text-xs">
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-purple-700 dark:text-purple-300">
+                    <label className="block font-semibold text-purple-700 dark:text-purple-300">
                       Casual Leave (Current)
                     </label>
                     <input
@@ -551,12 +551,12 @@ export default function LeaveBalancesPage() {
                       min="0"
                       value={adjCL}
                       onChange={(e) => setAdjCL(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-semibold"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-purple-700 dark:text-purple-300">
+                    <label className="block font-semibold text-purple-700 dark:text-purple-300">
                       CL Carry Forward
                     </label>
                     <input
@@ -565,12 +565,12 @@ export default function LeaveBalancesPage() {
                       min="0"
                       value={adjCF}
                       onChange={(e) => setAdjCF(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-semibold"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-rose-700 dark:text-rose-300">
+                    <label className="block font-semibold text-rose-700 dark:text-rose-300">
                       Sick Leave (SL)
                     </label>
                     <input
@@ -579,13 +579,13 @@ export default function LeaveBalancesPage() {
                       min="0"
                       value={adjSL}
                       onChange={(e) => setAdjSL(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-semibold"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300">
                     Adjustment Remarks / Audit Reason <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -618,7 +618,7 @@ export default function LeaveBalancesPage() {
                     fontSize: "12px",
                     fontWeight: 600,
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
                 >
                   {savingAdjustment ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Check className="w-3.5 h-3.5 !text-white" />}
                   <span className="!text-white">Save Balance Adjustment</span>
@@ -648,7 +648,7 @@ export default function LeaveBalancesPage() {
             >
               <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 p-6 pb-4 shrink-0">
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                     Configure Leave Policy: {configuringEmployee.name}
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">{configuringEmployee.employee_code} • {configuringEmployee.designation}</p>
@@ -665,7 +665,7 @@ export default function LeaveBalancesPage() {
               <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar text-xs">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-slate-700 dark:text-slate-300">
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300">
                       Custom Monthly CL (Optional)
                     </label>
                     <input
@@ -681,7 +681,7 @@ export default function LeaveBalancesPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-slate-700 dark:text-slate-300">
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300">
                       Custom Monthly SL (Optional)
                     </label>
                     <input
@@ -698,7 +698,7 @@ export default function LeaveBalancesPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300">
                     Custom Probation Period in Months (Optional)
                   </label>
                   <input
@@ -710,11 +710,11 @@ export default function LeaveBalancesPage() {
                     onChange={(e) => setCustomProbation(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
                   />
-                  <p className="text-[10px] text-slate-400">Leave blank to use the common company probation period.</p>
+                  <p className="text-xs text-slate-400">Leave blank to use the common company probation period.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300">
                     Internal Notes / Reason
                   </label>
                   <textarea
@@ -746,7 +746,7 @@ export default function LeaveBalancesPage() {
                     fontSize: "12px",
                     fontWeight: 600,
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
                 >
                   {savingConfig ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Save className="w-3.5 h-3.5 !text-white" />}
                   <span className="!text-white">Save Override</span>

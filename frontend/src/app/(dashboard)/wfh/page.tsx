@@ -54,7 +54,7 @@ function DurationBadge({ type }: { type: string }) {
   };
   const m = map[type] ?? { cls: "bg-slate-500/15 text-slate-700 dark:text-slate-300 border-slate-500/30", label: type };
   return (
-    <span className={`inline-flex items-center text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${m.cls}`}>
+    <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full border ${m.cls}`}>
       {m.label}
     </span>
   );
@@ -148,7 +148,7 @@ export default function WfhPage() {
     setActionLoading(true);
     try {
       const res = await api.post(`/wfh-requests/${id}/status`, { status: "Approved" });
-      setSuccessMessage(res.data?.message || "WFH request approved successfully!");
+      setSuccessMessage(res.data?.message || "WFH request approved successfully");
       setTimeout(() => setSuccessMessage(null), 4000);
       fetchRequests(currentPage);
     } catch (err: any) {
@@ -223,19 +223,19 @@ export default function WfhPage() {
   const getStatusBadge = (req: any) => {
     if (req.status === "Cancelled")
       return (
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-500/15 text-slate-600 dark:text-slate-400 border border-slate-500/20">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-500/15 text-slate-600 dark:text-slate-400 border border-slate-500/20">
           <XCircle className="w-3 h-3" /> Cancelled
         </span>
       );
     if (req.status === "Approved")
       return (
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
           <CheckCircle className="w-3 h-3" /> Approved
         </span>
       );
     if (req.status === "Rejected")
       return (
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20">
           <XCircle className="w-3 h-3" /> Rejected
         </span>
       );
@@ -251,7 +251,7 @@ export default function WfhPage() {
     }
 
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
         <Clock className="w-3 h-3" /> {pendingText}
       </span>
     );
@@ -276,7 +276,7 @@ export default function WfhPage() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setViewReq(null)} />
           <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">WFH Request Details</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">WFH Request Details</h2>
               <button onClick={() => setViewReq(null)} className="text-slate-400 hover:text-slate-600 cursor-pointer"><X className="w-4 h-4" /></button>
             </div>
             <div className="px-6 py-5 space-y-3 text-sm text-slate-700 dark:text-slate-300">
@@ -312,7 +312,7 @@ export default function WfhPage() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setRejectDialogId(null)} />
           <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Reject WFH Request</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Reject WFH Request</h2>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Please provide a reason for the employee.</p>
             </div>
             <div className="px-6 py-5">
@@ -335,7 +335,7 @@ export default function WfhPage() {
               <button
                 onClick={submitReject}
                 disabled={actionLoading || !rejectReason.trim()}
-                className="flex items-center gap-2 px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 Confirm Rejection
@@ -366,14 +366,14 @@ export default function WfhPage() {
             <Home className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-base md:text-lg font-bold text-slate-900 dark:text-white">
+            <h2 className="text-base md:text-lg font-semibold text-slate-900 dark:text-white">
               {isSuperAdmin ? (
                 pendingCount === 0 ? "No pending WFH requests across company" : (
-                  <>There are <span className="text-amber-600 dark:text-amber-400 font-extrabold mx-1">{pendingCount}</span> pending WFH request{pendingCount !== 1 ? "s" : ""} across the company</>
+                  <>There are <span className="text-amber-600 dark:text-amber-400 font-semibold mx-1">{pendingCount}</span> pending WFH request{pendingCount !== 1 ? "s" : ""} across the company</>
                 )
               ) : isTeamLead ? (
                 pendingCount === 0 ? "No pending WFH requests in your team" : (
-                  <>You have <span className="text-amber-600 dark:text-amber-400 font-extrabold mx-1">{pendingCount}</span> pending WFH request{pendingCount !== 1 ? "s" : ""} in your team</>
+                  <>You have <span className="text-amber-600 dark:text-amber-400 font-semibold mx-1">{pendingCount}</span> pending WFH request{pendingCount !== 1 ? "s" : ""} in your team</>
                 )
               ) : (
                 "Work From Home"
@@ -396,7 +396,7 @@ export default function WfhPage() {
             <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setActiveView("team")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                   activeView === "team"
                     ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -407,7 +407,7 @@ export default function WfhPage() {
               </button>
               <button
                 onClick={() => setActiveView("my")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                   activeView === "my"
                     ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -455,7 +455,7 @@ export default function WfhPage() {
           {/* Table Header and Filters */}
           <div className="px-6 py-4 border-b border-slate-200/90 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-850">
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-white">
                 {activeView === "my"
                   ? "My WFH Requests"
                   : isSuperAdmin
@@ -474,7 +474,7 @@ export default function WfhPage() {
 
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Status</label>
+                <label className="text-xs font-semibold text-slate-500">Status</label>
                 <SelectCompat
                   value={filterStatus}
                   onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
@@ -489,7 +489,7 @@ export default function WfhPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Session Type</label>
+                <label className="text-xs font-semibold text-slate-500">Session Type</label>
                 <SelectCompat
                   value={filterDuration}
                   onChange={(e) => { setFilterDuration(e.target.value); setCurrentPage(1); }}
@@ -503,7 +503,7 @@ export default function WfhPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">From Date</label>
+                <label className="text-xs font-semibold text-slate-500">From Date</label>
                 <input
                   type="date"
                   value={filterFromDate}
@@ -513,7 +513,7 @@ export default function WfhPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">To Date</label>
+                <label className="text-xs font-semibold text-slate-500">To Date</label>
                 <input
                   type="date"
                   value={filterToDate}
@@ -525,7 +525,7 @@ export default function WfhPage() {
               {(filterStatus || filterDuration || filterFromDate || filterToDate) && (
                 <button
                   onClick={clearFilters}
-                  className="mt-4 text-[11px] uppercase font-bold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
+                  className="mt-4 text-xs font-semibold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
                 >
                   Clear
                 </button>
@@ -593,17 +593,17 @@ export default function WfhPage() {
                                 name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
                                 userId={req.user_id || req.user?.id}
                                 employeeCode={req.user?.employee_code}
-                                className="w-7 h-7 rounded-full text-[10px] font-bold bg-amber-600 text-white shrink-0"
+                                className="w-7 h-7 rounded-full text-xs font-semibold bg-amber-600 text-white shrink-0"
                               />
                               <div className="min-w-0 truncate">
-                                <h3 className="font-bold text-[12px] text-slate-900 dark:text-white leading-tight truncate">
+                                <h3 className="font-semibold text-[12px] text-slate-900 dark:text-white leading-tight truncate">
                                   <RoyalName
                                     name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
                                     userId={req.user_id || req.user?.id}
                                     employeeCode={req.user?.employee_code}
                                   />
                                 </h3>
-                                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                                   {req.user?.designation || req.user?.role || "Employee"}
                                   {req.user?.employee_code && ` • ${req.user.employee_code}`}
                                 </p>
@@ -624,7 +624,7 @@ export default function WfhPage() {
                           </div>
                         </td>
 
-                        <td className="px-3 py-3 align-middle text-center font-bold text-slate-900 dark:text-white text-xs">
+                        <td className="px-3 py-3 align-middle text-center font-semibold text-slate-900 dark:text-white text-xs">
                           {calcWfhDays(req)}
                         </td>
 
@@ -635,13 +635,13 @@ export default function WfhPage() {
                               type="button"
                               onClick={() => openAttachment(req)}
                               style={{ fontSize: 12, lineHeight: "16px", textAlign: "left", justifyContent: "flex-start" }}
-                              className="mt-0.5 flex w-full items-center justify-start gap-1 text-left text-[10px] font-medium text-blue-600 hover:underline cursor-pointer"
+                              className="mt-0.5 flex w-full items-center justify-start gap-1 text-left text-xs font-medium text-blue-600 hover:underline cursor-pointer"
                             >
                               <Paperclip className="w-3 h-3" /> View attachment
                             </button>
                           )}
                           {req.remarks && (
-                            <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 italic">Note: {req.remarks}</p>
+                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5 italic">Note: {req.remarks}</p>
                           )}
                         </td>
 
@@ -677,7 +677,7 @@ export default function WfhPage() {
                                   }}
                                   disabled={actionLoading}
                                   title="Reject WFH"
-                                  className="px-2 py-1.5 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1"
+                                  className="px-2 py-1.5 rounded-md text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1"
                                 >
                                   <XCircle className="w-3.5 h-3.5 text-rose-500" />
                                   Reject

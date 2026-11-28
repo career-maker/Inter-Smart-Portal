@@ -101,7 +101,7 @@ export function SearchableCoordinatorSelect({
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen((prev) => !prev)}
-        className={`w-full px-3.5 py-2 rounded-[6px] bg-white dark:bg-[#1e293b] border text-left text-xs sm:text-sm flex items-center justify-between transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color,#0F766E)]/20 focus:border-[var(--portal-primary-color,#0F766E)] ${
+        className={`w-full px-3.5 py-2 rounded-[6px] bg-white dark:bg-[#1e293b] border text-left text-xs sm:text-sm flex items-center justify-between transition duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color,#0F766E)]/20 focus:border-[var(--portal-primary-color,#0F766E)] ${
           isOpen
             ? "border-[var(--portal-primary-color,#0F766E)] ring-2 ring-[var(--portal-primary-color,#0F766E)]/20 shadow-md"
             : "border-slate-300 dark:border-slate-700 hover:border-[var(--portal-primary-color,#0F766E)]"
@@ -179,7 +179,7 @@ export function SearchableCoordinatorSelect({
             <button
               type="button"
               onClick={() => handleSelect(null)}
-              className={`w-full text-left px-3.5 py-2 flex items-center justify-between text-xs rounded-[5px] transition-all duration-300 ${
+              className={`w-full text-left px-3.5 py-2 flex items-center justify-between text-xs rounded-[5px] transition duration-300 ${
                 !value
                   ? "bg-[var(--portal-primary-color,#0F766E)]/10 text-[var(--portal-primary-color,#0F766E)] font-semibold"
                   : "hover:bg-[var(--portal-primary-color,#0F766E)]/10 hover:text-[var(--portal-primary-color,#0F766E)] dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-400"
@@ -202,7 +202,7 @@ export function SearchableCoordinatorSelect({
                     type="button"
                     key={c.id}
                     onClick={() => handleSelect(c.id)}
-                    className={`w-full text-left px-3.5 py-2 flex items-center justify-between text-xs rounded-[5px] transition-all duration-300 ${
+                    className={`w-full text-left px-3.5 py-2 flex items-center justify-between text-xs rounded-[5px] transition duration-300 ${
                       isSelected
                         ? "bg-[var(--portal-primary-color,#0F766E)]/15 text-[var(--portal-primary-color,#0F766E)] font-semibold"
                         : "hover:bg-[var(--portal-primary-color,#0F766E)]/10 hover:text-[var(--portal-primary-color,#0F766E)] dark:hover:bg-slate-800/60 text-slate-800 dark:text-slate-200"
@@ -212,12 +212,12 @@ export function SearchableCoordinatorSelect({
                       <div className="truncate font-medium">
                         {c.first_name} {c.last_name}
                         {c.employee_code && (
-                          <span className="text-slate-400 font-normal ml-1 text-[11px]">
+                          <span className="text-slate-400 font-normal ml-1 text-xs">
                             ({c.employee_code})
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] text-slate-400 dark:text-slate-500 block truncate">
+                      <span className="text-xs text-slate-400 dark:text-slate-500 block truncate">
                         {c.department || "General"}
                       </span>
                     </div>
@@ -231,7 +231,7 @@ export function SearchableCoordinatorSelect({
           </div>
 
           {/* Footer count indicator */}
-          <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
+          <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400 flex items-center justify-between">
             <span>
               Showing {filtered.length} of {coordinators.length} employees
             </span>

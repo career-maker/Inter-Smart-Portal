@@ -310,7 +310,7 @@ export default function GamePage() {
                   setShowInGameLeaderboard(false);
                   setActiveGame(null);
                 }}
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/15 shadow-md transition-all cursor-pointer group"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs border border-white/15 shadow-md transition cursor-pointer group"
                 title="Return to Arcade (Press Esc)"
               >
                 <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:-translate-x-1" style={{ color: config.accentColor }} />
@@ -319,7 +319,7 @@ export default function GamePage() {
               <div className="hidden sm:flex items-center gap-2 text-xs text-white/70">
                 <span className="font-semibold text-white">{config.title}</span>
                 <span className="text-white/40">•</span>
-                <span className="text-[11px] text-white/50">Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/80 text-[10px] font-mono">Esc</kbd> to exit</span>
+                <span className="text-xs text-white/50">Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/80 text-xs font-mono">Esc</kbd> to exit</span>
               </div>
             </div>
 
@@ -327,7 +327,7 @@ export default function GamePage() {
               {/* Leaderboard Toggle Button */}
               <button
                 onClick={() => setShowInGameLeaderboard((prev) => !prev)}
-                className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
                   showInGameLeaderboard
                     ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md scale-102"
                     : "bg-white/10 hover:bg-white/20 text-amber-300 border-amber-400/30"
@@ -363,7 +363,7 @@ export default function GamePage() {
           {showInGameLeaderboard && (
             <div className="absolute top-12 sm:top-14 right-0 bottom-0 w-full sm:w-[420px] bg-slate-900/95 border-l border-white/10 z-[1000001] shadow-2xl p-4 overflow-y-auto animate-in slide-in-from-right duration-200">
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
-                <div className="flex items-center gap-2 text-white font-extrabold text-sm">
+                <div className="flex items-center gap-2 text-white font-semibold text-sm">
                   <Trophy className="w-4 h-4 text-amber-400" />
                   <span>Workplace High Scores</span>
                 </div>
@@ -394,7 +394,7 @@ export default function GamePage() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => setActiveGame(null)}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs border border-slate-200 dark:border-slate-700 shadow-xs transition-all cursor-pointer group"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold text-xs border border-slate-200 dark:border-slate-700 shadow-xs transition cursor-pointer group"
           >
             <ArrowLeft className="w-4 h-4 text-[#56348f] dark:text-purple-400 group-hover:-translate-x-1 transition-transform" />
             <span>Back to Games</span>
@@ -410,13 +410,13 @@ export default function GamePage() {
   return (
     <div className="w-full py-4 sm:py-8 px-3 sm:px-6 space-y-6 sm:space-y-8">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-[#1e1b4b] to-slate-900 text-white p-6 sm:p-8 shadow-xl border border-indigo-500/20">
+      <div className="relative overflow-hidden rounded-3xl bg-indigo-900 text-white p-6 sm:p-8 shadow-xl border border-indigo-500/20">
         <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-bold text-indigo-300 border border-white/10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-indigo-300 border border-white/10">
             <Gamepad2 className="w-3.5 h-3.5 text-indigo-400" />
             <span>InterSmart Arcade & Training Games</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white leading-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white leading-tight">
             Play, Learn & Compete
           </h1>
           <p className="text-sm text-indigo-200/85 leading-relaxed">
@@ -452,7 +452,7 @@ export default function GamePage() {
         <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/60 overflow-x-auto [scrollbar-width:none]">
           <button
             onClick={() => setSelectedCategory("all")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
               selectedCategory === "all"
                 ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
@@ -462,7 +462,7 @@ export default function GamePage() {
           </button>
           <button
             onClick={() => setSelectedCategory("arcade")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
               selectedCategory === "arcade"
                 ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
@@ -472,7 +472,7 @@ export default function GamePage() {
           </button>
           <button
             onClick={() => setSelectedCategory("puzzle")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
               selectedCategory === "puzzle"
                 ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
@@ -482,7 +482,7 @@ export default function GamePage() {
           </button>
           <button
             onClick={() => setSelectedCategory("qa")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
               selectedCategory === "qa"
                 ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
@@ -510,7 +510,7 @@ export default function GamePage() {
         {filteredGames.map((game) => (
           <div
             key={game.id}
-            className="flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group hover:-translate-y-1"
+            className="flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 shadow-md hover:shadow-xl transition duration-300 overflow-hidden group hover:-translate-y-1"
           >
             {/* Card Preview Header with Generated Cover Art */}
             <div className="relative h-48 sm:h-52 overflow-hidden border-b border-slate-200 dark:border-slate-700 group/header bg-slate-950">
@@ -518,7 +518,7 @@ export default function GamePage() {
               <img
                 src={game.image}
                 alt={game.title}
-                className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-108"
+                className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out"
                 loading="lazy"
               />
 
@@ -528,23 +528,23 @@ export default function GamePage() {
               {/* Top Badges */}
               <div className="relative z-10 p-4 flex items-center justify-between">
                 <span
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md text-[10px] font-black border border-white/15 shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md text-xs font-semibold border border-white/15 shadow-sm"
                   style={{ color: game.accentColor }}
                 >
                   {game.tag}
                 </span>
-                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-md border ${game.badgeColor}`}>
+                <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-md backdrop-blur-md border ${game.badgeColor}`}>
                   {game.badge}
                 </span>
               </div>
 
               {/* Bottom Title & Icon Overlay */}
               <div className="absolute bottom-3.5 left-4 right-4 z-10 flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-xl shadow-lg shrink-0 group-hover:scale-110 transition-transform">
+                <div className="w-11 h-11 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-xl shadow-lg shrink-0 transition-transform">
                   {game.icon}
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-lg sm:text-xl font-black text-white leading-tight drop-shadow-md truncate">
+                  <h2 className="text-lg sm:text-xl font-semibold text-white leading-tight drop-shadow-md truncate">
                     {game.title}
                   </h2>
                   <p className="text-xs text-slate-300 font-medium drop-shadow-xs truncate">
@@ -563,25 +563,25 @@ export default function GamePage() {
               <div className="grid grid-cols-3 gap-2 py-2 border-y border-slate-100 dark:border-slate-700/60 text-center">
                 {game.stats.map(([lbl, val], idx) => (
                   <div key={idx} className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50">
-                    <div className="text-[10px] text-slate-400 font-semibold uppercase">{lbl}</div>
-                    <div className="text-xs font-bold text-slate-800 dark:text-slate-100 mt-0.5" style={idx === 1 ? { color: game.accentColor } : {}}>
+                    <div className="text-xs text-slate-400 font-semibold">{lbl}</div>
+                    <div className="text-xs font-semibold text-slate-800 dark:text-slate-100 mt-0.5" style={idx === 1 ? { color: game.accentColor } : {}}>
                       {val}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-[11px] font-bold">
+              <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs font-semibold">
                 <span className="flex items-center gap-1.5 truncate">
                   <Trophy className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">CHAMPION</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">CHAMPION</span>
                   <span className="truncate">{TOP_RECORDS[game.id || ""] || "Top Champion"}</span>
                 </span>
               </div>
 
               <button
                 onClick={() => setActiveGame(game.id)}
-                className={`w-full py-3 px-4 rounded-xl bg-gradient-to-r ${game.buttonGradient} font-black text-sm border flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer`}
+                className={`w-full py-3 px-4 rounded-xl ${game.buttonGradient} font-semibold text-sm border flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition cursor-pointer`}
               >
                 <Maximize2 className="w-4 h-4" />
                 <span>{game.launchText}</span>
@@ -594,11 +594,11 @@ export default function GamePage() {
       {filteredGames.length === 0 && (
         <div className="p-12 text-center rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700">
           <div className="text-3xl mb-2">🎮</div>
-          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">No games matched your filter</h3>
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">No games matched your filter</h3>
           <p className="text-xs text-slate-400 mt-1">Try resetting your search query or selecting "All Games".</p>
           <button
             onClick={() => { setSelectedCategory("all"); setSearchQuery(""); }}
-            className="mt-4 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-all cursor-pointer"
+            className="mt-4 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition cursor-pointer"
           >
             Reset Filters
           </button>

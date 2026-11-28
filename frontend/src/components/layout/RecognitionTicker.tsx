@@ -95,14 +95,14 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, i
         backgroundColor: "#56348f",
         fontFamily: '"Google Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className={`fixed bottom-0 right-0 z-30 ${leftOffsetClass} transition-all duration-300 ease-in-out text-white overflow-hidden h-9 sm:h-9.5 flex items-center border-t border-purple-700/60 shadow-2xl select-none`}
+      className={`fixed bottom-0 right-0 z-30 ${leftOffsetClass} transition duration-300 ease-in-out text-white overflow-hidden h-9 sm:h-9.5 flex items-center border-t border-purple-700/60 shadow-2xl select-none`}
     >
       {/* High-Contrast Visible Updates Badge */}
       <div
         style={{ backgroundColor: "#3a1c68", color: "#ffffff" }}
-        className="shrink-0 z-30 flex items-center px-4 h-full text-white font-bold text-xs uppercase tracking-wider border-r border-purple-600/60 shadow-sm"
+        className="shrink-0 z-30 flex items-center px-4 h-full text-white font-semibold text-xs border-r border-purple-600/60 shadow-sm"
       >
-        <span style={{ color: "#ffffff", fontWeight: 700 }} className="text-white font-bold">
+        <span style={{ color: "#ffffff", fontWeight: 700 }} className="text-white font-semibold">
           UPDATES
         </span>
       </div>
@@ -121,13 +121,13 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, i
             <div
               key={i}
               style={{ color: "#ffffff" }}
-              className="flex items-center gap-2 text-xs sm:text-[13px] font-medium tracking-wide !text-white"
+              className="flex items-center gap-2 text-xs sm:text-[13px] font-medium !text-white"
             >
               {item.type === "birthday" ? (
                 <>
                   <Cake className="w-4 h-4 !text-white shrink-0" />
                   <span style={{ color: "#ffffff" }} className="!text-white">
-                    Happy Birthday <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong>! Wishing you a wonderful day filled with joy! 🎂
+                    Happy Birthday <strong style={{ color: "#ffffff" }} className="!text-white font-semibold uppercase">{item.user?.first_name} {item.user?.last_name}</strong>! Wishing you a wonderful day filled with joy! 🎂
                   </span>
                 </>
               ) : item.type === "announcement" ? (
@@ -140,7 +140,7 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, i
               ) : (
                 <>
                   <span style={{ color: "#ffffff" }} className="!text-white">
-                    Congratulations <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong> for being awarded as <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.icon} {item.title}</strong>! {item.description?.length > 60 ? '' : item.description}
+                    Congratulations <strong style={{ color: "#ffffff" }} className="!text-white font-semibold uppercase">{item.user?.first_name} {item.user?.last_name}</strong> for being awarded as <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.icon} {item.title}</strong>! {item.description?.length > 60 ? '' : item.description}
                   </span>
                 </>
               )}
@@ -152,14 +152,14 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, i
             <div
               key={`dup-${i}`}
               style={{ color: "#ffffff" }}
-              className="flex items-center gap-2 text-xs sm:text-[13px] font-medium tracking-wide !text-white"
+              className="flex items-center gap-2 text-xs sm:text-[13px] font-medium !text-white"
               aria-hidden="true"
             >
               {item.type === "birthday" ? (
                 <>
                   <Cake className="w-4 h-4 !text-white shrink-0" />
                   <span style={{ color: "#ffffff" }} className="!text-white">
-                    Happy Birthday <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong>! Wishing you a wonderful day filled with joy! 🎂
+                    Happy Birthday <strong style={{ color: "#ffffff" }} className="!text-white font-semibold uppercase">{item.user?.first_name} {item.user?.last_name}</strong>! Wishing you a wonderful day filled with joy! 🎂
                   </span>
                 </>
               ) : item.type === "announcement" ? (
@@ -172,7 +172,7 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true, i
               ) : (
                 <>
                   <span style={{ color: "#ffffff" }} className="!text-white">
-                    Congratulations <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong> for being awarded as <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.icon} {item.title}</strong>! {item.description?.length > 60 ? '' : item.description}
+                    Congratulations <strong style={{ color: "#ffffff" }} className="!text-white font-semibold uppercase">{item.user?.first_name} {item.user?.last_name}</strong> for being awarded as <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.icon} {item.title}</strong>! {item.description?.length > 60 ? '' : item.description}
                   </span>
                 </>
               )}

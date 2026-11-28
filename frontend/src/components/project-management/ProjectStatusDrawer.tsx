@@ -110,12 +110,12 @@ export function ProjectStatusDrawer({
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white truncate">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white truncate">
                     {project ? project.name : "Loading Project Status..."}
                   </h2>
                   {project && <ProjectStatusBadge status={project.status} />}
                   {project?.is_live && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                       <Rocket className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                       <span>Made Live</span>
                     </span>
@@ -190,7 +190,7 @@ export function ProjectStatusDrawer({
                     lineHeight: "20px",
                     fontWeight: 400,
                   }}
-                  className={`flex items-center gap-1.5 px-3.5 py-2.5 border-b-2 text-[13px] leading-[20px] font-normal transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center gap-1.5 px-3.5 py-2.5 border-b-2 text-[13px] leading-[20px] font-normal transition whitespace-nowrap cursor-pointer ${
                     isSelected
                       ? "border-[#56348f] text-[#56348f] dark:text-purple-300 font-bold"
                       : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -199,7 +199,7 @@ export function ProjectStatusDrawer({
                   <span>{tab.label}</span>
                   {tab.count !== undefined && (
                     <span
-                      className={`text-[11px] px-1.5 py-0.2 rounded-full font-bold ${
+                      className={`text-xs px-1.5 py-0.2 rounded-full font-semibold ${
                         tab.badgeColor || (isSelected ? "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300" : "bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400")
                       }`}
                     >
@@ -237,15 +237,15 @@ export function ProjectStatusDrawer({
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                               Production Status
                             </span>
                             {project.is_live ? (
-                              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                                 Live Since {project.live_date ? format(parseISO(project.live_date), "dd MMM yyyy") : "N/A"}
                               </span>
                             ) : (
-                              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                                 In Development / Pre-Live
                               </span>
                             )}
@@ -279,7 +279,7 @@ export function ProjectStatusDrawer({
 
                       {project.live_notes && (
                         <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300">
-                          <p className="font-bold text-slate-900 dark:text-white mb-0.5">Go-Live Release Notes:</p>
+                          <p className="font-semibold text-slate-900 dark:text-white mb-0.5">Go-Live Release Notes:</p>
                           <p className="text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{project.live_notes}</p>
                         </div>
                       )}
@@ -288,11 +288,11 @@ export function ProjectStatusDrawer({
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs font-semibold">
                           <span className="text-slate-600 dark:text-slate-400">Deliverables Completion Rate</span>
-                          <span className="text-[#56348f] dark:text-purple-300 font-bold">{completionPct}%</span>
+                          <span className="text-[#56348f] dark:text-purple-300 font-semibold">{completionPct}%</span>
                         </div>
                         <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-[#56348f] to-purple-500 rounded-full transition-all duration-500"
+                            className="h-full bg-[#56348f] rounded-full transition duration-500"
                             style={{ width: `${completionPct}%` }}
                           />
                         </div>
@@ -303,19 +303,19 @@ export function ProjectStatusDrawer({
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs">
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Tasks</p>
-                        <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.total_tasks ?? 0}</p>
+                        <p className="text-2xl font-semibold text-slate-900 dark:text-white">{stats?.total_tasks ?? 0}</p>
                       </div>
                       <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs">
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Completed</p>
-                        <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats?.completed_tasks ?? 0}</p>
+                        <p className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">{stats?.completed_tasks ?? 0}</p>
                       </div>
                       <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs">
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Active / In Progress</p>
-                        <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats?.active_tasks ?? 0}</p>
+                        <p className="text-2xl font-semibold text-purple-600 dark:text-purple-400">{stats?.active_tasks ?? 0}</p>
                       </div>
                       <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs">
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Overdue</p>
-                        <p className={`text-2xl font-bold ${(stats?.overdue_tasks ?? 0) > 0 ? "text-rose-600 dark:text-rose-400" : "text-slate-900 dark:text-white"}`}>
+                        <p className={`text-2xl font-semibold ${(stats?.overdue_tasks ?? 0) > 0 ? "text-rose-600 dark:text-rose-400" : "text-slate-900 dark:text-white"}`}>
                           {stats?.overdue_tasks ?? 0}
                         </p>
                       </div>
@@ -323,7 +323,7 @@ export function ProjectStatusDrawer({
 
                     {/* Metadata Details Card */}
                     <div className="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs space-y-4">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                         Project Lifecycle & Dates
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -382,16 +382,16 @@ export function ProjectStatusDrawer({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Activity className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+                            <h3 className="text-xs font-semibold text-slate-900 dark:text-white">
                               Hubstaff Work Tracking
                             </h3>
                           </div>
-                          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                          <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                             {hubstaff.avg_activity_percentage}% Avg Activity
                           </span>
                         </div>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
+                          <span className="text-3xl font-semibold text-slate-900 dark:text-white">
                             {hubstaff.total_tracked_formatted}
                           </span>
                           <span className="text-xs text-slate-500 dark:text-slate-400">computer tracked time on this project</span>
@@ -416,12 +416,12 @@ export function ProjectStatusDrawer({
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className="w-6 h-6 rounded-lg bg-purple-100 text-[#56348f] dark:bg-purple-950/80 dark:text-purple-300 font-bold text-xs flex items-center justify-center">
+                              <span className="w-6 h-6 rounded-lg bg-purple-100 text-[#56348f] dark:bg-purple-950/80 dark:text-purple-300 font-semibold text-xs flex items-center justify-center">
                                 {sp.order}
                               </span>
-                              <h4 className="text-sm font-bold text-slate-900 dark:text-white">{sp.name}</h4>
+                              <h4 className="text-sm font-semibold text-slate-900 dark:text-white">{sp.name}</h4>
                             </div>
-                            <span className="text-xs font-bold text-[#56348f] dark:text-purple-300">
+                            <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300">
                               {sp.progress_percentage}% Completed
                             </span>
                           </div>
@@ -461,12 +461,12 @@ export function ProjectStatusDrawer({
                         >
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h5 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                              <h5 className="text-xs font-semibold text-slate-900 dark:text-white truncate">
                                 {t.title}
                               </h5>
                               <TaskStatusBadge status={t.status} />
                             </div>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                               Phase: {t.sub_phase?.name || (t as any).subPhase?.name || "General"} • Assignees: {t.assignees?.map((a: any) => `${a.first_name} ${a.last_name || ""}`).join(", ") || "Unassigned"}
                             </p>
                           </div>
@@ -476,7 +476,7 @@ export function ProjectStatusDrawer({
                               {t.due_date ? format(parseISO(t.due_date), "dd MMM") : "No date"}
                             </p>
                             {t.allotted_days && (
-                              <p className="text-[11px] text-slate-400">{t.allotted_days} days allotted</p>
+                              <p className="text-xs text-slate-400">{t.allotted_days} days allotted</p>
                             )}
                           </div>
                         </div>
@@ -491,7 +491,7 @@ export function ProjectStatusDrawer({
                     {deviations.length === 0 ? (
                       <div className="p-8 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-center space-y-2">
                         <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mx-auto" />
-                        <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">No Deviations Recorded</h4>
+                        <h4 className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">No Deviations Recorded</h4>
                         <p className="text-xs text-emerald-700 dark:text-emerald-400 max-w-sm mx-auto">
                           All tasks were delivered on schedule and within their allotted timeframe with zero deviation.
                         </p>
@@ -507,16 +507,16 @@ export function ProjectStatusDrawer({
                             <div className="flex items-start justify-between gap-3">
                               <div>
                                 <div className="flex items-center gap-2 mb-0.5">
-                                  <h5 className="text-xs font-bold text-slate-900 dark:text-white">{d.title}</h5>
+                                  <h5 className="text-xs font-semibold text-slate-900 dark:text-white">{d.title}</h5>
                                   <TaskStatusBadge status={d.status} />
                                 </div>
-                                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
                                   Phase: <strong>{d.sub_phase_name}</strong>
                                 </p>
                               </div>
 
                               <span
-                                className={`px-2.5 py-1 rounded-xl text-xs font-bold shrink-0 ${
+                                className={`px-2.5 py-1 rounded-xl text-xs font-semibold shrink-0 ${
                                   isPositive
                                     ? "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
                                     : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
@@ -534,7 +534,7 @@ export function ProjectStatusDrawer({
 
                             {d.deviation_reason && (
                               <div className="text-xs text-slate-600 dark:text-slate-400 pt-1">
-                                <span className="font-bold text-slate-800 dark:text-slate-200">Deviation Reason: </span>
+                                <span className="font-semibold text-slate-800 dark:text-slate-200">Deviation Reason: </span>
                                 <span>{d.deviation_reason}</span>
                               </div>
                             )}
@@ -549,11 +549,11 @@ export function ProjectStatusDrawer({
                 {activeTab === "members" && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                         Engaged Team Members & Hubstaff Activity
                       </h3>
                       {hubstaff && (
-                        <span className="text-[11px] font-semibold text-purple-600 dark:text-purple-400">
+                        <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">
                           {hubstaff.members.length} Tracked Contributors
                         </span>
                       )}
@@ -570,16 +570,16 @@ export function ProjectStatusDrawer({
                               <RoyalAvatar name={m.name} size="sm" />
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <h5 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                  <h5 className="text-xs font-semibold text-slate-900 dark:text-white truncate">
                                     {m.name}
                                   </h5>
                                   {m.is_linked && (
-                                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                    <span className="text-xs font-semibold px-1.5 py-0.2 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                                       Portal Employee
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                                   {m.employee_code ? `Code: ${m.employee_code} • ` : ""}
                                   {m.team_name ? `${m.team_name} • ` : ""}
                                   {m.designation || "Member"}
@@ -588,9 +588,9 @@ export function ProjectStatusDrawer({
                             </div>
 
                             <div className="text-right shrink-0">
-                              <p className="text-sm font-bold text-slate-900 dark:text-white">{m.tracked_formatted}</p>
+                              <p className="text-sm font-semibold text-slate-900 dark:text-white">{m.tracked_formatted}</p>
                               <span
-                                className={`text-[11px] font-semibold ${
+                                className={`text-xs font-semibold ${
                                   m.activity_percentage >= 50
                                     ? "text-emerald-600 dark:text-emerald-400"
                                     : "text-amber-600 dark:text-amber-400"
@@ -613,10 +613,10 @@ export function ProjectStatusDrawer({
                               <div className="flex items-center gap-3">
                                 <RoyalAvatar name={`${mem.first_name} ${mem.last_name}`} size="sm" />
                                 <div>
-                                  <h5 className="text-xs font-bold text-slate-900 dark:text-white">
+                                  <h5 className="text-xs font-semibold text-slate-900 dark:text-white">
                                     {mem.first_name} {mem.last_name}
                                   </h5>
-                                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                  <p className="text-xs text-slate-500 dark:text-slate-400">
                                     {mem.employee_code ? `Code: ${mem.employee_code}` : "Team Member"}
                                   </p>
                                 </div>
@@ -640,7 +640,7 @@ export function ProjectStatusDrawer({
                 {activeTab === "after_live" && (
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-800/40 text-xs text-slate-700 dark:text-slate-300 space-y-1">
-                      <div className="flex items-center gap-1.5 font-bold text-[#56348f] dark:text-purple-300">
+                      <div className="flex items-center gap-1.5 font-semibold text-[#56348f] dark:text-purple-300">
                         <span>Post-Launch Testing & Warranty Tasks</span>
                       </div>
                       <p className="text-slate-600 dark:text-slate-400 text-[13px] leading-[18px]">
@@ -662,10 +662,10 @@ export function ProjectStatusDrawer({
                         >
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <h5 className="text-xs font-bold text-slate-900 dark:text-white">{t.title}</h5>
+                              <h5 className="text-xs font-semibold text-slate-900 dark:text-white">{t.title}</h5>
                               <TaskStatusBadge status={t.status} />
                             </div>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
                               Created: {t.created_at ? format(parseISO(t.created_at), "dd MMM yyyy") : "N/A"} • Phase: {t.sub_phase?.name || (t as any).subPhase?.name || "General"}
                             </p>
                           </div>

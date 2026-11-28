@@ -378,7 +378,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
                       <FormLabel className="text-sm font-semibold text-slate-900 dark:text-white cursor-pointer flex items-center gap-2">
                         <span>Assign this employee as emergency contact</span>
                         {field.value && (
-                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
                             Assigned
                           </span>
                         )}

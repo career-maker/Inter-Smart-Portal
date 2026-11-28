@@ -349,7 +349,7 @@ export default function LeavePolicyManagementPage() {
       <div className="">
         <div className="p-8 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-center space-y-3">
           <ShieldCheck className="w-12 h-12 mx-auto text-amber-600 dark:text-amber-400" />
-          <h2 className="text-lg font-bold">Super Admin Access Required</h2>
+          <h2 className="text-lg font-semibold">Super Admin Access Required</h2>
           <p className="text-xs">Only Super Administrators can configure and manage the company leave policy.</p>
         </div>
       </div>
@@ -368,7 +368,7 @@ export default function LeavePolicyManagementPage() {
             <span>/</span>
             <span className="text-slate-900 dark:text-white">Leave Policy Management</span>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+          <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
             <CalendarCheck className="w-5 h-5 text-[#56348f]" />
             <span>Leave Policy Management</span>
           </h1>
@@ -418,7 +418,7 @@ export default function LeavePolicyManagementPage() {
               <span>Monthly Cycle Start</span>
               <Calendar className="w-4 h-4 text-[#56348f]" />
             </div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="text-2xl font-semibold text-slate-900 dark:text-white">
               {cycleInfo.start_day}<span className="text-xs font-normal text-slate-400">th of every month</span>
             </div>
             <div className="text-[13px] text-slate-500">
@@ -430,7 +430,7 @@ export default function LeavePolicyManagementPage() {
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
               <span>Monthly Allocation Quota</span>
             </div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="text-2xl font-semibold text-slate-900 dark:text-white">
               +{settings.default_monthly_cl} CL <span className="text-slate-400">/</span> +{settings.default_monthly_sl} SL
             </div>
             <div className="text-[13px] text-slate-500">
@@ -443,7 +443,7 @@ export default function LeavePolicyManagementPage() {
               <span>Probation Period</span>
               <Clock className="w-4 h-4 text-amber-500" />
             </div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="text-2xl font-semibold text-slate-900 dark:text-white">
               {settings.probation_period_months} <span className="text-xs font-normal text-slate-400">Months</span>
             </div>
             <div className="text-[13px] text-slate-500">
@@ -456,12 +456,12 @@ export default function LeavePolicyManagementPage() {
               <span>Next Auto Allocation</span>
               <TrendingUp className="w-4 h-4 text-blue-500" />
             </div>
-            <div className="text-sm font-bold text-slate-900 dark:text-white truncate">
+            <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">
               {cycleInfo.next_allocation_at}
             </div>
             <div className="text-[13px] text-slate-500">
               {cycleInfo.is_cycle_start_day ? (
-                <span className="text-emerald-600 font-semibold">Today is cycle start day!</span>
+                <span className="text-emerald-600 font-semibold">Today is cycle start day</span>
               ) : (
                 <span>Evaluates automatically at 12:01 AM</span>
               )}
@@ -475,7 +475,7 @@ export default function LeavePolicyManagementPage() {
         <button
           type="button"
           onClick={() => setActiveTab("general")}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer whitespace-nowrap ${
             activeTab === "general"
               ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
@@ -488,7 +488,7 @@ export default function LeavePolicyManagementPage() {
         <button
           type="button"
           onClick={() => setActiveTab("routing")}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer whitespace-nowrap ${
             activeTab === "routing"
               ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
@@ -501,7 +501,7 @@ export default function LeavePolicyManagementPage() {
         <button
           type="button"
           onClick={() => setActiveTab("employees")}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer whitespace-nowrap ${
             activeTab === "employees"
               ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
@@ -514,7 +514,7 @@ export default function LeavePolicyManagementPage() {
         <button
           type="button"
           onClick={() => setActiveTab("ledger")}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer whitespace-nowrap ${
             activeTab === "ledger"
               ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
@@ -527,7 +527,7 @@ export default function LeavePolicyManagementPage() {
         <button
           type="button"
           onClick={() => setActiveTab("simulator")}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition cursor-pointer whitespace-nowrap ${
             activeTab === "simulator"
               ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
               : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
@@ -546,14 +546,14 @@ export default function LeavePolicyManagementPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Section A: Monthly Cycle & Probation */}
             <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
                 <Calendar className="w-4 h-4 text-[#56348f]" />
                 <span>Monthly Cycle & Probation Boundary</span>
               </div>
 
               {/* Monthly Cycle Start Date */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Monthly Cycle Start Date (Day of Month) <span className="text-rose-500">*</span>
                 </label>
                 <SelectCompat
@@ -574,7 +574,7 @@ export default function LeavePolicyManagementPage() {
 
               {/* Common Probation Period */}
               <div className="space-y-2 pt-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Common Probation Period (Months) <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -593,13 +593,13 @@ export default function LeavePolicyManagementPage() {
 
             {/* Section B: Monthly Allocation Quotas */}
             <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
                 <span>Monthly Allocation Quotas</span>
               </div>
 
               {/* Casual Leave */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Default Monthly Casual Leave (CL) Allocation <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -618,7 +618,7 @@ export default function LeavePolicyManagementPage() {
 
               {/* Sick Leave */}
               <div className="space-y-2 pt-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Default Monthly Sick Leave (SL) Allocation <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -638,14 +638,14 @@ export default function LeavePolicyManagementPage() {
 
             {/* Section C: Advance Notice & WFH Cutoff Rules */}
             <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
                 <Clock className="w-4 h-4 text-amber-600" />
                 <span>Notice Period & WFH Submission Cutoffs</span>
               </div>
 
               {/* Casual Leave Notice Period */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Casual Leave (CL) Advance Notice Requirement (Days) <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -664,7 +664,7 @@ export default function LeavePolicyManagementPage() {
               {/* WFH Cutoff Times */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Same-Day Full Day / Morning WFH Cutoff Time
                   </label>
                   <input
@@ -673,11 +673,11 @@ export default function LeavePolicyManagementPage() {
                     onChange={(e) => setSettings({ ...settings, wfh_morning_cutoff_time: e.target.value })}
                     className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 outline-none"
                   />
-                  <p className="text-[10px] text-slate-400">Default: 09:45 AM (15 min buffer after 9:30 AM)</p>
+                  <p className="text-xs text-slate-400">Default: 09:45 AM (15 min buffer after 9:30 AM)</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Same-Day Afternoon Session WFH Cutoff Time
                   </label>
                   <input
@@ -686,19 +686,19 @@ export default function LeavePolicyManagementPage() {
                     onChange={(e) => setSettings({ ...settings, wfh_afternoon_cutoff_time: e.target.value })}
                     className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 outline-none"
                   />
-                  <p className="text-[10px] text-slate-400">Default: 02:30 PM</p>
+                  <p className="text-xs text-slate-400">Default: 02:30 PM</p>
                 </div>
               </div>
 
               {/* Late Time Define (Late Coming Threshold) */}
               <div className="space-y-1.5 pt-3 border-t border-slate-100 dark:border-slate-800/80">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-rose-500" />
                     <span>Late Time Define (Late Coming Threshold)</span>
                     <span className="text-rose-500">*</span>
                   </span>
-                  <span className="text-[11px] font-semibold text-[#56348f] dark:text-purple-400">
+                  <span className="text-xs font-semibold text-[#56348f] dark:text-purple-400">
                     Default: 09:40 AM
                   </span>
                 </label>
@@ -716,14 +716,14 @@ export default function LeavePolicyManagementPage() {
 
             {/* Section D: Approval Workflow Rules */}
             <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
                 <ShieldCheck className="w-4 h-4 text-[#56348f]" />
                 <span>Multi-Level Approval Workflow Rules</span>
               </div>
 
               {/* Single-Day Rule */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Single-Day Leave Approval Level
                 </label>
                 <SelectCompat
@@ -742,7 +742,7 @@ export default function LeavePolicyManagementPage() {
 
               {/* Multi-Day Threshold */}
               <div className="space-y-2 pt-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Multi-Day Admin Approval Threshold (Days)
                 </label>
                 <input
@@ -766,7 +766,7 @@ export default function LeavePolicyManagementPage() {
                   onChange={(e) => setSettings({ ...settings, lop_admin_approval_required: e.target.checked })}
                   className="rounded text-[#56348f] focus:ring-[#56348f]"
                 />
-                <span className="font-bold text-slate-800 dark:text-slate-200">
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
                   Require Super Admin approval for any Unpaid Leave (LOP)
                 </span>
               </label>
@@ -774,7 +774,7 @@ export default function LeavePolicyManagementPage() {
 
             {/* Section E: Carry Forward & Expiration Rules */}
             <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5 lg:col-span-2">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
                 <Layers className="w-4 h-4 text-purple-600" />
                 <span>Carry Forward & Expiration Invariants</span>
               </div>
@@ -783,8 +783,8 @@ export default function LeavePolicyManagementPage() {
                 {/* Casual Leave Card */}
                 <div className="p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/60 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-purple-900 dark:text-purple-300">Casual Leave (CL)</span>
-                    <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full bg-purple-200 dark:bg-purple-900 text-purple-800 dark:text-purple-200">
+                    <span className="text-xs font-semibold text-purple-900 dark:text-purple-300">Casual Leave (CL)</span>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-200 dark:bg-purple-900 text-purple-800 dark:text-purple-200">
                       2-Year Carry Forward
                     </span>
                   </div>
@@ -796,8 +796,8 @@ export default function LeavePolicyManagementPage() {
                 {/* Sick Leave Card */}
                 <div className="p-4 rounded-xl bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-rose-900 dark:text-rose-300">Sick Leave (SL)</span>
-                    <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200">
+                    <span className="text-xs font-semibold text-rose-900 dark:text-rose-300">Sick Leave (SL)</span>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200">
                       Annual Expiry
                     </span>
                   </div>
@@ -821,7 +821,7 @@ export default function LeavePolicyManagementPage() {
                 fontSize: "13px",
                 fontWeight: 600,
               }}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
             >
               {savingSettings ? (
                 <>
@@ -870,7 +870,7 @@ export default function LeavePolicyManagementPage() {
               <button
                 type="button"
                 onClick={() => setEmployeeStatusFilter("all")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
                   employeeStatusFilter === "all"
                     ? "bg-[#56348f] text-white border-[#56348f]"
                     : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
@@ -881,7 +881,7 @@ export default function LeavePolicyManagementPage() {
               <button
                 type="button"
                 onClick={() => setEmployeeStatusFilter("in_probation")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
                   employeeStatusFilter === "in_probation"
                     ? "bg-amber-600 text-white border-amber-600"
                     : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-amber-300"
@@ -892,7 +892,7 @@ export default function LeavePolicyManagementPage() {
               <button
                 type="button"
                 onClick={() => setEmployeeStatusFilter("cleared_manually")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
                   employeeStatusFilter === "cleared_manually"
                     ? "bg-purple-600 text-white border-purple-600"
                     : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
@@ -903,7 +903,7 @@ export default function LeavePolicyManagementPage() {
               <button
                 type="button"
                 onClick={() => setEmployeeStatusFilter("custom_allocation")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
                   employeeStatusFilter === "custom_allocation"
                     ? "bg-emerald-600 text-white border-emerald-600"
                     : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-emerald-300"
@@ -919,7 +919,7 @@ export default function LeavePolicyManagementPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px] text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                  <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-semibold text-xs">
                     <th className="py-3.5 px-4">Employee</th>
                     <th className="py-3.5 px-4">Joining Date</th>
                     <th className="py-3.5 px-4">Probation Status</th>
@@ -941,7 +941,7 @@ export default function LeavePolicyManagementPage() {
                         <tr key={emp.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
                           {/* Name & Code */}
                           <td className="py-3 px-4">
-                            <div className="font-bold text-slate-900 dark:text-white">{emp.name}</div>
+                            <div className="font-semibold text-slate-900 dark:text-white">{emp.name}</div>
                             <div className="text-[13px] text-slate-400 flex items-center gap-1.5">
                               <span>{emp.employee_code}</span>
                               <span>•</span>
@@ -957,19 +957,19 @@ export default function LeavePolicyManagementPage() {
                           {/* Probation Status */}
                           <td className="py-3 px-4">
                             {emp.probation_cleared_manually ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800">
                                 Cleared Manually
                               </span>
                             ) : emp.is_in_probation ? (
                               <div className="space-y-0.5">
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800">
                                   <Clock className="w-3 h-3 text-amber-500" />
                                   In Probation ({emp.days_remaining}d left)
                                 </span>
-                                <div className="text-[10px] text-slate-400">Ends: {emp.probation_end_date}</div>
+                                <div className="text-xs text-slate-400">Ends: {emp.probation_end_date}</div>
                               </div>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
                                 <Check className="w-3 h-3 text-emerald-500" />
                                 Completed
                               </span>
@@ -988,7 +988,7 @@ export default function LeavePolicyManagementPage() {
                               </span>
                             </div>
                             {emp.cl_carry_forward > 0 && (
-                              <div className="text-[10px] text-slate-400">
+                              <div className="text-xs text-slate-400">
                                 (incl. {emp.cl_carry_forward} CL carried forward)
                               </div>
                             )}
@@ -998,10 +998,10 @@ export default function LeavePolicyManagementPage() {
                           <td className="py-3 px-4">
                             {emp.has_custom_allocation ? (
                               <div className="space-y-0.5">
-                                <span className="font-bold text-purple-700 dark:text-purple-300">
+                                <span className="font-semibold text-purple-700 dark:text-purple-300">
                                   +{emp.effective_monthly_cl} CL / +{emp.effective_monthly_sl} SL
                                 </span>
-                                <span className="block text-[10px] font-semibold text-purple-500">Custom override</span>
+                                <span className="block text-xs font-semibold text-purple-500">Custom override</span>
                               </div>
                             ) : (
                               <div className="text-slate-600 dark:text-slate-400">
@@ -1017,7 +1017,7 @@ export default function LeavePolicyManagementPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleClearProbation(emp)}
-                                  className="px-2.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[11px] font-bold cursor-pointer"
+                                  className="px-2.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-semibold cursor-pointer"
                                   title="Clear probation now to enable auto-allocation"
                                 >
                                   Clear Probation
@@ -1027,7 +1027,7 @@ export default function LeavePolicyManagementPage() {
                               <button
                                 type="button"
                                 onClick={() => handleOpenAdjustBalance(emp)}
-                                className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-[11px] font-semibold border border-slate-200 dark:border-slate-700 cursor-pointer"
+                                className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 cursor-pointer"
                                 title="Adjust balance manually without breaking auto allocations"
                               >
                                 Adjust
@@ -1043,7 +1043,7 @@ export default function LeavePolicyManagementPage() {
                                   fontSize: "11px",
                                   fontWeight: 600,
                                 }}
-                                className="px-2.5 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-[11px] font-bold cursor-pointer"
+                                className="px-2.5 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold cursor-pointer"
                               >
                                 Configure
                               </button>
@@ -1068,7 +1068,7 @@ export default function LeavePolicyManagementPage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
             <div className="flex items-center gap-2">
               <History className="w-4 h-4 text-[#56348f]" />
-              <span className="text-xs font-bold text-slate-900 dark:text-white">Leave Balance Audit Ledger</span>
+              <span className="text-xs font-semibold text-slate-900 dark:text-white">Leave Balance Audit Ledger</span>
             </div>
 
             <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -1099,7 +1099,7 @@ export default function LeavePolicyManagementPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px] text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                  <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-semibold text-xs">
                     <th className="py-3.5 px-4">Timestamp</th>
                     <th className="py-3.5 px-4">Employee</th>
                     <th className="py-3.5 px-4">Leave Type</th>
@@ -1140,7 +1140,7 @@ export default function LeavePolicyManagementPage() {
                           </td>
 
                           <td className="py-3 px-4">
-                            <div className="font-bold text-slate-900 dark:text-white">
+                            <div className="font-semibold text-slate-900 dark:text-white">
                               {entry.user ? `${entry.user.first_name} ${entry.user.last_name}` : `User #${entry.user_id}`}
                             </div>
                             <div className="text-[13px] text-slate-400">{entry.user?.employee_code}</div>
@@ -1152,7 +1152,7 @@ export default function LeavePolicyManagementPage() {
 
                           <td className="py-3 px-4">
                             <span
-                              className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${
                                 entry.transaction_type === "automatic_allocation"
                                   ? "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300"
                                   : entry.transaction_type === "manual_adjustment"
@@ -1166,7 +1166,7 @@ export default function LeavePolicyManagementPage() {
                             </span>
                           </td>
 
-                          <td className="py-3 px-4 font-bold">
+                          <td className="py-3 px-4 font-semibold">
                             <span
                               className={
                                 isPositive
@@ -1185,9 +1185,9 @@ export default function LeavePolicyManagementPage() {
                           </td>
 
                           <td className="py-3 px-4">
-                            <div className="text-slate-600 dark:text-slate-300 text-[11px]">{entry.remarks || "—"}</div>
+                            <div className="text-slate-600 dark:text-slate-300 text-xs">{entry.remarks || "—"}</div>
                             {entry.modifier && (
-                              <div className="text-[10px] text-purple-600 dark:text-purple-400">
+                              <div className="text-xs text-purple-600 dark:text-purple-400">
                                 By: {entry.modifier.first_name} {entry.modifier.last_name}
                               </div>
                             )}
@@ -1236,7 +1236,7 @@ export default function LeavePolicyManagementPage() {
       {activeTab === "simulator" && (
         <div className="space-y-6">
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
               <PlayCircle className="w-4 h-4 text-[#56348f]" />
               <span>Manual Policy Execution & Cycle Testing</span>
             </div>
@@ -1247,7 +1247,7 @@ export default function LeavePolicyManagementPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Custom Evaluation Date (Optional)
                 </label>
                 <input
@@ -1256,7 +1256,7 @@ export default function LeavePolicyManagementPage() {
                   onChange={(e) => setSimDate(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs outline-none"
                 />
-                <p className="text-[10px] text-slate-400">Leave blank to evaluate as of today</p>
+                <p className="text-xs text-slate-400">Leave blank to evaluate as of today</p>
               </div>
 
               <div className="flex items-center gap-2 pt-6">
@@ -1284,7 +1284,7 @@ export default function LeavePolicyManagementPage() {
                   fontSize: "13px",
                   fontWeight: 600,
                 }}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
               >
                 {runningSimulator ? (
                   <>
@@ -1314,27 +1314,27 @@ export default function LeavePolicyManagementPage() {
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Total Active</span>
-                  <span className="text-lg font-bold text-slate-900 dark:text-white">{simulationResult.total_active_employees}</span>
+                  <span className="text-slate-400 block text-xs font-semibold">Total Active</span>
+                  <span className="text-lg font-semibold text-slate-900 dark:text-white">{simulationResult.total_active_employees}</span>
                 </div>
                 <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
-                  <span className="text-emerald-700 dark:text-emerald-300 block text-[10px] uppercase font-bold">Allocated</span>
-                  <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{simulationResult.allocated_count}</span>
+                  <span className="text-emerald-700 dark:text-emerald-300 block text-xs font-semibold">Allocated</span>
+                  <span className="text-lg font-semibold text-emerald-700 dark:text-emerald-300">{simulationResult.allocated_count}</span>
                 </div>
                 <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800">
-                  <span className="text-amber-700 dark:text-amber-300 block text-[10px] uppercase font-bold">In Probation</span>
-                  <span className="text-lg font-bold text-amber-700 dark:text-amber-300">{simulationResult.skipped_probation_count}</span>
+                  <span className="text-amber-700 dark:text-amber-300 block text-xs font-semibold">In Probation</span>
+                  <span className="text-lg font-semibold text-amber-700 dark:text-amber-300">{simulationResult.skipped_probation_count}</span>
                 </div>
                 <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800">
-                  <span className="text-purple-700 dark:text-purple-300 block text-[10px] uppercase font-bold">Already Processed</span>
-                  <span className="text-lg font-bold text-purple-700 dark:text-purple-300">{simulationResult.skipped_already_allocated}</span>
+                  <span className="text-purple-700 dark:text-purple-300 block text-xs font-semibold">Already Processed</span>
+                  <span className="text-lg font-semibold text-purple-700 dark:text-purple-300">{simulationResult.skipped_already_allocated}</span>
                 </div>
               </div>
 
               {simulationResult.logs && simulationResult.logs.length > 0 && (
                 <div className="space-y-1.5 pt-2">
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Detailed Action Logs:</span>
-                  <div className="max-h-48 overflow-y-auto p-3 rounded-xl bg-slate-900 text-slate-200 font-mono text-[11px] space-y-1">
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Detailed Action Logs:</span>
+                  <div className="max-h-48 overflow-y-auto p-3 rounded-xl bg-slate-900 text-slate-200 font-mono text-xs space-y-1">
                     {simulationResult.logs.map((log: string, idx: number) => (
                       <div key={idx} className="flex items-center gap-2">
                         <span className="text-emerald-400">✓</span>
@@ -1387,7 +1387,7 @@ export default function LeavePolicyManagementPage() {
               <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar text-xs">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-slate-700 dark:text-slate-300">
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300">
                       Custom Monthly CL (Optional)
                     </label>
                     <input
@@ -1403,7 +1403,7 @@ export default function LeavePolicyManagementPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-slate-700 dark:text-slate-300">
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300">
                       Custom Monthly SL (Optional)
                     </label>
                     <input
@@ -1420,7 +1420,7 @@ export default function LeavePolicyManagementPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300">
                     Custom Probation Period in Months (Optional)
                   </label>
                   <input
@@ -1432,11 +1432,11 @@ export default function LeavePolicyManagementPage() {
                     onChange={(e) => setCustomProbation(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
                   />
-                  <p className="text-[10px] text-slate-400">Leave blank to use the common company probation period.</p>
+                  <p className="text-xs text-slate-400">Leave blank to use the common company probation period.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300">
                     Internal Notes / Reason
                   </label>
                   <textarea
@@ -1468,7 +1468,7 @@ export default function LeavePolicyManagementPage() {
                     fontSize: "12px",
                     fontWeight: 600,
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
                 >
                   {savingEmployeePolicy ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Save className="w-3.5 h-3.5 !text-white" />}
                   <span className="!text-white">Save Override</span>
@@ -1519,7 +1519,7 @@ export default function LeavePolicyManagementPage() {
               <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar text-xs">
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-purple-700 dark:text-purple-300">
+                    <label className="block font-semibold text-purple-700 dark:text-purple-300">
                       Casual Leave (Current)
                     </label>
                     <input
@@ -1528,12 +1528,12 @@ export default function LeavePolicyManagementPage() {
                       min="0"
                       value={adjCL}
                       onChange={(e) => setAdjCL(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-semibold"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-purple-700 dark:text-purple-300">
+                    <label className="block font-semibold text-purple-700 dark:text-purple-300">
                       CL Carry Forward
                     </label>
                     <input
@@ -1542,12 +1542,12 @@ export default function LeavePolicyManagementPage() {
                       min="0"
                       value={adjCF}
                       onChange={(e) => setAdjCF(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-semibold"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-rose-700 dark:text-rose-300">
+                    <label className="block font-semibold text-rose-700 dark:text-rose-300">
                       Sick Leave (SL)
                     </label>
                     <input
@@ -1556,13 +1556,13 @@ export default function LeavePolicyManagementPage() {
                       min="0"
                       value={adjSL}
                       onChange={(e) => setAdjSL(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-semibold"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300">
                     Adjustment Remarks / Audit Reason <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -1595,7 +1595,7 @@ export default function LeavePolicyManagementPage() {
                     fontSize: "12px",
                     fontWeight: 600,
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
                 >
                   {savingAdjustment ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Check className="w-3.5 h-3.5 !text-white" />}
                   <span className="!text-white">Save Balance Adjustment</span>

@@ -152,7 +152,7 @@ export default function EditTeamPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Manage {team.name}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">Manage {team.name}</h1>
           <p className="text-slate-600 dark:text-slate-300">{selectedMemberIds.length} Members Assigned</p>
         </div>
       </div>
@@ -212,7 +212,7 @@ export default function EditTeamPage() {
                     <button
                       type="button"
                       onClick={() => setFilterMode("all")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                         filterMode === "all"
                           ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-sm"
                           : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -223,7 +223,7 @@ export default function EditTeamPage() {
                     <button
                       type="button"
                       onClick={() => setFilterMode("selected")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                         filterMode === "selected"
                           ? "bg-amber-500 text-white shadow-sm"
                           : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -234,7 +234,7 @@ export default function EditTeamPage() {
                     <button
                       type="button"
                       onClick={() => setFilterMode("in_team")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                         filterMode === "in_team"
                           ? "bg-purple-600 text-white shadow-sm"
                           : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -245,7 +245,7 @@ export default function EditTeamPage() {
                     <button
                       type="button"
                       onClick={() => setFilterMode("unassigned")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                         filterMode === "unassigned"
                           ? "bg-blue-600 text-white shadow-sm"
                           : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -335,7 +335,7 @@ export default function EditTeamPage() {
                                   />
                                 </span>
                                 {user.employee_code && (
-                                  <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                                  <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                                     {user.employee_code}
                                   </span>
                                 )}
@@ -347,11 +347,11 @@ export default function EditTeamPage() {
                           </label>
                           <div className="shrink-0 text-xs">
                             {user.team_id === team.id ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                                 In this department
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                                 Unassigned
                               </span>
                             )}
@@ -371,7 +371,7 @@ export default function EditTeamPage() {
                 <Button loading={membersLoading}
                   onClick={handleSyncMembers}
                   disabled={membersLoading}
-                  className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6"
+                  className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold px-6"
                 >
                   {membersLoading ? "Saving Changes..." : `Save Assignments (${selectedMemberIds.length} Selected)`}
                 </Button>

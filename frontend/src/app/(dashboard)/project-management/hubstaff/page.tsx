@@ -458,11 +458,11 @@ export default function HubstaffAnalyticsPage() {
               Project Management
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-slate-900 dark:text-white font-bold">Hubstaff Analytics</span>
+            <span className="text-slate-900 dark:text-white font-semibold">Hubstaff Analytics</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
             <span>Hubstaff Analytics</span>
-            <span className="text-xs uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
               Computer Work Time & Activity
             </span>
           </h1>
@@ -495,7 +495,7 @@ export default function HubstaffAnalyticsPage() {
           <button
             onClick={exportToCSV}
             disabled={loading || !analyticsData}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 transition-all disabled:opacity-50 cursor-pointer shadow-sm whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition disabled:opacity-50 cursor-pointer shadow-sm whitespace-nowrap shrink-0"
           >
             <Download className="w-4 h-4 shrink-0" />
             <span className="whitespace-nowrap">Export CSV</span>
@@ -505,7 +505,7 @@ export default function HubstaffAnalyticsPage() {
           {(isSuperAdmin || isAdmin) && (
             <button
               onClick={() => setShowDailyReportModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs hover:shadow-md cursor-pointer whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition shadow-xs hover:shadow-md cursor-pointer whitespace-nowrap shrink-0"
               title="Generate daily Hubstaff report across all departments with Sheet and Image models"
             >
               <FileSpreadsheet className="w-4 h-4 shrink-0" />
@@ -527,7 +527,7 @@ export default function HubstaffAnalyticsPage() {
                   setLoading(true);
                   setDateMode("single");
                 }}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                className={`px-3 py-1.5 rounded-lg transition cursor-pointer whitespace-nowrap shrink-0 ${
                   dateMode === "single"
                     ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -541,7 +541,7 @@ export default function HubstaffAnalyticsPage() {
                   setLoading(true);
                   setDateMode("range");
                 }}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                className={`px-3 py-1.5 rounded-lg transition cursor-pointer whitespace-nowrap shrink-0 ${
                   dateMode === "range"
                     ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -622,7 +622,7 @@ export default function HubstaffAnalyticsPage() {
                   onClick={handleSearchDate}
                   disabled={loading || refreshing}
                   title="Search this date"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-[11px] font-bold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
                 >
                   {loading || refreshing ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
@@ -640,7 +640,7 @@ export default function HubstaffAnalyticsPage() {
                       setLoading(true);
                       handlePresetToday();
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
                   >
                     Today
                   </button>
@@ -650,14 +650,14 @@ export default function HubstaffAnalyticsPage() {
                       setLoading(true);
                       handlePresetYesterday();
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
                   >
                     Yesterday
                   </button>
                 </div>
 
                 {loading && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700 text-[11px] font-bold text-purple-800 dark:text-purple-200 animate-pulse shadow-xs shrink-0 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700 text-xs font-semibold text-purple-800 dark:text-purple-200 animate-pulse shadow-xs shrink-0 whitespace-nowrap">
                     <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600 dark:text-purple-400 shrink-0" />
                     <span>Loading...</span>
                   </div>
@@ -725,7 +725,7 @@ export default function HubstaffAnalyticsPage() {
                   onClick={handleSearchDate}
                   disabled={loading || refreshing}
                   title="Search this range"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-[11px] font-bold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
                 >
                   {loading || refreshing ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
@@ -743,7 +743,7 @@ export default function HubstaffAnalyticsPage() {
                       setLoading(true);
                       handlePresetLast7Days();
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
                   >
                     Last 7 Days
                   </button>
@@ -753,14 +753,14 @@ export default function HubstaffAnalyticsPage() {
                       setLoading(true);
                       handlePresetThisMonth();
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
                   >
                     This Month
                   </button>
                 </div>
 
                 {loading && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700 text-[11px] font-bold text-purple-800 dark:text-purple-200 animate-pulse shadow-xs shrink-0 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700 text-xs font-semibold text-purple-800 dark:text-purple-200 animate-pulse shadow-xs shrink-0 whitespace-nowrap">
                     <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600 dark:text-purple-400 shrink-0" />
                     <span>Loading...</span>
                   </div>
@@ -773,7 +773,7 @@ export default function HubstaffAnalyticsPage() {
           <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 shrink-0 self-start md:self-auto">
             <button
               onClick={() => setActiveTab("users")}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "users"
                   ? "bg-[#56348f] text-white font-bold shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -784,7 +784,7 @@ export default function HubstaffAnalyticsPage() {
             </button>
             <button
               onClick={() => setActiveTab("projects")}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "projects"
                   ? "bg-[#56348f] text-white font-bold shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -795,7 +795,7 @@ export default function HubstaffAnalyticsPage() {
             </button>
             <button
               onClick={() => setActiveTab("trends")}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "trends"
                   ? "bg-[#56348f] text-white font-bold shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -812,7 +812,7 @@ export default function HubstaffAnalyticsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-3.5">
         {/* Total Tracked Time */}
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
             <span>Tracked Work Time</span>
             <Clock className={`w-4 h-4 text-purple-600 dark:text-purple-400 ${loading ? "animate-spin" : ""}`} />
           </div>
@@ -832,12 +832,12 @@ export default function HubstaffAnalyticsPage() {
               {computedSummary.total_tracked_formatted || "0h 00m"}
             </div>
           )}
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">Total computer time</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Total computer time</p>
         </div>
 
         {/* Average Activity */}
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
             <span>Avg Activity</span>
             <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
@@ -856,7 +856,7 @@ export default function HubstaffAnalyticsPage() {
             >
               <span>{normalizeActivityPct(computedSummary.avg_activity_percentage)}%</span>
               <span
-                className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${
+                className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${
                   getActivityBadge(computedSummary.avg_activity_percentage ?? 0).bg
                 }`}
               >
@@ -864,14 +864,14 @@ export default function HubstaffAnalyticsPage() {
               </span>
             </div>
           )}
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {dateMode === "range" ? "Range average activity" : "Keystrokes & mouse activity"}
           </p>
         </div>
 
         {/* Active Users */}
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
             <span>Active Users</span>
             <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </div>
@@ -891,12 +891,12 @@ export default function HubstaffAnalyticsPage() {
               {computedSummary.active_users_count ?? 0}
             </div>
           )}
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">Logged work in Hubstaff</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Logged work in Hubstaff</p>
         </div>
 
         {/* Active Projects */}
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
             <span>Active Projects</span>
             <FolderKanban className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
@@ -916,12 +916,12 @@ export default function HubstaffAnalyticsPage() {
               {computedSummary.active_projects_count ?? 0}
             </div>
           )}
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">Projects with logged time</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Projects with logged time</p>
         </div>
 
         {/* Average Time / User */}
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
             <span>Avg Time / User</span>
             <UserCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           </div>
@@ -941,7 +941,7 @@ export default function HubstaffAnalyticsPage() {
               {computedSummary.avg_time_per_user_formatted || "0h 00m"}
             </div>
           )}
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">Average per active member</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Average per active member</p>
         </div>
       </div>
 
@@ -955,7 +955,7 @@ export default function HubstaffAnalyticsPage() {
             </div>
           </div>
           <div className="text-center space-y-1">
-            <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
               Loading Hubstaff Activity for {dateMode === "single" ? selectedDate : `${startDate} → ${endDate}`}...
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -966,10 +966,10 @@ export default function HubstaffAnalyticsPage() {
       ) : error ? (
         <div className="p-6 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl text-center space-y-3">
           <AlertCircle className="w-8 h-8 text-rose-600 mx-auto" />
-          <p className="text-sm font-bold text-rose-800 dark:text-rose-300">{error}</p>
+          <p className="text-sm font-semibold text-rose-800 dark:text-rose-300">{error}</p>
           <button
             onClick={() => fetchAnalytics(true)}
-            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow transition cursor-pointer"
+            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow transition cursor-pointer"
           >
             Retry
           </button>
@@ -1029,7 +1029,7 @@ export default function HubstaffAnalyticsPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px] text-left border-collapse text-[12px] leading-[16px]">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                  <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">
                     {dateMode === "range" && (
                       <th className="py-3 px-4 border-r border-slate-200/80 dark:border-slate-800 cursor-pointer" onClick={() => handleSort("date")}>
                         <div className="flex items-center gap-1.5">
@@ -1071,14 +1071,14 @@ export default function HubstaffAnalyticsPage() {
                             No Hubstaff activity recorded for {dateMode === "single" ? selectedDate : `${startDate} to ${endDate}`}.
                           </p>
                           {analyticsData?.hubstaff_status?.message && (
-                            <p className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+                            <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">
                               {analyticsData.hubstaff_status.message}
                             </p>
                           )}
                           <button
                             onClick={() => fetchAnalytics(true)}
                             disabled={refreshing || loading}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 transition cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition cursor-pointer"
                           >
                             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
                             <span>Refresh Hubstaff Data</span>
@@ -1101,11 +1101,11 @@ export default function HubstaffAnalyticsPage() {
                               <div className="flex items-center gap-2">
                                 <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
                                 <div>
-                                  <div className="font-bold text-xs text-slate-900 dark:text-white">
+                                  <div className="font-semibold text-xs text-slate-900 dark:text-white">
                                     {u.date_formatted || u.date}
                                   </div>
                                   {u.day_name && (
-                                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
                                       {u.day_name}
                                     </div>
                                   )}
@@ -1122,7 +1122,7 @@ export default function HubstaffAnalyticsPage() {
                                 name={u.name}
                                 userId={u.user_id}
                                 employeeCode={u.employee_code}
-                                className="w-8 h-8 rounded-full text-xs font-bold bg-purple-600 text-white shrink-0"
+                                className="w-8 h-8 rounded-full text-xs font-semibold bg-purple-600 text-white shrink-0"
                               />
                               <div className="min-w-0">
                                 <h3
@@ -1141,7 +1141,7 @@ export default function HubstaffAnalyticsPage() {
                                     employeeCode={u.employee_code}
                                   />
                                 </h3>
-                                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                                   {u.designation} {u.employee_code && `• ${u.employee_code}`}
                                 </p>
                               </div>
@@ -1155,7 +1155,7 @@ export default function HubstaffAnalyticsPage() {
 
                           {/* Tracked Time */}
                           <td className="py-3 px-3 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
-                            <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                            <span className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
                               {u.tracked_formatted}
                             </span>
                           </td>
@@ -1164,8 +1164,8 @@ export default function HubstaffAnalyticsPage() {
                           <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                             <div className="space-y-1.5 min-w-[130px]">
                               <div className="flex items-center justify-between text-xs">
-                                <span className="font-bold text-slate-900 dark:text-white">{actBadge.percent}%</span>
-                                <span className={`text-[9px] px-1.5 py-0.2 rounded border font-bold ${actBadge.bg}`}>
+                                <span className="font-semibold text-slate-900 dark:text-white">{actBadge.percent}%</span>
+                                <span className={`text-xs px-1.5 py-0.2 rounded border font-semibold ${actBadge.bg}`}>
                                   {actBadge.percent >= 70 ? "HIGH" : actBadge.percent >= 50 ? "MODERATE" : "LOW"}
                                 </span>
                               </div>
@@ -1185,17 +1185,17 @@ export default function HubstaffAnalyticsPage() {
                                 u.projects.slice(0, 2).map((p: any) => (
                                   <span
                                     key={p.hubstaff_project_id || p.project_name}
-                                    className="px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-[10px] font-bold text-purple-700 dark:text-purple-300 truncate max-w-[120px]"
+                                    className="px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-xs font-semibold text-purple-700 dark:text-purple-300 truncate max-w-[120px]"
                                     title={`${p.project_name} (${p.tracked_formatted})`}
                                   >
                                     {p.project_name}
                                   </span>
                                 ))
                               ) : (
-                                <span className="text-slate-400 italic text-[11px]">—</span>
+                                <span className="text-slate-400 italic text-xs">—</span>
                               )}
                               {u.projects && u.projects.length > 2 && (
-                                <span className="text-[10px] font-bold text-slate-500">+{u.projects.length - 2} more</span>
+                                <span className="text-xs font-semibold text-slate-500">+{u.projects.length - 2} more</span>
                               )}
                             </div>
                           </td>
@@ -1242,7 +1242,7 @@ export default function HubstaffAnalyticsPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px] text-left border-collapse text-[12px] leading-[16px]">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                  <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">
                     {dateMode === "range" && (
                       <th className="py-3 px-4 border-r border-slate-200/80 dark:border-slate-800 cursor-pointer" onClick={() => handleSort("date")}>
                         <div className="flex items-center gap-1.5">
@@ -1283,14 +1283,14 @@ export default function HubstaffAnalyticsPage() {
                             No project activity recorded for {dateMode === "single" ? selectedDate : `${startDate} to ${endDate}`}.
                           </p>
                           {analyticsData?.hubstaff_status?.message && (
-                            <p className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+                            <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">
                               {analyticsData.hubstaff_status.message}
                             </p>
                           )}
                           <button
                             onClick={() => fetchAnalytics(true)}
                             disabled={refreshing || loading}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 transition cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800 transition cursor-pointer"
                           >
                             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
                             <span>Refresh Hubstaff Data</span>
@@ -1313,11 +1313,11 @@ export default function HubstaffAnalyticsPage() {
                               <div className="flex items-center gap-2">
                                 <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
                                 <div>
-                                  <div className="font-bold text-xs text-slate-900 dark:text-white">
+                                  <div className="font-semibold text-xs text-slate-900 dark:text-white">
                                     {p.date_formatted || p.date}
                                   </div>
                                   {p.day_name && (
-                                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
                                       {p.day_name}
                                     </div>
                                   )}
@@ -1345,22 +1345,22 @@ export default function HubstaffAnalyticsPage() {
                           </td>
 
                           <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
-                            <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                            <span className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
                               {p.tracked_formatted}
                             </span>
                           </td>
 
                           <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-slate-900 dark:text-white">{actBadge.percent}%</span>
-                              <span className={`text-[9px] px-2 py-0.5 rounded border font-bold ${actBadge.bg}`}>
+                              <span className="font-semibold text-slate-900 dark:text-white">{actBadge.percent}%</span>
+                              <span className={`text-xs px-2 py-0.5 rounded border font-semibold ${actBadge.bg}`}>
                                 {actBadge.percent >= 70 ? "High" : actBadge.percent >= 50 ? "Moderate" : "Low"}
                               </span>
                             </div>
                           </td>
 
                           <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
-                            <span className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300">
+                            <span className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300">
                               {p.members_count} Members
                             </span>
                           </td>
@@ -1391,7 +1391,7 @@ export default function HubstaffAnalyticsPage() {
           {/* Daily Tracked Time Trend */}
           <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-purple-600" />
                 <span>Tracked Work Hours by Date</span>
               </h3>
@@ -1408,10 +1408,10 @@ export default function HubstaffAnalyticsPage() {
                     <div key={t.date} className="space-y-1 text-xs">
                       <div className="flex justify-between font-semibold">
                         <span className="text-slate-600 dark:text-slate-400">{t.date_formatted} ({t.date})</span>
-                        <span className="text-slate-900 dark:text-white font-bold">{t.tracked_formatted} ({t.tracked_hours}h)</span>
+                        <span className="text-slate-900 dark:text-white font-semibold">{t.tracked_formatted} ({t.tracked_hours}h)</span>
                       </div>
                       <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full" style={{ width: `${pct}%` }} />
+                        <div className="h-full bg-purple-500 rounded-full" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );
@@ -1423,7 +1423,7 @@ export default function HubstaffAnalyticsPage() {
           {/* Daily Activity Percentage Trend */}
           <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <Activity className="w-4 h-4 text-emerald-600" />
                 <span>Average Activity % Trend</span>
               </h3>
@@ -1439,7 +1439,7 @@ export default function HubstaffAnalyticsPage() {
                     <div key={t.date} className="space-y-1 text-xs">
                       <div className="flex justify-between font-semibold">
                         <span className="text-slate-600 dark:text-slate-400">{t.date_formatted}</span>
-                        <span className="text-slate-900 dark:text-white font-bold">{t.activity_percentage}%</span>
+                        <span className="text-slate-900 dark:text-white font-semibold">{t.activity_percentage}%</span>
                       </div>
                       <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
                         <div className={`h-full rounded-full ${actBadge.bar}`} style={{ width: `${t.activity_percentage}%` }} />
@@ -1453,7 +1453,7 @@ export default function HubstaffAnalyticsPage() {
 
           {/* Project Distribution */}
           <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 lg:col-span-2">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
               <PieChart className="w-4 h-4 text-amber-600" />
               <span>Project Work Time Distribution</span>
             </h3>
@@ -1464,7 +1464,7 @@ export default function HubstaffAnalyticsPage() {
                 const pct = Math.min(100, Math.round((p.tracked_seconds / totalSec) * 100));
                 return (
                   <div key={p.name} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1 text-xs">
-                    <div className="flex justify-between font-bold">
+                    <div className="flex justify-between font-semibold">
                       <span className="truncate max-w-[150px] text-slate-900 dark:text-white">{p.name}</span>
                       <span className="text-purple-600 dark:text-purple-400">{pct}%</span>
                     </div>
@@ -1494,10 +1494,10 @@ export default function HubstaffAnalyticsPage() {
                     name={selectedUserDetail.name}
                     userId={selectedUserDetail.user_id}
                     employeeCode={selectedUserDetail.employee_code}
-                    className="w-11 h-11 rounded-full text-sm font-bold bg-purple-600 text-white"
+                    className="w-11 h-11 rounded-full text-sm font-semibold bg-purple-600 text-white"
                   />
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                       <RoyalName
                         name={selectedUserDetail.name}
                         userId={selectedUserDetail.user_id}
@@ -1520,14 +1520,14 @@ export default function HubstaffAnalyticsPage() {
               {/* Quick Metrics */}
               <div className="grid grid-cols-2 gap-4 p-6 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800">
                 <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase">Tracked Work Time</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{selectedUserDetail.tracked_formatted}</p>
+                  <p className="text-xs font-semibold text-slate-500">Tracked Work Time</p>
+                  <p className="text-xl font-semibold text-slate-900 dark:text-white mt-0.5">{selectedUserDetail.tracked_formatted}</p>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase">Overall Activity</p>
+                  <p className="text-xs font-semibold text-slate-500">Overall Activity</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xl font-black text-slate-900 dark:text-white">{selectedUserDetail.activity_percentage}%</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${getActivityBadge(selectedUserDetail.activity_percentage).bg}`}>
+                    <span className="text-xl font-semibold text-slate-900 dark:text-white">{selectedUserDetail.activity_percentage}%</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${getActivityBadge(selectedUserDetail.activity_percentage).bg}`}>
                       {selectedUserDetail.activity_level.toUpperCase()}
                     </span>
                   </div>
@@ -1536,7 +1536,7 @@ export default function HubstaffAnalyticsPage() {
 
               {/* Project Breakdown List */}
               <div className="p-6 overflow-y-auto max-h-[50vh] space-y-3">
-                <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
                   Project Activity Breakdown
                 </h4>
                 {selectedUserDetail.projects?.map((p: any) => {
@@ -1549,12 +1549,12 @@ export default function HubstaffAnalyticsPage() {
                       <div className="space-y-0.5 min-w-0">
                         <div className="flex items-center gap-2">
                           <FolderKanban className="w-3.5 h-3.5 text-purple-600" />
-                          <span className="font-bold text-slate-900 dark:text-white truncate">{p.project_name}</span>
+                          <span className="font-semibold text-slate-900 dark:text-white truncate">{p.project_name}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-4 shrink-0">
-                        <span className="font-black text-slate-900 dark:text-white text-xs sm:text-sm">{p.tracked_formatted}</span>
-                        <span className={`px-2 py-0.5 rounded-md border text-[10px] font-bold ${pBadge.bg}`}>
+                        <span className="font-semibold text-slate-900 dark:text-white text-xs sm:text-sm">{p.tracked_formatted}</span>
+                        <span className={`px-2 py-0.5 rounded-md border text-xs font-semibold ${pBadge.bg}`}>
                           {p.activity_percentage}% Act
                         </span>
                       </div>
@@ -1566,7 +1566,7 @@ export default function HubstaffAnalyticsPage() {
               <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-end">
                 <button
                   onClick={() => setSelectedUserDetail(null)}
-                  className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl hover:bg-slate-300 transition"
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-300 transition"
                 >
                   Close
                 </button>
@@ -1588,7 +1588,7 @@ export default function HubstaffAnalyticsPage() {
                     <FolderKanban className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white">{selectedProjectDetail.name}</h3>
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">{selectedProjectDetail.name}</h3>
                     <p className="text-xs text-slate-500">Hubstaff Tracked Project</p>
                   </div>
                 </div>
@@ -1602,17 +1602,17 @@ export default function HubstaffAnalyticsPage() {
 
               <div className="grid grid-cols-2 gap-4 p-6 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800">
                 <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase">Total Tracked Time</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{selectedProjectDetail.tracked_formatted}</p>
+                  <p className="text-xs font-semibold text-slate-500">Total Tracked Time</p>
+                  <p className="text-xl font-semibold text-slate-900 dark:text-white mt-0.5">{selectedProjectDetail.tracked_formatted}</p>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase">Average Activity</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{selectedProjectDetail.activity_percentage}%</p>
+                  <p className="text-xs font-semibold text-slate-500">Average Activity</p>
+                  <p className="text-xl font-semibold text-slate-900 dark:text-white mt-0.5">{selectedProjectDetail.activity_percentage}%</p>
                 </div>
               </div>
 
               <div className="p-6 overflow-y-auto max-h-[50vh] space-y-3">
-                <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
                   Team Member Contributions ({selectedProjectDetail.members_count})
                 </h4>
                 {selectedProjectDetail.members?.map((m: any) => (
@@ -1621,11 +1621,11 @@ export default function HubstaffAnalyticsPage() {
                     className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between gap-3 text-xs"
                   >
                     <div>
-                      <span className="font-bold text-slate-900 dark:text-white">{m.name}</span>
-                      <p className="text-[10px] text-slate-500">{m.designation}</p>
+                      <span className="font-semibold text-slate-900 dark:text-white">{m.name}</span>
+                      <p className="text-xs text-slate-500">{m.designation}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-black text-slate-900 dark:text-white">{m.tracked_formatted}</span>
+                      <span className="font-semibold text-slate-900 dark:text-white">{m.tracked_formatted}</span>
                       <span className="text-slate-500 font-semibold">{m.activity_percentage}% Act</span>
                     </div>
                   </div>
@@ -1635,7 +1635,7 @@ export default function HubstaffAnalyticsPage() {
               <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-end">
                 <button
                   onClick={() => setSelectedProjectDetail(null)}
-                  className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl hover:bg-slate-300 transition"
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-300 transition"
                 >
                   Close
                 </button>

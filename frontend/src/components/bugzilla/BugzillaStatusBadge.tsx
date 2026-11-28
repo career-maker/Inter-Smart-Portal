@@ -37,11 +37,11 @@ export function BugzillaStatusBadge({ status, className = "", size = "md" }: Pro
       break;
   }
 
-  const sizeClasses = size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2.5 py-0.5 text-xs";
+  const sizeClasses = size === "sm" ? "px-1.5 py-0.5 text-xs" : "px-2.5 py-0.5 text-xs";
 
   return (
     <span
-      className={`inline-flex items-center font-semibold rounded-full border tracking-wide uppercase ${sizeClasses} ${colors} ${className}`}
+      className={`inline-flex items-center font-semibold rounded-full border ${sizeClasses} ${colors} ${className}`}
     >
       {s.replace("_", " ")}
     </span>

@@ -13,7 +13,7 @@ export default function CreateTeamPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Create Team</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">Create Team</h1>
           <p className="text-slate-600 dark:text-slate-300">Setup a new organizational unit.</p>
         </div>
       </div>

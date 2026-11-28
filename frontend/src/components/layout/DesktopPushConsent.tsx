@@ -103,10 +103,10 @@ export function DesktopPushConsent() {
             <Bell className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">
+            <h4 className="font-semibold text-sm text-slate-900 dark:text-white leading-tight">
               Enable Push Notifications
             </h4>
-            <p className="text-[11px] text-purple-700 dark:text-purple-300 font-semibold mt-0.5">
+            <p className="text-xs text-purple-700 dark:text-purple-300 font-semibold mt-0.5">
               Instant Portal Updates
             </p>
           </div>
@@ -140,7 +140,7 @@ export function DesktopPushConsent() {
           type="button"
           onClick={handleEnable}
           disabled={isEnabling}
-          className="px-4 py-2 rounded-xl text-xs font-bold bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 text-white shadow-md shadow-purple-900/20 transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+          className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 text-white shadow-md shadow-purple-900/20 transition active:scale-95 cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
         >
           <CheckCircle2 className="w-3.5 h-3.5" />
           {isEnabling ? "Enabling..." : "Enable Notifications"}

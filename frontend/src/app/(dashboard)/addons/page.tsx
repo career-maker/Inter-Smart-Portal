@@ -155,7 +155,7 @@ export default function PmAddonsPage() {
       <div className="">
         <div className="p-8 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-center space-y-3">
           <ShieldCheck className="w-12 h-12 mx-auto text-amber-600 dark:text-amber-400" />
-          <h2 className="text-lg font-bold">Super Admin Access Only</h2>
+          <h2 className="text-lg font-semibold">Super Admin Access Only</h2>
           <p className="text-xs">Only Super Administrators can configure and assign project management add-ons.</p>
         </div>
       </div>
@@ -170,7 +170,7 @@ export default function PmAddonsPage() {
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <span className="text-slate-900 dark:text-white">Add-ons Directory</span>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+          <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
             <Puzzle className="w-5 h-5 text-[#56348f]" />
             <span>Portal Add-ons</span>
           </h1>
@@ -225,7 +225,7 @@ export default function PmAddonsPage() {
             return (
               <div
                 key={addon.id}
-                className={`rounded-2xl bg-white dark:bg-slate-900 border transition-all shadow-sm p-6 space-y-5 ${
+                className={`rounded-2xl bg-white dark:bg-slate-900 border transition shadow-sm p-6 space-y-5 ${
                   addon.is_active
                     ? "border-slate-200 dark:border-slate-800 ring-1 ring-black/5 dark:ring-white/5"
                     : "border-slate-200 dark:border-slate-800 opacity-80"
@@ -259,7 +259,7 @@ export default function PmAddonsPage() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">{addon.name}</h2>
                         <span
-                          className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${
+                          className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
                             addon.is_active
                               ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
                               : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
@@ -294,10 +294,10 @@ export default function PmAddonsPage() {
                 {addon.key === "customization" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
-                      <div className="font-bold flex items-center gap-1.5">
+                      <div className="font-semibold flex items-center gap-1.5">
                         <span>Portal Branding, Typography & Theme Customization</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                         Customize global font family, header background and text colors, heading and body font scales, and browser tab page title formatting.
                       </p>
                     </div>
@@ -323,10 +323,10 @@ export default function PmAddonsPage() {
                 ) : addon.key === "leave_policy" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
-                      <div className="font-bold flex items-center gap-1.5">
+                      <div className="font-semibold flex items-center gap-1.5">
                         <span>System Policy Engine & Employee Accrual Rules</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                         Configure monthly cycle cutoffs (26th), probation periods, automatic CL/SL accrual rates, and individual employee balances.
                       </p>
                     </div>
@@ -352,10 +352,10 @@ export default function PmAddonsPage() {
                 ) : addon.key === "email_management" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
-                      <div className="font-bold flex items-center gap-1.5">
+                      <div className="font-semibold flex items-center gap-1.5">
                         <span>SMTP Server & Notification Recipient Matrix</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                         Configure sender Google App Passwords, SMTP server settings, custom TO/CC routing for leaves, WFH, awards, and employee-specific overrides.
                       </p>
                     </div>
@@ -380,7 +380,7 @@ export default function PmAddonsPage() {
                   </div>
                 ) : addon.key === "menu_layout" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                       Reorder the side menu and switch entries off for Team Leads and Employees. Display only; page access is unchanged.
                     </p>
                     <div className="flex items-center justify-end pt-2">
@@ -397,10 +397,10 @@ export default function PmAddonsPage() {
                 ) : addon.key === "permissions" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
-                      <div className="font-bold flex items-center gap-1.5">
+                      <div className="font-semibold flex items-center gap-1.5">
                         <span>Team & Role Permissions Matrix</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                         Configure fine-grained cross-team visibility, task data tables switcher, cross-team assignment, and team-lead-only scoping.
                       </p>
                     </div>
@@ -428,7 +428,7 @@ export default function PmAddonsPage() {
                     {/* Team Assignment Selector */}
                     <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
                           <Users className="w-4 h-4 text-[#0F766E] dark:text-teal-400" />
                           <span>Assign To Team(s)</span>
                         </div>
@@ -457,7 +457,7 @@ export default function PmAddonsPage() {
                                 fontSize: "12px",
                                 fontWeight: 400,
                               }}
-                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-normal border transition-all cursor-pointer ${
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-normal border transition cursor-pointer ${
                                 isAssigned
                                   ? "bg-[var(--portal-primary-color,#0F766E)] !text-white border-[var(--portal-primary-color,#0F766E)] shadow-2xs"
                                   : "bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-700"
@@ -519,7 +519,7 @@ export default function PmAddonsPage() {
 
           {isSuperAdmin && (
             <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-3">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Content Cleanup</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Content Cleanup</h2>
               <p className="text-xs text-slate-600 dark:text-slate-400">Find and delete anything users created: one item, many items, or everything from a user or department.</p>
               <div className="flex justify-end">
                 <Link href="/addons/content-cleanup" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 text-white text-[13px] font-semibold">
@@ -530,7 +530,7 @@ export default function PmAddonsPage() {
           )}
 
           {/* ── Storage & Data Retention Policy Add-on Card ── */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-all shadow-sm p-6 space-y-5">
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition shadow-sm p-6 space-y-5">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
                 <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300 shrink-0">
@@ -538,8 +538,8 @@ export default function PmAddonsPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Storage & Data Retention</h2>
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Storage & Data Retention</h2>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
                       Active
                     </span>
                   </div>
@@ -553,7 +553,7 @@ export default function PmAddonsPage() {
             <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
                 <p className="font-semibold">Automatic Monthly Cleanup</p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Prune expired chat history and community posts while ensuring employee, attendance, and project data remains completely safe.
                 </p>
               </div>

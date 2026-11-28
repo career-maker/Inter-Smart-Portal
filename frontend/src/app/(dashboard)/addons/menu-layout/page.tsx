@@ -139,7 +139,7 @@ export default function MenuLayoutPage() {
                   <g.icon className="w-4 h-4 text-slate-500 shrink-0" />
                   <span className={`font-semibold text-sm flex-1 ${gHidden ? "line-through text-slate-400" : "text-slate-900"}`}>
                     {g.label}
-                    {g.feature && <span className="ml-2 text-[11px] font-normal text-slate-400">only shown to people who have this module</span>}
+                    {g.feature && <span className="ml-2 text-xs font-normal text-slate-400">only shown to people who have this module</span>}
                   </span>
                   <button type="button" className={btn} disabled={gi === 0} onClick={() => setGroupOrder(move(groupOrder, gi, -1))} aria-label={`Move ${g.label} up`}>
                     <ArrowUp className="w-4 h-4" />

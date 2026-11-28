@@ -177,7 +177,7 @@ export function Toaster() {
             whileTap={{ scale: 0.99, transition: { duration: 0.2, ease: "easeInOut" } }}
             transition={{ duration: 0.25, ease: "easeOut" }}
             className={cn(
-              "pointer-events-auto relative overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-2xl border flex items-start gap-3.5 transition-all w-full",
+              "pointer-events-auto relative overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-2xl border flex items-start gap-3.5 transition w-full",
               toast.type === "success" &&
                 "bg-slate-900/95 dark:bg-slate-900/95 border-emerald-500/50 text-white shadow-xl shadow-emerald-950/40 ring-1 ring-emerald-500/20",
               toast.type === "error" &&
@@ -227,11 +227,11 @@ export function Toaster() {
             <div className="flex-1 min-w-0 relative z-10">
               {toast.title && (
                 <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-bold text-white tracking-wide">
+                  <h4 className="text-sm font-semibold text-white">
                     {toast.title}
                   </h4>
                   {toast.type === "success" && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                       Success
                     </span>
                   )}

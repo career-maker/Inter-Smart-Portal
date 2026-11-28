@@ -437,22 +437,22 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
 
   return (
     <div className={`flex justify-center items-center ${standalone ? "w-full min-h-0 py-1 sm:py-2" : "min-h-[75vh] p-2 sm:p-4"}`}>
-      <div className={`w-full ${standalone ? "max-w-5xl p-3.5 sm:p-10" : "max-w-2xl p-4 sm:p-8"} bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xl text-center relative overflow-hidden transition-all`}>
+      <div className={`w-full ${standalone ? "max-w-5xl p-3.5 sm:p-10" : "max-w-2xl p-4 sm:p-8"} bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xl text-center relative overflow-hidden transition`}>
         {/* Network Status / Header Badge */}
         {standalone ? (
-          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300 border border-purple-200/80 dark:border-purple-500/30 mb-2 sm:mb-3 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300 border border-purple-200/80 dark:border-purple-500/30 mb-2 sm:mb-3 shadow-2xs">
             <Gamepad2 className="w-3.5 h-3.5" />
             <span>Workplace Break</span>
           </div>
         ) : (
-          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200/80 dark:border-rose-500/30 mb-2 sm:mb-3 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200/80 dark:border-rose-500/30 mb-2 sm:mb-3 shadow-2xs">
             <WifiOff className="w-3.5 h-3.5" />
             <span>Server Connection Interrupted</span>
           </div>
         )}
 
         {/* Header Title */}
-        <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+        <h2 className="text-lg sm:text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">
           {standalone ? "InterSmart Pixel Runner" : "Unable to Reach Workplace Server"}
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto mt-1">
@@ -478,7 +478,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
             />
 
             {/* Live Score Pill */}
-            <div className="absolute top-2 left-3 pointer-events-none flex items-center gap-2 text-xs font-bold font-mono">
+            <div className="absolute top-2 left-3 pointer-events-none flex items-center gap-2 text-xs font-semibold font-mono">
               <span className="text-slate-700 dark:text-slate-200 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xs px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-slate-800">
                 Score: {score}
               </span>
@@ -491,7 +491,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
           </div>
 
           {/* Jump instruction helper outside canvas */}
-          <div className="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-2">
+          <div className="flex items-center justify-center gap-1.5 text-xs sm:text-xs text-slate-500 dark:text-slate-400 mt-2">
             <Gamepad2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
             <span>Tap canvas or press Jump button to leap over obstacles</span>
           </div>
@@ -503,7 +503,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
             <button
               onClick={handleRetry}
               disabled={retrying}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 sm:py-2.5 bg-[#56348f] hover:bg-[#472a77] text-white text-sm font-bold rounded-xl shadow-md shadow-purple-900/20 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 sm:py-2.5 bg-[#56348f] hover:bg-[#472a77] text-white text-sm font-semibold rounded-xl shadow-md shadow-purple-900/20 transition active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${retrying ? "animate-spin" : ""}`} />
               <span>{retrying ? "Connecting..." : "Try Reconnecting"}</span>
@@ -513,7 +513,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
           <button
             onClick={triggerJump}
             style={{ touchAction: "manipulation" }}
-            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 sm:py-2.5 text-base sm:text-sm font-extrabold rounded-xl transition-all active:scale-95 cursor-pointer shadow-md select-none ${
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 sm:py-2.5 text-base sm:text-sm font-semibold rounded-xl transition active:scale-95 cursor-pointer shadow-md select-none ${
               standalone
                 ? "bg-[#56348f] hover:bg-[#472a77] text-white shadow-purple-900/25"
                 : "bg-purple-600 hover:bg-purple-700 text-white shadow-purple-900/25"
@@ -529,13 +529,13 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
           <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber-500" />
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Workplace High Scores
               </h3>
             </div>
 
             {/* Current user rank pill */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-[#56348f] dark:bg-purple-950/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-[#56348f] dark:bg-purple-950/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
               <Award className="w-3 h-3" />
               <span>Your Rank: #{currentRank}</span>
             </div>
@@ -576,18 +576,18 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
               return (
                 <div
                   key={player.id}
-                  className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all ${
+                  className={`flex items-center justify-between px-3 py-2 rounded-xl transition ${
                     isUser
                       ? "bg-purple-50 dark:bg-purple-950/40 border-2 border-[#56348f]/60 shadow-xs"
                       : "bg-white dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-6 text-center text-xs font-bold text-slate-500 dark:text-slate-400">
+                    <span className="w-6 text-center text-xs font-semibold text-slate-500 dark:text-slate-400">
                       {medal}
                     </span>
                     <div
-                      className={`w-7 h-7 rounded-full ${player.avatarBg || "bg-[#56348f]"} text-white text-[10px] font-bold flex items-center justify-center shrink-0`}
+                      className={`w-7 h-7 rounded-full ${player.avatarBg || "bg-[#56348f]"} text-white text-xs font-semibold flex items-center justify-center shrink-0`}
                     >
                       {player.avatarText || "IS"}
                     </div>
@@ -603,28 +603,28 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
                           {player.name}
                         </span>
                         {isUser && (
-                          <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.2 bg-[#56348f] text-white rounded-md tracking-wider">
+                          <span className="text-xs font-semibold px-1.5 py-0.2 bg-[#56348f] text-white rounded-md">
                             You
                           </span>
                         )}
                       </div>
-                      <p className="text-[10.5px] text-slate-400 truncate">
+                      <p className="text-xs text-slate-400 truncate">
                         {player.role || "Team Member"}
                       </p>
                     </div>
                   </div>
 
                   <div className="text-right shrink-0 pl-2">
-                    <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
+                    <span className="text-xs font-mono font-semibold text-slate-800 dark:text-slate-200">
                       {player.score} pts
                     </span>
                     {isUser && higherScorers.length > 0 && (
-                      <p className="text-[10px] text-rose-500 dark:text-rose-400">
+                      <p className="text-xs text-rose-500 dark:text-rose-400">
                         -{leaderboard[0].score - player.score} from #1
                       </p>
                     )}
                     {rank === 1 && (
-                      <p className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">
+                      <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold">
                         Leader
                       </p>
                     )}
@@ -637,12 +637,12 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
 
         {/* Footer note */}
         {standalone ? (
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-4 flex items-center justify-center gap-1.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 flex items-center justify-center gap-1.5">
 
             <span>Tip: Space or ↑ to Jump. Beat your teammates&apos; high scores!</span>
           </p>
         ) : (
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-4 flex items-center justify-center gap-1.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 flex items-center justify-center gap-1.5">
 
             <span>Will automatically reconnect when your internet is back online</span>
           </p>

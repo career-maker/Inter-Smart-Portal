@@ -99,7 +99,7 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
             <MessageSquare className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white">
               Discussion & Activity ({comments.length})
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -149,7 +149,7 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
             <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
               No comments posted yet
             </p>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 max-w-sm mx-auto">
+            <p className="text-xs text-slate-400 dark:text-slate-500 max-w-sm mx-auto">
               Be the first to share an update, report a milestone, or ask a question regarding this task.
             </p>
           </div>
@@ -161,7 +161,7 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
               return (
                 <div
                   key={c.id}
-                  className={`p-4 rounded-xl border transition-all ${
+                  className={`p-4 rounded-xl border transition ${
                     isCurrentUser
                       ? "bg-blue-50/40 dark:bg-blue-950/20 border-blue-200/80 dark:border-blue-800/50"
                       : "bg-slate-50/70 dark:bg-slate-800/50 border-slate-200/70 dark:border-slate-800/70"
@@ -170,7 +170,7 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
                   <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
                     <div className="flex items-center gap-2.5">
                       <div
-                        className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${
+                        className={`w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center ${
                           isCurrentUser
                             ? "bg-blue-600 text-white"
                             : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200"
@@ -179,18 +179,18 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
                         {c.user?.first_name?.[0] || "U"}
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                        <span className="text-xs font-semibold text-slate-900 dark:text-white">
                           {c.user ? `${c.user.first_name} ${c.user.last_name}` : "User"}
                         </span>
                         {isCurrentUser && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                          <span className="text-xs font-semibold px-1.5 py-0.2 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
                             You
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                    <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
                       {formatRelativeCommentTime(c.created_at)}
                     </span>
                   </div>
@@ -224,8 +224,8 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-[11px] text-slate-400">
-            Tip: Press <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px] border border-slate-200 dark:border-slate-700">Ctrl + Enter</kbd> to submit
+          <span className="text-xs text-slate-400">
+            Tip: Press <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-xs border border-slate-200 dark:border-slate-700">Ctrl + Enter</kbd> to submit
           </span>
 
           <button

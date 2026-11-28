@@ -69,7 +69,7 @@ export function MilestoneCelebrationsWidget({
         <button
           type="button"
           onClick={() => setActiveTab("birthdays")}
-          className="relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 cursor-pointer shrink-0 transition-all group"
+          className="relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 cursor-pointer shrink-0 transition group"
         >
           <Cake
             className={`w-4 h-4 transition-colors ${
@@ -79,7 +79,7 @@ export function MilestoneCelebrationsWidget({
             }`}
           />
           <span
-            className={`text-xs sm:text-[13px] font-bold transition-colors ${
+            className={`text-xs sm:text-[13px] font-semibold transition-colors ${
               activeTab === "birthdays"
                 ? "text-[#56348f] dark:text-purple-400"
                 : "text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200"
@@ -88,7 +88,7 @@ export function MilestoneCelebrationsWidget({
             Birthdays
           </span>
           <span
-            className={`text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+            className={`text-xs font-semibold px-2 py-0.5 rounded-full transition-colors ${
               activeTab === "birthdays"
                 ? "bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300"
                 : "bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300"
@@ -109,7 +109,7 @@ export function MilestoneCelebrationsWidget({
         <button
           type="button"
           onClick={() => setActiveTab("anniversaries")}
-          className="relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 cursor-pointer shrink-0 transition-all group"
+          className="relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 cursor-pointer shrink-0 transition group"
         >
           <PartyPopper
             className={`w-4 h-4 transition-colors ${
@@ -119,7 +119,7 @@ export function MilestoneCelebrationsWidget({
             }`}
           />
           <span
-            className={`text-xs sm:text-[13px] font-bold transition-colors ${
+            className={`text-xs sm:text-[13px] font-semibold transition-colors ${
               activeTab === "anniversaries"
                 ? "text-[#56348f] dark:text-purple-400"
                 : "text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200"
@@ -128,7 +128,7 @@ export function MilestoneCelebrationsWidget({
             Work Anniversaries
           </span>
           <span
-            className={`text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+            className={`text-xs font-semibold px-2 py-0.5 rounded-full transition-colors ${
               activeTab === "anniversaries"
                 ? "bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300"
                 : "bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300"
@@ -149,7 +149,7 @@ export function MilestoneCelebrationsWidget({
         <button
           type="button"
           onClick={() => setActiveTab("joined")}
-          className="relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 cursor-pointer shrink-0 transition-all group"
+          className="relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 cursor-pointer shrink-0 transition group"
         >
           <UserPlus
             className={`w-4 h-4 transition-colors ${
@@ -159,7 +159,7 @@ export function MilestoneCelebrationsWidget({
             }`}
           />
           <span
-            className={`text-xs sm:text-[13px] font-bold transition-colors ${
+            className={`text-xs sm:text-[13px] font-semibold transition-colors ${
               activeTab === "joined"
                 ? "text-[#56348f] dark:text-purple-400"
                 : "text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200"
@@ -168,7 +168,7 @@ export function MilestoneCelebrationsWidget({
             Joined Recently
           </span>
           <span
-            className={`text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+            className={`text-xs font-semibold px-2 py-0.5 rounded-full transition-colors ${
               activeTab === "joined"
                 ? "bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300"
                 : "bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300"
@@ -186,7 +186,7 @@ export function MilestoneCelebrationsWidget({
       {/* ── TAB CONTENT ── */}
       <div className="mt-3 flex-1 flex flex-col justify-between">
         {/* Section Heading */}
-        <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight mb-2.5">
+        <h4 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white tracking-tight mb-2.5">
           {activeTab === "birthdays" && "Upcoming Birthdays"}
           {activeTab === "anniversaries" && "Upcoming Anniversaries"}
           {activeTab === "joined" && "Joined Recently"}
@@ -208,7 +208,7 @@ export function MilestoneCelebrationsWidget({
                     {allBirthdays.map((person) => (
                       <div
                         key={person.id}
-                        className="w-36 sm:w-44 p-3.5 sm:p-4 rounded-2xl border border-purple-100/90 dark:border-purple-900/40 bg-[#FAF9FF] dark:bg-purple-950/15 flex flex-col items-center text-center shadow-2xs hover:shadow-xs transition-all shrink-0"
+                        className="w-36 sm:w-44 p-3.5 sm:p-4 rounded-2xl border border-purple-100/90 dark:border-purple-900/40 bg-[#FAF9FF] dark:bg-purple-950/15 flex flex-col items-center text-center shadow-2xs hover:shadow-xs transition shrink-0"
                       >
                         {/* Avatar (with purple background and bold initials matching screenshot) */}
                         <div className="relative">
@@ -216,22 +216,22 @@ export function MilestoneCelebrationsWidget({
                             src={person.profile_photo_path}
                             name={person.name}
                             userId={person.id}
-                            className="w-12 h-12 rounded-full font-bold text-sm ring-2 ring-purple-200/60 dark:ring-purple-800/50 bg-[#56348f] text-white"
+                            className="w-12 h-12 rounded-full font-semibold text-sm ring-2 ring-purple-200/60 dark:ring-purple-800/50 bg-[#56348f] text-white"
                           />
                         </div>
 
                         {/* Name */}
-                        <p className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white mt-2 truncate max-w-full">
+                        <p className="text-xs sm:text-[13px] font-semibold text-slate-900 dark:text-white mt-2 truncate max-w-full">
                           <RoyalName name={person.name} userId={person.id} />
                         </p>
 
                         {/* Role */}
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-full">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-full">
                           {person.designation || "QA Analyst"}
                         </p>
 
                         {/* Date / Countdown */}
-                        <span className="text-xs font-bold text-[#56348f] dark:text-purple-300 mt-2">
+                        <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300 mt-2">
                           {formatCelebrationDate(person.date, person.days_remaining)}
                         </span>
 
@@ -248,7 +248,7 @@ export function MilestoneCelebrationsWidget({
                                 type: "birthday",
                               })
                             }
-                            className="mt-2 w-full py-1 bg-[#56348f] hover:bg-purple-800 text-white text-[11px] font-bold rounded-lg shadow-2xs transition-colors cursor-pointer"
+                            className="mt-2 w-full py-1 bg-[#56348f] hover:bg-purple-800 text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
                           >
                             Wish
                           </button>
@@ -272,26 +272,26 @@ export function MilestoneCelebrationsWidget({
                     {allAnniversaries.map((person) => (
                       <div
                         key={person.id}
-                        className="w-36 sm:w-44 p-3.5 sm:p-4 rounded-2xl border border-pink-100/90 dark:border-pink-900/40 bg-[#FFF8FA] dark:bg-pink-950/15 flex flex-col items-center text-center shadow-2xs hover:shadow-xs transition-all shrink-0"
+                        className="w-36 sm:w-44 p-3.5 sm:p-4 rounded-2xl border border-pink-100/90 dark:border-pink-900/40 bg-[#FFF8FA] dark:bg-pink-950/15 flex flex-col items-center text-center shadow-2xs hover:shadow-xs transition shrink-0"
                       >
                         <div className="relative">
                           <RoyalAvatar
                             src={person.profile_photo_path}
                             name={person.name}
                             userId={person.id}
-                            className="w-12 h-12 rounded-full font-bold text-sm ring-2 ring-pink-300/60 dark:ring-pink-800/50 bg-pink-600 text-white"
+                            className="w-12 h-12 rounded-full font-semibold text-sm ring-2 ring-pink-300/60 dark:ring-pink-800/50 bg-pink-600 text-white"
                           />
                         </div>
 
-                        <p className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white mt-2 truncate max-w-full">
+                        <p className="text-xs sm:text-[13px] font-semibold text-slate-900 dark:text-white mt-2 truncate max-w-full">
                           <RoyalName name={person.name} userId={person.id} />
                         </p>
 
-                        <p className="text-[11px] font-medium text-pink-600 dark:text-pink-400 mt-0.5 truncate max-w-full">
+                        <p className="text-xs font-medium text-pink-600 dark:text-pink-400 mt-0.5 truncate max-w-full">
                           {person.years} {person.years === 1 ? "Year" : "Years"} with Company
                         </p>
 
-                        <span className="text-xs font-bold text-[#56348f] dark:text-purple-300 mt-2">
+                        <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300 mt-2">
                           {formatCelebrationDate(person.date, person.days_remaining)}
                         </span>
 
@@ -308,7 +308,7 @@ export function MilestoneCelebrationsWidget({
                                 years: person.years,
                               })
                             }
-                            className="mt-2 w-full py-1 bg-pink-600 hover:bg-pink-700 text-white text-[11px] font-bold rounded-lg shadow-2xs transition-colors cursor-pointer"
+                            className="mt-2 w-full py-1 bg-pink-600 hover:bg-pink-700 text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
                           >
                             Wish
                           </button>
@@ -332,26 +332,26 @@ export function MilestoneCelebrationsWidget({
                     {allJoined.map((person) => (
                       <div
                         key={person.id}
-                        className="w-36 sm:w-44 p-3.5 sm:p-4 rounded-2xl border border-emerald-100/90 dark:border-emerald-900/40 bg-[#F6FBF9] dark:bg-emerald-950/15 flex flex-col items-center text-center shadow-2xs hover:shadow-xs transition-all shrink-0"
+                        className="w-36 sm:w-44 p-3.5 sm:p-4 rounded-2xl border border-emerald-100/90 dark:border-emerald-900/40 bg-[#F6FBF9] dark:bg-emerald-950/15 flex flex-col items-center text-center shadow-2xs hover:shadow-xs transition shrink-0"
                       >
                         <div className="relative">
                           <RoyalAvatar
                             src={person.profile_photo_path}
                             name={person.name}
                             userId={person.id}
-                            className="w-12 h-12 rounded-full font-bold text-sm ring-2 ring-emerald-300/60 dark:ring-emerald-800/50 bg-emerald-600 text-white"
+                            className="w-12 h-12 rounded-full font-semibold text-sm ring-2 ring-emerald-300/60 dark:ring-emerald-800/50 bg-emerald-600 text-white"
                           />
                         </div>
 
-                        <p className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white mt-2 truncate max-w-full">
+                        <p className="text-xs sm:text-[13px] font-semibold text-slate-900 dark:text-white mt-2 truncate max-w-full">
                           <RoyalName name={person.name} userId={person.id} />
                         </p>
 
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-full">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-full">
                           {person.designation || "New Team Member"}
                         </p>
 
-                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-2">
+                        <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-2">
                           {person.joined_days_ago === 0 ? "Joined Today!" : `Joined ${person.joined_days_ago}d ago`}
                         </span>
                       </div>

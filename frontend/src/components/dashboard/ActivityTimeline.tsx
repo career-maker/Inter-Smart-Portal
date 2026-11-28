@@ -31,7 +31,7 @@ export default function ActivityTimeline({ activities }: { activities: any[] }) 
 
   return (
     <div className="bg-white border rounded-xl shadow-sm p-5">
-      <h3 className="font-bold text-gray-900 flex items-center gap-2 mb-6">
+      <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-6">
         <Activity className="w-5 h-5 text-indigo-500" />
         Recent Activities
       </h3>

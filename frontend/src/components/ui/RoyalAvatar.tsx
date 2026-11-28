@@ -62,14 +62,14 @@ export function RoyalAvatar({
     return (
       <div className="relative inline-flex items-center justify-center shrink-0">
         {/* Physical Golden Halo Ring */}
-        <div className="relative p-[2.5px] rounded-full bg-gradient-to-tr from-amber-500 via-yellow-200 to-amber-600 ring-1 ring-amber-300/80 z-10">
+        <div className="relative p-[2.5px] rounded-full bg-amber-500 ring-1 ring-amber-300/80 z-10">
           <div
             className={cn(
-              "relative overflow-hidden rounded-full flex items-center justify-center font-bold bg-gradient-to-tr from-[#2563eb] to-[#4f46e5] text-white shrink-0 select-none border border-slate-950/20",
+              "relative overflow-hidden rounded-full flex items-center justify-center font-semibold bg-[#2563eb] text-white shrink-0 select-none border border-slate-950/20",
               className
             )}
           >
-            <span style={{ color: "#ffffff" }} className={cn("text-white font-bold tracking-wider", textClass)}>
+            <span style={{ color: "#ffffff" }} className={cn("text-white font-semibold", textClass)}>
               {initials}
             </span>
             {resolvedSrc && (
@@ -89,7 +89,7 @@ export function RoyalAvatar({
         {showCrownBadge && (
           <div
             title="Most Awarded Employee (Honorary Gold Badge)"
-            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-600 rounded-full flex items-center justify-center shadow-md shadow-amber-500/60 ring-2 ring-white dark:ring-slate-900 text-slate-950 z-20"
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-amber-300 rounded-full flex items-center justify-center shadow-md shadow-amber-500/60 ring-2 ring-white dark:ring-slate-900 text-slate-950 z-20"
           >
             <Crown className="w-2.5 h-2.5 fill-slate-950 text-slate-950" />
           </div>
@@ -101,11 +101,11 @@ export function RoyalAvatar({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-full flex items-center justify-center font-bold bg-gradient-to-tr from-[#2563eb] to-[#4f46e5] text-white shrink-0 select-none border border-white/10",
+        "relative overflow-hidden rounded-full flex items-center justify-center font-semibold bg-[#2563eb] text-white shrink-0 select-none border border-white/10",
         className
       )}
     >
-      <span style={{ color: "#ffffff" }} className={cn("text-white font-bold tracking-wider", textClass)}>
+      <span style={{ color: "#ffffff" }} className={cn("text-white font-semibold", textClass)}>
         {initials}
       </span>
       {resolvedSrc && (

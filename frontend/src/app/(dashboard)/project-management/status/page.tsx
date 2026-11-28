@@ -163,9 +163,9 @@ export default function ProjectStatusPage() {
             <ChevronRight className="w-3.5 h-3.5" />
             <span className="text-slate-900 dark:text-white font-semibold">Project Status</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-3">
             <span>Project Status</span>
-            <span className="text-xs uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
               360° Lifecycle & Live Tracking
             </span>
           </h1>
@@ -206,7 +206,7 @@ export default function ProjectStatusPage() {
           <p className="text-[13px] leading-[20px] font-medium text-slate-600 dark:text-slate-400">Made Live (In Production)</p>
           <div className="flex items-center gap-2">
             <p className="kpi-number text-emerald-600 dark:text-emerald-400">{metrics.liveCount}</p>
-            <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+            <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
               Live
             </span>
           </div>
@@ -242,7 +242,7 @@ export default function ProjectStatusPage() {
                     lineHeight: "20px",
                     fontWeight: 400,
                   }}
-                  className={`px-3 py-1 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition-all cursor-pointer ${
+                  className={`px-3 py-1 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition cursor-pointer ${
                     isSelected
                       ? "bg-[#56348f] !text-white shadow-sm"
                       : "bg-slate-100 dark:bg-slate-800/60 !text-slate-800 dark:!text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700"
@@ -259,7 +259,7 @@ export default function ProjectStatusPage() {
             <button
               type="button"
               onClick={() => setLiveFilter("all")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-lg transition cursor-pointer ${
                 liveFilter === "all"
                   ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -270,7 +270,7 @@ export default function ProjectStatusPage() {
             <button
               type="button"
               onClick={() => setLiveFilter("live")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-lg transition cursor-pointer ${
                 liveFilter === "live"
                   ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm font-bold"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -281,7 +281,7 @@ export default function ProjectStatusPage() {
             <button
               type="button"
               onClick={() => setLiveFilter("pre_live")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-lg transition cursor-pointer ${
                 liveFilter === "pre_live"
                   ? "bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-sm font-bold"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -333,7 +333,7 @@ export default function ProjectStatusPage() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1000px] text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] whitespace-nowrap">
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-semibold text-xs whitespace-nowrap">
                   <th className="py-3.5 px-4 sm:px-6 break-words whitespace-normal leading-tight">Project Name & Category</th>
                   <th className="py-3.5 px-4 break-words whitespace-normal leading-tight">Department & Coordinator</th>
                   <th className="py-3.5 px-4 break-words whitespace-normal leading-tight">Lifecycle Status</th>
@@ -358,7 +358,7 @@ export default function ProjectStatusPage() {
                     >
                       {/* Name & Category */}
                       <td className="py-4 px-4 sm:px-6 break-words whitespace-normal leading-tight">
-                        <div className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors flex items-center gap-2">
+                        <div className="font-semibold text-sm text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors flex items-center gap-2">
                           <span>{p.name}</span>
                           {p.is_live && (
                             <span title="Made Live in Production" className="inline-flex items-center">
@@ -366,7 +366,7 @@ export default function ProjectStatusPage() {
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 whitespace-nowrap">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 whitespace-nowrap">
                           {p.category || "Standard Deliverable"} • Created {p.created_at ? format(parseISO(p.created_at), "dd MMM yyyy") : "N/A"}
                         </p>
                       </td>
@@ -376,7 +376,7 @@ export default function ProjectStatusPage() {
                         <div className="font-semibold text-slate-800 dark:text-slate-200">
                           {p.team?.name || "General"}
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 whitespace-nowrap">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 whitespace-nowrap">
                           PC: {p.coordinator ? `${p.coordinator.first_name} ${p.coordinator.last_name}` : "Not Assigned"}
                         </p>
                       </td>
@@ -386,7 +386,7 @@ export default function ProjectStatusPage() {
                         <div className="flex items-center gap-2">
                           <ProjectStatusBadge status={p.status} />
                           {p.is_live && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                               Live
                             </span>
                           )}
@@ -395,13 +395,13 @@ export default function ProjectStatusPage() {
 
                       {/* Progress Bar */}
                       <td className="py-4 px-4 min-w-[160px] break-words whitespace-normal leading-tight">
-                        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                        <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                           <span>{tasksCompleted}/{tasksTotal} Tasks</span>
-                          <span className="text-[#56348f] dark:text-purple-300 font-bold">{progressPct}%</span>
+                          <span className="text-[#56348f] dark:text-purple-300 font-semibold">{progressPct}%</span>
                         </div>
                         <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                           <div
-                            className="h-full bg-[#56348f] rounded-full transition-all duration-300"
+                            className="h-full bg-[#56348f] rounded-full transition duration-300"
                             style={{ width: `${progressPct}%` }}
                           />
                         </div>
@@ -411,11 +411,11 @@ export default function ProjectStatusPage() {
                       <td className="py-4 px-4 break-words whitespace-normal leading-tight">
                         {p.is_live && p.live_date ? (
                           <div>
-                            <span className="font-bold text-emerald-600 dark:text-emerald-400 text-xs">
+                            <span className="font-semibold text-emerald-600 dark:text-emerald-400 text-xs">
                               {format(parseISO(p.live_date), "dd MMM yyyy")}
                             </span>
                             {p.liveMarker && (
-                              <p className="text-[10px] text-slate-400">
+                              <p className="text-xs text-slate-400">
                                 by {p.liveMarker.first_name}
                               </p>
                             )}

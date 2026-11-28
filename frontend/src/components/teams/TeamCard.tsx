@@ -105,7 +105,7 @@ export function TeamCard({
       onDragStart={onDragStart ? (e) => onDragStart(e, team.id) : undefined}
       onDragOver={onDragOver}
       onDrop={onDrop ? (e) => onDrop(e, team.id) : undefined}
-      className={`bg-white dark:bg-slate-800/50 border-2 border-slate-200 dark:border-white/10 rounded-xl overflow-hidden hover:shadow-lg transition-all ${
+      className={`bg-white dark:bg-slate-800/50 border-2 border-slate-200 dark:border-white/10 rounded-xl overflow-hidden hover:shadow-lg transition ${
         isDragging ? "opacity-50 scale-95" : ""
       } ${onDragStart ? "cursor-move" : ""}`}
     >
@@ -114,7 +114,7 @@ export function TeamCard({
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
                 {team.name}
               </h3>
               <span className="px-2 py-0.5 bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs font-mono font-semibold rounded">
@@ -193,7 +193,7 @@ export function TeamCard({
               />
             ))}
             {(team.members_count || 0) > 4 && (
-              <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-200 border-2 border-white dark:border-slate-700">
+              <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-semibold text-slate-700 dark:text-slate-200 border-2 border-white dark:border-slate-700">
                 +{(team.members_count || 0) - 4}
               </div>
             )}
@@ -229,7 +229,7 @@ export function TeamCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-amber-500" />
-            <span className="text-lg font-bold text-gray-900 dark:text-white">
+            <span className="text-lg font-semibold text-gray-900 dark:text-white">
               {team.members_count || 0}
             </span>
             <span className="text-sm text-gray-600 dark:text-slate-400">

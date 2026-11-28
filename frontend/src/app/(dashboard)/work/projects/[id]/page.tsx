@@ -23,8 +23,8 @@ export default function WorkProjectPage() {
     <div className="space-y-5">
       <div>
         <Link href="/work" className="text-sm text-slate-500 flex items-center gap-1 hover:underline"><ArrowLeft className="h-4 w-4" /> My Work</Link>
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500 mt-2">Project work</p>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{name ?? "Project"}</h1>
+        <p className="text-xs font-medium text-slate-500 mt-2">Project work</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">{name ?? "Project"}</h1>
       </div>
       <div className="flex flex-wrap gap-1 border-b border-slate-200 dark:border-slate-800">
         {TABS.map((t) => (

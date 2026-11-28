@@ -72,7 +72,7 @@ interface ApiWfhRequest extends RecentWfhRequest {
 
 function FieldLabel({ children, required, optional }: { children: React.ReactNode; required?: boolean; optional?: boolean }) {
   return (
-    <p className="mb-2.5 text-[15px] font-bold text-slate-900 dark:text-white">
+    <p className="mb-2.5 text-[15px] font-semibold text-slate-900 dark:text-white">
       {children}
       {required && <span className="ml-1 text-rose-500">*</span>}
       {optional && <span className="ml-1.5 font-medium text-slate-500">(optional)</span>}
@@ -122,12 +122,12 @@ function CutoffWarningModal({ message, onClose }: { message: string; onClose: ()
             <Clock className="h-6 w-6 text-red-600 dark:text-red-400" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Application Not Allowed</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Application Not Allowed</h3>
             <p className="text-xs font-medium text-red-600 dark:text-red-400">Same-Day WFH Time Restriction</p>
           </div>
         </div>
         <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-500/20 dark:bg-red-500/10">
-          <p className="mb-2 text-sm font-bold text-red-700 dark:text-red-300">{headline}</p>
+          <p className="mb-2 text-sm font-semibold text-red-700 dark:text-red-300">{headline}</p>
           {rest.map((line, i) => (
             <p key={i} className="text-sm text-slate-700 dark:text-slate-300">
               {line}
@@ -135,7 +135,7 @@ function CutoffWarningModal({ message, onClose }: { message: string; onClose: ()
           ))}
         </div>
         <div className="mb-5 space-y-1.5 rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-700 dark:bg-slate-800">
-          <p className="mb-2 text-xs font-bold text-amber-700 dark:text-amber-400">Same-Day WFH Cutoff Rules</p>
+          <p className="mb-2 text-xs font-semibold text-amber-700 dark:text-amber-400">Same-Day WFH Cutoff Rules</p>
           <p className="text-xs text-slate-700 dark:text-slate-300">
             Full Day / Morning — apply before <strong>9:45 AM</strong>
           </p>
@@ -309,7 +309,7 @@ export function WfhRequestForm({ onCancel, onViewAll, onSubmitted }: WfhRequestF
             <Home className="h-9 w-9" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-2xl font-extrabold tracking-tight text-[#0B1F4B] sm:text-3xl dark:text-white">
+            <h1 className="text-2xl font-semibold tracking-tight text-[#0B1F4B] sm:text-3xl dark:text-white">
               Work From Home Request
             </h1>
             <p className="text-sm text-slate-600 sm:text-base dark:text-slate-300">
@@ -347,7 +347,7 @@ export function WfhRequestForm({ onCancel, onViewAll, onSubmitted }: WfhRequestF
                     role="radio"
                     aria-checked={selected}
                     onClick={() => form.setValue("duration_type", value, { shouldDirty: true })}
-                    className={`portal-focus flex flex-col gap-3 rounded-xl border-2 p-4 text-left transition-all cursor-pointer ${
+                    className={`portal-focus flex flex-col gap-3 rounded-xl border-2 p-4 text-left transition cursor-pointer ${
                       selected
                         ? "portal-accent-tint portal-accent-border-solid shadow-sm"
                         : "border-slate-200 hover:border-slate-300 dark:border-slate-700"
@@ -364,7 +364,7 @@ export function WfhRequestForm({ onCancel, onViewAll, onSubmitted }: WfhRequestF
                       <Icon className={`h-10 w-10 ${iconClass}`} />
                     </div>
                     <div>
-                      <p className="text-base font-extrabold text-slate-900 dark:text-white">{title}</p>
+                      <p className="text-base font-semibold text-slate-900 dark:text-white">{title}</p>
                       <p className="mt-1 text-sm leading-snug text-slate-500 dark:text-slate-400">{desc}</p>
                       {hours && <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">({hours})</p>}
                     </div>
@@ -398,7 +398,7 @@ export function WfhRequestForm({ onCancel, onViewAll, onSubmitted }: WfhRequestF
                   : "You can select multiple dates for the same WFH type."}
               </span>
               {dayCount > 0 && (
-                <span className="portal-accent-text shrink-0 text-xs font-bold">
+                <span className="portal-accent-text shrink-0 text-xs font-semibold">
                   {dayCount === 0.5 ? "0.5 day" : `${dayCount} day${dayCount === 1 ? "" : "s"}`}
                 </span>
               )}
@@ -462,7 +462,7 @@ export function WfhRequestForm({ onCancel, onViewAll, onSubmitted }: WfhRequestF
               <Clock className="h-6 w-6" />
             </span>
             <div className="space-y-0.5 text-[15px] text-slate-800 dark:text-slate-200">
-              <p className="text-base font-extrabold text-amber-800 dark:text-amber-300">Same-Day Cutoff Times</p>
+              <p className="text-base font-semibold text-amber-800 dark:text-amber-300">Same-Day Cutoff Times</p>
               <p>
                 Full Day / Morning Session → apply before <strong>9:45 AM</strong>
               </p>
@@ -483,14 +483,14 @@ export function WfhRequestForm({ onCancel, onViewAll, onSubmitted }: WfhRequestF
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-xl border border-slate-300 bg-white px-8 py-3 text-[15px] font-bold text-slate-700 transition-colors hover:bg-slate-50 cursor-pointer"
+              className="rounded-xl border border-slate-300 bg-white px-8 py-3 text-[15px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-[15px] font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
             >
               {isSubmitting ? (
                 <>

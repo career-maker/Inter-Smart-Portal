@@ -266,7 +266,7 @@ export function BirthdayWishDrawer({
                 <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                   Be the first one to wish {person.name}!
                 </p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-400 mt-0.5">
                   Type your message above and click Wish.
                 </p>
               </div>
@@ -293,7 +293,7 @@ export function BirthdayWishDrawer({
                             {senderName}
                           </p>
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1">
+                        <p className="text-xs text-slate-400 mt-1">
                           {wish.created_at
                             ? format(parseISO(wish.created_at), "MMM d 'at' h:mm a")
                             : "Recently"}
@@ -315,7 +315,7 @@ export function BirthdayWishDrawer({
                             <MessageSquare className="w-3.5 h-3.5" /> Comment
                           </button>
                         </div>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="text-xs text-slate-400">
                           0 Comments
                         </p>
                       </div>

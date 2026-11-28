@@ -105,7 +105,7 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
           return (
             <div key={k} className="rounded-[14px] border px-4 py-3" style={{ backgroundColor: t.bg, borderColor: t.border }}>
               <div className="text-xs font-medium" style={{ color: t.text }}>{k}</div>
-              <div className="text-base font-bold" style={{ color: t.text }}>{v}</div>
+              <div className="text-base font-semibold" style={{ color: t.text }}>{v}</div>
             </div>
           );
         })}

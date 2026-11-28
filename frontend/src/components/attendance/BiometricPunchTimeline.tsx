@@ -77,7 +77,7 @@ export function BiometricPunchTimeline({
           <div key={punch.event_id} className="flex shrink-0 items-center gap-2 whitespace-nowrap">
             <div className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg ${getPunchColor(punch.type)}`}>
               {getPunchIcon(punch.type)}
-              <span className="text-xs font-bold">{getTypeLabel(punch.type)}</span>
+              <span className="text-xs font-semibold">{getTypeLabel(punch.type)}</span>
               <span className="text-xs font-semibold">{formatTime(punch.time)}</span>
               <span className={`inline-block h-2.5 w-2.5 rounded-full ${getStatusDot(punch.type)}`} aria-hidden="true" />
             </div>
@@ -87,7 +87,7 @@ export function BiometricPunchTimeline({
             {idx === punches.length - 1 && isCurrentlyWorking && (
               <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-700">
                 <div className="w-2 h-2 bg-emerald-600 dark:bg-emerald-400 rounded-full animate-pulse"></div>
-                <span className="text-xs font-bold">Working</span>
+                <span className="text-xs font-semibold">Working</span>
                 
               </div>
             )}

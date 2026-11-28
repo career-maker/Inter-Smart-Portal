@@ -67,7 +67,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">System Settings</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">System Settings</h1>
           <p className="text-slate-600 dark:text-slate-300 mt-2">
           Manage application configurations, branding, and maintenance.
         </p>

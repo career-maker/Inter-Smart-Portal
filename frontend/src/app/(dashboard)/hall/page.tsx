@@ -114,7 +114,7 @@ export default function HallPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">View The Hall</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">View The Hall</h1>
           <p className="text-slate-600 dark:text-slate-300">Today's organization-wide employee availability.</p>
         {data.is_holiday && (
           <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 rounded-full text-sm font-medium">
@@ -130,7 +130,7 @@ export default function HallPage() {
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Employees</span>
             <Users className="h-5 w-5 text-slate-500 dark:text-slate-400" />
           </div>
-          <span className="text-3xl font-bold mt-2 text-slate-900 dark:text-white">{data.summary.total}</span>
+          <span className="text-3xl font-semibold mt-2 text-slate-900 dark:text-white">{data.summary.total}</span>
         </div>
         
         <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-green-500 dark:border-b-green-500 shadow-sm flex flex-col justify-between">
@@ -138,7 +138,7 @@ export default function HallPage() {
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Working</span>
             <Building2 className="h-5 w-5 text-green-500" />
           </div>
-          <span className="text-3xl font-bold mt-2 text-green-600 dark:text-green-400">{data.summary.working}</span>
+          <span className="text-3xl font-semibold mt-2 text-green-600 dark:text-green-400">{data.summary.working}</span>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-red-500 dark:border-b-red-500 shadow-sm flex flex-col justify-between">
@@ -146,7 +146,7 @@ export default function HallPage() {
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">On Leave</span>
             <Palmtree className="h-5 w-5 text-red-500" />
           </div>
-          <span className="text-3xl font-bold mt-2 text-red-600 dark:text-red-400">{data.summary.on_leave}</span>
+          <span className="text-3xl font-semibold mt-2 text-red-600 dark:text-red-400">{data.summary.on_leave}</span>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-rose-400 dark:border-b-rose-400 shadow-sm flex flex-col justify-between">
@@ -154,7 +154,7 @@ export default function HallPage() {
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Absent</span>
             <Users className="h-5 w-5 text-rose-400" />
           </div>
-          <span className="text-3xl font-bold mt-2 text-rose-500 dark:text-rose-400">{data.summary.absent ?? 0}</span>
+          <span className="text-3xl font-semibold mt-2 text-rose-500 dark:text-rose-400">{data.summary.absent ?? 0}</span>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-blue-500 dark:border-b-blue-500 shadow-sm flex flex-col justify-between">
@@ -162,7 +162,7 @@ export default function HallPage() {
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">WFH</span>
             <Home className="h-5 w-5 text-blue-500" />
           </div>
-          <span className="text-3xl font-bold mt-2 text-blue-600 dark:text-blue-400">{data.summary.wfh}</span>
+          <span className="text-3xl font-semibold mt-2 text-blue-600 dark:text-blue-400">{data.summary.wfh}</span>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-orange-400 dark:border-b-orange-400 shadow-sm flex flex-col justify-between">
@@ -172,7 +172,7 @@ export default function HallPage() {
               <span className="h-5 w-5 border-2 border-white dark:border-[#182433] rounded-full bg-orange-400" />
             </div>
           </div>
-          <span className="text-3xl font-bold mt-2 text-orange-500 dark:text-orange-400">{data.summary.half_day}</span>
+          <span className="text-3xl font-semibold mt-2 text-orange-500 dark:text-orange-400">{data.summary.half_day}</span>
         </div>
       </div>
 

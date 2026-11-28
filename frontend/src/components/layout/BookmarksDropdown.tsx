@@ -187,7 +187,7 @@ export function BookmarksDropdown() {
               <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500 space-y-1.5">
                 <Bookmark className="w-7 h-7 mx-auto text-slate-300 dark:text-slate-600 opacity-80" />
                 <p className="font-semibold text-slate-600 dark:text-slate-400">No bookmarks yet</p>
-                <p className="text-[11px] text-slate-400 max-w-[200px] mx-auto leading-normal">
+                <p className="text-xs text-slate-400 max-w-[200px] mx-auto leading-normal">
                   Click the button above to bookmark your current page for instant access.
                 </p>
               </div>
@@ -219,7 +219,7 @@ export function BookmarksDropdown() {
                       </div>
                       <div className="truncate text-left">
                         <span className="truncate block">{fav.page_label}</span>
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal truncate block">
+                        <span className="text-xs text-slate-400 dark:text-slate-500 font-normal truncate block">
                           {fav.page_href}
                         </span>
                       </div>

@@ -439,7 +439,7 @@ export default function AllTasksPage() {
             <ChevronRight className="w-3.5 h-3.5" />
             <span className="text-slate-900 dark:text-white">All Tasks</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight">
             All Tasks
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -463,7 +463,7 @@ export default function AllTasksPage() {
               <button
                 type="button"
                 onClick={() => setViewMode("grouped")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 max-sm:min-h-11 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 max-sm:min-h-11 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "grouped"
                     ? "bg-white dark:bg-slate-900 text-[#00806E] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -475,7 +475,7 @@ export default function AllTasksPage() {
               <button
                 type="button"
                 onClick={() => setViewMode("flat")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 max-sm:min-h-11 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 max-sm:min-h-11 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "flat"
                     ? "bg-white dark:bg-slate-900 text-[#00806E] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -487,7 +487,7 @@ export default function AllTasksPage() {
               <button
                 type="button"
                 onClick={() => setViewMode("board")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 max-sm:min-h-11 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 max-sm:min-h-11 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "board"
                     ? "bg-white dark:bg-slate-900 text-[#00806E] dark:text-purple-300 shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -599,7 +599,7 @@ export default function AllTasksPage() {
                   lineHeight: "20px",
                   fontWeight: isSelected ? 600 : 400,
                 }}
-                className={`px-3.5 py-1.5 max-sm:min-h-11 rounded-xl text-[13px] leading-[20px] transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 max-sm:min-h-11 rounded-xl text-[13px] leading-[20px] transition cursor-pointer ${
                   isSelected
                     ? "bg-[#00806E] text-white shadow-xs"
                     : "bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700"
@@ -614,7 +614,7 @@ export default function AllTasksPage() {
         {/* Sub-status Pills for Active view */}
         {statusFilter !== "Completed" && statusFilter !== "Rejected" && (
           <div className="flex items-center gap-1.5 max-sm:flex-wrap max-sm:gap-2 overflow-x-auto max-sm:overflow-visible pb-1 scrollbar-none">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1 shrink-0">
+            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 mr-1 shrink-0">
               Filter:
             </span>
             {["Active", "Yet to Start", "Being Developed", "Ready for QA", "Assigned to QA", "In Progress", "On Hold", "Forecast"].map((st) => {
@@ -629,7 +629,7 @@ export default function AllTasksPage() {
                     lineHeight: "16px",
                     fontWeight: isSelected ? 600 : 400,
                   }}
-                  className={`px-2.5 py-1 max-sm:min-h-10 rounded-lg text-xs whitespace-nowrap transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 max-sm:min-h-10 rounded-lg text-xs whitespace-nowrap transition cursor-pointer ${
                     isSelected
                       ? "bg-purple-100 dark:bg-purple-950 text-[#00806E] dark:text-purple-300 border border-purple-300 dark:border-purple-800 font-semibold"
                       : "bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60"
@@ -724,7 +724,7 @@ export default function AllTasksPage() {
       ) : tasksList.length === 0 ? (
         <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 py-16 text-center p-6 space-y-3">
           <Layers className="w-10 h-10 mx-auto text-slate-400 opacity-50" />
-          <p className="text-base font-bold text-slate-800 dark:text-slate-200">No tasks found</p>
+          <p className="text-base font-semibold text-slate-800 dark:text-slate-200">No tasks found</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
             {search || statusFilter !== "All" || priorityFilter !== "All" || projectFilter
               ? "No tasks match the selected filters. Try clearing your search parameters."
@@ -794,21 +794,21 @@ export default function AllTasksPage() {
                 {/* Employee Header Bar */}
                 <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200/90 dark:border-slate-800">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-[#00806E] dark:text-purple-300 font-bold text-xs flex items-center justify-center border border-purple-200 dark:border-purple-800">
+                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-[#00806E] dark:text-purple-300 font-semibold text-xs flex items-center justify-center border border-purple-200 dark:border-purple-800">
                       {initial}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slate-900 dark:text-white">
+                        <span className="font-semibold text-sm text-slate-900 dark:text-white">
                           {group.member.name}
                         </span>
                         {group.member.employee_code && (
-                          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-slate-700/60 px-1.5 py-0.5 rounded">
+                          <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-slate-700/60 px-1.5 py-0.5 rounded">
                             {group.member.employee_code}
                           </span>
                         )}
                         {group.member.designation && (
-                          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <span className="text-xs text-slate-500 dark:text-slate-400">
                             • {group.member.designation}
                           </span>
                         )}
@@ -858,7 +858,7 @@ export default function AllTasksPage() {
           {/* Old Employees' Tasks: resigned / terminated staff and old-tracker names with no account */}
           {oldEmployeeGroups.some((g) => pick(`old:${g.name}`)) && (
             <div className="space-y-4" data-testid="old-employee-tasks">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
                 <span>Old Employees&apos; Tasks</span>
                 <span className="text-xs font-semibold text-slate-500">
                   ({oldEmployeeGroups.reduce((n, g) => n + g.tasks.length, 0)} tasks, {oldEmployeeGroups.length} people)
@@ -871,12 +871,12 @@ export default function AllTasksPage() {
                 >
                   <div className="flex items-center justify-between px-5 py-3.5 bg-slate-100/80 dark:bg-slate-800/60 border-b border-slate-200/90 dark:border-slate-800">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-sm text-slate-900 dark:text-white">{g.name}</span>
+                      <span className="font-semibold text-sm text-slate-900 dark:text-white">{g.name}</span>
                       {g.code && (
-                        <span className="text-[11px] font-medium text-slate-500 bg-slate-200/60 dark:bg-slate-700/60 px-1.5 py-0.5 rounded">{g.code}</span>
+                        <span className="text-xs font-medium text-slate-500 bg-slate-200/60 dark:bg-slate-700/60 px-1.5 py-0.5 rounded">{g.code}</span>
                       )}
-                      {g.designation && <span className="text-[11px] text-slate-500">• {g.designation}</span>}
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+                      {g.designation && <span className="text-xs text-slate-500">• {g.designation}</span>}
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
                         {g.status}
                       </span>
                     </div>
@@ -904,7 +904,7 @@ export default function AllTasksPage() {
           {unassignedTasks.length > 0 && pick("unassigned") && (
             <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
               <div className="flex items-center justify-between px-5 py-3.5 bg-amber-50/60 dark:bg-amber-950/30 border-b border-slate-200/90 dark:border-slate-800">
-                <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-sm">
+                <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-semibold text-sm">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                   <span>Unassigned Tasks ({unassignedTasks.length})</span>
                 </div>

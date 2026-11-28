@@ -245,7 +245,7 @@ export function CreateTaskModal({
               <Layers className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Create Project Task</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Create Project Task</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Define a deliverable task with dual custom or predefined catalog templates
               </p>
@@ -274,7 +274,7 @@ export function CreateTaskModal({
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
               <span>Target Project <span className="text-rose-500">*</span></span>
               {projects.length > 0 && (
-                <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
                   {projects.length} available projects
                 </span>
               )}
@@ -291,7 +291,7 @@ export function CreateTaskModal({
 
           {/* Predefined Template Dropdown (Optional Helper) */}
           <div className="p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-blue-900 dark:text-blue-300">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-900 dark:text-blue-300">
               <span>Optional: Select Predefined Task Template</span>
             </div>
             <SelectCompat
@@ -306,7 +306,7 @@ export function CreateTaskModal({
                 </option>
               ))}
             </SelectCompat>
-            <span className="text-[10px] text-blue-700/80 dark:text-blue-400 block">
+            <span className="text-xs text-blue-700/80 dark:text-blue-400 block">
               Selecting a template pre-fills task specifications while leaving the title independently editable.
             </span>
           </div>
@@ -407,7 +407,7 @@ export function CreateTaskModal({
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Assignees ({formData.assignee_ids?.length || 0} selected)
               </label>
-              <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800/60">
+              <span className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800/60">
                 {teamNameLabel} ({teamMembers.length} members)
               </span>
             </div>
@@ -438,7 +438,7 @@ export function CreateTaskModal({
                     >
                       <div className="flex items-center gap-2.5">
                         <div
-                          className={`w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                          className={`w-6 h-6 rounded-full text-xs font-semibold flex items-center justify-center ${
                             isSelected
                               ? "bg-blue-600 text-white"
                               : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
@@ -451,18 +451,18 @@ export function CreateTaskModal({
                             {emp.first_name} {emp.last_name}
                             {emp.employee_code ? ` (${emp.employee_code})` : ""}
                           </div>
-                          <div className="text-[10px] text-slate-400">
+                          <div className="text-xs text-slate-400">
                             {emp.designation || emp.department || "Team Member"}
                           </div>
                         </div>
                       </div>
 
                       {isSelected ? (
-                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">
+                        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">
                           ✓ Assigned
                         </span>
                       ) : (
-                        <span className="text-[11px] text-slate-400 hover:text-blue-500 font-medium">
+                        <span className="text-xs text-slate-400 hover:text-blue-500 font-medium">
                           + Assign
                         </span>
                       )}

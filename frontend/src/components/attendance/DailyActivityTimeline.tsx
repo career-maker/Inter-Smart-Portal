@@ -86,7 +86,7 @@ export function DailyActivityTimeline({
       <div className="relative pl-12">
         {/* Vertical line connecting all events */}
         {rawPunches.length > 1 && (
-          <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-slate-600 to-slate-700"></div>
+          <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-slate-600"></div>
         )}
 
         {/* Events */}

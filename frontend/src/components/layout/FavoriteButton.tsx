@@ -54,14 +54,14 @@ export function FavoriteButton({ label }: FavoriteButtonProps) {
       onClick={handleToggle}
       disabled={isLoading}
       title={isFav ? "Remove from favorites" : "Add to favorites"}
-      className={`p-2 rounded-lg transition-all duration-200 disabled:opacity-50 ${
+      className={`p-2 rounded-lg transition duration-200 disabled:opacity-50 ${
         isFav
           ? "text-amber-400 bg-amber-500/20 hover:bg-amber-500/30"
           : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
       }`}
     >
       <Star
-        className={`h-5 w-5 transition-all ${isFav ? "fill-current" : ""} ${isLoading ? "animate-pulse" : ""}`}
+        className={`h-5 w-5 transition ${isFav ? "fill-current" : ""} ${isLoading ? "animate-pulse" : ""}`}
       />
     </button>
   );

@@ -139,7 +139,7 @@ export default function TaskCatalogPage() {
     return (
       <div className="space-y-6">
         <div className="p-6 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-300 space-y-2">
-          <h2 className="text-base font-bold flex items-center gap-2">
+          <h2 className="text-base font-semibold flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-amber-600" />
             <span>Administrator Access Required</span>
           </h2>
@@ -149,7 +149,7 @@ export default function TaskCatalogPage() {
           </p>
           <Link
             href="/project-management/tasks"
-            className="inline-flex items-center gap-1.5 text-xs font-bold underline mt-2 text-amber-900 dark:text-amber-200"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold underline mt-2 text-amber-900 dark:text-amber-200"
           >
             ← Return to Tasks Directory
           </Link>
@@ -174,7 +174,7 @@ export default function TaskCatalogPage() {
             <ChevronRight className="w-3.5 h-3.5" />
             <span className="text-slate-900 dark:text-white">Task Catalog</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight">
             Task Catalog Management
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -217,7 +217,7 @@ export default function TaskCatalogPage() {
               <button
                 key={tab}
                 onClick={() => setActiveFilter(tab)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
                   isSelected
                     ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
                     : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700/60"
@@ -281,7 +281,7 @@ export default function TaskCatalogPage() {
         ) : itemsList.length === 0 ? (
           <div className="py-16 text-center p-6 space-y-3">
             <BookOpen className="w-10 h-10 mx-auto text-slate-400 opacity-50" />
-            <p className="text-base font-bold text-slate-800 dark:text-slate-200">
+            <p className="text-base font-semibold text-slate-800 dark:text-slate-200">
               No catalog templates found
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
@@ -304,7 +304,7 @@ export default function TaskCatalogPage() {
           <div className="overflow-x-auto table-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <table className="w-full min-w-[1000px] text-left text-xs sm:text-sm">
               <thead>
-                <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">
+                <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold text-xs">
                   <th className="py-3.5 px-5">Template Name</th>
                   <th className="py-3.5 px-4">Category</th>
                   <th className="py-3.5 px-4">Scope Description</th>
@@ -321,14 +321,14 @@ export default function TaskCatalogPage() {
                   >
                     {/* Name */}
                     <td className="py-4 px-5">
-                      <span className="font-bold text-slate-900 dark:text-white block line-clamp-1">
+                      <span className="font-semibold text-slate-900 dark:text-white block line-clamp-1">
                         {item.name}
                       </span>
                     </td>
 
                     {/* Category */}
                     <td className="py-4 px-4">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
                         {item.category || "General"}
                       </span>
                     </td>

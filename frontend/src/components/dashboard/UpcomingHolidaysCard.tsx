@@ -112,7 +112,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
       const today = new Date();
       const diff = differenceInCalendarDays(holidayDate, today);
 
-      if (diff === 0) return "Today!";
+      if (diff === 0) return "Today";
       if (diff === 1) return "Tomorrow";
       if (diff > 1) return `In ${diff} days`;
       return null;
@@ -152,7 +152,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
           {particles.map((p) => (
             <span
               key={p.id}
-              className="absolute inline-block transition-all duration-1000 ease-out"
+              className="absolute inline-block transition duration-1000 ease-out"
               style={{
                 width: `${p.size}px`,
                 height: p.shape === "circle" ? `${p.size}px` : `${p.size * 2}px`,
@@ -192,7 +192,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                 backgroundColor: "var(--portal-primary-color, #0F766E)",
                 color: "#ffffff",
               }}
-              className="inline-flex items-center justify-center px-3 py-1 rounded-lg text-xs font-semibold text-white hover:opacity-90 shadow-2xs transition-all cursor-pointer"
+              className="inline-flex items-center justify-center px-3 py-1 rounded-lg text-xs font-semibold text-white hover:opacity-90 shadow-2xs transition cursor-pointer"
             >
               View All
             </NextLink>
@@ -210,7 +210,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
             </p>
             <NextLink
               href={calendarHref}
-              className="inline-block text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline pt-1"
+              className="inline-block text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline pt-1"
             >
               {calendarHref === "/calendar" ? "View calendar →" : "Configure holidays →"}
             </NextLink>
@@ -226,7 +226,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                   onClick={handlePrev}
                   disabled={holidays.length <= 1}
                   aria-label="Previous holiday"
-                  className={`hc-arrow w-8 h-8 flex items-center justify-center rounded-full active:scale-90 disabled:opacity-20 disabled:pointer-events-none transition-all cursor-pointer shrink-0 ${hasImg ? "text-white bg-black/30 hover:bg-black/50" : "text-[#56348f] dark:text-purple-400 hover:bg-purple-100/60 dark:hover:bg-purple-900/30"}`}
+                  className={`hc-arrow w-8 h-8 flex items-center justify-center rounded-full active:scale-90 disabled:opacity-20 disabled:pointer-events-none transition cursor-pointer shrink-0 ${hasImg ? "text-white bg-black/30 hover:bg-black/50" : "text-[#56348f] dark:text-purple-400 hover:bg-purple-100/60 dark:hover:bg-purple-900/30"}`}
                 >
                   <ChevronLeft className="w-5 h-5 stroke-[2]" />
                 </button>
@@ -257,12 +257,12 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                   {(getDaysRemainingText(currentHoliday.date) || currentHoliday.type) && (
                     <div className="flex items-center justify-center gap-1.5 pt-1">
                       {getDaysRemainingText(currentHoliday.date) && (
-                        <span className={`hc-pill text-[11px] font-semibold ${hasImg ? "text-white" : "text-[#56348f] dark:text-purple-300"} ${imgText}`}>
+                        <span className={`hc-pill text-xs font-semibold ${hasImg ? "text-white" : "text-[#56348f] dark:text-purple-300"} ${imgText}`}>
                           {getDaysRemainingText(currentHoliday.date)}
                         </span>
                       )}
                       {currentHoliday.type && (
-                        <span className={`hc-type text-[11px] font-medium ${hasImg ? "text-white" : "text-slate-500 dark:text-slate-400"} ${imgText}`}>
+                        <span className={`hc-type text-xs font-medium ${hasImg ? "text-white" : "text-slate-500 dark:text-slate-400"} ${imgText}`}>
                           {currentHoliday.type}
                         </span>
                       )}
@@ -276,7 +276,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                   onClick={handleNext}
                   disabled={holidays.length <= 1}
                   aria-label="Next holiday"
-                  className={`hc-arrow w-8 h-8 flex items-center justify-center rounded-full active:scale-90 disabled:opacity-20 disabled:pointer-events-none transition-all cursor-pointer shrink-0 ${hasImg ? "text-white bg-black/30 hover:bg-black/50" : "text-[#56348f] dark:text-purple-400 hover:bg-purple-100/60 dark:hover:bg-purple-900/30"}`}
+                  className={`hc-arrow w-8 h-8 flex items-center justify-center rounded-full active:scale-90 disabled:opacity-20 disabled:pointer-events-none transition cursor-pointer shrink-0 ${hasImg ? "text-white bg-black/30 hover:bg-black/50" : "text-[#56348f] dark:text-purple-400 hover:bg-purple-100/60 dark:hover:bg-purple-900/30"}`}
                 >
                   <ChevronRight className="w-5 h-5 stroke-[2]" />
                 </button>
@@ -313,7 +313,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                     <span className={`hc-other font-medium truncate max-w-[200px] ${hasImg ? "text-white" : "text-slate-700 dark:text-slate-300"} ${imgText}`}>
                       {h.name}
                     </span>
-                    <span className={`hc-other font-mono text-[11px] shrink-0 ml-2 ${hasImg ? "text-white/90" : "text-slate-500 dark:text-slate-400"} ${imgText}`}>
+                    <span className={`hc-other font-mono text-xs shrink-0 ml-2 ${hasImg ? "text-white/90" : "text-slate-500 dark:text-slate-400"} ${imgText}`}>
                       {format(parseISO(h.date), "MMM d")}
                     </span>
                   </div>

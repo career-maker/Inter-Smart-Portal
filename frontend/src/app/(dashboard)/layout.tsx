@@ -798,7 +798,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       />
                       <span
                         style={{ color: active ? "#ffffff" : "rgba(255, 255, 255, 0.75)" }}
-                        className="text-[11.5px] leading-[14px] text-center tracking-tight truncate max-w-full px-0.5 group-hover:!text-white"
+                        className="text-xs leading-[14px] text-center tracking-tight truncate max-w-full px-0.5 group-hover:!text-white"
                       >
                         {label}
                       </span>
@@ -848,7 +848,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       >
                         {/* Notification badge */}
                         {groupBadgeCount > 0 && (
-                          <span className="absolute top-1.5 right-2 bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.2 min-w-[18px] text-center shadow-md animate-pulse">
+                          <span className="absolute top-1.5 right-2 bg-[#ff5252] text-white text-xs font-semibold rounded-full px-1.5 py-0.2 min-w-[18px] text-center shadow-md animate-pulse">
                             {groupBadgeCount}
                           </span>
                         )}
@@ -859,7 +859,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         />
                         <span
                           style={{ color: isHighlighted ? "#ffffff" : "rgba(255, 255, 255, 0.75)" }}
-                          className="text-[11.5px] leading-[14px] text-center tracking-tight truncate max-w-full px-0.5 group-hover:!text-white"
+                          className="text-xs leading-[14px] text-center tracking-tight truncate max-w-full px-0.5 group-hover:!text-white"
                         >
                           {group.shortLabel || group.label}
                         </span>
@@ -888,7 +888,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className="w-8 h-8 rounded-full"
                   />
                 </div>
-                <span style={{ color: "rgba(255, 255, 255, 0.75)" }} className="text-[11px] font-medium truncate max-w-[74px] text-center group-hover:!text-white mt-0.5">
+                <span style={{ color: "rgba(255, 255, 255, 0.75)" }} className="text-xs font-medium truncate max-w-[74px] text-center group-hover:!text-white mt-0.5">
                   {user?.first_name}
                 </span>
               </Link>
@@ -917,10 +917,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   backgroundColor: "rgba(0, 0, 0, 0.25)",
                   borderColor: "rgba(255, 255, 255, 0.1)",
                 }}
-                className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider border-b flex items-center justify-between shrink-0"
+                className="px-4 py-2 text-xs font-semibold border-b flex items-center justify-between shrink-0"
               >
-                <span style={{ color: "#ffffff" }} className="font-bold">{activeFlyoutGroupObj.label}</span>
-                <span style={{ color: "rgba(255, 255, 255, 0.6)" }} className="text-[10px] font-normal">Menu</span>
+                <span style={{ color: "#ffffff" }} className="font-semibold">{activeFlyoutGroupObj.label}</span>
+                <span style={{ color: "rgba(255, 255, 255, 0.6)" }} className="text-xs font-normal">Menu</span>
               </div>
 
               {/* Submenu Links - Hidden scrollbar but seamlessly scrollable */}
@@ -944,21 +944,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         {item.label}
                       </span>
                       {item.href === "/leaves/approvals" && pendingLeavesCount > 0 && (
-                        <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
+                        <span className="bg-[#ff5252] text-white text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
                           {pendingLeavesCount}
                         </span>
                       )}
                       {item.href === "/leaves/approvals?tab=wfh" && pendingWfhCount > 0 && (
-                        <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
+                        <span className="bg-[#ff5252] text-white text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
                           {pendingWfhCount}
                         </span>
                       )}
                       {unreadFor(item.href) > 0 && (
-                        <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
+                        <span className="bg-[#ff5252] text-white text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
                           {unreadFor(item.href)}
                         </span>
                       )}
-                      <ChevronRight style={{ color: "rgba(255, 255, 255, 0.6)" }} className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0 ml-1 group-hover:!text-white" />
+                      <ChevronRight style={{ color: "rgba(255, 255, 255, 0.6)" }} className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition shrink-0 ml-1 group-hover:!text-white" />
                     </div>
                   );
 
@@ -1002,7 +1002,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           SIDEBAR - DARK THEME (100% UNTOUCHED ORIGINAL WITH COLLAPSE / EXPAND DRAWER)
       ───────────────────────────────────────────────────────────────────────────── */}
       {isDark && (
-        <aside className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-50 bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+        <aside className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-50 bg-slate-900 border-r border-slate-800 transition duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
           <div className={`h-16 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-4'} border-b border-slate-800 shrink-0 relative`}>
             {!isSidebarCollapsed && (
               <Link href="/dashboard" className="flex items-center min-w-0 pr-2">
@@ -1043,7 +1043,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 return (
                   <div key={group.id} className="px-3">
                     {!isSidebarCollapsed && (
-                      <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+                      <div className="px-3 mb-2 text-xs font-semibold text-slate-500">
                         {group.label}
                       </div>
                     )}
@@ -1075,13 +1075,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                   <span className="flex items-center gap-2 truncate">
                                     {item.label}
                                     {item.href === "/leaves/approvals" && pendingLeavesCount > 0 && (
-                                      <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingLeavesCount}</span>
+                                      <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingLeavesCount}</span>
                                     )}
                                     {item.href === "/leaves/approvals?tab=wfh" && pendingWfhCount > 0 && (
-                                      <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingWfhCount}</span>
+                                      <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingWfhCount}</span>
                                     )}
                                     {unreadFor(item.href) > 0 && (
-                                      <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{unreadFor(item.href)}</span>
+                                      <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{unreadFor(item.href)}</span>
                                     )}
                                   </span>
                                 </>
@@ -1119,7 +1119,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   src={user?.profile_photo_path}
                   name={`${user?.first_name} ${user?.last_name}`}
                   userId={user?.id}
-                  className="w-9 h-9 rounded-full bg-amber-400 text-sm font-bold text-white"
+                  className="w-9 h-9 rounded-full bg-amber-400 text-sm font-semibold text-white"
                 />
                 <div className="min-w-0 flex-1">
                   <RoyalName
@@ -1136,13 +1136,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Main Wrapper */}
-      <div className={`flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ease-in-out ${
+      <div className={`flex-1 flex flex-col min-w-0 min-h-screen transition duration-300 ease-in-out ${
         isRecent ? (recentCollapsed ? 'md:pl-[64px]' : 'md:pl-[240px]') : !isDark ? 'md:pl-[84px]' : isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
       }`}>
         {/* ── FIXED TOP HEADER & SUB-TABS BAR (ALWAYS PINNED AT TOP ON SCROLL) ── */}
         <div
           id="global-fixed-header-container"
-          className={`fixed top-0 right-0 z-50 transition-all duration-300 ease-in-out shadow-md ${
+          className={`fixed top-0 right-0 z-50 transition duration-300 ease-in-out shadow-md ${
             isRecent ? (recentCollapsed ? 'left-0 md:left-[64px]' : 'left-0 md:left-[240px]') : !isDark ? 'left-0 md:left-[84px]' : isSidebarCollapsed ? 'left-0 md:left-20' : 'left-0 md:left-64'
           }`}
         >
@@ -1476,7 +1476,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <span style={{ color: "#ffffff" }} className="font-semibold text-white">Sticky Notes</span>
                 </div>
                 {notesCount > 0 && (
-                  <span className="bg-amber-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded-full">
+                  <span className="bg-amber-400 text-slate-900 text-xs font-semibold px-2 py-0.5 rounded-full">
                     {notesCount}
                   </span>
                 )}
@@ -1489,9 +1489,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 return (
                   <div key={group.id} className="space-y-1.5 pt-2">
-                    <div className="px-3 text-[11.5px] font-bold uppercase tracking-wider flex items-center gap-2">
+                    <div className="px-3 text-xs font-semibold flex items-center gap-2">
                       <GroupIcon className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                      <span className="drawer-category-title font-bold">{group.label}</span>
+                      <span className="drawer-category-title font-semibold">{group.label}</span>
                     </div>
                     <div className="space-y-1 pl-2 border-l border-[#1a3a52] ml-2">
                       {visibleItems.map((item) => {
@@ -1533,7 +1533,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   className="w-9 h-9 rounded-full"
                 />
                 <div className="min-w-0 flex-1">
-                  <div style={{ color: "#ffffff" }} className="text-sm font-bold text-white truncate">
+                  <div style={{ color: "#ffffff" }} className="text-sm font-semibold text-white truncate">
                     {user?.first_name} {user?.last_name}
                   </div>
                   <div style={{ color: "#8ea7bc" }} className="text-xs text-[#8ea7bc] truncate">
@@ -1544,10 +1544,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <button
                 onClick={handleLogout}
                 style={{ color: "#ffffff", backgroundColor: "#dc2626" }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-all shadow-md cursor-pointer border border-red-500"
+                className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-md cursor-pointer border border-red-500"
               >
                 <LogOut className="h-4 w-4 text-white" />
-                <span style={{ color: "#ffffff" }} className="text-white font-bold">Logout</span>
+                <span style={{ color: "#ffffff" }} className="text-white font-semibold">Logout</span>
               </button>
             </div>
           </div>

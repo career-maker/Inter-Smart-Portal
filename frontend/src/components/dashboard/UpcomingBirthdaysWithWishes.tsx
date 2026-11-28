@@ -136,11 +136,11 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
                 <div className="flex items-center gap-2 shrink-0">
                   {isToday ? (
                     <span className="text-right leading-tight">
-                      <span className="block text-[11px] font-semibold text-rose-600 dark:text-rose-400">Today</span>
-                      <span className="block text-[11px] text-slate-600 dark:text-slate-300 underline underline-offset-2">Send a wish</span>
+                      <span className="block text-xs font-semibold text-rose-600 dark:text-rose-400">Today</span>
+                      <span className="block text-xs text-slate-600 dark:text-slate-300 underline underline-offset-2">Send a wish</span>
                     </span>
                   ) : (
-                    <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-300">
+                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
                       {format(new Date(person.date), "MMM d")}
                     </span>
                   )}

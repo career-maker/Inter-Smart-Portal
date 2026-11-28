@@ -172,7 +172,7 @@ export function EmergencyContactsCard({
         fontFamily:
           'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className={`bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-xs transition-all hover:shadow-md flex flex-col justify-between ${className}`}
+      className={`bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-xs transition hover:shadow-md flex flex-col justify-between ${className}`}
     >
       {/* Card Header */}
       <div className="mb-4">
@@ -191,7 +191,7 @@ export function EmergencyContactsCard({
             <span className="flex items-center gap-1.5">
               <span>{title}</span>
               {contacts.length > 0 && (
-                <span className="text-[10px] font-bold text-[#56348f] dark:text-purple-300">
+                <span className="text-xs font-semibold text-[#56348f] dark:text-purple-300">
                   {contacts.length}
                 </span>
               )}
@@ -201,7 +201,7 @@ export function EmergencyContactsCard({
             <Link
               href="/employees"
               title="Manage employees and assign emergency contacts"
-              className="text-[11px] font-semibold text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-0.5"
+              className="text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-0.5"
             >
               <span>Manage</span>
               <ChevronRight className="w-3 h-3" />
@@ -244,7 +244,7 @@ export function EmergencyContactsCard({
           <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
             No emergency contacts assigned
           </p>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto leading-relaxed">
             Emergency contacts will appear here once assigned by administrators.
           </p>
           {isSuperAdmin && (
@@ -323,7 +323,7 @@ export function EmergencyContactsCard({
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`relative w-9 h-9 rounded-full ${avatarClass} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs overflow-hidden`}
+                      className={`relative w-9 h-9 rounded-full ${avatarClass} text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-2xs overflow-hidden`}
                     >
                       <span className="select-none">{contact.initials || "EC"}</span>
                       {photoUrl && (
@@ -363,7 +363,7 @@ export function EmergencyContactsCard({
                   </div>
 
                   {contact.department && (
-                    <span className="hidden sm:inline-flex text-[10px] font-semibold text-[#56348f] dark:text-purple-300 shrink-0">
+                    <span className="hidden sm:inline-flex text-xs font-semibold text-[#56348f] dark:text-purple-300 shrink-0">
                       {contact.department}
                     </span>
                   )}

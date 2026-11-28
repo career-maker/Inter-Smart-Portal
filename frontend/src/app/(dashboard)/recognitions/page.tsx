@@ -195,7 +195,7 @@ export default function RecognitionsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900 dark:text-white">
             <Award className="w-6 h-6 text-amber-400" />
             Achievement & Awards Management
           </h1>
@@ -225,7 +225,7 @@ export default function RecognitionsPage() {
       <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px] text-sm text-left">
-            <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 font-medium text-xs uppercase tracking-wider border-b border-slate-200/80 dark:border-slate-700/60">
+            <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 font-medium text-xs border-b border-slate-200/80 dark:border-slate-700/60">
               <tr>
                 <th className="px-3 py-3">Employee</th>
                 <th className="px-3 py-3">Achievement</th>
@@ -253,11 +253,11 @@ export default function RecognitionsPage() {
                       <div className="text-xs text-slate-500 dark:text-slate-400">{rec.user?.employee_code}</div>
                     </td>
                     <td className="px-3 py-3">
-                      <div className="flex items-center gap-2 font-bold text-amber-300">
+                      <div className="flex items-center gap-2 font-semibold text-amber-300">
                         <span>{rec.icon}</span>
                         <span>{rec.title}</span>
                         {rec.is_custom && (
-                          <span className="text-[10px] bg-white/10 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                          <span className="text-xs bg-white/10 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded">
                             Custom
                           </span>
                         )}
@@ -276,11 +276,11 @@ export default function RecognitionsPage() {
                     </td>
                     <td className="px-3 py-3 text-center">
                       {isActive ? (
-                        <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full text-xs font-bold">
+                        <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full text-xs font-semibold">
                           <ShieldCheck className="w-3 h-3" /> Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 bg-white/10 text-slate-500 dark:text-slate-400 px-2 py-1 rounded-full text-xs font-bold">
+                        <span className="inline-flex items-center gap-1 bg-white/10 text-slate-500 dark:text-slate-400 px-2 py-1 rounded-full text-xs font-semibold">
                           Expired/Disabled
                         </span>
                       )}
@@ -366,7 +366,7 @@ export default function RecognitionsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-lg shadow-xl my-8">
             <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-800 rounded-t-2xl z-10">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <Award className="w-5 h-5 text-amber-400" />
                 Assign Achievement
               </h2>

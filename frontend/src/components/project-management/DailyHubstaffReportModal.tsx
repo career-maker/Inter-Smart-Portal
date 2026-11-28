@@ -559,10 +559,10 @@ export function DailyHubstaffReportModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight">
                   Daily Hubstaff Report
                 </h2>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                   Image & Sheet Models
                 </span>
               </div>
@@ -588,10 +588,10 @@ export function DailyHubstaffReportModal({
               className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 cursor-pointer hover:border-emerald-500 transition-colors"
             >
               <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap">
+              <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 whitespace-nowrap">
                 {reportData?.date_formatted_full || selectedDate}
               </span>
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 ({reportData?.day_name || ""})
               </span>
               <input
@@ -628,7 +628,7 @@ export function DailyHubstaffReportModal({
             <button
               onClick={downloadImageReport}
               disabled={loading || !reportData || exportingImage}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs hover:shadow-md transition cursor-pointer disabled:opacity-50"
               title="Download as high-resolution PNG image"
             >
               {exportingImage ? (
@@ -643,7 +643,7 @@ export function DailyHubstaffReportModal({
             <button
               onClick={downloadSheetReport}
               disabled={loading || !reportData || exportingSheet}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-slate-900 text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-slate-900 text-xs font-semibold shadow-xs hover:shadow-md transition cursor-pointer disabled:opacity-50"
               title="Download formatted Excel spreadsheet (.xls)"
             >
               {exportingSheet ? (
@@ -658,7 +658,7 @@ export function DailyHubstaffReportModal({
             <button
               onClick={downloadCSVReport}
               disabled={loading || !reportData}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer disabled:opacity-50"
               title="Download raw CSV data"
             >
               <FileText className="w-3.5 h-3.5" />
@@ -680,13 +680,13 @@ export function DailyHubstaffReportModal({
         {reportData && reportData.departments.length > 0 && (
           <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 flex-wrap shrink-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                 Select Teams:
               </span>
               <button
                 type="button"
                 onClick={selectAllTeams}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border ${
                   selectedTeams.length === reportData.departments.length
                     ? "bg-[#0F766E] text-white border-[#0F766E] shadow-xs"
                     : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-[#0F766E]"
@@ -702,7 +702,7 @@ export function DailyHubstaffReportModal({
                     key={dept.name}
                     type="button"
                     onClick={() => toggleTeam(dept.name)}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border ${
                       isSelected
                         ? "bg-teal-50 dark:bg-teal-950/60 text-[#093E3A] dark:text-teal-200 border-[#0F766E] ring-1 ring-[#0F766E]/20"
                         : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300 opacity-60"
@@ -714,7 +714,7 @@ export function DailyHubstaffReportModal({
                       }`}
                     />
                     <span>{dept.name}</span>
-                    <span className="text-[10px] opacity-70">({dept.members.length})</span>
+                    <span className="text-xs opacity-70">({dept.members.length})</span>
                   </button>
                 );
               })}
@@ -723,14 +723,14 @@ export function DailyHubstaffReportModal({
                 <button
                   type="button"
                   onClick={clearAllTeams}
-                  className="text-[11px] font-medium text-slate-400 hover:text-rose-500 transition-colors ml-1 cursor-pointer"
+                  className="text-xs font-medium text-slate-400 hover:text-rose-500 transition-colors ml-1 cursor-pointer"
                 >
                   Clear All
                 </button>
               )}
             </div>
 
-            <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
               Showing <strong className="text-slate-800 dark:text-slate-200">{activeDepartments.length}</strong> of{" "}
               <strong className="text-slate-800 dark:text-slate-200">{reportData.departments.length}</strong> teams
             </div>
@@ -752,13 +752,13 @@ export function DailyHubstaffReportModal({
           ) : error ? (
             <div className="my-auto max-w-md p-6 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-center">
               <AlertCircle className="w-10 h-10 text-rose-500 mx-auto mb-2" />
-              <h3 className="text-sm font-bold text-rose-900 dark:text-rose-200">
+              <h3 className="text-sm font-semibold text-rose-900 dark:text-rose-200">
                 Unable to Load Daily Report
               </h3>
               <p className="text-xs text-rose-700 dark:text-rose-300 mt-1">{error}</p>
               <button
                 onClick={() => fetchDailyReport(selectedDate)}
-                className="mt-4 px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors cursor-pointer"
+                className="mt-4 px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors cursor-pointer"
               >
                 Retry
               </button>
@@ -766,7 +766,7 @@ export function DailyHubstaffReportModal({
           ) : activeDepartments.length === 0 ? (
             <div className="my-auto max-w-md p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
               <FileSpreadsheet className="w-10 h-10 text-slate-400 mx-auto" />
-              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">No Teams Selected</h4>
+              <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">No Teams Selected</h4>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Please select at least one team from the filters above to generate the report preview and exports.
               </p>
@@ -794,10 +794,10 @@ export function DailyHubstaffReportModal({
                     <tr className="bg-[#1b3d18] text-white">
                       <th
                         colSpan={1 + activeDepartments.length * 4}
-                        className="py-2.5 px-4 text-center text-sm font-bold tracking-wide border border-[#1b3d18]"
+                        className="py-2.5 px-4 text-center text-sm font-semibold border border-[#1b3d18]"
                       >
                         <div className="flex items-center justify-center gap-4">
-                          <span className="uppercase tracking-widest text-emerald-300">
+                          <span className="text-emerald-300">
                             DATE
                           </span>
                           <span className="text-white text-base">
@@ -808,10 +808,10 @@ export function DailyHubstaffReportModal({
                     </tr>
 
                     {/* ── DEPARTMENT HEADERS ROW 1 ── */}
-                    <tr className="bg-[#a8d5a2] text-slate-900 font-bold border border-[#1b3d18]">
+                    <tr className="bg-[#a8d5a2] text-slate-900 font-semibold border border-[#1b3d18]">
                       <th
                         rowSpan={2}
-                        className="border border-[#1b3d18] px-2.5 py-2 text-center text-xs font-extrabold w-10 bg-[#94ca8d]"
+                        className="border border-[#1b3d18] px-2.5 py-2 text-center text-xs font-semibold w-10 bg-[#94ca8d]"
                       >
                         #
                       </th>
@@ -819,7 +819,7 @@ export function DailyHubstaffReportModal({
                         <th
                           key={dept.name}
                           colSpan={4}
-                          className="border border-[#1b3d18] px-2 py-1.5 text-center text-xs font-extrabold uppercase tracking-wide"
+                          className="border border-[#1b3d18] px-2 py-1.5 text-center text-xs font-semibold"
                         >
                           {dept.name}
                         </th>
@@ -827,19 +827,19 @@ export function DailyHubstaffReportModal({
                     </tr>
 
                     {/* ── SUB-COLUMN HEADERS ROW 2 ── */}
-                    <tr className="bg-[#cae8c5] text-slate-900 font-bold border border-[#1b3d18] text-[11px]">
+                    <tr className="bg-[#cae8c5] text-slate-900 font-semibold border border-[#1b3d18] text-xs">
                       {activeDepartments.map((dept) => (
                         <React.Fragment key={`${dept.name}-subheaders`}>
-                          <th className="border border-[#1b3d18] px-2.5 py-1.5 text-left font-bold min-w-[110px]">
+                          <th className="border border-[#1b3d18] px-2.5 py-1.5 text-left font-semibold min-w-[110px]">
                             {dept.name}
                           </th>
-                          <th className="border border-[#1b3d18] px-2 py-1.5 text-center font-bold min-w-[70px]">
+                          <th className="border border-[#1b3d18] px-2 py-1.5 text-center font-semibold min-w-[70px]">
                             Floor Time
                           </th>
-                          <th className="border border-[#1b3d18] px-2 py-1.5 text-center font-bold min-w-[70px]">
+                          <th className="border border-[#1b3d18] px-2 py-1.5 text-center font-semibold min-w-[70px]">
                             HS TIME
                           </th>
-                          <th className="border border-[#1b3d18] px-2 py-1.5 text-center font-bold min-w-[65px]">
+                          <th className="border border-[#1b3d18] px-2 py-1.5 text-center font-semibold min-w-[65px]">
                             HS - %
                           </th>
                         </React.Fragment>
@@ -855,7 +855,7 @@ export function DailyHubstaffReportModal({
                         className="hover:bg-slate-50 transition-colors"
                       >
                         {/* Serial Number Column */}
-                        <td className="border border-[#1b3d18] px-2 py-1.5 text-center font-bold bg-[#fbfdfa] text-slate-800">
+                        <td className="border border-[#1b3d18] px-2 py-1.5 text-center font-semibold bg-[#fbfdfa] text-slate-800">
                           {rIdx + 1}
                         </td>
 
@@ -878,7 +878,7 @@ export function DailyHubstaffReportModal({
                           return (
                             <React.Fragment key={`${dept.name}-${m.user_id}-${rIdx}`}>
                               {/* Member Name */}
-                              <td className="border border-[#1b3d18] px-2.5 py-1.5 text-left font-bold text-slate-900 whitespace-nowrap bg-white">
+                              <td className="border border-[#1b3d18] px-2.5 py-1.5 text-left font-semibold text-slate-900 whitespace-nowrap bg-white">
                                 {m.name}
                               </td>
 
@@ -904,7 +904,7 @@ export function DailyHubstaffReportModal({
 
                               {/* HS - % with Yellow Highlighting on Low Activity */}
                               <td
-                                className={`border border-[#1b3d18] px-2 py-1.5 text-center whitespace-nowrap font-bold ${
+                                className={`border border-[#1b3d18] px-2 py-1.5 text-center whitespace-nowrap font-semibold ${
                                   isLow
                                     ? "bg-[#ffff00] text-black ring-1 ring-inset ring-amber-400/50"
                                     : "bg-white text-slate-800"
@@ -920,22 +920,22 @@ export function DailyHubstaffReportModal({
                     ))}
 
                     {/* ── AVERAGE SUMMARY ROW ── */}
-                    <tr className="bg-[#cae8c5] font-bold text-slate-900 border-t-2 border-[#1b3d18]">
-                      <td className="border border-[#1b3d18] px-2 py-2 text-center font-extrabold bg-[#a8d5a2]">
+                    <tr className="bg-[#cae8c5] font-semibold text-slate-900 border-t-2 border-[#1b3d18]">
+                      <td className="border border-[#1b3d18] px-2 py-2 text-center font-semibold bg-[#a8d5a2]">
                         Average
                       </td>
                       {activeDepartments.map((dept) => (
                         <React.Fragment key={`${dept.name}-average-row`}>
-                          <td className="border border-[#1b3d18] px-2 py-2 text-left font-bold">
+                          <td className="border border-[#1b3d18] px-2 py-2 text-left font-semibold">
                             Average
                           </td>
-                          <td className="border border-[#1b3d18] px-2 py-2 text-center font-bold">
+                          <td className="border border-[#1b3d18] px-2 py-2 text-center font-semibold">
                             {dept.averages.floor_time}
                           </td>
-                          <td className="border border-[#1b3d18] px-2 py-2 text-center font-bold">
+                          <td className="border border-[#1b3d18] px-2 py-2 text-center font-semibold">
                             {dept.averages.hs_time}
                           </td>
-                          <td className="border border-[#1b3d18] px-2 py-2 text-center font-bold">
+                          <td className="border border-[#1b3d18] px-2 py-2 text-center font-semibold">
                             {dept.averages.hs_percent}
                           </td>
                         </React.Fragment>
@@ -946,7 +946,7 @@ export function DailyHubstaffReportModal({
                     <tr className="bg-[#1b3d18] text-white">
                       <td
                         colSpan={1 + activeDepartments.length * 4}
-                        className="border border-[#1b3d18] py-2.5 px-4 text-left text-xs font-bold tracking-wide"
+                        className="border border-[#1b3d18] py-2.5 px-4 text-left text-xs font-semibold"
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-emerald-300">

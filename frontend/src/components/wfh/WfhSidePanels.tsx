@@ -20,7 +20,7 @@ export function GuidelinesCard() {
         <div className="portal-accent-tint-strong portal-accent-text flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
           <BookOpen className="h-5 w-5" />
         </div>
-        <h3 className="text-lg font-extrabold text-[#0B1F4B] dark:text-white">WFH Guidelines</h3>
+        <h3 className="text-lg font-semibold text-[#0B1F4B] dark:text-white">WFH Guidelines</h3>
       </div>
       <ul className="mt-5 space-y-4">
         {GUIDELINES.map((text) => (
@@ -43,7 +43,7 @@ export function NeedHelpCard() {
         <Lightbulb className="h-6 w-6" />
       </div>
       <div>
-        <h3 className="text-lg font-extrabold text-amber-800 dark:text-amber-300">Need Help?</h3>
+        <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-300">Need Help?</h3>
         <p className="mt-1 text-[15px] leading-snug text-slate-600 dark:text-slate-300">
           For any clarifications, please reach out to HR or your Team Lead.
         </p>
@@ -113,12 +113,12 @@ export function RecentRequestsCard({ requests, onViewAll }: RecentRequestsCardPr
           <div className="portal-accent-tint-strong portal-accent-text flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
             <Clock className="h-5 w-5" />
           </div>
-          <h3 className="text-base font-extrabold text-[#0B1F4B] dark:text-white">Your Recent WFH Requests</h3>
+          <h3 className="text-base font-semibold text-[#0B1F4B] dark:text-white">Your Recent WFH Requests</h3>
         </div>
         <button
           type="button"
           onClick={onViewAll}
-          className="portal-accent-text shrink-0 text-sm font-bold hover:underline cursor-pointer"
+          className="portal-accent-text shrink-0 text-sm font-semibold hover:underline cursor-pointer"
         >
           View All
         </button>
@@ -140,14 +140,14 @@ export function RecentRequestsCard({ requests, onViewAll }: RecentRequestsCardPr
               return (
                 <li key={r.id} className="flex items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">{formatRequestDate(r)}</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{formatRequestDate(r)}</p>
                     <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                       {TYPE_LABEL[r.duration_type || "Full"] ?? r.duration_type}
                     </p>
                   </div>
                   <span
                     title={pill.title}
-                    className={`shrink-0 rounded-md px-2.5 py-1 text-xs font-bold ${pill.className}`}
+                    className={`shrink-0 rounded-md px-2.5 py-1 text-xs font-semibold ${pill.className}`}
                   >
                     {pill.label}
                   </span>
