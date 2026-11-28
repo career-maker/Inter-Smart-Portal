@@ -139,7 +139,7 @@ export default function LoginPage() {
   if (isCheckingAuth) {
     return (
       <div className="flex min-h-screen w-screen items-center justify-center bg-[#181d24]">
-        <span className="inline-block h-8 w-8 border-2 border-white/20 border-t-amber-400 rounded-full animate-spin" />
+        <span className="inline-block h-8 w-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
       </div>
     );
   }
@@ -174,9 +174,6 @@ export default function LoginPage() {
       {/* Video overlay to darken it - semi-transparent black overlay for readability */}
       <div className="absolute inset-0 backdrop-blur-[0.5px]" style={{ zIndex: 2, backgroundColor: 'rgba(0,0,0,0.55)' }}></div>
 
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 opacity-20 overflow-hidden pointer-events-none" style={{ zIndex: 3 }}>
-      </div>
       {/* Left branding panel */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative overflow-hidden" style={{ zIndex: 10 }}>
         <div className="flex items-center gap-3">
@@ -193,7 +190,7 @@ export default function LoginPage() {
             ) : (
               <>
                 Your workspace,<br />
-                <span className="text-amber-400">all in one place.</span>
+                <span className="text-slate-300">all in one place</span>
               </>
             )}
           </h1>
@@ -225,20 +222,20 @@ export default function LoginPage() {
             <div className="flex justify-end mb-4">
               <a
                 href="mailto:hr@intersmart.in"
-                className="text-xs !text-amber-400 hover:!text-amber-300 font-semibold transition flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-lg"
+                className="text-xs text-slate-300 hover:text-white transition-colors inline-flex items-center gap-1.5 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
-                <Mail className="w-3.5 h-3.5 !text-amber-400" />
-                <span className="!text-amber-400">Need help?</span>
+                <Mail aria-hidden="true" className="w-3.5 h-3.5" />
+                <span>Need help?</span>
               </a>
             </div>
 
             <div className="mb-8">
-              <h2 className="text-2xl font-semibold text-white mb-1">Welcome Back! Let&apos;s Get Started</h2>
-              <p className="text-slate-400 text-sm">Enter your official email and password to continue.</p>
+              <h2 className="text-2xl font-medium text-white mb-1">Sign in</h2>
+              <p className="text-slate-300 text-sm">Use your official email and password</p>
             </div>
 
             {error && (
-              <div className="mb-5 p-3.5 bg-rose-950/90 border border-rose-500/70 rounded-xl text-xs font-semibold !text-rose-100 flex items-start gap-2.5 shadow-lg shadow-rose-950/40 animate-slideDown">
+              <div role="alert" className="mb-5 p-3.5 bg-rose-950/90 border border-rose-500/60 rounded-lg text-[13px] !text-rose-100 flex items-start gap-2.5">
                 {getErrorIcon(error)}
                 <span className="!text-rose-100 leading-snug font-medium">{error}</span>
               </div>
@@ -321,7 +318,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-2 flex items-center justify-center gap-2 py-3 px-6 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-700 disabled:cursor-not-allowed text-slate-900 font-semibold rounded-xl transition duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+                className="w-full mt-2 flex items-center justify-center gap-2 py-3 px-6 bg-[var(--portal-primary-color)] hover:bg-[var(--portal-hover-color)] disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
               >
                 {isLoading ? (
                   <span className="inline-block h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
